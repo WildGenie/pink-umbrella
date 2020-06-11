@@ -4,7 +4,7 @@ using seattle.Models;
 
 namespace seattle.Services
 {
-    public class SimpleUserProfileService
+    public class UserProfileService
     {
         private static int NextId = 1;
 
