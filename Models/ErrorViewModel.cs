@@ -1,6 +1,6 @@
 using System;
 
-namespace seattle.git.Models
+namespace seattle.Models
 {
     public class ErrorViewModel
     {

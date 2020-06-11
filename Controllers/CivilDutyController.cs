@@ -9,11 +9,11 @@ using seattle.Models;
 
 namespace seattle.Controllers
 {
-    public class HomeController : Controller
+    public class CivicDutyController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<CivicDutyController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public CivicDutyController(ILogger<CivicDutyController> logger)
         {
             _logger = logger;
         }
