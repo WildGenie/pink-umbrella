@@ -92,17 +92,17 @@ namespace seattle.Services
             var category = RandomCategory();
             var name = NameForCategory(category);
             return new SimpleResourceModel() {
-                id = NextId++,
+                Id = NextId++,
                 Brand = RandomBrand(),
                 Category = category,
                 Name = name,
                 Description = DescriptionForCategoryAndName(category, name),
                 Units = UnitsForCategoryAndName(category, name),
                 Amount = AmountForCategoryAndName(category, name),
-                forked_from_id = 0,
-                created_by_user_id = 0,
-                inventory_id = 0,
-                mipmap_id = 0,
+                ForkedFromId = 0,
+                CreatedByUserId = 0,
+                InventoryId = 0,
+                MipmapId = 0,
             };
         }
 

@@ -1,13 +1,22 @@
+using System;
 using System.Collections.Generic;
 using seattle.Models;
+using seattle.ViewModels.Account;
 
 namespace seattle.Services.Sql
 {
     public class UserProfileService : IUserProfileService
     {
-        public UserProfileModel CreateUser(UserProfileModel initial)
+        public UserProfileModel CreateUser(RegisterInputModel input)
         {
-            throw new System.NotImplementedException();
+            return new UserProfileModel {
+                UserName = input.Email,
+                Email = input.Email,
+                Handle = input.Handle,
+                DisplayName = input.DisplayName,
+                WhenCreated = DateTime.UtcNow,
+                Bio = "",
+            };
         }
 
         public void DeleteUser(int id, int by_user_id)
@@ -26,6 +35,11 @@ namespace seattle.Services.Sql
         }
 
         public UserProfileModel GetUser(string handle)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void LogIn(int id, string from)
         {
             throw new System.NotImplementedException();
         }

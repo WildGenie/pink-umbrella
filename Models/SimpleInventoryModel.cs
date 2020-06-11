@@ -1,3 +1,7 @@
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace seattle.Models
 {
     public class SimpleInventoryModel
@@ -7,6 +11,7 @@ namespace seattle.Models
         public double Latitude { get; set; }
         public double Longitude { get; set; }
         
+        [NotMapped]
         public GeoLocationModel GeoLocation { get; set; }
     }
 }

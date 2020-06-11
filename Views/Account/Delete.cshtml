@@ -1,0 +1,40 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<UserProfileModel> SignInManager
+@inject UserManager<UserProfileModel> UserManager
+@model seattle.ViewModels.Account.DeleteAccountViewModel
+@{
+    ViewData["Title"] = "Personal Data";
+    var RequirePassword = Context.Items.ContainsKey("RequirePassword") ? (bool)Context.Items["RequirePassword"] : true;
+}
+
+<partial name="_Header" />
+<div class="alert alert-warning" role="alert">
+    <p>
+        <span class="glyphicon glyphicon-warning-sign"></span>
+        <strong>Warning: deleting account</strong>
+    </p>
+</div>
+
+<div>
+    <form id="delete-user" method="post" class="form-group">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        @if (RequirePassword)
+        {
+            <div class="form-group">
+                <label asp-for="CurrentPassword"></label>
+                <input asp-for="CurrentPassword" class="form-control" />
+                <span asp-validation-for="CurrentPassword" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ConfirmPassword"></label>
+                <input asp-for="ConfirmPassword" class="form-control" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+        }
+        <button class="btn btn-danger" type="submit">Delete</button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

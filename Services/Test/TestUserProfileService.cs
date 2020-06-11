@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using seattle.Models;
+using seattle.ViewModels.Account;
 
 namespace seattle.Services.Test
 {
@@ -23,7 +24,6 @@ namespace seattle.Services.Test
         private UserProfileModel RandomTestUser()
         {
             var ret = NewUser();
-            ret.Id = NextId++;
             ret.Handle = RandomHandle();
             ret.DisplayName = RandomDisplayName();
             ret.Bio = RandomBio();
@@ -48,8 +48,7 @@ namespace seattle.Services.Test
         private UserProfileModel NewUser()
         {
             return new UserProfileModel() {
-                Id = NextId++,
-                ProfileVisibility = Visibility.VISIBLE_TO_WORLD,
+                Visibility = Visibility.VISIBLE_TO_WORLD,
                 WhenCreated = DateTime.UtcNow,
                 WhenLastLoggedIn = DateTime.UtcNow,
                 WhenLastLoggedInVisibility = Visibility.VISIBLE_TO_WORLD,
@@ -88,6 +87,16 @@ namespace seattle.Services.Test
         public List<UserProfileModel> SearchUsers(string text, PaginationModel pagination)
         {
             throw new System.NotImplementedException();
+        }
+
+        public void LogIn(int id, string from)
+        {
+            throw new NotImplementedException();
+        }
+
+        public UserProfileModel CreateUser(RegisterInputModel initial)
+        {
+            throw new NotImplementedException();
         }
     }
 }

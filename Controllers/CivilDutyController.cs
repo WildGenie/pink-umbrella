@@ -4,16 +4,20 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using seattle.Models;
+using seattle.Services;
 
 namespace seattle.Controllers
 {
-    public class CivicDutyController : Controller
+    public class CivicDutyController : BaseController
     {
         private readonly ILogger<CivicDutyController> _logger;
 
-        public CivicDutyController(ILogger<CivicDutyController> logger)
+        public CivicDutyController(ILogger<CivicDutyController> logger, SignInManager<UserProfileModel> signInManager,
+            UserManager<UserProfileModel> userManager, IFeedService feeds, IUserProfileService userProfiles):
+            base(signInManager, userManager, feeds, userProfiles)
         {
             _logger = logger;
         }

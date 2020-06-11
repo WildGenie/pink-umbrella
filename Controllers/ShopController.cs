@@ -4,16 +4,20 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using seattle.Models;
+using seattle.Services;
 
 namespace seattle.Controllers
 {
-    public class ShopController : Controller
+    public class ShopController : BaseController
     {
         private readonly ILogger<ShopController> _logger;
 
-        public ShopController(ILogger<ShopController> logger)
+        public ShopController(ILogger<ShopController> logger, SignInManager<UserProfileModel> signInManager,
+            UserManager<UserProfileModel> userManager, IFeedService feeds, IUserProfileService userProfiles):
+            base(signInManager, userManager, feeds, userProfiles)
         {
             _logger = logger;
         }

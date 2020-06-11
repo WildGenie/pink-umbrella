@@ -1,0 +1,27 @@
+﻿@using Microsoft.AspNetCore.Http.Features
+@using seattle.Services;
+@model seattle.ViewModels.Account.IndexViewModel
+@{
+    var consentFeature = Context.Features.Get<ITrackingConsentFeature>();
+    var showBanner = !consentFeature?.CanTrack ?? false;
+    var cookieString = consentFeature?.CreateConsentCookie();
+    ViewData["Title"] = "Account";
+}
+@*Html.Partial("_StatusMessage", Model.StatusMessage)*@
+<partial name="_Header" />
+<div class="row" style="margin-top: 12px; margin-bottom: 12px;">
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <partial name="_AccountFormAccessibility" model="Model" />
+    </div>
+    <div class="col-md-6">
+        <partial name="_AccountForm" model="Model" />
+    </div>
+</div>
+<partial name="_AccountUsage" model="Model" />
+<partial name="_AccountStatistics" model="Model" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using seattle.Models;
+using seattle.ViewModels.Account;
 
 namespace seattle.Services
 {
@@ -13,8 +14,10 @@ namespace seattle.Services
 
         UserProfileModel GetUser(string handle);
 
-        UserProfileModel CreateUser(UserProfileModel initial);
+        UserProfileModel CreateUser(RegisterInputModel initial);
 
         void DeleteUser(int id, int by_user_id);
+
+        void LogIn(int id, string from);
     }
 }
