@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 using seattle.Services;
+using seattle.Services.Sql;
 
 namespace seattle
 {
@@ -24,9 +25,11 @@ namespace seattle
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<GeoLocationService>();
-            services.AddSingleton<UserProfileService>();
-            services.AddSingleton<SimpleResourceService>();
+            services.AddSingleton<IGeoLocationService, GeoLocationService>();
+            services.AddSingleton<IUserProfileService, UserProfileService>();
+            services.AddSingleton<ISimpleResourceService, SimpleResourceService>();
+            services.AddSingleton<IPostService, PostService>();
+            services.AddSingleton<IFeedService, FeedService>();
             services.AddControllersWithViews();
         }
 

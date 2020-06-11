@@ -1,8 +1,13 @@
+using System;
+
 namespace seattle.Models
 {
     public class SimpleResourceModel
     {
         public int id { get; set; }
+        public DateTime WhenCreated { get; set; }
+        public DateTime? WhenDeleted { get; set; }
+        public int DeletedByUserId { get; set; }
         public int mipmap_id { get; set; }
         public int inventory_id { get; set; }
         public int forked_from_id { get; set; }

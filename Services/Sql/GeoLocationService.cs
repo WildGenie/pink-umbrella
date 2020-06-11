@@ -1,8 +1,8 @@
 using seattle.Models;
 
-namespace seattle.Services
+namespace seattle.Services.Sql
 {
-    public class GeoLocationService
+    public class GeoLocationService: IGeoLocationService
     {
         public GeoLocationModel Get(int id) {
             return new GeoLocationModel();

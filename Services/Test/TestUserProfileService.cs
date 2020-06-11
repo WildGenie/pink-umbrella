@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using seattle.Models;
 
-namespace seattle.Services
+namespace seattle.Services.Test
 {
-    public class UserProfileService
+    public class TestUserProfileService: IUserProfileService
     {
         private static int NextId = 1;
 
@@ -58,6 +58,36 @@ namespace seattle.Services
                 BioVisibility = Visibility.VISIBLE_TO_WORLD,
                 Bio = ""
             };
+        }
+        
+        public UserProfileModel CreateUser(UserProfileModel initial)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void DeleteUser(int id, int by_user_id)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public List<UserProfileModel> GetMostRecentlyCreatedUsers()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public UserProfileModel GetUser(int id)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public UserProfileModel GetUser(string handle)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public List<UserProfileModel> SearchUsers(string text, PaginationModel pagination)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

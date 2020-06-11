@@ -4,7 +4,7 @@ using seattle.Models;
 
 namespace seattle.Services
 {
-    public class SimpleResourceService
+    public class TestSimpleResourceService: ISimpleResourceService
     {
         private static Random rand = new Random();
         private static string[] Brands = { "Unicorn", "Rainbow", "Hot Cakes", "LaLaLatte", "The People's" };
@@ -119,5 +119,45 @@ namespace seattle.Services
         private string UnitsForCategoryAndName(string category, string name) { return ItemUnits.TryGetValue(name, out var unit) ? unit : "Unit"; }
 
         private string DescriptionForCategoryAndName(string category, string name) { return ItemUnits.TryGetValue(name, out var unit) ? unit : "Default description"; }
+
+        public List<SimpleResourceModel> GetAllForUser(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<SimpleResourceModel> QueryInventory(int id, string text, PaginationModel pagination)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<SimpleResourceModel> QueryAll(string text, PaginationModel pagination)
+        {
+            throw new NotImplementedException();
+        }
+
+        public SimpleResourceModel GetResource(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public SimpleResourceModel CreateResource(SimpleResourceModel initial)
+        {
+            throw new NotImplementedException();
+        }
+
+        public SimpleResourceModel ForkResource(int id, int inventoryId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UpdateAmount(int id, double newAmount)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DeleteResource(int id, int by_user_id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

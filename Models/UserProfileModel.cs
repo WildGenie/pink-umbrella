@@ -9,6 +9,8 @@ namespace seattle.Models
         public Visibility ProfileVisibility { get; set; }
 
         public DateTime WhenCreated { get; set; }
+        public DateTime? WhenDeleted { get; set; }
+        public int DeletedByUserId { get; set; }
         public DateTime WhenLastLoggedIn { get; set; }
         public Visibility WhenLastLoggedInVisibility { get; set; }
         public DateTime WhenLastOnline { get; set; }
