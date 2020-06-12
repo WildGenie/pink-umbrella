@@ -39,5 +39,26 @@ namespace seattle.Models
 
         [DefaultValue(1)]
         public double Amount { get; set; }
+
+
+        public SimpleResourceModel() {
+
+        }
+
+        public SimpleResourceModel(SimpleResourceModel other) {
+            Id = other.Id;
+            WhenCreated = other.WhenCreated;
+            WhenDeleted = other.WhenDeleted;
+            DeletedByUserId = other.DeletedByUserId;
+            MipmapId = other.MipmapId;
+            ForkedFromId = other.ForkedFromId;
+            CreatedByUserId = other.CreatedByUserId;
+            Category = other.Category;
+            Name = other.Name;
+            Brand = other.Brand;
+            Description = other.Description;
+            Units = other.Units;
+            Amount = other.Amount;
+        }
     }
 }

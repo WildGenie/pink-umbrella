@@ -31,16 +31,5 @@ namespace seattle.Controllers
                 MyFeed = await _feeds.GetFeedForUser(0, 0, false, new PaginationModel() { count = 10, start = 0 })
             });
         }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
     }
 }

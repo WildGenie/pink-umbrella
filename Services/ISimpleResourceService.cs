@@ -1,24 +1,23 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using seattle.Models;
 
 namespace seattle.Services
 {
     public interface ISimpleResourceService
     {
-        List<SimpleResourceModel> GetAllForUser(int id);
+        Task<List<SimpleResourceModel>> GetAllForUser(int id);
 
-        List<SimpleResourceModel> QueryInventory(int id, string text, PaginationModel pagination);
+        Task<List<SimpleResourceModel>> QueryInventory(int userId, int inventoryId, string text, PaginationModel pagination);
 
-        List<SimpleResourceModel> QueryAll(string text, PaginationModel pagination);
+        Task<SimpleResourceModel> GetResource(int id);
 
-        SimpleResourceModel GetResource(int id);
+        Task<SimpleResourceModel> CreateResource(SimpleResourceModel initial);
 
-        SimpleResourceModel CreateResource(SimpleResourceModel initial);
+        Task<SimpleResourceModel> ForkResource(int id, int userId, int inventoryId);
 
-        SimpleResourceModel ForkResource(int id, int inventoryId);
+        Task UpdateAmount(int id, double newAmount);
 
-        void UpdateAmount(int id, double newAmount);
-
-        void DeleteResource(int id, int by_user_id);
+        Task DeleteResource(int id, int by_user_id);
     }
 }

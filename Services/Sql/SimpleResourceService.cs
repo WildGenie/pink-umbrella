@@ -1,48 +1,76 @@
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using seattle.Models;
+using seattle.Repositories;
 
 namespace seattle.Services.Sql
 {
     public class SimpleResourceService : ISimpleResourceService
     {
-        public SimpleResourceModel CreateResource(SimpleResourceModel initial)
-        {
-            throw new System.NotImplementedException();
+        private readonly SimpleDbContext _dbContext;
+
+        public SimpleResourceService(SimpleDbContext dbContext) {
+            _dbContext = dbContext;
         }
 
-        public void DeleteResource(int id, int by_user_id)
+        public async Task<SimpleResourceModel> CreateResource(SimpleResourceModel initial)
         {
-            throw new System.NotImplementedException();
+            _dbContext.Resources.Add(initial);
+            await _dbContext.SaveChangesAsync();
+            return initial;
         }
 
-        public SimpleResourceModel ForkResource(int id, int inventoryId)
+        public async Task DeleteResource(int id, int by_user_id)
         {
-            throw new System.NotImplementedException();
+            var res = await _dbContext.Resources.FindAsync(id);
+            if (res != null) {
+                res.WhenDeleted = DateTime.UtcNow;
+                res.DeletedByUserId = by_user_id;
+                await _dbContext.SaveChangesAsync();
+            }
         }
 
-        public List<SimpleResourceModel> GetAllForUser(int id)
+        public async Task<SimpleResourceModel> ForkResource(int id, int userId, int inventoryId)
         {
-            throw new System.NotImplementedException();
+            var r = new SimpleResourceModel(await _dbContext.Resources.FindAsync(id));
+            r.Id = -1;
+            r.ForkedFromId = id;
+            r.CreatedByUserId = userId;
+            r.DeletedByUserId = null;
+            r.WhenDeleted = null;
+            r.WhenCreated = DateTime.UtcNow;
+            r.InventoryId = inventoryId;
+
+            _dbContext.Resources.Add(r);
+            await _dbContext.SaveChangesAsync();
+            return r;
         }
 
-        public SimpleResourceModel GetResource(int id)
+        public async Task<List<SimpleResourceModel>> GetAllForUser(int id)
         {
-            throw new System.NotImplementedException();
+            var invs = await _dbContext.Inventories.Where(i => i.OwnerUserId == id).ToListAsync();
+            return invs.SelectMany(i => _dbContext.Resources.Where(r => r.InventoryId == i.Id)).ToList();
         }
 
-        public List<SimpleResourceModel> QueryAll(string text, PaginationModel pagination)
+        public async Task<SimpleResourceModel> GetResource(int id)
         {
-            throw new System.NotImplementedException();
+            return await _dbContext.Resources.FindAsync(id);
         }
 
-        public List<SimpleResourceModel> QueryInventory(int id, string text, PaginationModel pagination)
+        public async Task<List<SimpleResourceModel>> QueryInventory(int userId, int inventoryId, string text, PaginationModel pagination)
         {
-            throw new System.NotImplementedException();
+            var forUser = await GetAllForUser(userId);
+            return forUser.Where(r => r.Name.Contains(text)).ToList();
         }
 
-        public void UpdateAmount(int id, double newAmount)
+        public async Task UpdateAmount(int id, double newAmount)
         {
-            throw new System.NotImplementedException();
+            var r = await _dbContext.Resources.FindAsync(id);
+            r.Amount = newAmount;
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

@@ -43,6 +43,7 @@ namespace seattle
             services.AddScoped<IGeoLocationService, GeoLocationService>();
             services.AddScoped<IUserProfileService, UserProfileService>();
             services.AddScoped<ISimpleResourceService, SimpleResourceService>();
+            services.AddScoped<ISimpleInventoryService, SimpleInventoryService>();
             services.AddScoped<IPostService, PostService>();
             services.AddScoped<IFeedService, FeedService>();
 
