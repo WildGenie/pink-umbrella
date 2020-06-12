@@ -36,7 +36,7 @@ namespace seattle.Controllers
 
             return View(new IndexViewModel()
             {
-                User = user
+                MyProfile = user
             });
         }
 
@@ -419,6 +419,26 @@ namespace seattle.Controllers
             }
             //AddErrors(result);
             return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateEmail(string email)
+        {
+            var user = await GetCurrentUserAsync();
+            user.Email = email;
+            await _userManager.UpdateAsync(user);
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateProfile([Bind] UserProfileModel MyProfile)
+        {
+            var user = await GetCurrentUserAsync();
+            user.DisplayName = MyProfile.DisplayName;
+            user.Handle = MyProfile.Handle;
+            user.Bio = MyProfile.Bio;
+            await _userManager.UpdateAsync(user);
+            return RedirectToAction(nameof(Index));
         }
     }
 }

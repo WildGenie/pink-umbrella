@@ -8,6 +8,7 @@
     var controllerName = (string) ViewData["Controller"];
     var actionName = (string) ViewData["Action"];
     var homeLiClass = controllerName == "Home" && actionName == "Index" ? "selected" : "";
+    var accountLiClass = controllerName == "Account" && actionName == "Index" ? "selected" : "";
     var searchLiClass = controllerName == "Home" && actionName == "Search" ? "selected" : "";
     var profileLiClass = controllerName == "Profile" ? "selected" : "";
     var inventoryLiClass = controllerName == "Inventory" ? "selected" : "";
@@ -44,6 +45,9 @@
                         </li>
                         @if (SignInManager.IsSignedIn(User)) 
                         {
+                            <li class="nav-item @accountLiClass">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Index">Account</a>
+                            </li>
                             <li class="nav-item @profileLiClass">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Profile" asp-action="Index">Profile</a>
                             </li>

@@ -2,8 +2,7 @@ using seattle.Models;
 
 namespace seattle.ViewModels.Account
 {
-    public class IndexViewModel
+    public class IndexViewModel: BaseViewModel
     {
-        public UserProfileModel User { get; set; }
     }
 }

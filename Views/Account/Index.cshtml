@@ -8,19 +8,16 @@
     ViewData["Title"] = "Account";
 }
 @*Html.Partial("_StatusMessage", Model.StatusMessage)*@
-<partial name="_Header" />
-<div class="row" style="margin-top: 12px; margin-bottom: 12px;">
-</div>
+
 <div class="row">
     <div class="col-md-6">
-        <partial name="_AccountFormAccessibility" model="Model" />
+        <partial name="_AccountForm" />
     </div>
     <div class="col-md-6">
-        <partial name="_AccountForm" model="Model" />
+        <partial name="_ProfileForm" />
     </div>
+    <div class="col-md-12"><hr></div>
 </div>
-<partial name="_AccountUsage" model="Model" />
-<partial name="_AccountStatistics" model="Model" />
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

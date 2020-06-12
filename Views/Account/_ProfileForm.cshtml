@@ -1,0 +1,20 @@
+﻿@model seattle.ViewModels.Account.IndexViewModel
+<form asp-controller="Account" asp-action="UpdateProfile" method="POST">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="MyProfile.DisplayName">Display Name</label>
+        <input asp-for="MyProfile.DisplayName" class="form-control" />
+        <span asp-validation-for="MyProfile.DisplayName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="MyProfile.Handle"></label>
+        <input asp-for="MyProfile.Handle" class="form-control" />
+        <span asp-validation-for="MyProfile.Handle" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="MyProfile.Bio"></label>
+        <input asp-for="MyProfile.Bio" class="form-control" />
+        <span asp-validation-for="MyProfile.Bio" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-success">Update Profile</button>
+</form>
