@@ -9,8 +9,8 @@ using seattle.Repositories;
 namespace seattle.Migrations
 {
     [DbContext(typeof(SimpleDbContext))]
-    [Migration("20200611221038_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20200612180350_New Initial")]
+    partial class NewInitial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -133,10 +133,19 @@ namespace seattle.Migrations
                     b.Property<int?>("DeletedByUserId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("DislikeCount")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("IsReply")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("LikeCount")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("PostType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ReportCount")
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("ShadowBanned")
@@ -153,9 +162,6 @@ namespace seattle.Migrations
 
                     b.Property<DateTime?>("WhenDeleted")
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("WhoCanReply")
-                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -177,10 +183,36 @@ namespace seattle.Migrations
                     b.ToTable("PostTags");
                 });
 
+            modelBuilder.Entity("seattle.Models.ReactionModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ToId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("WhenReacted")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ReactionModel");
+                });
+
             modelBuilder.Entity("seattle.Models.ShopModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("DislikeCount")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("DisplayName")
@@ -196,11 +228,23 @@ namespace seattle.Migrations
                         .HasColumnType("TEXT")
                         .HasMaxLength(100);
 
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("LikeCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ReportCount")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("UserId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Visibility")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("WhenCreated")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -213,6 +257,16 @@ namespace seattle.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(1000);
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(100);
+
                     b.Property<double>("Latitude")
                         .HasColumnType("REAL");
 
@@ -221,6 +275,9 @@ namespace seattle.Migrations
 
                     b.Property<int>("OwnerUserId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("WhenCreated")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -359,6 +416,9 @@ namespace seattle.Migrations
                     b.Property<int?>("DeletedByUserId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("DislikeCount")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("DisplayName")
                         .IsRequired()
                         .HasColumnType("TEXT")
@@ -384,6 +444,9 @@ namespace seattle.Migrations
                         .HasColumnType("TEXT")
                         .HasMaxLength(30);
 
+                    b.Property<int>("LikeCount")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("INTEGER");
 
@@ -405,6 +468,9 @@ namespace seattle.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ReportCount")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("SecurityStamp")

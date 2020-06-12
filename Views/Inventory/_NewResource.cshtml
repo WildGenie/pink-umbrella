@@ -2,7 +2,7 @@
 @model NewResourceViewModel
 
 <form asp-action="NewResource" asp-controller="Inventory" method="POST">
-    @Html.HiddenFor(m => m.Resource.InventoryId)
+    <input type="hidden" value="@Model.Resource.InventoryId" name="Resource.InventoryId" />
     <div asp-validation-summary="All" class="text-danger"></div>
     <div class="form-group">
         <label asp-for="Resource.Category"></label>

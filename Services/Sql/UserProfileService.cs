@@ -41,7 +41,7 @@ namespace seattle.Services.Sql
             await _userManager.UpdateAsync(user);
         }
 
-        public List<UserProfileModel> GetMostRecentlyCreatedUsers()
+        public Task<List<UserProfileModel>> GetMostRecentlyCreatedUsers()
         {
             throw new System.NotImplementedException();
         }
@@ -62,11 +62,6 @@ namespace seattle.Services.Sql
             user.WhenLastLoggedIn = DateTime.UtcNow;
             user.WhenLastOnline = DateTime.UtcNow;
             await _userManager.UpdateAsync(user);
-        }
-
-        public List<UserProfileModel> SearchUsers(string text, PaginationModel pagination)
-        {
-            throw new System.NotImplementedException();
         }
     }
 }

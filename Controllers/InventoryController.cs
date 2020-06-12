@@ -70,6 +70,7 @@ namespace seattle.Controllers
                 Inventories = inventories,
                 Inventory = inventory,
             };
+            model.NewResource.Resource.InventoryId = id;
             return View(model);
         }
 

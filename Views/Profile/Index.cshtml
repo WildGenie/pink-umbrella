@@ -1,0 +1,11 @@
+﻿@using seattle.ViewModels.Profile
+@model IndexViewModel
+@{
+    ViewData["Title"] = Model.Profile.DisplayName;
+}
+
+<div class="text-center">
+    <h1 class="display-4">@ViewData["Title"]</h1>
+    <i>@@@Model.Profile.Handle</i>
+    <p>@Model.Profile.Bio</p>
+</div>

@@ -16,9 +16,6 @@ namespace seattle.Models
         public PostType PostType { get; set; }
         public bool IsReply { get; set; }
 
-        [DefaultValue(Visibility.VISIBLE_TO_REGISTERED)]
-        public Visibility WhoCanReply { get; set; }
-
         public DateTime WhenCreated { get; set; }
 
         [DefaultValue(null)]
@@ -33,7 +30,19 @@ namespace seattle.Models
         [DefaultValue(false)]
         public bool ShadowBanned { get; set; }
 
+        [DefaultValue(0)]
+        public int LikeCount { get; set; }
+
+        [DefaultValue(0)]
+        public int DislikeCount { get; set; }
+
+        [DefaultValue(0)]
+        public int ReportCount { get; set; }
+
         [StringLength(1000)]
         public string Content { get; set; }
+
+        [DefaultValue(0)]
+        public int NextInChain { get; set; }
     }
 }

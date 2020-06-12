@@ -1,0 +1,50 @@
+﻿@using seattle.ViewModels.Home
+@model SearchViewModel
+@{
+    ViewData["Title"] = "Search";
+}
+
+<div>
+    <form asp-action="Search" asp-controller="Home" method="get">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <div class="form-group">
+            <label asp-for="SearchText"></label>
+            <input asp-for="SearchText" name="q" class="form-control" />
+            <span asp-validation-for="SearchText" class="text-danger"></span>
+        </div>
+        <select asp-for="Order" asp-items="Html.GetEnumSelectList<SearchResultOrder>()"></select>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+    <p>@Model.Results.TotalResults results</p>
+</div>
+
+<div>
+    @foreach (var result in Model.Results.Results) {
+        <hr />
+        <div>
+            switch (result.Type)
+            {
+                SearchResultType.Profile:
+                <partial name="Profile/SearchResult" model="result.Value" />
+                break;
+                SearchResultType.Post:
+                <partial name="Post/SearchResult" model="result.Value" />
+                break;
+                SearchResultType.ArchiveMedia:
+                <partial name="Archive/SearchResult" model="result.Value" />
+                break;
+                SearchResultType.Inventory:
+                <partial name="Inventory/SearchResult" model="result.Value" />
+                break;
+                SearchResultType.CivicDuty:
+                <partial name="CivicDuty/SearchResult" model="result.Value" />
+                break;
+                SearchResultType.Shop:
+                <partial name="Shop/SearchResult" model="result.Value" />
+                break;
+                default:
+                <div>No view for @result.Type</div>
+            }
+        </div>
+    }
+</div>

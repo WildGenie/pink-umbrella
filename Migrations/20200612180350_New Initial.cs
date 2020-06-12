@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace seattle.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class NewInitial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -62,7 +62,10 @@ namespace seattle.Migrations
                     ExternalUsernameVisibilitiesJson = table.Column<string>(maxLength: 1000, nullable: true),
                     BanExpires = table.Column<DateTime>(nullable: true),
                     BanReason = table.Column<string>(maxLength: 1000, nullable: true),
-                    BannedByUserId = table.Column<int>(nullable: true)
+                    BannedByUserId = table.Column<int>(nullable: true),
+                    LikeCount = table.Column<int>(nullable: false),
+                    DislikeCount = table.Column<int>(nullable: false),
+                    ReportCount = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -77,7 +80,10 @@ namespace seattle.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     OwnerUserId = table.Column<int>(nullable: false),
                     Latitude = table.Column<double>(nullable: false),
-                    Longitude = table.Column<double>(nullable: false)
+                    Longitude = table.Column<double>(nullable: false),
+                    DisplayName = table.Column<string>(maxLength: 100, nullable: false),
+                    Description = table.Column<string>(maxLength: 1000, nullable: false),
+                    WhenCreated = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -94,12 +100,14 @@ namespace seattle.Migrations
                     Visibility = table.Column<int>(nullable: false),
                     PostType = table.Column<int>(nullable: false),
                     IsReply = table.Column<bool>(nullable: false),
-                    WhoCanReply = table.Column<int>(nullable: false),
                     WhenCreated = table.Column<DateTime>(nullable: false),
                     WhenDeleted = table.Column<DateTime>(nullable: true),
                     DeletedByUserId = table.Column<int>(nullable: true),
                     ContainsProfanity = table.Column<bool>(nullable: false),
                     ShadowBanned = table.Column<bool>(nullable: false),
+                    LikeCount = table.Column<int>(nullable: false),
+                    DislikeCount = table.Column<int>(nullable: false),
+                    ReportCount = table.Column<int>(nullable: false),
                     Content = table.Column<string>(maxLength: 1000, nullable: true)
                 },
                 constraints: table =>
@@ -118,6 +126,22 @@ namespace seattle.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PostTags", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ReactionModel",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    UserId = table.Column<int>(nullable: false),
+                    ToId = table.Column<int>(nullable: false),
+                    WhenReacted = table.Column<DateTime>(nullable: false),
+                    Type = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReactionModel", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -155,7 +179,12 @@ namespace seattle.Migrations
                     Visibility = table.Column<int>(nullable: false),
                     Handle = table.Column<string>(maxLength: 100, nullable: false),
                     DisplayName = table.Column<string>(maxLength: 200, nullable: false),
-                    GeoLocationId = table.Column<int>(nullable: false)
+                    GeoLocationId = table.Column<int>(nullable: false),
+                    WhenCreated = table.Column<DateTime>(nullable: false),
+                    LastUpdated = table.Column<DateTime>(nullable: false),
+                    LikeCount = table.Column<int>(nullable: false),
+                    DislikeCount = table.Column<int>(nullable: false),
+                    ReportCount = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -331,6 +360,9 @@ namespace seattle.Migrations
 
             migrationBuilder.DropTable(
                 name: "PostTags");
+
+            migrationBuilder.DropTable(
+                name: "ReactionModel");
 
             migrationBuilder.DropTable(
                 name: "Resources");

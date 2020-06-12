@@ -5,6 +5,7 @@ namespace seattle.Models
         Text,
         Image,
         Poll,
-        Event
+        Event,
+        Shop
     }
 }

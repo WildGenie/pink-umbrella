@@ -1,0 +1,9 @@
+﻿@using seattle.ViewModels.Home
+@model FeedModel
+
+<div>
+    @foreach (var result in Model.Posts) {
+        <hr />
+        <partial name="_FeedItem" model="result" />
+    }
+</div>

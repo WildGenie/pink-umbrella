@@ -68,5 +68,14 @@ namespace seattle.Models
 
         [DefaultValue(null), DisplayName("You Were Banned By User Id")]
         public int? BannedByUserId { get; set; }
+
+        [DefaultValue(0), DisplayName("Like Count")]
+        public int LikeCount { get; set; }
+
+        [DefaultValue(0), DisplayName("Dislike Count")]
+        public int DislikeCount { get; set; }
+
+        [DefaultValue(0), DisplayName("Report Count")]
+        public int ReportCount { get; set; }
     }
 }

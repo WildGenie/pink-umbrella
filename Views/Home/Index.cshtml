@@ -1,8 +1,17 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
+    var visibilities = new SelectList(Html.GetEnumSelectList<Visibility>(), "Value", "Text");
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">Welcome, @Model.MyProfile.DisplayName</h1>
+    <i>@@@Model.MyProfile.Handle</i>
+    <p>@Model.MyProfile.Bio</p>
 </div>
+<form asp-action="NewPost", asp-controller="Post" method="POST">
+    @Html.DropDownList("Visibility", visibilities)
+
+    <input name="content" placeholder="Speak your message..." />
+    <button type="submit">Post</button>
+</form>
+<partial name="_FeedList" model="Model.MyFeed" />

@@ -17,6 +17,8 @@ using seattle.Repositories;
 using seattle.Services;
 using seattle.Services.NoSql;
 using seattle.Services.Sql;
+using seattle.Services.Sql.React;
+using seattle.Services.Sql.Search;
 
 namespace seattle
 {
@@ -46,6 +48,17 @@ namespace seattle
             services.AddScoped<ISimpleInventoryService, SimpleInventoryService>();
             services.AddScoped<IPostService, PostService>();
             services.AddScoped<IFeedService, FeedService>();
+            services.AddScoped<IShopService, ShopService>();
+            
+            services.AddScoped<ISearchableService, SearchPostsService>();
+            services.AddScoped<ISearchableService, SearchProfilesService>();
+            services.AddScoped<ISearchableService, SearchShopsService>();
+            services.AddScoped<ISearchService, SearchService>();
+
+            services.AddScoped<IReactableService, PostReactionService>();
+            services.AddScoped<IReactableService, ShopReactionService>();
+            services.AddScoped<IReactableService, ProfileReactionService>();
+            services.AddScoped<IReactionService, ReactionService>();
 
             services.Configure<IdentityOptions>(options =>
             {

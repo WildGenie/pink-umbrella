@@ -9,28 +9,37 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using seattle.Models;
 using seattle.Services;
+using seattle.ViewModels.Shop;
 
 namespace seattle.Controllers
 {
     public class ShopController : BaseController
     {
         private readonly ILogger<ShopController> _logger;
+        private readonly IShopService _shops;
 
         public ShopController(IWebHostEnvironment environment, ILogger<ShopController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IFeedService feeds, IUserProfileService userProfiles):
+            UserManager<UserProfileModel> userManager, IFeedService feeds, IUserProfileService userProfiles, IShopService shops):
             base(environment, signInManager, userManager, feeds, userProfiles)
         {
             _logger = logger;
+            _shops = shops;
         }
 
-        public IActionResult Index()
+        //[Route("/Shop/{handle}")]
+        public async Task<IActionResult> Index(string handle = null)
         {
-            return View();
-        }
+            var user = await GetCurrentUserAsync();
+            var model = new ShopViewModel() {
+                MyProfile = user
+            };
+            
+            if (!string.IsNullOrWhiteSpace(handle))
+            {
+                model.Shop = await _shops.GetShopByHandle(handle);
+            }
 
-        public IActionResult Privacy()
-        {
-            return View();
+            return View(model);
         }
     }
 }

@@ -27,10 +27,5 @@ namespace seattle.Controllers
         {
             return View();
         }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
     }
 }

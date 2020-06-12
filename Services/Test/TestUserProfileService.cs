@@ -70,12 +70,12 @@ namespace seattle.Services.Test
             throw new System.NotImplementedException();
         }
 
-        public List<UserProfileModel> GetMostRecentlyCreatedUsers()
+        public Task<List<UserProfileModel>> GetMostRecentlyCreatedUsers()
         {
             throw new System.NotImplementedException();
         }
 
-        public List<UserProfileModel> SearchUsers(string text, PaginationModel pagination)
+        public Task<List<UserProfileModel>> SearchUsers(string text, PaginationModel pagination)
         {
             throw new System.NotImplementedException();
         }

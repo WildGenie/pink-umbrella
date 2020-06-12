@@ -1,15 +1,17 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using seattle.Models;
 
 namespace seattle.Services
 {
     public interface IPostService
     {
-        PostModel GetPost(int id);
-        List<PostModel> UserPosts(int userId, int viewerId, PaginationModel pagination);
+        Task<PostModel> GetPost(int id);
+        Task<List<PostModel>> UserPosts(int userId, int viewerId, PaginationModel pagination);
 
-        PostModel CreatePosts(List<PostModel> post_chain);
-        void DeletePost(int id, int userId);
-        void UpdateShadowBanStatus(int id, bool status);
+        Task<NewPostResult> TryCreatePosts(List<PostModel> post_chain);
+        Task<NewPostResult> TryCreateTextPosts(int userId, string[] post_chain, Visibility visibility);
+        Task DeletePost(int id, int userId);
+        Task UpdateShadowBanStatus(int id, bool status);
     }
 }

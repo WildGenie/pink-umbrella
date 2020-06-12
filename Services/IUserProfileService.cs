@@ -7,9 +7,7 @@ namespace seattle.Services
 {
     public interface IUserProfileService
     {
-        List<UserProfileModel> GetMostRecentlyCreatedUsers();
-
-        List<UserProfileModel> SearchUsers(string text, PaginationModel pagination);
+        Task<List<UserProfileModel>> GetMostRecentlyCreatedUsers();
 
         Task<UserProfileModel> GetUser(int id);
 

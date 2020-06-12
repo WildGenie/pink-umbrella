@@ -24,5 +24,18 @@ namespace seattle.Models
         public int GeoLocationId { get; set; }
         [NotMapped]
         public GeoLocationModel GeoLocation { get; set; }
+
+        public DateTime WhenCreated { get; set; }
+        
+        public DateTime LastUpdated { get; set; }
+        
+        [DefaultValue(0)]
+        public int LikeCount { get; set; }
+
+        [DefaultValue(0)]
+        public int DislikeCount { get; set; }
+
+        [DefaultValue(0)]
+        public int ReportCount { get; set; }
     }
 }
