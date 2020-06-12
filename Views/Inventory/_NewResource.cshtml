@@ -1,0 +1,53 @@
+﻿@using seattle.ViewModels.Inventory
+@model NewResourceViewModel
+
+<form asp-action="NewResource" asp-controller="Inventory" method="POST">
+    @Html.HiddenFor(m => m.Resource.InventoryId)
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="Resource.Category"></label>
+        <input list="datalist-Category" asp-for="Resource.Category" class="form-control" />
+        <datalist id="datalist-Category">
+            @foreach (var c in Model.AvailableCategories) {
+                <option value="@c">@c</option>
+            }
+        </datalist>
+        <span asp-validation-for="Resource.Category" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Resource.Name"></label>
+        <input asp-for="Resource.Name" class="form-control" />
+        <span asp-validation-for="Resource.Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Resource.Brand"></label>
+        <input list="datalist-Brand" asp-for="Resource.Brand" class="form-control" />
+        <datalist id="datalist-Brand">
+            @foreach (var b in Model.AvailableBrands) {
+                <option value="@b">@b</option>
+            }
+        </datalist>
+        <span asp-validation-for="Resource.Brand" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Resource.Description"></label>
+        <input asp-for="Resource.Description" class="form-control" />
+        <span asp-validation-for="Resource.Description" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Resource.Units"></label>
+        <input list="datalist-Unit" asp-for="Resource.Units" class="form-control" />
+        <datalist id="datalist-Unit">
+            @foreach (var u in Model.AvailableUnits) {
+                <option value="@u">@u</option>
+            }
+        </datalist>
+        <span asp-validation-for="Resource.Units" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Resource.Amount"></label>
+        <input asp-for="Resource.Amount" class="form-control" />
+        <span asp-validation-for="Resource.Amount" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Add</button>
+</form>

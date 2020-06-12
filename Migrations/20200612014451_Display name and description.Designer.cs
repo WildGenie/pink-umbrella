@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using seattle.Repositories;
 
 namespace seattle.Migrations
 {
     [DbContext(typeof(SimpleDbContext))]
-    partial class SimpleDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200612014451_Display name and description")]
+    partial class Displaynameanddescription
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -229,9 +231,6 @@ namespace seattle.Migrations
 
                     b.Property<int>("OwnerUserId")
                         .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("WhenCreated")
-                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 

@@ -1,0 +1,17 @@
+﻿@using seattle.ViewModels.Inventory
+@model IndexViewModel
+@{
+    ViewData["Title"] = "Inventory";
+}
+
+@if (Model.Inventories.Any()) {
+<div>
+    <partial name="_InventoryList" />
+    <h1 class="display-4">Resources from all inventories</h1>
+    <partial name="_ResourceList" model="Model" />
+</div>
+<hr />
+<partial name="_NewResourceIndex" />
+} else {
+<partial name="_NewInventory" model="Model.NewInventory" />
+}

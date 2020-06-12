@@ -1,0 +1,11 @@
+﻿@using seattle.ViewModels.Inventory
+@model IndexViewModel
+@{
+    ViewData["Title"] = Model;
+}
+<div>
+    <partial name="_InventoryList" />
+    <h1 class="display-4">Resources from @Model.Inventory.DisplayName</h1>
+    <partial name="_ResourceList" model="Model" />
+</div>
+<partial name="_NewResource" model="Model.NewResource" />

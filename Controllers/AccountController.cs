@@ -42,7 +42,8 @@ namespace seattle.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Login() => View();
+        public IActionResult Login() => 
+            _signInManager.IsSignedIn(HttpContext.User) ? (IActionResult) Redirect("/") : View();
 
         [HttpPost]
         [AllowAnonymous]

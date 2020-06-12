@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using seattle.Models;
 
@@ -121,39 +122,27 @@ namespace seattle.Services
 
         private string DescriptionForCategoryAndName(string category, string name) { return ItemUnits.TryGetValue(name, out var unit) ? unit : "Default description"; }
 
-        public Task<List<SimpleResourceModel>> GetAllForUser(int id)
-        {
-            throw new NotImplementedException();
-        }
+        public Task<List<SimpleResourceModel>> GetAllForUser(int id) => throw new NotImplementedException();
 
         public Task<List<SimpleResourceModel>> QueryInventory(int userId, int inventoryId, string text, PaginationModel pagination)
         {
             throw new NotImplementedException();
         }
 
-        public Task<SimpleResourceModel> GetResource(int id)
-        {
-            throw new NotImplementedException();
-        }
+        public Task<SimpleResourceModel> GetResource(int id) => throw new NotImplementedException();
 
-        public Task<SimpleResourceModel> CreateResource(SimpleResourceModel initial)
-        {
-            throw new NotImplementedException();
-        }
+        public Task<SimpleResourceModel> CreateResource(SimpleResourceModel initial) => throw new NotImplementedException();
 
-        public Task<SimpleResourceModel> ForkResource(int id, int userId, int inventoryId)
-        {
-            throw new NotImplementedException();
-        }
+        public Task<SimpleResourceModel> ForkResource(int id, int userId, int inventoryId) => throw new NotImplementedException();
 
-        public Task UpdateAmount(int id, double newAmount)
-        {
-            throw new NotImplementedException();
-        }
+        public Task UpdateAmount(int id, double newAmount) => throw new NotImplementedException();
 
-        public Task DeleteResource(int id, int by_user_id)
-        {
-            throw new NotImplementedException();
-        }
+        public Task DeleteResource(int id, int by_user_id) => throw new NotImplementedException();
+
+        public Task<List<string>> GetBrands() => Task.FromResult(Brands.ToList());
+
+        public Task<List<string>> GetCategories() => Task.FromResult(Categories.ToList());
+
+        public Task<List<string>> GetUnits() => Task.FromResult(ItemUnits.Values.Distinct().ToList());
     }
 }

@@ -1,0 +1,8 @@
+﻿@using seattle.ViewModels.Inventory
+@model IndexViewModel
+<ul class="highlight-selected">
+    @foreach (var r in Model.Resources) {
+        var liClass = r.Id == Model.SelectedId ? "selected" : "";
+        <li class="@liClass"><a asp-controller="Inventory" asp-action="Resource" asp-route-id="@r.Id">@r.Id - @r.Name</a></li>
+    }
+</ul>

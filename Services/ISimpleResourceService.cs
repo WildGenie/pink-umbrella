@@ -19,5 +19,11 @@ namespace seattle.Services
         Task UpdateAmount(int id, double newAmount);
 
         Task DeleteResource(int id, int by_user_id);
+        
+        Task<List<string>> GetBrands();
+        
+        Task<List<string>> GetCategories();
+        
+        Task<List<string>> GetUnits();
     }
 }

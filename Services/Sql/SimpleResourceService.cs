@@ -18,6 +18,8 @@ namespace seattle.Services.Sql
 
         public async Task<SimpleResourceModel> CreateResource(SimpleResourceModel initial)
         {
+            initial.WhenCreated = DateTime.UtcNow;
+            initial.Units ??= string.Empty;
             _dbContext.Resources.Add(initial);
             await _dbContext.SaveChangesAsync();
             return initial;
@@ -55,15 +57,34 @@ namespace seattle.Services.Sql
             return invs.SelectMany(i => _dbContext.Resources.Where(r => r.InventoryId == i.Id)).ToList();
         }
 
+        public Task<List<string>> GetBrands()
+        {
+            return _dbContext.Resources.Select(r => r.Brand).Distinct().ToListAsync();
+        }
+
+        public Task<List<string>> GetCategories()
+        {
+            return _dbContext.Resources.Select(r => r.Category).Distinct().ToListAsync();
+        }
+
         public async Task<SimpleResourceModel> GetResource(int id)
         {
             return await _dbContext.Resources.FindAsync(id);
         }
 
+        public Task<List<string>> GetUnits()
+        {
+            return _dbContext.Resources.Select(r => r.Units).Distinct().ToListAsync();
+        }
+
         public async Task<List<SimpleResourceModel>> QueryInventory(int userId, int inventoryId, string text, PaginationModel pagination)
         {
             var forUser = await GetAllForUser(userId);
-            return forUser.Where(r => r.Name.Contains(text)).ToList();
+            if (string.IsNullOrWhiteSpace(text)) {
+                return forUser;
+            } else {
+                return forUser.Where(r => r.Name.Contains(text)).ToList();
+            }
         }
 
         public async Task UpdateAmount(int id, double newAmount)

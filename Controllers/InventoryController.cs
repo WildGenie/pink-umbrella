@@ -33,19 +33,94 @@ namespace seattle.Controllers
         public async Task<IActionResult> Index(string queryText)
         {
             var user = await GetCurrentUserAsync();
-            return View(new IndexViewModel() {
+            var model = new IndexViewModel() {
                 MyProfile = await _userProfiles.GetUser(0),
                 Resources = await _resources.QueryInventory(user.Id, -1, queryText, new PaginationModel() { start = 0, count = 10 }),
-                Inventories = await _inventories.GetForUser(user.Id)
-            });
+                Inventories = await _inventories.GetForUser(user.Id),
+            };
+            model.NewResource.AvailableBrands = await _resources.GetBrands();
+            model.NewResource.AvailableCategories = await _resources.GetCategories();
+            model.NewResource.AvailableUnits = await _resources.GetUnits();
+            return View(model);
         }
 
         public async Task<IActionResult> IndexMore(string queryText, int start, int count)
         {
             var user = await GetCurrentUserAsync();
             return View(new IndexViewModel() {
-                MyProfile = await _userProfiles.GetUser(0),
+                MyProfile = await GetCurrentUserAsync(),
                 Resources = await _resources.QueryInventory(user.Id, -1, queryText, new PaginationModel() { start = start, count = count })
+            });
+        }
+
+        public async Task<IActionResult> Inventory(int id, int selected, string queryText)
+        {
+            var user = await GetCurrentUserAsync();
+            var inventories = await _inventories.GetForUser(user.Id);
+            var inventory = inventories.SingleOrDefault(i => i.Id == id);
+            if (inventory == null) {
+                return RedirectToAction(nameof(Index));
+            }
+
+            var model = new IndexViewModel() {
+                InventoryId = id,
+                SelectedId = selected,
+                MyProfile = await GetCurrentUserAsync(),
+                Resources = await _resources.QueryInventory(user.Id, id, queryText, new PaginationModel() { start = 0, count = 10 }),
+                Inventories = inventories,
+                Inventory = inventory,
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> NewResource(SimpleResourceModel Resource)
+        {
+            var user = await GetCurrentUserAsync();
+            Resource.CreatedByUserId = user.Id;
+            var result = await _resources.CreateResource(Resource);
+
+            if (result != null) {
+                return RedirectToAction(nameof(Inventory), new { Id = Resource.InventoryId, Selected = Resource.Id });
+            } else {
+                return View(new NewResourceViewModel() {
+                    Resource = Resource,
+                    AvailableBrands = await _resources.GetBrands(),
+                    AvailableCategories = await _resources.GetCategories(),
+                    AvailableUnits = await _resources.GetUnits()
+                });   
+            }
+        }
+
+        [HttpPost]
+        public Task<IActionResult> NewResourceIndex([Bind(Prefix="NewResource.Resource")] SimpleResourceModel Resource)
+        {
+            return NewResource(Resource);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> NewInventory(SimpleInventoryModel Inventory)
+        {
+            var user = await GetCurrentUserAsync();
+            Inventory.OwnerUserId = user.Id;
+            var result = await _inventories.CreateInventory(Inventory);
+
+            if (result != null) {
+                return RedirectToAction(nameof(Inventory), new { Id = Inventory.Id });
+            } else {
+                return View(new NewInventoryViewModel() {
+                    Inventory = Inventory
+                });   
+            }
+        }
+
+        public async Task<IActionResult> Resource(int id)
+        {
+            var user = await GetCurrentUserAsync();
+            return View(new ResourceViewModel() {
+                MyProfile = await GetCurrentUserAsync(),
+                Resource = await _resources.GetResource(id),
+                ReturnUrl = Request.Headers["Referer"].ToString()
             });
         }
     }

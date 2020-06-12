@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -10,6 +11,14 @@ namespace seattle.Models
         public int OwnerUserId { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }
+
+        [Required, StringLength(100)]
+        public string DisplayName { get; set; }
+
+        [Required, StringLength(1000)]
+        public string Description { get; set; }
+
+        public DateTime WhenCreated { get; set; }
         
         [NotMapped]
         public GeoLocationModel GeoLocation { get; set; }
