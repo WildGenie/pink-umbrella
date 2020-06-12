@@ -25,6 +25,8 @@ namespace seattle.Controllers
 
         public IActionResult Index()
         {
+            ViewData["Controller"] = "CivicDuty";
+            ViewData["Action"] = nameof(Index);
             return View();
         }
     }

@@ -2,14 +2,59 @@
 @model SearchViewModel
 @{
     ViewData["Title"] = "Search";
+    var everythingClass = null == Model.Type ? "selected" : "";
 }
-
 <div>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <div class="container">
+            <h1>@ViewData["Title"]</h1>
+            <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                <ul class="navbar-nav flex-grow-1 highlight-selected">
+                    <li class="nav-item @everythingClass">
+                        <a class="nav-link text-dark" asp-controller="Home" asp-action="Search"><u>Everything</u></a>
+                    </li>
+                    @foreach (var rt in Enum.GetValues(typeof(SearchResultType)).Cast<SearchResultType>())
+                    {
+                        if (rt == SearchResultType.CivicDuty) {
+                            continue;
+                        }
+                        var liClass = rt == Model.Type ? "selected" : "";
+                        <li class="nav-item @liClass">
+                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Search" asp-route-t="@rt"><u>
+                                @switch (rt) {
+                                    case SearchResultType.ArchiveMedia:
+                                    <span>Photos, Videos, and Media</span>
+                                    break;
+                                    case SearchResultType.CivicDuty:
+                                    <span>Civic Duties</span>
+                                    break;
+                                    case SearchResultType.Inventory:
+                                    <span>Inventories</span>
+                                    break;
+                                    case SearchResultType.Post:
+                                    <span>Posts</span>
+                                    break;
+                                    case SearchResultType.Profile:
+                                    <span>Profiles</span>
+                                    break;
+                                    case SearchResultType.Shop:
+                                    <span>Local Businesses</span>
+                                    break;
+                                    default:
+                                    <span>Unknown</span>
+                                    break;
+                                }
+                            </u></a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
     <form asp-action="Search" asp-controller="Home" method="get">
         <div asp-validation-summary="All" class="text-danger"></div>
         <div class="form-group">
-            <label asp-for="SearchText"></label>
-            <input asp-for="SearchText" name="q" class="form-control" />
+            <input asp-for="SearchText" name="q" class="form-control" placeholder="Type keywords here..." />
             <span asp-validation-for="SearchText" class="text-danger"></span>
         </div>
         <select asp-for="Order" asp-items="Html.GetEnumSelectList<SearchResultOrder>()"></select>
@@ -22,28 +67,29 @@
     @foreach (var result in Model.Results.Results) {
         <hr />
         <div>
-            switch (result.Type)
+            @switch (result.Type)
             {
-                SearchResultType.Profile:
-                <partial name="Profile/SearchResult" model="result.Value" />
+                case SearchResultType.Profile:
+                <partial name="SearchResult/ProfileSearchResult" model="result.Value" />
                 break;
-                SearchResultType.Post:
-                <partial name="Post/SearchResult" model="result.Value" />
+                case SearchResultType.Post:
+                <partial name="SearchResult/PostSearchResult" model="result.Value" />
                 break;
-                SearchResultType.ArchiveMedia:
-                <partial name="Archive/SearchResult" model="result.Value" />
+                case SearchResultType.ArchiveMedia:
+                <partial name="SearchResult/ArchiveSearchResult" model="result.Value" />
                 break;
-                SearchResultType.Inventory:
-                <partial name="Inventory/SearchResult" model="result.Value" />
+                case SearchResultType.Inventory:
+                <partial name="SearchResult/InventorySearchResult" model="result.Value" />
                 break;
-                SearchResultType.CivicDuty:
-                <partial name="CivicDuty/SearchResult" model="result.Value" />
+                case SearchResultType.CivicDuty:
+                <partial name="SearchResult/CivicDutySearchResult" model="result.Value" />
                 break;
-                SearchResultType.Shop:
-                <partial name="Shop/SearchResult" model="result.Value" />
+                case SearchResultType.Shop:
+                <partial name="SearchResult/ShopSearchResult" model="result.Value" />
                 break;
                 default:
                 <div>No view for @result.Type</div>
+                break;
             }
         </div>
     }

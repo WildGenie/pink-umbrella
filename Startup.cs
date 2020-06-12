@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,6 +43,7 @@ namespace seattle
             services.AddSingleton<MIPMapRepository>();
 
             services.AddScoped<IMIPMapService, MIPMapService>();
+            services.AddScoped<IArchiveService, ArchiveService>();
             services.AddScoped<IGeoLocationService, GeoLocationService>();
             services.AddScoped<IUserProfileService, UserProfileService>();
             services.AddScoped<ISimpleResourceService, SimpleResourceService>();
@@ -53,6 +55,8 @@ namespace seattle
             services.AddScoped<ISearchableService, SearchPostsService>();
             services.AddScoped<ISearchableService, SearchProfilesService>();
             services.AddScoped<ISearchableService, SearchShopsService>();
+            services.AddScoped<ISearchableService, SearchArchiveService>();
+            services.AddScoped<ISearchableService, SearchInventoryService>();
             services.AddScoped<ISearchService, SearchService>();
 
             services.AddScoped<IReactableService, PostReactionService>();
@@ -85,7 +89,7 @@ namespace seattle
             {
                 // Cookie settings
                 // options.Cookie.HttpOnly = true;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+                options.ExpireTimeSpan = TimeSpan.FromDays(1);
 
                 options.LoginPath = "/Account/Login";
                 options.AccessDeniedPath = "/Account/AccessDenied";
@@ -97,7 +101,7 @@ namespace seattle
                     .RequireAuthenticatedUser()
                     .Build();
                 options.Filters.Add(new AuthorizeFilter(policy));
-            });//.AddNewtonsoftJson().SetCompatibilityVersion(CompatibilityVersion.Version_3_1);
+            }).AddRazorRuntimeCompilation();//.AddNewtonsoftJson().SetCompatibilityVersion(CompatibilityVersion.Version_3_1);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

@@ -29,6 +29,8 @@ namespace seattle.Controllers
         //[Route("/Shop/{handle}")]
         public async Task<IActionResult> Index(string handle = null)
         {
+            ViewData["Controller"] = "Shop";
+            ViewData["Action"] = nameof(Index);
             var user = await GetCurrentUserAsync();
             var model = new ShopViewModel() {
                 MyProfile = user

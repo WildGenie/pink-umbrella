@@ -26,6 +26,8 @@ namespace seattle.Controllers
         
         public async Task<IActionResult> Index(string id)
         {
+            ViewData["Controller"] = "Profile";
+            ViewData["Action"] = nameof(Index);
             var user = id == null ? await GetCurrentUserAsync() : await _userProfiles.GetUser(id);
             return View(new IndexViewModel() {
                 Profile = user,

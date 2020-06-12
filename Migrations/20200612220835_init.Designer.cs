@@ -9,8 +9,8 @@ using seattle.Repositories;
 namespace seattle.Migrations
 {
     [DbContext(typeof(SimpleDbContext))]
-    [Migration("20200612180350_New Initial")]
-    partial class NewInitial
+    [Migration("20200612220835_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -117,6 +117,66 @@ namespace seattle.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("seattle.Models.ArchivedMediaModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("ContainsProfanity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("DeletedByUserId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(1000);
+
+                    b.Property<int>("DislikeCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("DisplayName")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(100);
+
+                    b.Property<int>("LikeCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("OriginalName")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("Path")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(500);
+
+                    b.Property<int>("ReportCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("ShadowBanned")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("SizeBytes")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Visibility")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("WhenCreated")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("WhenDeleted")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ArchivedMedia");
+                });
+
             modelBuilder.Entity("seattle.Models.PostModel", b =>
                 {
                     b.Property<int>("Id")
@@ -142,6 +202,9 @@ namespace seattle.Migrations
                     b.Property<int>("LikeCount")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("NextInChain")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("PostType")
                         .HasColumnType("INTEGER");
 
@@ -164,6 +227,8 @@ namespace seattle.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Posts");
                 });
@@ -561,6 +626,15 @@ namespace seattle.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
                     b.HasOne("seattle.Models.UserProfileModel", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("seattle.Models.PostModel", b =>
+                {
+                    b.HasOne("seattle.Models.UserProfileModel", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

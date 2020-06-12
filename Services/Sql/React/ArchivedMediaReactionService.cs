@@ -1,0 +1,37 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using seattle.Models;
+using seattle.Repositories;
+
+namespace seattle.Services.Sql.React
+{
+    public class ArchivedMediaReactionService : IReactableService
+    {
+        private readonly SimpleDbContext _dbContext;
+
+        public ArchivedMediaReactionService(SimpleDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        public string ControllerName => "Archive";
+
+        public ReactionSubject Subject => ReactionSubject.ArchivedMedia;
+
+        public Task<List<int>> GetIds()
+        {
+            return _dbContext.ArchivedMedia.Select(p => p.Id).ToListAsync();
+        }
+
+        public async Task RefreshStats(int id)
+        {
+            var ArchivedMedia = await _dbContext.ArchivedMedia.FindAsync(id);
+            ArchivedMedia.LikeCount = _dbContext.ArchivedMediaReactions.Where(r => r.Type == ReactionType.Like && r.ToId == id).Count();
+            ArchivedMedia.DislikeCount = _dbContext.ArchivedMediaReactions.Where(r => r.Type == ReactionType.Dislike && r.ToId == id).Count();
+            ArchivedMedia.ReportCount = _dbContext.ArchivedMediaReactions.Where(r => r.Type == ReactionType.Report && r.ToId == id).Count();
+            await _dbContext.SaveChangesAsync();
+        }
+    }
+}

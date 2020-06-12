@@ -3,10 +3,37 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace seattle.Migrations
 {
-    public partial class NewInitial : Migration
+    public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "ArchivedMedia",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    OriginalName = table.Column<string>(maxLength: 100, nullable: true),
+                    DisplayName = table.Column<string>(maxLength: 100, nullable: true),
+                    Description = table.Column<string>(maxLength: 1000, nullable: true),
+                    SizeBytes = table.Column<int>(nullable: false),
+                    Path = table.Column<string>(maxLength: 500, nullable: true),
+                    UserId = table.Column<int>(nullable: false),
+                    Visibility = table.Column<int>(nullable: false),
+                    WhenCreated = table.Column<DateTime>(nullable: false),
+                    WhenDeleted = table.Column<DateTime>(nullable: true),
+                    DeletedByUserId = table.Column<int>(nullable: true),
+                    ContainsProfanity = table.Column<bool>(nullable: false),
+                    ShadowBanned = table.Column<bool>(nullable: false),
+                    LikeCount = table.Column<int>(nullable: false),
+                    DislikeCount = table.Column<int>(nullable: false),
+                    ReportCount = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ArchivedMedia", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
@@ -88,31 +115,6 @@ namespace seattle.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Inventories", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Posts",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    UserId = table.Column<int>(nullable: false),
-                    Visibility = table.Column<int>(nullable: false),
-                    PostType = table.Column<int>(nullable: false),
-                    IsReply = table.Column<bool>(nullable: false),
-                    WhenCreated = table.Column<DateTime>(nullable: false),
-                    WhenDeleted = table.Column<DateTime>(nullable: true),
-                    DeletedByUserId = table.Column<int>(nullable: true),
-                    ContainsProfanity = table.Column<bool>(nullable: false),
-                    ShadowBanned = table.Column<bool>(nullable: false),
-                    LikeCount = table.Column<int>(nullable: false),
-                    DislikeCount = table.Column<int>(nullable: false),
-                    ReportCount = table.Column<int>(nullable: false),
-                    Content = table.Column<string>(maxLength: 1000, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Posts", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -297,6 +299,38 @@ namespace seattle.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Posts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    UserId = table.Column<int>(nullable: false),
+                    Visibility = table.Column<int>(nullable: false),
+                    PostType = table.Column<int>(nullable: false),
+                    IsReply = table.Column<bool>(nullable: false),
+                    WhenCreated = table.Column<DateTime>(nullable: false),
+                    WhenDeleted = table.Column<DateTime>(nullable: true),
+                    DeletedByUserId = table.Column<int>(nullable: true),
+                    ContainsProfanity = table.Column<bool>(nullable: false),
+                    ShadowBanned = table.Column<bool>(nullable: false),
+                    LikeCount = table.Column<int>(nullable: false),
+                    DislikeCount = table.Column<int>(nullable: false),
+                    ReportCount = table.Column<int>(nullable: false),
+                    Content = table.Column<string>(maxLength: 1000, nullable: true),
+                    NextInChain = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Posts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Posts_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -333,10 +367,18 @@ namespace seattle.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Posts_UserId",
+                table: "Posts",
+                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ArchivedMedia");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 

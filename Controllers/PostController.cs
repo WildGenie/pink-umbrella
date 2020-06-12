@@ -29,6 +29,8 @@ namespace seattle.Controllers
         [Route("/Post/{id}")]
         public async Task<IActionResult> Index(int? id)
         {
+            ViewData["Controller"] = "Post";
+            ViewData["Action"] = nameof(Index);
             var user = await GetCurrentUserAsync();
             if (id != null)
             {

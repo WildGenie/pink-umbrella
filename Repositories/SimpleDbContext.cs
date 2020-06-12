@@ -15,6 +15,10 @@ namespace seattle.Repositories
         public DbSet<ReactionModel> PostReactions { get; set; }
         public DbSet<ReactionModel> ShopReactions { get; set; }
         public DbSet<ReactionModel> ProfileReactions { get; set; }
+        public DbSet<ReactionModel> ArchivedMediaReactions { get; set; }
+        
+
+        public DbSet<ArchivedMediaModel> ArchivedMedia { get; set; }
 
 
         public SimpleDbContext(DbContextOptions<SimpleDbContext> options): base(options) {

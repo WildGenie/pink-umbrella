@@ -32,6 +32,8 @@ namespace seattle.Controllers
 
         public async Task<IActionResult> Index(string queryText)
         {
+            ViewData["Controller"] = "Inventory";
+            ViewData["Action"] = nameof(Index);
             var user = await GetCurrentUserAsync();
             var model = new IndexViewModel() {
                 MyProfile = await _userProfiles.GetUser(0),
@@ -55,6 +57,8 @@ namespace seattle.Controllers
 
         public async Task<IActionResult> Inventory(int id, int selected, string queryText)
         {
+            ViewData["Controller"] = "Inventory";
+            ViewData["Action"] = nameof(Inventory);
             var user = await GetCurrentUserAsync();
             var inventories = await _inventories.GetForUser(user.Id);
             var inventory = inventories.SingleOrDefault(i => i.Id == id);
@@ -117,6 +121,8 @@ namespace seattle.Controllers
 
         public async Task<IActionResult> Resource(int id)
         {
+            ViewData["Controller"] = "Inventory";
+            ViewData["Action"] = nameof(Resource);
             var user = await GetCurrentUserAsync();
             return View(new ResourceViewModel() {
                 MyProfile = await GetCurrentUserAsync(),

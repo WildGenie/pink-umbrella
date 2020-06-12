@@ -26,6 +26,8 @@ namespace seattle.Controllers
 
         public async Task<IActionResult> Index()
         {
+            ViewData["Controller"] = "Debug";
+            ViewData["Action"] = nameof(Index);
             return View(new IndexViewModel() {
                 MyProfile = await _userProfiles.GetUser(0),
                 MyFeed = await _feeds.GetFeedForUser(0, 0, false, new PaginationModel() { count = 10, start = 0 })

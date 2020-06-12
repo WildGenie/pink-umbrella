@@ -2,6 +2,6 @@ namespace seattle.Models
 {
     public enum ReactionSubject
     {
-        Post, Shop, Profile
+        Post, Shop, Profile, ArchivedMedia
     }
 }

@@ -30,6 +30,8 @@ namespace seattle.Controllers
         [Authorize]
         public async Task<IActionResult> Index()
         {
+            ViewData["Controller"] = "Account";
+            ViewData["Action"] = nameof(Index);
             var user = await GetCurrentUserAsync();
 
             return View(new IndexViewModel()
@@ -123,6 +125,8 @@ namespace seattle.Controllers
         [AllowAnonymous]
         public IActionResult Register(string returnUrl)
         {
+            ViewData["Controller"] = "Account";
+            ViewData["Action"] = nameof(Register);
             // await eventLog.Log(-1, EventNames.Account.Register.Begin, null);
             return View(new RegisterViewModel()
             {
@@ -321,6 +325,8 @@ namespace seattle.Controllers
 
         public async Task<IActionResult> DownloadPersonalData()
         {
+            ViewData["Controller"] = "Account";
+            ViewData["Action"] = nameof(DownloadPersonalData);
             // TODO: data download history
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -347,6 +353,8 @@ namespace seattle.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Register(string returnUrl, [Bind] RegisterInputModel input)
         {
+            ViewData["Controller"] = "Account";
+            ViewData["Action"] = nameof(Register);
             returnUrl = returnUrl ?? Url.Content("~/");
             if (ModelState.IsValid)
             {
@@ -398,6 +406,8 @@ namespace seattle.Controllers
 
         public async Task<ActionResult> ConfirmEmail(int userId, string code)
         {
+            ViewData["Controller"] = "Account";
+            ViewData["Action"] = nameof(ConfirmEmail);
             if (code == null)
             {
                 return View("Error");

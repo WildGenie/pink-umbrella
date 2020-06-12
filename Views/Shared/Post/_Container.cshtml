@@ -1,0 +1,13 @@
+﻿@model PostModel
+<div asp-controller="Post" asp-action="Index" asp-route-id="@Model.Id">
+    <p><b>@Model.User.DisplayName</b> <i>@@@Model.User.Handle</i> &dot; @Model.WhenCreated</p>
+@switch (Model.PostType)
+{
+    case PostType.Text:
+    <partial name="Post/Text" />
+    break;
+    default:
+    <div>No view for @Model.PostType</div>
+    break;
+}
+</div>

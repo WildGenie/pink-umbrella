@@ -28,20 +28,40 @@ namespace seattle.Controllers
 
         public async Task<IActionResult> Index()
         {
+            ViewData["Controller"] = "Home";
+            ViewData["Action"] = nameof(Index);
             var user = await GetCurrentUserAsync();
-            return View(new IndexViewModel() {
+            var model = new IndexViewModel() {
                 MyProfile = user,
-                MyFeed = await _feeds.GetFeedForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 })
-            });
+            };
+
+            if (user != null)
+            {
+                model.MyFeed = await _feeds.GetFeedForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 });
+                return View(model);
+            }
+            else
+            {
+                if (_signInManager.IsSignedIn(User)) {
+                    await _signInManager.SignOutAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                return View("IndexAnonymous", model);
+            }
         }
 
         public IActionResult Privacy()
         {
+            ViewData["Controller"] = "Home";
+            ViewData["Action"] = nameof(Privacy);
             return View();
         }
         
+        [Route("/Search")]
         public async Task<IActionResult> Search(string q, SearchResultOrder order, SearchResultType? t, int start, int count = 10)
         {
+            ViewData["Controller"] = "Home";
+            ViewData["Action"] = nameof(Search);
             var pagination = new PaginationModel() { start = start, count = count };
             var user = await GetCurrentUserAsync();
             SearchResultsModel results;
