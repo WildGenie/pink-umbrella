@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using seattle.Models;
 using seattle.ViewModels.Account;
 
@@ -7,6 +10,17 @@ namespace seattle.Services.Sql
 {
     public class UserProfileService : IUserProfileService
     {
+        protected readonly SignInManager<UserProfileModel> _signInManager;
+        protected readonly UserManager<UserProfileModel> _userManager;
+
+        public UserProfileService(
+                UserManager<UserProfileModel> userManager,
+                SignInManager<UserProfileModel> signInManager
+                ) {
+                    _userManager = userManager;
+                    _signInManager = signInManager;
+                }
+
         public UserProfileModel CreateUser(RegisterInputModel input)
         {
             return new UserProfileModel {
@@ -19,9 +33,12 @@ namespace seattle.Services.Sql
             };
         }
 
-        public void DeleteUser(int id, int by_user_id)
+        public async Task DeleteUser(int id, int by_user_id)
         {
-            throw new System.NotImplementedException();
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            user.WhenDeleted = DateTime.UtcNow;
+            user.DeletedByUserId = by_user_id;
+            await _userManager.UpdateAsync(user);
         }
 
         public List<UserProfileModel> GetMostRecentlyCreatedUsers()
@@ -29,19 +46,22 @@ namespace seattle.Services.Sql
             throw new System.NotImplementedException();
         }
 
-        public UserProfileModel GetUser(int id)
+        public Task<UserProfileModel> GetUser(int id)
         {
-            throw new System.NotImplementedException();
+            return _userManager.FindByIdAsync(id.ToString());
         }
 
-        public UserProfileModel GetUser(string handle)
+        public async Task<UserProfileModel> GetUser(string handle)
         {
-            throw new System.NotImplementedException();
+            return await _userManager.Users.SingleOrDefaultAsync(u => u.Handle == handle);
         }
 
-        public void LogIn(int id, string from)
+        public async Task LogIn(int id, string from)
         {
-            throw new System.NotImplementedException();
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            user.WhenLastLoggedIn = DateTime.UtcNow;
+            user.WhenLastOnline = DateTime.UtcNow;
+            await _userManager.UpdateAsync(user);
         }
 
         public List<UserProfileModel> SearchUsers(string text, PaginationModel pagination)

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using seattle.Models;
@@ -12,23 +13,22 @@ using seattle.ViewModels.Home;
 
 namespace seattle.Controllers
 {
-    //[AllowAnonymous]
     public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger, SignInManager<UserProfileModel> signInManager,
+        public HomeController(IWebHostEnvironment environment, ILogger<HomeController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IFeedService feeds, IUserProfileService userProfiles):
-            base(signInManager, userManager, feeds, userProfiles)
+            base(environment, signInManager, userManager, feeds, userProfiles)
         {
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             return View(new IndexViewModel() {
-                MyProfile = _userProfiles.GetUser(0),
-                MyFeed = _feeds.GetFeedForUser(0, 0, false, new PaginationModel() { count = 10, start = 0 })
+                MyProfile = await _userProfiles.GetUser(0),
+                MyFeed = await _feeds.GetFeedForUser(0, 0, false, new PaginationModel() { count = 10, start = 0 })
             });
         }
 

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using seattle.Models;
 using seattle.ViewModels.Account;
 
@@ -10,14 +11,14 @@ namespace seattle.Services
 
         List<UserProfileModel> SearchUsers(string text, PaginationModel pagination);
 
-        UserProfileModel GetUser(int id);
+        Task<UserProfileModel> GetUser(int id);
 
-        UserProfileModel GetUser(string handle);
+        Task<UserProfileModel> GetUser(string handle);
 
         UserProfileModel CreateUser(RegisterInputModel initial);
 
-        void DeleteUser(int id, int by_user_id);
+        Task DeleteUser(int id, int by_user_id);
 
-        void LogIn(int id, string from);
+        Task LogIn(int id, string from);
     }
 }

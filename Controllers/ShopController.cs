@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using seattle.Models;
@@ -15,9 +16,9 @@ namespace seattle.Controllers
     {
         private readonly ILogger<ShopController> _logger;
 
-        public ShopController(ILogger<ShopController> logger, SignInManager<UserProfileModel> signInManager,
+        public ShopController(IWebHostEnvironment environment, ILogger<ShopController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IFeedService feeds, IUserProfileService userProfiles):
-            base(signInManager, userManager, feeds, userProfiles)
+            base(environment, signInManager, userManager, feeds, userProfiles)
         {
             _logger = logger;
         }

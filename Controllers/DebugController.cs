@@ -9,23 +9,27 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using seattle.Models;
 using seattle.Services;
+using seattle.ViewModels.Home;
 
 namespace seattle.Controllers
 {
-    public class CivicDutyController : BaseController
+    public class DebugController : BaseController
     {
-        private readonly ILogger<CivicDutyController> _logger;
+        private readonly ILogger<DebugController> _logger;
 
-        public CivicDutyController(IWebHostEnvironment environment, ILogger<CivicDutyController> logger, SignInManager<UserProfileModel> signInManager,
+        public DebugController(IWebHostEnvironment environment, ILogger<DebugController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IFeedService feeds, IUserProfileService userProfiles):
             base(environment, signInManager, userManager, feeds, userProfiles)
         {
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            return View(new IndexViewModel() {
+                MyProfile = await _userProfiles.GetUser(0),
+                MyFeed = await _feeds.GetFeedForUser(0, 0, false, new PaginationModel() { count = 10, start = 0 })
+            });
         }
 
         public IActionResult Privacy()

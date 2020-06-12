@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using seattle.Models;
 using seattle.ViewModels.Account;
 
@@ -74,27 +75,32 @@ namespace seattle.Services.Test
             throw new System.NotImplementedException();
         }
 
-        public UserProfileModel GetUser(int id)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public UserProfileModel GetUser(string handle)
-        {
-            throw new System.NotImplementedException();
-        }
-
         public List<UserProfileModel> SearchUsers(string text, PaginationModel pagination)
         {
             throw new System.NotImplementedException();
         }
 
-        public void LogIn(int id, string from)
+        public UserProfileModel CreateUser(RegisterInputModel initial)
         {
             throw new NotImplementedException();
         }
 
-        public UserProfileModel CreateUser(RegisterInputModel initial)
+        public Task<UserProfileModel> GetUser(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<UserProfileModel> GetUser(string handle)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IUserProfileService.DeleteUser(int id, int by_user_id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task LogIn(int id, string from)
         {
             throw new NotImplementedException();
         }

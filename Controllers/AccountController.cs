@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using seattle.Models;
 using seattle.Services;
@@ -16,11 +18,12 @@ namespace seattle.Controllers
     public class AccountController: BaseController
     {
         public AccountController(
+                IWebHostEnvironment environment,
                 UserManager<UserProfileModel> userManager,
                 SignInManager<UserProfileModel> signInManager,
                 IFeedService feeds, IUserProfileService userProfiles
                 ) :
-            base(signInManager, userManager, feeds, userProfiles)
+            base(environment, signInManager, userManager, feeds, userProfiles)
         {
         }
 
@@ -49,8 +52,8 @@ namespace seattle.Controllers
             var result = await _signInManager.PasswordSignInAsync(login.EmailAddress, login.Password, login.RememberMe, lockoutOnFailure: true);
             if (result.Succeeded)
             {
-                var user = await GetCurrentUserAsync();
-                _userProfiles.LogIn(user.Id, Request.Host.Value);
+                var user = await _userManager.FindByEmailAsync(login.EmailAddress);
+                await _userProfiles.LogIn(user.Id, Request.Host.Value);
                 return LocalRedirect(returnUrl);
             }
             if (result.RequiresTwoFactor)
@@ -64,10 +67,14 @@ namespace seattle.Controllers
             }
             else
             {
-                var user = await GetCurrentUserAsync();
+                var user = await _userManager.FindByEmailAsync(login.EmailAddress);
                 if (user != null)
                 {
-                    if (user.BanExpires != null)
+                    if (!await _userManager.IsEmailConfirmedAsync(user))
+                    {
+                        return RedirectToAction(nameof(ConfirmEmailRequired));
+                    }
+                    else if (user.BanExpires != null)
                     {
                         var ban = user.BanExpires.Value;
                         var reason = user.BanReason;
@@ -92,7 +99,7 @@ namespace seattle.Controllers
                 else
                 {
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return View();
+                    return View(login);
                 }
             }
         }
@@ -124,6 +131,9 @@ namespace seattle.Controllers
 
         [HttpGet]
         public IActionResult Lockout() => View();
+
+        [HttpGet]
+        public IActionResult ConfirmEmailRequired() => View();
 
         public async Task<IActionResult> Delete([Bind] DeleteAccountViewModel password)
         {
@@ -300,7 +310,6 @@ namespace seattle.Controllers
             var result = await _userManager.ResetPasswordAsync(user, resetPasswordViewModel.Code, resetPasswordViewModel.Password);
             if (result.Succeeded)
             {
-
                 // await eventLog.Log(user.Id, EventNames.Account.ResetPassword, null);
                 return RedirectToAction(nameof(ResetPasswordConfirm));
             }
@@ -345,16 +354,28 @@ namespace seattle.Controllers
                 if (result.Succeeded)
                 {
                     // await eventLog.Log(user.Id, EventNames.Account.Register.Success, null);
-
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    var callbackUrl = Url.Page(
-                        "/Account/ConfirmEmail",
-                        pageHandler: null,
-                        values: new { userId = user.Id, code = code },
-                        protocol: Request.Scheme);
+                    if (_environment.IsProduction())
+                    {
+                        var callbackUrl = Url.Page(
+                            "/Account/ConfirmEmail",
+                            pageHandler: null,
+                            values: new { userId = user.Id, code = code },
+                            protocol: Request.Scheme);
 
-                    // await _emailSender.SendEmailAsync(input.Email, "Confirm your email",
-                    // $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                        // TODO: replace with View() of email
+                        //await _emailSender.SendEmailAsync(input.Email, "Seattle: Confirm your email",
+                        //$"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    }
+                    else
+                    {
+                        var result2 = await _userManager.ConfirmEmailAsync(user, code);
+                        if (!result2.Succeeded)
+                        {
+                            //AddErrors(result2);
+                            return View("ConfirmEmail");
+                        }
+                    }
 
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return LocalRedirect(returnUrl);
@@ -372,6 +393,21 @@ namespace seattle.Controllers
                 ReturnUrl = returnUrl,
                 Input = input,
             });
+        }
+
+        public async Task<ActionResult> ConfirmEmail(int userId, string code)
+        {
+            if (code == null)
+            {
+                return View("Error");
+            }
+            var result = await _userManager.ConfirmEmailAsync(await _userManager.FindByIdAsync(userId.ToString()), code);
+            if (result.Succeeded)
+            {
+                return View("ConfirmEmail");
+            }
+            //AddErrors(result);
+            return View();
         }
     }
 }

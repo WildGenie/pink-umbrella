@@ -39,12 +39,12 @@ namespace seattle
 
             services.AddSingleton<MIPMapRepository>();
 
-            services.AddSingleton<IMIPMapService, MIPMapService>();
-            services.AddSingleton<IGeoLocationService, GeoLocationService>();
-            services.AddSingleton<IUserProfileService, UserProfileService>();
-            services.AddSingleton<ISimpleResourceService, SimpleResourceService>();
-            services.AddSingleton<IPostService, PostService>();
-            services.AddSingleton<IFeedService, FeedService>();
+            services.AddScoped<IMIPMapService, MIPMapService>();
+            services.AddScoped<IGeoLocationService, GeoLocationService>();
+            services.AddScoped<IUserProfileService, UserProfileService>();
+            services.AddScoped<ISimpleResourceService, SimpleResourceService>();
+            services.AddScoped<IPostService, PostService>();
+            services.AddScoped<IFeedService, FeedService>();
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -70,7 +70,7 @@ namespace seattle
             services.ConfigureApplicationCookie(options =>
             {
                 // Cookie settings
-                options.Cookie.HttpOnly = true;
+                // options.Cookie.HttpOnly = true;
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
 
                 options.LoginPath = "/Account/Login";
