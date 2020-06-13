@@ -3,4 +3,27 @@
 }
 <h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div>
+    <p>
+        Our core values are to <b>prioritize privacy, transparency, and communication within the community</b>, and we do that in the following ways:
+        <ul>
+            <li>Some of your data is stored in a private, secured database.</li>
+            <li>The sections below detail meaningful parts of that data.</li>
+            <li>Your data is not sold to third parties or redristributed.</li>
+            <li>Your data remains yours at all times and you are able to download or delete your data at anytime.</li>
+            <li>The source code for this site is open source and public domain, meaning you can suggest changes or host your own version.</li>
+            <li>You can read more about us on our <a asp-controller="Home" asp-action="About">About Us</a> page.</li>
+        </ul>
+    </p>
+    
+    @foreach (var privmodel in Model.Models)
+    {
+        <h4>@privmodel.DisplayName</h4>
+        <p>@privmodel.Description</p>
+        <ul>
+            @foreach (var field in privmodel.Fields) {
+                <li><b>@field.DisplayName:</b> @field.Description</li>
+            }
+        </ul>
+    }
+</div>

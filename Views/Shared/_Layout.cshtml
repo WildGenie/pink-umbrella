@@ -16,6 +16,7 @@
     var shopLiClass = controllerName == "Shop" ? "selected" : "";
     var debugLiClass = controllerName == "Debug" ? "selected" : "";
     var privacyLiClass = controllerName == "Home" && actionName == "Privacy" ? "selected" : "";
+    var aboutLiClass = controllerName == "Home" && actionName == "About" ? "selected" : "";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -74,6 +75,12 @@
                         }
                         <li class="nav-item @privacyLiClass">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                        <li class="nav-item @aboutLiClass">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="About">About Us</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="https://github.com/viveret/seattle/wiki" target="_blank">Wiki</a>
                         </li>
                     </ul>
                 </div>

@@ -54,6 +54,13 @@ namespace seattle.Controllers
         {
             ViewData["Controller"] = "Home";
             ViewData["Action"] = nameof(Privacy);
+            return View(new PrivacyViewModel());
+        }
+
+        public IActionResult About()
+        {
+            ViewData["Controller"] = "Home";
+            ViewData["Action"] = nameof(About);
             return View();
         }
         
