@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel;
 using seattle.Models;
 
 namespace seattle.ViewModels.Inventory

@@ -17,8 +17,14 @@ namespace seattle.Models
         public int? DeletedByUserId { get; set; }
 
         public int MipmapId { get; set; }
+
+        [DisplayName("Inventory")]
         public int InventoryId { get; set; }
+
+        [DisplayName("Forked From")]
         public int ForkedFromId { get; set; }
+
+        [DisplayName("Created By")]
         public int CreatedByUserId { get; set; }
 
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -12,6 +13,7 @@ using Newtonsoft.Json;
 using seattle.Models;
 using seattle.Services;
 using seattle.ViewModels.Account;
+using seattle.Util;
 
 namespace seattle.Controllers
 {
@@ -140,6 +142,7 @@ namespace seattle.Controllers
         [HttpGet]
         public IActionResult ConfirmEmailRequired() => View();
 
+        [Authorize]
         public async Task<IActionResult> Delete([Bind] DeleteAccountViewModel password)
         {
             var user = await GetCurrentUserAsync();
@@ -193,7 +196,7 @@ namespace seattle.Controllers
             return View();
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public IActionResult PersonalData()
         {
             // TODO: data download history
@@ -421,22 +424,59 @@ namespace seattle.Controllers
             return View();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> UpdateEmail(string email)
+        [HttpPost, Authorize]
+        public async Task<IActionResult> UpdateAccount([Bind] UserProfileModel MyProfile)
         {
             var user = await GetCurrentUserAsync();
-            user.Email = email;
+            var emailChanged = user.Email != MyProfile.Email;
+            var usernameChanged = user.UserName != MyProfile.UserName && MyProfile.UserName != null;
+            var visibilityChanged = user.Visibility != MyProfile.Visibility;
+
+            user.Email = MyProfile.Email;
+            user.UserName = MyProfile.UserName ?? user.UserName;
+            user.Visibility = MyProfile.Visibility;
+
+            if (visibilityChanged)
+            {
+                user.WhenLastLoggedInVisibility = user.WhenLastLoggedInVisibility.Min(user.Visibility);
+                user.WhenLastOnlineVisibility = user.WhenLastOnlineVisibility.Min(user.Visibility);
+                user.BioVisibility = user.BioVisibility.Min(user.Visibility);
+            }
+
             await _userManager.UpdateAsync(user);
+
+            if (emailChanged)
+            {
+                var emailConfirmationCode = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                // generate url for page where you can confirm the email
+                var callbackurl= "http://example.com/ConfirmEmail";
+
+                // append userId and confirmation code as parameters to the url
+                callbackurl += String.Format("?userId={0}&code={1}", user.Id, HttpUtility.UrlEncode(emailConfirmationCode));
+
+                var htmlContent = String.Format(
+                        @"Thank you for updating your email. Please confirm the email by clicking this link: 
+                        <br><a href='{0}'>Confirm new email</a>",
+                        callbackurl);
+
+                // send email to the user with the confirmation link
+                //await _userManager.SendEmailAsync(user.Id, subject: "Email confirmation", body: htmlContent);
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public async Task<IActionResult> UpdateProfile([Bind] UserProfileModel MyProfile)
         {
             var user = await GetCurrentUserAsync();
             user.DisplayName = MyProfile.DisplayName;
             user.Handle = MyProfile.Handle;
             user.Bio = MyProfile.Bio;
+            user.WhenLastLoggedInVisibility = MyProfile.WhenLastLoggedInVisibility.Min(user.Visibility);
+            user.WhenLastOnlineVisibility = MyProfile.WhenLastOnlineVisibility.Min(user.Visibility);
+            user.BioVisibility = MyProfile.BioVisibility.Min(user.Visibility);
             await _userManager.UpdateAsync(user);
             return RedirectToAction(nameof(Index));
         }

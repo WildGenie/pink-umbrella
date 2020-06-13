@@ -1,0 +1,12 @@
+@model EnumViewModel
+@foreach (var v in Enum.GetValues(Model.Type))
+{
+    if (Model.Selected.ToString() == v.ToString())
+    {
+        <option selected value="@v" title="@v.GetDescription()">@v.GetDisplayName()</option>
+    }
+    else
+    {
+        <option value="@v" title="@v.GetDescription()">@v.GetDisplayName()</option>
+    }
+}

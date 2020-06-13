@@ -87,3 +87,10 @@ ul.highlight-selected > li.selected {
 .contains-goto > a.goto, .contains-ajax > a.ajax {
   display: none;
 }
+
+
+
+.form-group label {
+  font-weight: bold;
+  font-size: large;
+}

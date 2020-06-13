@@ -26,13 +26,13 @@ namespace seattle.Models
         [PersonalData, DisplayName("When Last Logged In"), DefaultValue(0), Description("The exact time and date when you last logged in.")]
         public DateTime WhenLastLoggedIn { get; set; }
 
-        [PersonalData, DisplayName("When Last Logged In Visibility"), DefaultValue(Visibility.VISIBLE_TO_FOLLOWING), Description("Visibility of when you last logged in to other users.")]
+        [PersonalData, DisplayName("When Last Logged In Visibility"), DefaultValue(Visibility.VISIBLE_TO_FOLLOWERS), Description("Visibility of when you last logged in to other users.")]
         public Visibility WhenLastLoggedInVisibility { get; set; }
 
         [PersonalData, DisplayName("When Last Online"), Description("The exact time and date when you last connected to the site.")]
         public DateTime WhenLastOnline { get; set; }
 
-        [PersonalData, DisplayName("When Last Online Visibility"), DefaultValue(Visibility.VISIBLE_TO_FOLLOWING), Description("Visibility of when you last connected to other users.")]
+        [PersonalData, DisplayName("When Last Online Visibility"), DefaultValue(Visibility.VISIBLE_TO_FOLLOWERS), Description("Visibility of when you last connected to other users.")]
         public Visibility WhenLastOnlineVisibility { get; set; }
 
         [PersonalData, StringLength(30), Required, Description("An identifiable handle to easily reference your profile.")]
