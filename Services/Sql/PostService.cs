@@ -80,8 +80,20 @@ namespace seattle.Services.Sql
         public async Task<PostModel> GetPost(int id)
         {
             var p = await _dbContext.Posts.FindAsync(id);
-            p.Mentions = await _dbContext.Mentions.Where(m => m.PostId == id).ToListAsync();
+            await BindReferences(p);
             return p;
+        }
+
+        private async Task BindReferences(PostModel p)
+        {
+            p.Mentions = await _dbContext.Mentions.Where(m => m.PostId == p.Id).ToListAsync();
+
+            var reactions = await _dbContext.PostReactions.Where(r => r.UserId == p.UserId && r.ToId == p.Id).Select(r => r.Type).ToListAsync();
+
+            p.HasLiked = reactions.Contains(ReactionType.Like);
+            p.HasDisliked = reactions.Contains(ReactionType.Dislike);
+            p.HasBlocked = reactions.Contains(ReactionType.Block);
+            p.HasReported = reactions.Contains(ReactionType.Report);
         }
 
         public Task UpdateShadowBanStatus(int id, bool status)
@@ -115,6 +127,57 @@ namespace seattle.Services.Sql
                     }
                 }
             }
+        }
+
+        public async Task<FeedModel> GetFeedForUser(int userId, int viewerId, bool includeReplies, PaginationModel pagination)
+        {
+            var posts = await _dbContext.Posts.Where(p => p.UserId == userId).OrderByDescending(p => p.WhenCreated).Skip(pagination.start).Take(pagination.count).ToListAsync();
+            foreach (var p in posts) {
+                await BindReferences(p);
+            }
+            return new FeedModel() {
+                Items = posts,
+                Pagination = pagination,
+                RepliesIncluded = includeReplies,
+                UserId = userId,
+                ViewerId = viewerId,
+                Total = _dbContext.Posts.Count()
+            };
+        }
+
+        public async Task<FeedModel> GetMentionsForUser(int userId, int viewerId, bool includeReplies, PaginationModel pagination)
+        {
+            var mentions =  _dbContext.Mentions.Where(m => m.MentionedUserId == userId);
+            var paginated = await mentions.OrderByDescending(p => p.WhenMentioned).Skip(pagination.start).Take(pagination.count).ToListAsync();
+            var posts = new List<PostModel>();
+            foreach (var p in mentions) {
+                posts.Add(await GetPost(p.PostId));
+            }
+            return new FeedModel() {
+                Items = posts,
+                Pagination = pagination,
+                RepliesIncluded = includeReplies,
+                UserId = userId,
+                ViewerId = viewerId,
+                Total = mentions.Count()
+            };
+        }
+
+        public async Task<FeedModel> GetPostsForUser(int userId, int viewerId, bool includeReplies, PaginationModel pagination)
+        {
+            var posts = _dbContext.Posts.Where(p => p.UserId == userId);
+            var paginated = await posts.OrderByDescending(p => p.WhenCreated).Skip(pagination.start).Take(pagination.count).ToListAsync();
+            foreach (var p in posts) {
+                await BindReferences(p);
+            }
+            return new FeedModel() {
+                Items = paginated,
+                Pagination = pagination,
+                RepliesIncluded = includeReplies,
+                UserId = userId,
+                ViewerId = viewerId,
+                Total = posts.Count()
+            };
         }
     }
 }

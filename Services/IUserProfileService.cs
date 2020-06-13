@@ -18,5 +18,11 @@ namespace seattle.Services
         Task DeleteUser(int id, int by_user_id);
 
         Task LogIn(int id, string from);
+
+        Task<List<UserProfileModel>> GetFollowers(int userId, int viewerId);
+
+        Task<List<UserProfileModel>> GetFollowing(int userId, int viewerId);
+
+        Task<List<UserProfileModel>> GetBlocked(int userId, int viewerId);
     }
 }

@@ -1,24 +1,29 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using seattle.Models;
+using seattle.Repositories;
 using seattle.ViewModels.Account;
 
 namespace seattle.Services.Sql
 {
     public class UserProfileService : IUserProfileService
     {
-        protected readonly SignInManager<UserProfileModel> _signInManager;
-        protected readonly UserManager<UserProfileModel> _userManager;
+        private readonly SignInManager<UserProfileModel> _signInManager;
+        private readonly UserManager<UserProfileModel> _userManager;
+        private readonly SimpleDbContext _dbContext;
 
         public UserProfileService(
                 UserManager<UserProfileModel> userManager,
-                SignInManager<UserProfileModel> signInManager
+                SignInManager<UserProfileModel> signInManager,
+                SimpleDbContext dbContext
                 ) {
                     _userManager = userManager;
                     _signInManager = signInManager;
+                    _dbContext = dbContext;
                 }
 
         public UserProfileModel CreateUser(RegisterInputModel input)
@@ -62,6 +67,34 @@ namespace seattle.Services.Sql
             user.WhenLastLoggedIn = DateTime.UtcNow;
             user.WhenLastOnline = DateTime.UtcNow;
             await _userManager.UpdateAsync(user);
+        }
+
+        public async Task<List<UserProfileModel>> GetFollowers(int userId, int viewerId)
+        {
+            var ids = await _dbContext.ProfileReactions.Where(r => r.UserId == userId && r.Type == ReactionType.Follow).Select(r => r.UserId).ToListAsync();
+            return await GetUsers(ids, viewerId);
+        }
+
+        public async Task<List<UserProfileModel>> GetFollowing(int userId, int viewerId)
+        {
+            var ids = await _dbContext.ProfileReactions.Where(r => r.ToId == userId && r.Type == ReactionType.Follow).Select(r => r.ToId).ToListAsync();
+            return await GetUsers(ids, viewerId);
+        }
+
+        public async Task<List<UserProfileModel>> GetBlocked(int userId, int viewerId)
+        {
+            var ids = await _dbContext.ProfileReactions.Where(r => r.UserId == userId && r.Type == ReactionType.Block).Select(r => r.UserId).ToListAsync();
+            return await GetUsers(ids, viewerId);
+        }
+
+        private async Task<List<UserProfileModel>> GetUsers(List<int> ids, int viewerId)
+        {
+            var ret = new List<UserProfileModel>();
+            foreach (var id in ids)
+            {
+                ret.Add(await GetUser(id));
+            }
+            return ret;
         }
     }
 }

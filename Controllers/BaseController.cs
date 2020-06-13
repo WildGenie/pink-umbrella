@@ -22,17 +22,23 @@ namespace seattle.Controllers
         protected readonly IWebHostEnvironment _environment;
         protected readonly SignInManager<UserProfileModel> _signInManager;
         protected readonly UserManager<UserProfileModel> _userManager;
-        protected readonly IFeedService _feeds;
+        protected readonly IPostService _posts;
         protected readonly IUserProfileService _userProfiles;
         
         public BaseController(IWebHostEnvironment environment, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IFeedService feeds, IUserProfileService userProfiles)
+            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles)
         {
             _environment = environment;
             _signInManager = signInManager;
             _userManager = userManager;
-            _feeds = feeds;
+            _posts = posts;
             _userProfiles = userProfiles;
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
         protected Task<UserProfileModel> GetCurrentUserAsync()
@@ -40,10 +46,15 @@ namespace seattle.Controllers
             return _userManager.GetUserAsync(HttpContext.User);
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        protected bool IsAjaxRequest() {
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return true;
+            }
+            else
+            {
+                return Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+            }
         }
     }
 }

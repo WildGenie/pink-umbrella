@@ -16,14 +16,12 @@ namespace seattle.Controllers
     public class PostController : BaseController
     {
         private readonly ILogger<PostController> _logger;
-        private readonly IPostService _posts;
 
         public PostController(IWebHostEnvironment environment, ILogger<PostController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IFeedService feeds, IUserProfileService userProfiles, IPostService posts):
-            base(environment, signInManager, userManager, feeds, userProfiles)
+            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles):
+            base(environment, signInManager, userManager, posts, userProfiles)
         {
             _logger = logger;
-            _posts = posts;
         }
 
         [Route("/Post/{id}")]

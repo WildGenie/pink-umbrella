@@ -76,7 +76,7 @@ ul.highlight-selected > li.selected {
   background: yellow;
 }
 
-.contains-goto {
+.contains-goto, .contains-ajax {
   cursor: pointer;
 }
 
@@ -84,6 +84,6 @@ ul.highlight-selected > li.selected {
   background: rgba(0, 0, 0, 0.1);
 }
 
-.contains-goto > a.goto {
+.contains-goto > a.goto, .contains-ajax > a.ajax {
   display: none;
 }

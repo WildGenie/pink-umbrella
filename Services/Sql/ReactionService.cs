@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using seattle.Models;
 using seattle.Repositories;
 
@@ -18,7 +19,7 @@ namespace seattle.Services.Sql
             _dbContext = dbContext;
         }
 
-        public async Task React(int userId, int toId, ReactionType type, ReactionSubject subject)
+        public async Task<int> React(int userId, int toId, ReactionType type, ReactionSubject subject)
         {
             var reaction = new ReactionModel() {
                 UserId = userId,
@@ -27,20 +28,55 @@ namespace seattle.Services.Sql
                 WhenReacted = DateTime.UtcNow,
             };
 
-            switch (subject) {
+            var reactions = GetReactionsList(subject);
+            
+            reactions.Add(reaction);
+            await _dbContext.SaveChangesAsync();
+            await _reactables[subject].RefreshStats(toId);
+
+            return reaction.Id;
+        }
+
+        public async Task UnReact(int userId, int toId, ReactionType type, ReactionSubject subject)
+        {
+            var reactions = GetReactionsList(subject);
+            ReactionModel reaction = null;
+            switch (subject)
+            {
                 case ReactionSubject.Post:
-                _dbContext.PostReactions.Add(reaction);
+                reaction = await _dbContext.PostReactions.Where(r => r.UserId == userId && r.ToId == toId && r.Type == type).FirstOrDefaultAsync();;
                 break;
                 case ReactionSubject.Shop:
-                _dbContext.ShopReactions.Add(reaction);
+                reaction = await _dbContext.ShopReactions.Where(r => r.UserId == userId && r.ToId == toId && r.Type == type).FirstOrDefaultAsync();;
                 break;
                 case ReactionSubject.Profile:
-                _dbContext.ProfileReactions.Add(reaction);
+                reaction = await _dbContext.ProfileReactions.Where(r => r.UserId == userId && r.ToId == toId && r.Type == type).FirstOrDefaultAsync();;
                 break;
+                default:
+                throw new Exception();
             }
-            await _dbContext.SaveChangesAsync();
+            
+            if (reaction != null)
+            {
+                reactions.Remove(reaction);
+                await _dbContext.SaveChangesAsync();
+                await _reactables[subject].RefreshStats(toId);
+            }
+        }
 
-            await _reactables[subject].RefreshStats(toId);
+        private DbSet<ReactionModel> GetReactionsList(ReactionSubject subject)
+        {
+            switch (subject)
+            {
+                case ReactionSubject.Post:
+                return _dbContext.PostReactions;
+                case ReactionSubject.Shop:
+                return _dbContext.ShopReactions;
+                case ReactionSubject.Profile:
+                return _dbContext.ProfileReactions;
+                default:
+                throw new Exception();
+            }
         }
     }
 }

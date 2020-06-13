@@ -78,5 +78,11 @@ namespace seattle.Models
 
         [DefaultValue(0), DisplayName("Report Count"), Description("How many times your profile was reported by other users.")]
         public int ReportCount { get; set; }
+
+        [DefaultValue(0), DisplayName("Block Count"), Description("How many times your profile was blocked by other users.")]
+        public int BlockCount { get; set; }
+
+        [DefaultValue(0), DisplayName("Follow Count"), Description("How many times your profile was followed by other users.")]
+        public int FollowCount { get; set; }
     }
 }

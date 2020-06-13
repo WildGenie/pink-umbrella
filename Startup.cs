@@ -50,7 +50,6 @@ namespace seattle
             services.AddScoped<ISimpleResourceService, SimpleResourceService>();
             services.AddScoped<ISimpleInventoryService, SimpleInventoryService>();
             services.AddScoped<IPostService, PostService>();
-            services.AddScoped<IFeedService, FeedService>();
             services.AddScoped<IShopService, ShopService>();
             
             services.AddScoped<ISearchableService, SearchPostsService>();

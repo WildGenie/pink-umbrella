@@ -6,7 +6,7 @@
 <div class="text-center">
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
         <div class="container">
-            <h1 class="display-4">Welcome, @Model.MyProfile.DisplayName</h1>
+            <h1 class="display-4">Hello, @Model.MyProfile.DisplayName</h1>
             <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                 <ul class="navbar-nav flex-grow-1 highlight-selected">
                     @foreach (var src in Enum.GetValues(typeof(FeedSource)).Cast<FeedSource>())

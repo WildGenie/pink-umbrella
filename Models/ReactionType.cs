@@ -5,5 +5,7 @@ namespace seattle.Models
         Like,
         Dislike,
         Report,
+        Block,
+        Follow
     }
 }

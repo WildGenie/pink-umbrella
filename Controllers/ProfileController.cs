@@ -18,8 +18,8 @@ namespace seattle.Controllers
         private readonly ILogger<ProfileController> _logger;
 
         public ProfileController(IWebHostEnvironment environment, ILogger<ProfileController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IFeedService feeds, IUserProfileService userProfiles):
-            base(environment, signInManager, userManager, feeds, userProfiles)
+            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles):
+            base(environment, signInManager, userManager, posts, userProfiles)
         {
             _logger = logger;
         }
@@ -32,7 +32,7 @@ namespace seattle.Controllers
             var user = id.HasValue ? await _userProfiles.GetUser(id.Value) : await GetCurrentUserAsync();
             return View(new IndexViewModel() {
                 Profile = user,
-                Feed = await _feeds.GetFeedForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 })
+                Feed = await _posts.GetFeedForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 })
             });
         }
 

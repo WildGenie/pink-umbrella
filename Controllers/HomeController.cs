@@ -17,16 +17,13 @@ namespace seattle.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ISearchService _searchService;
-        private readonly IPostService _posts;
 
         public HomeController(IWebHostEnvironment environment, ILogger<HomeController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IFeedService feeds, IUserProfileService userProfiles, ISearchService searchService,
-            IPostService postService):
-            base(environment, signInManager, userManager, feeds, userProfiles)
+            UserManager<UserProfileModel> userManager, IPostService postService, IUserProfileService userProfiles, ISearchService searchService):
+            base(environment, signInManager, userManager, postService, userProfiles)
         {
             _logger = logger;
             _searchService = searchService;
-            _posts = postService;
         }
 
         public async Task<IActionResult> Index()
@@ -41,7 +38,7 @@ namespace seattle.Controllers
 
             if (user != null)
             {
-                model.MyFeed = await _feeds.GetFeedForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 });
+                model.MyFeed = await _posts.GetFeedForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 });
                 return View(model);
             }
             else
@@ -54,6 +51,7 @@ namespace seattle.Controllers
             }
         }
 
+        [Route("/Mentions")]
         public async Task<IActionResult> Mentions()
         {
             ViewData["Controller"] = "Home";
@@ -62,11 +60,12 @@ namespace seattle.Controllers
             var model = new IndexViewModel() {
                 Source = FeedSource.Mentions,
                 MyProfile = user,
-                MyFeed = await _feeds.GetMentionsForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 })
+                MyFeed = await _posts.GetMentionsForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 })
             };
             return View(nameof(Index), model);
         }
 
+        [Route("/MyPosts")]
         public async Task<IActionResult> MyPosts()
         {
             ViewData["Controller"] = "Home";
@@ -75,7 +74,7 @@ namespace seattle.Controllers
             var model = new IndexViewModel() {
                 Source = FeedSource.Myself,
                 MyProfile = user,
-                MyFeed = await _feeds.GetPostsForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 })
+                MyFeed = await _posts.GetPostsForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 })
             };
             return View(nameof(Index), model);
         }

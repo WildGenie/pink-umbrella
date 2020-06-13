@@ -21,9 +21,9 @@ namespace seattle.Controllers
                 IWebHostEnvironment environment,
                 UserManager<UserProfileModel> userManager,
                 SignInManager<UserProfileModel> signInManager,
-                IFeedService feeds, IUserProfileService userProfiles
+                IPostService posts, IUserProfileService userProfiles
                 ) :
-            base(environment, signInManager, userManager, feeds, userProfiles)
+            base(environment, signInManager, userManager, posts, userProfiles)
         {
         }
 

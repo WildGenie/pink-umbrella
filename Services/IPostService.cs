@@ -11,5 +11,10 @@ namespace seattle.Services
         Task<NewPostResult> TryCreateTextPosts(int userId, string[] post_chain, Visibility visibility);
         Task DeletePost(int id, int userId);
         Task UpdateShadowBanStatus(int id, bool status);
+
+
+        Task<FeedModel> GetFeedForUser(int userId, int viewerId, bool includeReplies, PaginationModel pagination);
+        Task<FeedModel> GetMentionsForUser(int userId, int viewerId, bool includeReplies, PaginationModel pagination);
+        Task<FeedModel> GetPostsForUser(int userId, int viewerId, bool includeReplies, PaginationModel pagination);
     }
 }

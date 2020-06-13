@@ -21,9 +21,9 @@ namespace seattle.Controllers
 
         public InventoryController(IWebHostEnvironment environment, ILogger<InventoryController> logger,
             SignInManager<UserProfileModel> signInManager, UserManager<UserProfileModel> userManager,
-            IFeedService feeds, IUserProfileService userProfiles, ISimpleResourceService resourceService,
+            IPostService posts, IUserProfileService userProfiles, ISimpleResourceService resourceService,
             ISimpleInventoryService inventories):
-            base(environment, signInManager, userManager, feeds, userProfiles)
+            base(environment, signInManager, userManager, posts, userProfiles)
         {
             _logger = logger;
             _resources = resourceService;

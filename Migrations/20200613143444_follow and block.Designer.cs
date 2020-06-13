@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using seattle.Repositories;
 
 namespace seattle.Migrations
 {
     [DbContext(typeof(SimpleDbContext))]
-    partial class SimpleDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200613143444_follow and block")]
+    partial class followandblock
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -209,9 +211,6 @@ namespace seattle.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("BlockCount")
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("ContainsProfanity")

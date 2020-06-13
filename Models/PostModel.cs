@@ -44,6 +44,9 @@ namespace seattle.Models
         [DefaultValue(0), PersonalData, DisplayName("Report Count"), Description("How many times your post was reported by other users.")]
         public int ReportCount { get; set; }
 
+        [DefaultValue(0), PersonalData, DisplayName("Block Count"), Description("How many times your post was blocked by other users.")]
+        public int BlockCount { get; set; }
+
         [StringLength(1000), PersonalData, Description("The content of the post")]
         public string Content { get; set; }
 
@@ -56,5 +59,18 @@ namespace seattle.Models
 
         [NotMapped]
         public List<MentionModel> Mentions { get; set; } = new List<MentionModel>();
+
+
+        [NotMapped]
+        public bool HasLiked { get; set; }
+        
+        [NotMapped]
+        public bool HasDisliked { get; set; }
+        
+        [NotMapped]
+        public bool HasBlocked { get; set; }
+
+        [NotMapped]
+        public bool HasReported { get; set; }
     }
 }

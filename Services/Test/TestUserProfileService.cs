@@ -59,28 +59,8 @@ namespace seattle.Services.Test
                 Bio = ""
             };
         }
-        
-        public UserProfileModel CreateUser(UserProfileModel initial)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void DeleteUser(int id, int by_user_id)
-        {
-            throw new System.NotImplementedException();
-        }
 
         public Task<List<UserProfileModel>> GetMostRecentlyCreatedUsers()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task<List<UserProfileModel>> SearchUsers(string text, PaginationModel pagination)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public UserProfileModel CreateUser(RegisterInputModel initial)
         {
             throw new NotImplementedException();
         }
@@ -95,12 +75,32 @@ namespace seattle.Services.Test
             throw new NotImplementedException();
         }
 
-        Task IUserProfileService.DeleteUser(int id, int by_user_id)
+        public UserProfileModel CreateUser(RegisterInputModel initial)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeleteUser(int id, int by_user_id)
         {
             throw new NotImplementedException();
         }
 
         public Task LogIn(int id, string from)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<UserProfileModel>> GetFollowers(int userId, int viewerId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<UserProfileModel>> GetFollowing(int userId, int viewerId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<UserProfileModel>> GetBlocked(int userId, int viewerId)
         {
             throw new NotImplementedException();
         }

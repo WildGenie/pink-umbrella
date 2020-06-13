@@ -34,6 +34,8 @@ namespace seattle.Services.Sql.React
             post.LikeCount = _dbContext.ProfileReactions.Where(r => r.Type == ReactionType.Like && r.ToId == id).Count();
             post.DislikeCount = _dbContext.ProfileReactions.Where(r => r.Type == ReactionType.Dislike && r.ToId == id).Count();
             post.ReportCount = _dbContext.ProfileReactions.Where(r => r.Type == ReactionType.Report && r.ToId == id).Count();
+            post.BlockCount = _dbContext.ProfileReactions.Where(r => r.Type == ReactionType.Block && r.ToId == id).Count();
+            post.FollowCount = _dbContext.ProfileReactions.Where(r => r.Type == ReactionType.Follow && r.ToId == id).Count();
             await _dbContext.SaveChangesAsync();
         }
     }

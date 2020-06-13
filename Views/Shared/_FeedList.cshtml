@@ -2,7 +2,7 @@
 @model FeedModel
 
 <div>
-    @foreach (var result in Model.Posts) {
+    @foreach (var result in Model.Items) {
         <hr />
         <partial name="Post/_Container" model="result" />
     }

@@ -18,8 +18,8 @@ namespace seattle.Controllers
         private readonly ILogger<DebugController> _logger;
 
         public DebugController(IWebHostEnvironment environment, ILogger<DebugController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IFeedService feeds, IUserProfileService userProfiles):
-            base(environment, signInManager, userManager, feeds, userProfiles)
+            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles):
+            base(environment, signInManager, userManager, posts, userProfiles)
         {
             _logger = logger;
         }
@@ -30,7 +30,7 @@ namespace seattle.Controllers
             ViewData["Action"] = nameof(Index);
             return View(new IndexViewModel() {
                 MyProfile = await _userProfiles.GetUser(0),
-                MyFeed = await _feeds.GetFeedForUser(0, 0, false, new PaginationModel() { count = 10, start = 0 })
+                MyFeed = await _posts.GetFeedForUser(0, 0, false, new PaginationModel() { count = 10, start = 0 })
             });
         }
     }

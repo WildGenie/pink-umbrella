@@ -20,8 +20,8 @@ namespace seattle.Controllers
         private readonly IArchiveService _archive;
 
         public ArchiveController(IWebHostEnvironment environment, ILogger<ArchiveController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IFeedService feeds, IUserProfileService userProfiles, IArchiveService archive):
-            base(environment, signInManager, userManager, feeds, userProfiles)
+            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IArchiveService archive):
+            base(environment, signInManager, userManager, posts, userProfiles)
         {
             _logger = logger;
             _archive = archive;

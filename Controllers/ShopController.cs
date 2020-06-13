@@ -19,8 +19,8 @@ namespace seattle.Controllers
         private readonly IShopService _shops;
 
         public ShopController(IWebHostEnvironment environment, ILogger<ShopController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IFeedService feeds, IUserProfileService userProfiles, IShopService shops):
-            base(environment, signInManager, userManager, feeds, userProfiles)
+            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IShopService shops):
+            base(environment, signInManager, userManager, posts, userProfiles)
         {
             _logger = logger;
             _shops = shops;

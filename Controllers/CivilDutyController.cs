@@ -17,8 +17,8 @@ namespace seattle.Controllers
         private readonly ILogger<CivicDutyController> _logger;
 
         public CivicDutyController(IWebHostEnvironment environment, ILogger<CivicDutyController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IFeedService feeds, IUserProfileService userProfiles):
-            base(environment, signInManager, userManager, feeds, userProfiles)
+            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles):
+            base(environment, signInManager, userManager, posts, userProfiles)
         {
             _logger = logger;
         }
