@@ -19,8 +19,15 @@ namespace seattle.Services.Sql
             _dbContext = dbContext;
         }
 
+        public Task<int> GetCount(int toId, ReactionType type, ReactionSubject subject) => _reactables[subject].GetCount(toId, type);
+
         public async Task<int> React(int userId, int toId, ReactionType type, ReactionSubject subject)
         {
+            if (subject == ReactionSubject.Profile && userId == toId)
+            {
+                throw new Exception("Cannot react to own profile");
+            }
+
             var reaction = new ReactionModel() {
                 UserId = userId,
                 ToId = toId,

@@ -30,13 +30,27 @@ namespace seattle.Services.Sql.React
 
         public async Task RefreshStats(int id)
         {
-            var post = await _userManager.FindByIdAsync(id.ToString());
-            post.LikeCount = _dbContext.ProfileReactions.Where(r => r.Type == ReactionType.Like && r.ToId == id).Count();
-            post.DislikeCount = _dbContext.ProfileReactions.Where(r => r.Type == ReactionType.Dislike && r.ToId == id).Count();
-            post.ReportCount = _dbContext.ProfileReactions.Where(r => r.Type == ReactionType.Report && r.ToId == id).Count();
-            post.BlockCount = _dbContext.ProfileReactions.Where(r => r.Type == ReactionType.Block && r.ToId == id).Count();
-            post.FollowCount = _dbContext.ProfileReactions.Where(r => r.Type == ReactionType.Follow && r.ToId == id).Count();
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            user.LikeCount = _dbContext.ProfileReactions.Where(r => r.Type == ReactionType.Like && r.ToId == id).Count();
+            user.DislikeCount = _dbContext.ProfileReactions.Where(r => r.Type == ReactionType.Dislike && r.ToId == id).Count();
+            user.ReportCount = _dbContext.ProfileReactions.Where(r => r.Type == ReactionType.Report && r.ToId == id).Count();
+            user.BlockCount = _dbContext.ProfileReactions.Where(r => r.Type == ReactionType.Block && r.ToId == id).Count();
+            user.FollowCount = _dbContext.ProfileReactions.Where(r => r.Type == ReactionType.Follow && r.ToId == id).Count();
             await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<int> GetCount(int id, ReactionType type)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            switch (type)
+            {
+                case ReactionType.Like: return user.LikeCount;
+                case ReactionType.Dislike: return user.DislikeCount;
+                case ReactionType.Report: return user.ReportCount;
+                case ReactionType.Block: return user.BlockCount;
+                case ReactionType.Follow: return user.FollowCount;
+                default: return 0;
+            }
         }
     }
 }

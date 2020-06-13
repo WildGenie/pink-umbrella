@@ -12,7 +12,7 @@ namespace seattle.Models
         public double Latitude { get; set; }
         public double Longitude { get; set; }
 
-        [Required, StringLength(100)]
+        [Required, StringLength(100), DisplayName("Display Name")]
         public string DisplayName { get; set; }
 
         [Required, StringLength(1000)]

@@ -77,23 +77,27 @@ namespace seattle.Services.Sql
             throw new System.NotImplementedException();
         }
 
-        public async Task<PostModel> GetPost(int id)
+        public async Task<PostModel> GetPost(int id, int? viewerId)
         {
             var p = await _dbContext.Posts.FindAsync(id);
-            await BindReferences(p);
+            await BindReferences(p, viewerId);
             return p;
         }
 
-        private async Task BindReferences(PostModel p)
+        private async Task BindReferences(PostModel p, int? viewerId)
         {
+            p.ViewerId = viewerId;
             p.Mentions = await _dbContext.Mentions.Where(m => m.PostId == p.Id).ToListAsync();
 
-            var reactions = await _dbContext.PostReactions.Where(r => r.UserId == p.UserId && r.ToId == p.Id).Select(r => r.Type).ToListAsync();
+            if (viewerId.HasValue)
+            {
+                var reactions = await _dbContext.PostReactions.Where(r => r.UserId == viewerId && r.ToId == p.Id).Select(r => r.Type).ToListAsync();
 
-            p.HasLiked = reactions.Contains(ReactionType.Like);
-            p.HasDisliked = reactions.Contains(ReactionType.Dislike);
-            p.HasBlocked = reactions.Contains(ReactionType.Block);
-            p.HasReported = reactions.Contains(ReactionType.Report);
+                p.HasLiked = reactions.Contains(ReactionType.Like);
+                p.HasDisliked = reactions.Contains(ReactionType.Dislike);
+                p.HasBlocked = reactions.Contains(ReactionType.Block);
+                p.HasReported = reactions.Contains(ReactionType.Report);
+            }
         }
 
         public Task UpdateShadowBanStatus(int id, bool status)
@@ -101,7 +105,7 @@ namespace seattle.Services.Sql
             throw new System.NotImplementedException();
         }
 
-        public Task<List<PostModel>> UserPosts(int userId, int viewerId, PaginationModel pagination)
+        public Task<List<PostModel>> UserPosts(int userId, int? viewerId, PaginationModel pagination)
         {
             throw new System.NotImplementedException();
         }
@@ -112,7 +116,7 @@ namespace seattle.Services.Sql
             var mentionedUserIds = new List<int>();
 
             foreach (var handle in handles) {
-                var user = await _users.GetUser(handle);
+                var user = await _users.GetUser(handle, p.UserId);
                 if (user != null) {
                     if (!mentionedUserIds.Contains(user.Id))
                     {
@@ -129,11 +133,11 @@ namespace seattle.Services.Sql
             }
         }
 
-        public async Task<FeedModel> GetFeedForUser(int userId, int viewerId, bool includeReplies, PaginationModel pagination)
+        public async Task<FeedModel> GetFeedForUser(int userId, int? viewerId, bool includeReplies, PaginationModel pagination)
         {
             var posts = await _dbContext.Posts.Where(p => p.UserId == userId).OrderByDescending(p => p.WhenCreated).Skip(pagination.start).Take(pagination.count).ToListAsync();
             foreach (var p in posts) {
-                await BindReferences(p);
+                await BindReferences(p, viewerId);
             }
             return new FeedModel() {
                 Items = posts,
@@ -145,13 +149,13 @@ namespace seattle.Services.Sql
             };
         }
 
-        public async Task<FeedModel> GetMentionsForUser(int userId, int viewerId, bool includeReplies, PaginationModel pagination)
+        public async Task<FeedModel> GetMentionsForUser(int userId, int? viewerId, bool includeReplies, PaginationModel pagination)
         {
             var mentions =  _dbContext.Mentions.Where(m => m.MentionedUserId == userId);
             var paginated = await mentions.OrderByDescending(p => p.WhenMentioned).Skip(pagination.start).Take(pagination.count).ToListAsync();
             var posts = new List<PostModel>();
             foreach (var p in mentions) {
-                posts.Add(await GetPost(p.PostId));
+                posts.Add(await GetPost(p.PostId, viewerId));
             }
             return new FeedModel() {
                 Items = posts,
@@ -163,12 +167,12 @@ namespace seattle.Services.Sql
             };
         }
 
-        public async Task<FeedModel> GetPostsForUser(int userId, int viewerId, bool includeReplies, PaginationModel pagination)
+        public async Task<FeedModel> GetPostsForUser(int userId, int? viewerId, bool includeReplies, PaginationModel pagination)
         {
             var posts = _dbContext.Posts.Where(p => p.UserId == userId);
             var paginated = await posts.OrderByDescending(p => p.WhenCreated).Skip(pagination.start).Take(pagination.count).ToListAsync();
             foreach (var p in posts) {
-                await BindReferences(p);
+                await BindReferences(p, viewerId);
             }
             return new FeedModel() {
                 Items = paginated,

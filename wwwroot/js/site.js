@@ -30,6 +30,6 @@ $(() => {
     });
 
     $(document).on('replacewith', '.contains-ajax', (ev, r, $ajax) => {
-        $ajax.closest('.contains-ajax').replaceWith(r);
+        $ajax.closest('.contains-ajax')[0].outerHTML = r;
     });
 });

@@ -9,6 +9,8 @@ namespace seattle.Services
         string ControllerName { get; }
         ReactionSubject Subject { get; }
 
+        Task<int> GetCount(int toId, ReactionType type);
+
         Task RefreshStats(int id);
         Task<List<int>> GetIds();
     }

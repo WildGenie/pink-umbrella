@@ -36,7 +36,7 @@ namespace seattle.Controllers
             ViewData["Action"] = nameof(Index);
             var user = await GetCurrentUserAsync();
             var model = new IndexViewModel() {
-                MyProfile = await _userProfiles.GetUser(0),
+                MyProfile = user,
                 Resources = await _resources.QueryInventory(user.Id, -1, queryText, new PaginationModel() { start = 0, count = 10 }),
                 Inventories = await _inventories.GetForUser(user.Id),
             };

@@ -33,5 +33,17 @@ namespace seattle.Services.Sql.React
             ArchivedMedia.ReportCount = _dbContext.ArchivedMediaReactions.Where(r => r.Type == ReactionType.Report && r.ToId == id).Count();
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<int> GetCount(int id, ReactionType type)
+        {
+            var ArchivedMedia = await _dbContext.ArchivedMedia.FindAsync(id);
+            switch (type)
+            {
+                case ReactionType.Like: return ArchivedMedia.LikeCount;
+                case ReactionType.Dislike: return ArchivedMedia.DislikeCount;
+                case ReactionType.Report: return ArchivedMedia.ReportCount;
+                default: return 0;
+            }
+        }
     }
 }

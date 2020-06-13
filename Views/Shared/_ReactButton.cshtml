@@ -23,9 +23,14 @@
     {
         count = Model.Count.ToString();
     }
+
+    var containerClass = Model.ViewerId.HasValue && (Model.Subject != ReactionSubject.Profile || Model.ViewerId.Value != Model.ToId) ? "contains-ajax" : "";
 }
-<div class="contains-ajax">
-    <a class="ajax" asp-action="@actionPrefix@Model.Type" asp-controller="Reaction" asp-route-id="@Model.ToId" asp-route-subject="@Model.Subject" data-response-type="html" data-response-handler="replacewith"></a>
+<div class="@containerClass">
+    @if (Model.ViewerId.HasValue)
+    {
+        <a class="ajax" asp-action="@actionPrefix@Model.Type" asp-controller="Reaction" asp-route-id="@Model.ToId" asp-route-subject="@Model.Subject" data-response-type="html" data-response-handler="replacewith"></a>
+    }
     @if (Model.HasReacted)
     {
     switch (Model.Type)

@@ -84,5 +84,21 @@ namespace seattle.Models
 
         [DefaultValue(0), DisplayName("Follow Count"), Description("How many times your profile was followed by other users.")]
         public int FollowCount { get; set; }
+
+
+        [NotMapped]
+        public bool HasLiked { get; set; }
+        
+        [NotMapped]
+        public bool HasDisliked { get; set; }
+
+        [NotMapped]
+        public bool HasFollowed { get; set; }
+        
+        [NotMapped]
+        public bool HasBlocked { get; set; }
+
+        [NotMapped]
+        public bool HasReported { get; set; }
     }
 }

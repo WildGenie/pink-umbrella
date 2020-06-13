@@ -51,14 +51,18 @@ namespace seattle.Services.Sql
             throw new System.NotImplementedException();
         }
 
-        public Task<UserProfileModel> GetUser(int id)
+        public async Task<UserProfileModel> GetUser(int id, int? viewerId)
         {
-            return _userManager.FindByIdAsync(id.ToString());
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            await BindReferences(user, viewerId);
+            return user;
         }
 
-        public async Task<UserProfileModel> GetUser(string handle)
+        public async Task<UserProfileModel> GetUser(string handle, int? viewerId)
         {
-            return await _userManager.Users.SingleOrDefaultAsync(u => u.Handle == handle);
+            var user =  await _userManager.Users.SingleOrDefaultAsync(u => u.Handle == handle);
+            await BindReferences(user, viewerId);
+            return user;
         }
 
         public async Task LogIn(int id, string from)
@@ -69,32 +73,43 @@ namespace seattle.Services.Sql
             await _userManager.UpdateAsync(user);
         }
 
-        public async Task<List<UserProfileModel>> GetFollowers(int userId, int viewerId)
+        public async Task<List<UserProfileModel>> GetFollowers(int userId, int? viewerId)
         {
             var ids = await _dbContext.ProfileReactions.Where(r => r.UserId == userId && r.Type == ReactionType.Follow).Select(r => r.UserId).ToListAsync();
             return await GetUsers(ids, viewerId);
         }
 
-        public async Task<List<UserProfileModel>> GetFollowing(int userId, int viewerId)
+        public async Task<List<UserProfileModel>> GetFollowing(int userId, int? viewerId)
         {
             var ids = await _dbContext.ProfileReactions.Where(r => r.ToId == userId && r.Type == ReactionType.Follow).Select(r => r.ToId).ToListAsync();
             return await GetUsers(ids, viewerId);
         }
 
-        public async Task<List<UserProfileModel>> GetBlocked(int userId, int viewerId)
+        public async Task<List<UserProfileModel>> GetBlocked(int userId, int? viewerId)
         {
             var ids = await _dbContext.ProfileReactions.Where(r => r.UserId == userId && r.Type == ReactionType.Block).Select(r => r.UserId).ToListAsync();
             return await GetUsers(ids, viewerId);
         }
 
-        private async Task<List<UserProfileModel>> GetUsers(List<int> ids, int viewerId)
+        private async Task<List<UserProfileModel>> GetUsers(List<int> ids, int? viewerId)
         {
             var ret = new List<UserProfileModel>();
             foreach (var id in ids)
             {
-                ret.Add(await GetUser(id));
+                ret.Add(await GetUser(id, viewerId));
             }
             return ret;
+        }
+
+        private async Task BindReferences(UserProfileModel user, int? viewerId)
+        {
+            var reactions = await _dbContext.PostReactions.Where(r => r.UserId == viewerId && r.ToId == user.Id).Select(r => r.Type).ToListAsync();
+
+            user.HasLiked = reactions.Contains(ReactionType.Like);
+            user.HasDisliked = reactions.Contains(ReactionType.Dislike);
+            user.HasFollowed = reactions.Contains(ReactionType.Follow);
+            user.HasBlocked = reactions.Contains(ReactionType.Block);
+            user.HasReported = reactions.Contains(ReactionType.Report);
         }
     }
 }

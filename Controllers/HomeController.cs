@@ -79,6 +79,7 @@ namespace seattle.Controllers
             return View(nameof(Index), model);
         }
 
+        [Route("/Privacy")]
         public IActionResult Privacy()
         {
             ViewData["Controller"] = "Home";
@@ -86,6 +87,7 @@ namespace seattle.Controllers
             return View(new PrivacyViewModel());
         }
 
+        [Route("/About")]
         public IActionResult About()
         {
             ViewData["Controller"] = "Home";

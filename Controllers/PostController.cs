@@ -33,7 +33,7 @@ namespace seattle.Controllers
             if (id != null)
             {
                 return View(new PostViewModel() {
-                    Post = await _posts.GetPost(id.Value),
+                    Post = await _posts.GetPost(id.Value, user?.Id ?? -1),
                     MyProfile = user
                 });
             }

@@ -9,9 +9,9 @@ namespace seattle.Services
     {
         Task<List<UserProfileModel>> GetMostRecentlyCreatedUsers();
 
-        Task<UserProfileModel> GetUser(int id);
+        Task<UserProfileModel> GetUser(int id, int? viewerId);
 
-        Task<UserProfileModel> GetUser(string handle);
+        Task<UserProfileModel> GetUser(string handle, int? viewerId);
 
         UserProfileModel CreateUser(RegisterInputModel initial);
 
@@ -19,10 +19,10 @@ namespace seattle.Services
 
         Task LogIn(int id, string from);
 
-        Task<List<UserProfileModel>> GetFollowers(int userId, int viewerId);
+        Task<List<UserProfileModel>> GetFollowers(int userId, int? viewerId);
 
-        Task<List<UserProfileModel>> GetFollowing(int userId, int viewerId);
+        Task<List<UserProfileModel>> GetFollowing(int userId, int? viewerId);
 
-        Task<List<UserProfileModel>> GetBlocked(int userId, int viewerId);
+        Task<List<UserProfileModel>> GetBlocked(int userId, int? viewerId);
     }
 }

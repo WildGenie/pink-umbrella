@@ -44,29 +44,16 @@ namespace seattle.Controllers
             var user = await GetCurrentUserAsync();
             var reactionId = await _reactions.React(user.Id, toId, t, subject);
 
-            // if (IsAjaxRequest())
-            // {
-            //     return Json(new
-            //     {
-            //         reactionId
-            //     });
-            // }
-            // else
-            // {
-                ViewData["PartialName"] = "_ReactButton";
-                return View("_NoLayout", new ReactViewModel()
-                {
-                    HasReacted = true,
-                    Subject = subject,
-                    ToId = toId,
-                    Type = t,
-                });
-                // return View("StatusBar", new StatusViewModel()
-                // {
-                //     Message = GetMessage(t, subject),
-                //     MSBeforeDestruction = 5000 // 5 seconds
-                // });
-            //}
+            ViewData["PartialName"] = "_ReactButton";
+            return View("_NoLayout", new ReactViewModel()
+            {
+                HasReacted = true,
+                Subject = subject,
+                ToId = toId,
+                Type = t,
+                ViewerId = user.Id,
+                Count = await _reactions.GetCount(toId, t, subject),
+            });
         }
 
         public async Task<IActionResult> UnLike(int id, ReactionSubject subject) => await UnReact(id, ReactionType.Like, subject);
@@ -84,29 +71,16 @@ namespace seattle.Controllers
             var user = await GetCurrentUserAsync();
             await _reactions.UnReact(user.Id, toId, t, subject);
 
-            // if (IsAjaxRequest())
-            // {
-            //     return Json(new
-            //     {
-            //         reactionId
-            //     });
-            // }
-            // else
-            // {
-                ViewData["PartialName"] = "_ReactButton";
-                return View("_NoLayout", new ReactViewModel()
-                {
-                    HasReacted = false,
-                    Subject = subject,
-                    ToId = toId,
-                    Type = t,
-                });
-                // return View("StatusBar", new StatusViewModel()
-                // {
-                //     Message = GetUndoMessage(t, subject),
-                //     MSBeforeDestruction = 5000 // 5 seconds
-                // });
-            //}
+            ViewData["PartialName"] = "_ReactButton";
+            return View("_NoLayout", new ReactViewModel()
+            {
+                HasReacted = false,
+                Subject = subject,
+                ToId = toId,
+                Type = t,
+                ViewerId = user.Id,
+                Count = await _reactions.GetCount(toId, t, subject),
+            });
         }
 
         private string GetMessage(ReactionType t, ReactionSubject subject)

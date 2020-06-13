@@ -32,8 +32,10 @@ namespace seattle.Controllers
         {
             ViewData["Controller"] = "Profile";
             ViewData["Action"] = nameof(Index);
-            var user = await _userProfiles.GetUser(id);
+            var currentUser = await GetCurrentUserAsync();
+            var user = await _userProfiles.GetUser(id, currentUser?.Id ?? -1);
             return View(new IndexViewModel() {
+                MyProfile = currentUser,
                 Profile = user,
                 Feed = await _posts.GetPostsForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 })
             });
@@ -44,8 +46,10 @@ namespace seattle.Controllers
         {
             ViewData["Controller"] = "Profile";
             ViewData["Action"] = nameof(Replies);
-            var user = await _userProfiles.GetUser(id);
+            var currentUser = await GetCurrentUserAsync();
+            var user = await _userProfiles.GetUser(id, currentUser?.Id ?? -1);
             return View("Index", new IndexViewModel() {
+                MyProfile = currentUser,
                 Profile = user,
                 Feed = await _posts.GetPostsForUser(user.Id, user.Id, true, new PaginationModel() { count = 10, start = 0 })
             });
@@ -56,8 +60,10 @@ namespace seattle.Controllers
         {
             ViewData["Controller"] = "Profile";
             ViewData["Action"] = nameof(Mentions);
-            var user = await _userProfiles.GetUser(id);
+            var currentUser = await GetCurrentUserAsync();
+            var user = await _userProfiles.GetUser(id, currentUser?.Id ?? -1);
             return View("Index", new IndexViewModel() {
+                MyProfile = currentUser,
                 Profile = user,
                 Feed = await _posts.GetMentionsForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 })
             });
@@ -65,7 +71,8 @@ namespace seattle.Controllers
 
         public async Task<IActionResult> ProfileByHandle(string handle)
         {
-            var user = await _userProfiles.GetUser(handle);
+            var currentUser = await GetCurrentUserAsync();
+            var user = await _userProfiles.GetUser(handle, currentUser?.Id ?? -1);
             return RedirectToAction(nameof(Index), new { Id = user.Id });
         }
     }

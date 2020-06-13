@@ -29,7 +29,7 @@ namespace seattle.Controllers
             ViewData["Controller"] = "Debug";
             ViewData["Action"] = nameof(Index);
             return View(new IndexViewModel() {
-                MyProfile = await _userProfiles.GetUser(0),
+                MyProfile = await GetCurrentUserAsync(),
                 MyFeed = await _posts.GetFeedForUser(0, 0, false, new PaginationModel() { count = 10, start = 0 })
             });
         }

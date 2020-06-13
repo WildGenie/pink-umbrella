@@ -72,5 +72,9 @@ namespace seattle.Models
 
         [NotMapped]
         public bool HasReported { get; set; }
+
+
+        [NotMapped]
+        public int? ViewerId { get; set; }
     }
 }

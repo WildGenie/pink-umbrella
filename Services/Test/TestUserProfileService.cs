@@ -65,12 +65,12 @@ namespace seattle.Services.Test
             throw new NotImplementedException();
         }
 
-        public Task<UserProfileModel> GetUser(int id)
+        public Task<UserProfileModel> GetUser(int id, int? viewerId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<UserProfileModel> GetUser(string handle)
+        public Task<UserProfileModel> GetUser(string handle, int? viewerId)
         {
             throw new NotImplementedException();
         }
@@ -90,17 +90,17 @@ namespace seattle.Services.Test
             throw new NotImplementedException();
         }
 
-        public Task<List<UserProfileModel>> GetFollowers(int userId, int viewerId)
+        public Task<List<UserProfileModel>> GetFollowers(int userId, int? viewerId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<UserProfileModel>> GetFollowing(int userId, int viewerId)
+        public Task<List<UserProfileModel>> GetFollowing(int userId, int? viewerId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<UserProfileModel>> GetBlocked(int userId, int viewerId)
+        public Task<List<UserProfileModel>> GetBlocked(int userId, int? viewerId)
         {
             throw new NotImplementedException();
         }

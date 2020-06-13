@@ -7,5 +7,6 @@ namespace seattle.Services
     {
         Task<int> React(int userId, int toId, ReactionType type, ReactionSubject subject);
         Task UnReact(int userId, int toId, ReactionType type, ReactionSubject subject);
+        Task<int> GetCount(int toId, ReactionType type, ReactionSubject subject);
     }
 }

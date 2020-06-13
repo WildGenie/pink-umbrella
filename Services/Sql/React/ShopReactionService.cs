@@ -33,5 +33,17 @@ namespace seattle.Services.Sql.React
             shop.ReportCount = _dbContext.ShopReactions.Where(r => r.Type == ReactionType.Report && r.ToId == id).Count();
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<int> GetCount(int id, ReactionType type)
+        {
+            var shop = await _dbContext.Shops.FindAsync(id);
+            switch (type)
+            {
+                case ReactionType.Like: return shop.LikeCount;
+                case ReactionType.Dislike: return shop.DislikeCount;
+                case ReactionType.Report: return shop.ReportCount;
+                default: return 0;
+            }
+        }
     }
 }

@@ -34,5 +34,18 @@ namespace seattle.Services.Sql.React
             post.BlockCount = _dbContext.PostReactions.Where(r => r.Type == ReactionType.Block && r.ToId == id).Count();
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<int> GetCount(int id, ReactionType type)
+        {
+            var post = await _dbContext.Posts.FindAsync(id);
+            switch (type)
+            {
+                case ReactionType.Like: return post.LikeCount;
+                case ReactionType.Dislike: return post.DislikeCount;
+                case ReactionType.Report: return post.ReportCount;
+                case ReactionType.Block: return post.BlockCount;
+                default: return 0;
+            }
+        }
     }
 }

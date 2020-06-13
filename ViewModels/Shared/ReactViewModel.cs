@@ -4,6 +4,7 @@ namespace seattle.ViewModels.Shared
 {
     public class ReactViewModel
     {
+        public int? ViewerId { get; set; }
         public ReactionType Type { get; set; }
         public ReactionSubject Subject { get; set; }
         public int ToId { get; set; }
