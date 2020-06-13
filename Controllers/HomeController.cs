@@ -17,13 +17,16 @@ namespace seattle.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ISearchService _searchService;
+        private readonly IPostService _posts;
 
         public HomeController(IWebHostEnvironment environment, ILogger<HomeController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IFeedService feeds, IUserProfileService userProfiles, ISearchService searchService):
+            UserManager<UserProfileModel> userManager, IFeedService feeds, IUserProfileService userProfiles, ISearchService searchService,
+            IPostService postService):
             base(environment, signInManager, userManager, feeds, userProfiles)
         {
             _logger = logger;
             _searchService = searchService;
+            _posts = postService;
         }
 
         public async Task<IActionResult> Index()
@@ -32,6 +35,7 @@ namespace seattle.Controllers
             ViewData["Action"] = nameof(Index);
             var user = await GetCurrentUserAsync();
             var model = new IndexViewModel() {
+                Source = FeedSource.Following,
                 MyProfile = user,
             };
 
@@ -48,6 +52,32 @@ namespace seattle.Controllers
                 }
                 return View("IndexAnonymous", model);
             }
+        }
+
+        public async Task<IActionResult> Mentions()
+        {
+            ViewData["Controller"] = "Home";
+            ViewData["Action"] = nameof(Mentions);
+            var user = await GetCurrentUserAsync();
+            var model = new IndexViewModel() {
+                Source = FeedSource.Mentions,
+                MyProfile = user,
+                MyFeed = await _feeds.GetMentionsForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 })
+            };
+            return View(nameof(Index), model);
+        }
+
+        public async Task<IActionResult> MyPosts()
+        {
+            ViewData["Controller"] = "Home";
+            ViewData["Action"] = nameof(MyPosts);
+            var user = await GetCurrentUserAsync();
+            var model = new IndexViewModel() {
+                Source = FeedSource.Myself,
+                MyProfile = user,
+                MyFeed = await _feeds.GetPostsForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 })
+            };
+            return View(nameof(Index), model);
         }
 
         public IActionResult Privacy()

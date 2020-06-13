@@ -20,4 +20,10 @@
     <div>No view for @Model.PostType</div>
     break;
 }
+Mentions:
+<ul>
+    @foreach (var mention in Model.Mentions) {
+        <li class="contains-goto">@mention.MentionedUser.DisplayName<a class="goto" asp-controller="Profile" asp-action="Index" asp-route-id="@mention.MentionedUserId">goto</a></li>
+    }
+</ul>
 </div>

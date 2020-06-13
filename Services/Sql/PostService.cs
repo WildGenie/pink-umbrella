@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using seattle.Models;
 using seattle.Repositories;
 
@@ -10,10 +12,14 @@ namespace seattle.Services.Sql
     public class PostService : IPostService
     {
         private readonly SimpleDbContext _dbContext;
+        private readonly StringRepository _strings;
+        private readonly IUserProfileService _users;
 
-        public PostService(SimpleDbContext dbContext)
+        public PostService(SimpleDbContext dbContext, StringRepository strings, IUserProfileService users)
         {
             _dbContext = dbContext;
+            _strings = strings;
+            _users = users;
         }
 
         public async Task<NewPostResult> TryCreatePosts(List<PostModel> post_chain)
@@ -44,6 +50,12 @@ namespace seattle.Services.Sql
             post.WhenCreated = DateTime.UtcNow;
             _dbContext.Posts.Add(post);
             await _dbContext.SaveChangesAsync();
+
+            await ExtractMentions(post);
+
+            _dbContext.Mentions.AddRange(post.Mentions);
+            await _dbContext.SaveChangesAsync();
+
             return new NewPostResult() {
                 Error = false
             };
@@ -67,7 +79,9 @@ namespace seattle.Services.Sql
 
         public async Task<PostModel> GetPost(int id)
         {
-            return await _dbContext.Posts.FindAsync(id);
+            var p = await _dbContext.Posts.FindAsync(id);
+            p.Mentions = await _dbContext.Mentions.Where(m => m.PostId == id).ToListAsync();
+            return p;
         }
 
         public Task UpdateShadowBanStatus(int id, bool status)
@@ -78,6 +92,29 @@ namespace seattle.Services.Sql
         public Task<List<PostModel>> UserPosts(int userId, int viewerId, PaginationModel pagination)
         {
             throw new System.NotImplementedException();
+        }
+
+        private async Task ExtractMentions(PostModel p)
+        {
+            var handles = _strings.ExtractMentionsRegex.Matches(p.Content).Cast<Match>().Select(m => m.Value.Substring(1)).ToList();
+            var mentionedUserIds = new List<int>();
+
+            foreach (var handle in handles) {
+                var user = await _users.GetUser(handle);
+                if (user != null) {
+                    if (!mentionedUserIds.Contains(user.Id))
+                    {
+                        mentionedUserIds.Add(user.Id);
+                        p.Mentions.Add(new MentionModel() {
+                            WhenMentioned = DateTime.UtcNow,
+                            PostId = p.Id,
+                            Post = p,
+                            MentionedUserId = user.Id,
+                            MentionedUser = user
+                        });
+                    }
+                }
+            }
         }
     }
 }

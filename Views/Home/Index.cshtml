@@ -4,7 +4,35 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome, @Model.MyProfile.DisplayName</h1>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <div class="container">
+            <h1 class="display-4">Welcome, @Model.MyProfile.DisplayName</h1>
+            <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                <ul class="navbar-nav flex-grow-1 highlight-selected">
+                    @foreach (var src in Enum.GetValues(typeof(FeedSource)).Cast<FeedSource>())
+                    {
+                        var liClass = src == Model.Source ? "selected" : "";
+                        <li class="nav-item @liClass">
+                            @switch (src) {
+                                case FeedSource.Following:
+                                <a class="nav-link text-dark" asp-controller="Home" asp-action="Index"><u>Following</u></a>
+                                break;
+                                case FeedSource.Mentions:
+                                <a class="nav-link text-dark" asp-controller="Home" asp-action="Mentions"><u>Mentions</u></a>
+                                break;
+                                case FeedSource.Myself:
+                                <a class="nav-link text-dark" asp-controller="Home" asp-action="MyPosts"><u>Your Posts</u></a>
+                                break;
+                                default:
+                                <span>Unknown</span>
+                                break;
+                            }
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
     <i>@@@Model.MyProfile.Handle</i>
     <p>@Model.MyProfile.Bio</p>
 </div>

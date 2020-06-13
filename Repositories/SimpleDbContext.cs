@@ -19,6 +19,7 @@ namespace seattle.Repositories
         
 
         public DbSet<ArchivedMediaModel> ArchivedMedia { get; set; }
+        public DbSet<MentionModel> Mentions { get; set; }
 
 
         public SimpleDbContext(DbContextOptions<SimpleDbContext> options): base(options) {
