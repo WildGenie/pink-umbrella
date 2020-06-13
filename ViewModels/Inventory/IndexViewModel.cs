@@ -5,8 +5,9 @@ namespace seattle.ViewModels.Inventory
 {
     public class IndexViewModel
     {
-        public int InventoryId { get; set; }
-        public int SelectedId { get; set; }
+        [DisplayName("Inventory")]
+        public int? InventoryId { get; set; }
+        public int? SelectedId { get; set; }
         public UserProfileModel MyProfile { get; set; }
         public List<SimpleResourceModel> Resources { get; set; } = new List<SimpleResourceModel>();
         public List<SimpleInventoryModel> Inventories { get; set; } = new List<SimpleInventoryModel>();

@@ -1,6 +1,7 @@
 ﻿@using seattle.ViewModels.Inventory
 @model NewResourceViewModel
 
+<hr />
 <form asp-action="NewResource" asp-controller="Inventory" method="POST">
     <input type="hidden" value="@Model.Resource.InventoryId" name="Resource.InventoryId" />
     <div asp-validation-summary="All" class="text-danger"></div>

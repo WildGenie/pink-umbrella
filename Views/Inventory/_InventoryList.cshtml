@@ -1,11 +1,14 @@
 ﻿@using seattle.ViewModels.Inventory
 @model IndexViewModel
+@{
+    var everythingLiClass = !Model.InventoryId.HasValue ? "selected" : "";
+}
 <h1 class="display-4">Inventories</h1>
 <ul class="highlight-selected">
-    <li><a asp-controller="Inventory" asp-action="Index">All</a></li>
+    <li class="@everythingLiClass"><a asp-controller="Inventory" asp-action="Index" asp-route-id="">All</a></li>
     @foreach (var i in Model.Inventories) {
         var liClass = i.Id == Model.InventoryId ? "selected" : "";
-        <li class="@liClass"><a asp-controller="Inventory" asp-action="Inventory" asp-route-id="@i.Id">@i.Id - @i.DisplayName</a></li>
+        <li class="@liClass"><a asp-controller="Inventory" asp-action="Index" asp-route-id="@i.Id">@i.Id - @i.DisplayName</a></li>
     }
     <li><a asp-controller="Inventory" asp-action="NewInventory">Add Inventory</a></li>
 </ul>

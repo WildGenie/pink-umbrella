@@ -30,14 +30,15 @@ namespace seattle.Controllers
             _inventories = inventories;
         }
 
-        public async Task<IActionResult> Index(string queryText)
+        [Route("/Inventory")]
+        public async Task<IActionResult> Index()
         {
             ViewData["Controller"] = "Inventory";
             ViewData["Action"] = nameof(Index);
             var user = await GetCurrentUserAsync();
             var model = new IndexViewModel() {
                 MyProfile = user,
-                Resources = await _resources.QueryInventory(user.Id, -1, queryText, new PaginationModel() { start = 0, count = 10 }),
+                Resources = await _resources.QueryInventory(user.Id, -1, null, new PaginationModel() { start = 0, count = 10 }),
                 Inventories = await _inventories.GetForUser(user.Id),
             };
             model.NewResource.AvailableBrands = await _resources.GetBrands();
@@ -55,10 +56,11 @@ namespace seattle.Controllers
             });
         }
 
-        public async Task<IActionResult> Inventory(int id, int selected, string queryText)
+        [Route("/Inventory/{id}")]
+        public async Task<IActionResult> Index(int id, int selected, string queryText)
         {
             ViewData["Controller"] = "Inventory";
-            ViewData["Action"] = nameof(Inventory);
+            ViewData["Action"] = nameof(Index);
             var user = await GetCurrentUserAsync();
             var inventories = await _inventories.GetForUser(user.Id);
             var inventory = inventories.SingleOrDefault(i => i.Id == id);
@@ -75,7 +77,7 @@ namespace seattle.Controllers
                 Inventory = inventory,
             };
             model.NewResource.Resource.InventoryId = id;
-            return View(model);
+            return View("Inventory", model);
         }
 
         [HttpPost]
@@ -86,7 +88,7 @@ namespace seattle.Controllers
             var result = await _resources.CreateResource(Resource);
 
             if (result != null) {
-                return RedirectToAction(nameof(Inventory), new { Id = Resource.InventoryId, Selected = Resource.Id });
+                return RedirectToAction(nameof(Index), new { Id = Resource.InventoryId, Selected = Resource.Id });
             } else {
                 return View(new NewResourceViewModel() {
                     Resource = Resource,
