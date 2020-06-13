@@ -24,12 +24,12 @@ namespace seattle.Controllers
             _logger = logger;
         }
         
-        [Route("/Profile/{id}")]
-        public async Task<IActionResult> Index(int? id)
+        [Route("/Profile/{id?}")]
+        public async Task<IActionResult> Index(int? id = null)
         {
             ViewData["Controller"] = "Profile";
             ViewData["Action"] = nameof(Index);
-            var user = id.HasValue ? await GetCurrentUserAsync() : await _userProfiles.GetUser(id.Value);
+            var user = id.HasValue ? await _userProfiles.GetUser(id.Value) : await GetCurrentUserAsync();
             return View(new IndexViewModel() {
                 Profile = user,
                 Feed = await _feeds.GetFeedForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 })
