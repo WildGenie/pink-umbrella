@@ -23,16 +23,43 @@ namespace seattle.Controllers
         {
             _logger = logger;
         }
-        
-        [Route("/Profile/{id?}")]
-        public async Task<IActionResult> Index(int? id = null)
+
+        [Route("/Profile")]
+        public async Task<IActionResult> Index() => RedirectToAction(nameof(Index), new { id = (await GetCurrentUserAsync()).Id });
+
+        [Route("/Profile/{id}")]
+        public async Task<IActionResult> Index(int id)
         {
             ViewData["Controller"] = "Profile";
             ViewData["Action"] = nameof(Index);
-            var user = id.HasValue ? await _userProfiles.GetUser(id.Value) : await GetCurrentUserAsync();
+            var user = await _userProfiles.GetUser(id);
             return View(new IndexViewModel() {
                 Profile = user,
-                Feed = await _posts.GetFeedForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 })
+                Feed = await _posts.GetPostsForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 })
+            });
+        }
+        
+        [Route("/Profile/{id}/Replies")]
+        public async Task<IActionResult> Replies(int id)
+        {
+            ViewData["Controller"] = "Profile";
+            ViewData["Action"] = nameof(Replies);
+            var user = await _userProfiles.GetUser(id);
+            return View("Index", new IndexViewModel() {
+                Profile = user,
+                Feed = await _posts.GetPostsForUser(user.Id, user.Id, true, new PaginationModel() { count = 10, start = 0 })
+            });
+        }
+        
+        [Route("/Profile/{id}/Mentions")]
+        public async Task<IActionResult> Mentions(int id)
+        {
+            ViewData["Controller"] = "Profile";
+            ViewData["Action"] = nameof(Mentions);
+            var user = await _userProfiles.GetUser(id);
+            return View("Index", new IndexViewModel() {
+                Profile = user,
+                Feed = await _posts.GetMentionsForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 })
             });
         }
 

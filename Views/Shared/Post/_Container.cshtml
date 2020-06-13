@@ -38,7 +38,7 @@
                 @Model.User.DisplayName
             </b>
             <i>@@@Model.User.Handle</i>
-            <a class="goto" asp-controller="Profile" asp-action="Index" asp-route-id="@Model.Id">goto</a>
+            <a class="goto" asp-controller="Profile" asp-action="Index" asp-route-id="@Model.UserId">goto</a>
         </span>
         &bull; @Model.WhenCreated
     </p>
