@@ -1,3 +1,7 @@
 ﻿@model UserProfileModel
-<i>@@@Model.Handle</i>
-<p>@Model.Bio</p>
+<div class="contains-goto">
+    <a class="goto" asp-controller="Profile" asp-action="Index" asp-route-id="@Model.Id">goto</a>
+    <b>@Model.DisplayName</b>
+    <i>@@@Model.Handle</i>
+    <span>&bull; @Model.Bio</span>
+</div>

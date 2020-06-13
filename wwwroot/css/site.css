@@ -75,3 +75,15 @@ body {
 ul.highlight-selected > li.selected {
   background: yellow;
 }
+
+.contains-goto {
+  cursor: pointer;
+}
+
+.contains-goto:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.contains-goto > a.goto {
+  display: none;
+}
