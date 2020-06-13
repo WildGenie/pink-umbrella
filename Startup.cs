@@ -41,6 +41,7 @@ namespace seattle
                 .AddDefaultTokenProviders();
 
             services.AddSingleton<MIPMapRepository>();
+            services.AddSingleton<StringRepository>();
 
             services.AddScoped<IMIPMapService, MIPMapService>();
             services.AddScoped<IArchiveService, ArchiveService>();

@@ -1,7 +1,13 @@
 ﻿@model PostModel
 <div class="contains-goto">
     <a class="goto" asp-controller="Post" asp-action="Index" asp-route-id="@Model.Id">goto</a>
-    <p><b>@Model.User.DisplayName</b> <i>@@@Model.User.Handle</i> &bull; @Model.WhenCreated</p>
+    <p>
+        <b class="contains-goto">
+            @Model.User.DisplayName
+            <a class="goto" asp-controller="Profile" asp-action="Index" asp-route-id="@Model.Id">goto</a>
+        </b>
+        <i>@@@Model.User.Handle</i> &bull; @Model.WhenCreated
+    </p>
 @switch (Model.PostType)
 {
     case PostType.Text:
