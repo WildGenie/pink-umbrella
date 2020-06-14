@@ -1,0 +1,24 @@
+[Unit]
+Description=seattle.git web application
+
+[Service]
+WorkingDirectory=/var/www/seattle
+# to query logs using journalctl, set a logical name here
+SyslogIdentifier=PinkUmbrella
+
+User=viveret
+Group=viveret
+
+Environment=ASPNETCORE_ENVIRONMENT=Development
+Environment=ASPNETCORE_URLS="http://localhost:6000;https://localhost:6001"
+Restart=on-failure
+# Restart service after 10 seconds if the dotnet service crashes:
+RestartSec=10
+KillSignal=SIGINT
+
+# systemd will run this executable to start the service
+ExecStart=/var/www/seattle/bin/Debug/netcoreapp3.1/seattle
+
+[Install]
+WantedBy=multi-user.target
+
