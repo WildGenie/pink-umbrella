@@ -129,6 +129,11 @@ namespace seattle.Services.Sql
 
         private async Task BindReferences(PostModel p, int? viewerId)
         {
+            if (p.User == null)
+            {
+                p.User = await _users.GetUser(p.UserId, viewerId);
+            }
+
             p.ViewerId = viewerId;
             var mentions = await _dbContext.Mentions.Where(m => m.PostId == p.Id).ToListAsync();
             foreach (var m in mentions)
