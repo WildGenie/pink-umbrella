@@ -63,15 +63,11 @@ namespace PinkUmbrella.Repositories
             }
             else if (abs < 999999999999999)
             {
-                return $"{count / 1000000000000:N0} Trillion";
-            }
-            else if (abs < 999999999999999999)
-            {
-                return $"{count / 1000000000000000:N0} Quadrillion";
+                return $"{count / 1000000000000:N0}T";
             }
             else
             {
-                return $"{count / 1000000000000000000:N0} Quintillion";
+                return $"{count / 1000000000000000:N0}Q";
             }
         }
 

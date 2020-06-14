@@ -1,31 +1,9 @@
 ﻿@model ReactViewModel
 @{
     var actionPrefix = Model.HasReacted ? "Un" : "";
-    var countScale = "";
-    var count = "";
-    if (Model.Count > 1000000000)
-    {
-        count = string.Format("{0:0.0}", Model.Count / 1000000000);
-        countScale = "B";
-    }
-    else if (Model.Count > 1000000)
-    {
-        count = string.Format("{0:0.0}", Model.Count / 1000000).ToString();
-        countScale = "M";
-    }
-    else if (Model.Count > 1000)
-    {
-        count = string.Format("{0:0.0}", Model.Count / 1000).ToString();
-        countScale = "K";
-    }
-    else
-    {
-        count = Model.Count.ToString();
-    }
-
     var containerClass = Model.Enabled && Model.ViewerId.HasValue ? "contains-ajax" : "";
 }
-<div class="@containerClass" title="@Model.Type.ToString()">
+<div class="@containerClass" title="@actionPrefix@Model.Type">
     @if (Model.ViewerId.HasValue)
     {
         <a class="ajax" asp-action="@actionPrefix@Model.Type" asp-controller="Reaction" asp-route-id="@Model.ToId" asp-route-subject="@Model.Subject" data-response-type="html" data-response-handler="replacewith"></a>
@@ -105,5 +83,5 @@
     }
     }
 
-    <span>@count @countScale</span>
+    <span>@_strings.CountRound(Model.Count)</span>
 </div>
