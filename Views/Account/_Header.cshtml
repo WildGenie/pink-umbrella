@@ -1,0 +1,24 @@
+﻿@{
+    var actionName = (string) ViewData["Action"];
+    var detailsLiClass = actionName == "Index" ? "selected" : "";
+    var personalDataLiClass = (actionName == "PersonalData" || actionName == "Delete") ? "selected" : "";
+    var changePassLiClass = actionName == "ChangePassword" ? "selected" : "";
+}
+<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+    <div class="container">
+        <h1>@ViewData["Title"]</h1>
+        <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+            <ul class="navbar-nav flex-grow-1 highlight-selected">
+                <li class="nav-item @detailsLiClass">
+                    <a class="nav-link text-dark" asp-controller="Account" asp-action="Index"><u>Details</u></a>
+                </li>
+                <li class="nav-item @personalDataLiClass">
+                    <a class="nav-link text-dark" asp-controller="Account" asp-action="PersonalData"><u>Personal Data</u></a>
+                </li>
+                <li class="nav-item @changePassLiClass">
+                    <a class="nav-link text-dark" asp-controller="Account" asp-action="ChangePassword"><u>Change Password</u></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

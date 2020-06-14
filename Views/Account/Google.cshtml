@@ -10,14 +10,14 @@
 @if (SignInManager.IsSignedIn(User))
 {
     <div class="text-center">
-        <h1 class="display-4">@ViewData["Title"]</h1>
+        <h1>@ViewData["Title"]</h1>
 
     </div>
 }
 else
 {
     <div class="text-center">
-        <h1 class="display-4">@ViewData["Title"]</h1>
+        <h1>@ViewData["Title"]</h1>
         <div class="g-signin2" data-onsuccess="onSignIn"></div>
     </div>
 }

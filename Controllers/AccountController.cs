@@ -149,9 +149,12 @@ namespace seattle.Controllers
 
             if (HttpContext.Request.Method == "GET")
             {
+                ViewData["Controller"] = "Account";
+                ViewData["Action"] = nameof(Delete);
                 // TODO: data download history
                 HttpContext.Items["RequirePassword"] = await _userManager.HasPasswordAsync(user);
-                return View(password);
+                ModelState.Clear();
+                return View(password ?? new DeleteAccountViewModel());
             }
             else if (HttpContext.Request.Method == "POST")
             {
@@ -199,6 +202,8 @@ namespace seattle.Controllers
         [HttpGet, Authorize]
         public IActionResult PersonalData()
         {
+            ViewData["Controller"] = "Account";
+            ViewData["Action"] = nameof(PersonalData);
             // TODO: data download history
             return View(new PersonalDataModel()
             {
@@ -209,6 +214,8 @@ namespace seattle.Controllers
         [HttpGet]
         public IActionResult ChangePassword()
         {
+            ViewData["Controller"] = "Account";
+            ViewData["Action"] = nameof(ChangePassword);
             // TODO: data download history
             return View(new ChangePasswordViewModel()
             {

@@ -7,7 +7,7 @@
 @{
     var controllerName = (string) ViewData["Controller"];
     var actionName = (string) ViewData["Action"];
-    var accountLiClass = controllerName == "Account" && actionName == "Index" ? "selected" : "";
+    var accountLiClass = controllerName == "Account" ? "selected" : "";
     var searchLiClass = controllerName == "Home" && actionName == "Search" ? "selected" : "";
     var profileLiClass = controllerName == "Profile" ? "selected" : "";
     var archiveLiClass = controllerName == "Archive" ? "selected" : "";

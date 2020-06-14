@@ -3,7 +3,7 @@
 @{
     var everythingLiClass = !Model.InventoryId.HasValue ? "selected" : "";
 }
-<h1 class="display-4">Inventories</h1>
+<h1>Inventories</h1>
 <ul class="highlight-selected">
     <li class="@everythingLiClass"><a asp-controller="Inventory" asp-action="Index" asp-route-id="">All</a></li>
     @foreach (var i in Model.Inventories) {

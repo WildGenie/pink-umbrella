@@ -11,13 +11,12 @@
 <div class="alert alert-warning" role="alert">
     <p>
         <span class="glyphicon glyphicon-warning-sign"></span>
-        <strong>Warning: deleting account</strong>
+        <strong>Warning: you are deleting your account</strong>
     </p>
 </div>
 
 <div>
     <form id="delete-user" method="post" class="form-group">
-        <div asp-validation-summary="All" class="text-danger"></div>
         @if (RequirePassword)
         {
             <div class="form-group">

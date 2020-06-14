@@ -123,22 +123,26 @@ namespace seattle.Controllers
             });
         }
 
-        [Route("/StatusCode")]
-        public void StatusCode(string code)
+        [Route("/Error")]
+        public IActionResult Error(string code)
         {
-            ViewData["RequestId"] = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
-            ViewData["ErrorStatusCode"] = code;
-
+            string originalUrl = null;
             #region snippet_StatusCodeReExecute
             var statusCodeReExecuteFeature = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
             if (statusCodeReExecuteFeature != null)
             {
-                ViewData["OriginalURL"] =
+                originalUrl =
                     statusCodeReExecuteFeature.OriginalPathBase
                     + statusCodeReExecuteFeature.OriginalPath
                     + statusCodeReExecuteFeature.OriginalQueryString;
             }
             #endregion
+
+            return View(new ErrorViewModel() {
+                ErrorCode = code,
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
+                OriginalURL = originalUrl,
+            });
         }
     }
 }
