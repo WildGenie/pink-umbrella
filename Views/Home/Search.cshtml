@@ -57,7 +57,14 @@
             <input asp-for="SearchText" name="q" class="form-control" placeholder="Type keywords here..." />
             <span asp-validation-for="SearchText" class="text-danger"></span>
         </div>
-        <select asp-for="Order" asp-items="Html.GetEnumSelectList<SearchResultOrder>()"></select>
+        <div class="form-group">
+            <label asp-for="Order"></label>
+            <div>@Model.GetPropertyDescription(nameof(Model.Order))</div>
+            <select asp-for="Order" class="form-control">
+                <partial name="_EnumOptions" model="new EnumViewModel() { Type = typeof(SearchResultOrder), Selected = Model.Order }" />
+            </select>
+            <span asp-validation-for="Order" class="text-danger"></span>
+        </div>
         <button type="submit" class="btn btn-primary">Search</button>
     </form>
     <p>@Model.Results.TotalResults results</p>

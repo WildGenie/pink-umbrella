@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -13,6 +14,7 @@ using seattle.ViewModels.Shop;
 
 namespace seattle.Controllers
 {
+    [AllowAnonymous]
     public class ShopController : BaseController
     {
         private readonly ILogger<ShopController> _logger;

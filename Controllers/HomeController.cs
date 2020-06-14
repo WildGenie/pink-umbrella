@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -13,6 +17,7 @@ using seattle.ViewModels.Home;
 
 namespace seattle.Controllers
 {
+    [AllowAnonymous]
     public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
@@ -116,6 +121,24 @@ namespace seattle.Controllers
                 MyProfile = user,
                 Results = results
             });
+        }
+
+        [Route("/StatusCode")]
+        public void StatusCode(string code)
+        {
+            ViewData["RequestId"] = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+            ViewData["ErrorStatusCode"] = code;
+
+            #region snippet_StatusCodeReExecute
+            var statusCodeReExecuteFeature = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
+            if (statusCodeReExecuteFeature != null)
+            {
+                ViewData["OriginalURL"] =
+                    statusCodeReExecuteFeature.OriginalPathBase
+                    + statusCodeReExecuteFeature.OriginalPath
+                    + statusCodeReExecuteFeature.OriginalQueryString;
+            }
+            #endregion
         }
     }
 }

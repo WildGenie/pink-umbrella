@@ -33,13 +33,6 @@
             </div>
         </div>
     </nav>
-    <i>@@@Model.MyProfile.Handle</i>
-    <p>@Model.MyProfile.Bio</p>
 </div>
-<form asp-action="NewPost", asp-controller="Post" method="POST">
-    @Html.DropDownList("Visibility", visibilities)
-
-    <input name="content" placeholder="Speak your message..." />
-    <button type="submit">Post</button>
-</form>
+<partial name="_NewPostForm" model="Model.NewPost" />
 <partial name="_FeedList" model="Model.MyFeed" />

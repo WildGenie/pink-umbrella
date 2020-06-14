@@ -1,0 +1,25 @@
+@using seattle.ViewModels.Home
+@model NewPostViewModel
+<form asp-action="NewPost", asp-controller="Post" method="POST">
+    <div class="row col-md-12">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="Visibility"></label>
+                <div>@Model.GetPropertyDescription(nameof(Model.Visibility))</div>
+                <select asp-for="Visibility" class="form-control">
+                    <partial name="_EnumOptions" model="new EnumViewModel() { Type = typeof(Visibility), Selected = Model.Visibility }" />
+                </select>
+                <span asp-validation-for="Visibility" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="Content"></label>
+                <div>@Model.GetPropertyDescription(nameof(Model.Content))</div>
+                <input asp-for="Content" placeholder="Speak your message..." class="form-control"/>
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+        </div>
+        <button type="submit">Post</button>
+    </div>
+</form>

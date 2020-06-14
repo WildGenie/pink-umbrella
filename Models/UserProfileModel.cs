@@ -11,7 +11,7 @@ namespace seattle.Models
     [DisplayName("User Profile"), Description("Profile data for each user.")]
     public class UserProfileModel : IdentityUser<int>
     {
-        [PersonalData, DefaultValue(Visibility.VISIBLE_TO_REGISTERED), Description("Visibility of your profile to other users.")]
+        [PersonalData, DefaultValue(Visibility.VISIBLE_TO_WORLD), Description("Visibility of your profile to other users.")]
         public Visibility Visibility { get; set; }
 
         [PersonalData, DisplayName("Joined"), Description("When you joined this site.")]
@@ -26,13 +26,13 @@ namespace seattle.Models
         [PersonalData, DisplayName("When Last Logged In"), DefaultValue(0), Description("The exact time and date when you last logged in.")]
         public DateTime WhenLastLoggedIn { get; set; }
 
-        [PersonalData, DisplayName("When Last Logged In Visibility"), DefaultValue(Visibility.VISIBLE_TO_FOLLOWERS), Description("Visibility of when you last logged in to other users.")]
+        [PersonalData, DisplayName("When Last Logged In Visibility"), DefaultValue(Visibility.VISIBLE_TO_WORLD), Description("Visibility of when you last logged in to other users.")]
         public Visibility WhenLastLoggedInVisibility { get; set; }
 
         [PersonalData, DisplayName("When Last Online"), Description("The exact time and date when you last connected to the site.")]
         public DateTime WhenLastOnline { get; set; }
 
-        [PersonalData, DisplayName("When Last Online Visibility"), DefaultValue(Visibility.VISIBLE_TO_FOLLOWERS), Description("Visibility of when you last connected to other users.")]
+        [PersonalData, DisplayName("When Last Online Visibility"), DefaultValue(Visibility.VISIBLE_TO_WORLD), Description("Visibility of when you last connected to other users.")]
         public Visibility WhenLastOnlineVisibility { get; set; }
 
         [PersonalData, StringLength(30), Required, Description("An identifiable handle to easily reference your profile.")]
@@ -44,7 +44,7 @@ namespace seattle.Models
         [PersonalData, StringLength(1000), Description("A biography of your profile shown to other users.")]
         public string Bio { get; set; }
 
-        [PersonalData, DisplayName("Bio Visibility"), DefaultValue(Visibility.VISIBLE_TO_REGISTERED), Description("Visibility of your bio to other users.")]
+        [PersonalData, DisplayName("Bio Visibility"), DefaultValue(Visibility.VISIBLE_TO_WORLD), Description("Visibility of your bio to other users.")]
         public Visibility BioVisibility { get; set; }
 
 
@@ -85,6 +85,13 @@ namespace seattle.Models
         [DefaultValue(0), DisplayName("Follow Count"), Description("How many times your profile was followed by other users.")]
         public int FollowCount { get; set; }
 
+        
+        [NotMapped]
+        public List<ReactionModel> Reactions { get; set; } = new List<ReactionModel>();
+
+        [NotMapped]
+        public List<int> FollowerIds { get; set; }
+
 
         [NotMapped]
         public bool HasLiked { get; set; }
@@ -100,5 +107,8 @@ namespace seattle.Models
 
         [NotMapped]
         public bool HasReported { get; set; }
+
+        [NotMapped]
+        public bool HasBeenBlockedOrReported { get; set; }
     }
 }

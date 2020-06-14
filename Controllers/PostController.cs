@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -10,9 +11,11 @@ using Microsoft.Extensions.Logging;
 using seattle.Models;
 using seattle.Services;
 using seattle.ViewModels.Post;
+using seattle.ViewModels.Home;
 
 namespace seattle.Controllers
 {
+    [AllowAnonymous]
     public class PostController : BaseController
     {
         private readonly ILogger<PostController> _logger;
@@ -44,10 +47,10 @@ namespace seattle.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> NewPost(string[] Content, Visibility visibility)
+        public async Task<IActionResult> NewPost(NewPostViewModel model)
         {
             var user = await GetCurrentUserAsync();
-            var result = await _posts.TryCreateTextPosts(user.Id, Content, visibility);
+            var result = await _posts.TryCreateTextPosts(user.Id, model.Content, model.Visibility);
             if (!result.Error)
             {
                 return RedirectToAction(nameof(Index), new { Id = result.Posts.First().Id });

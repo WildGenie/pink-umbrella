@@ -7,6 +7,7 @@
         HasReacted = Model.HasLiked,
         Count = Model.LikeCount,
         ViewerId = Model.ViewerId,
+        Enabled = !Model.ViewerIsPoster,
     };
     var reactDislike = new ReactViewModel() {
         Type = ReactionType.Dislike,
@@ -15,6 +16,7 @@
         HasReacted = Model.HasDisliked,
         Count = Model.DislikeCount,
         ViewerId = Model.ViewerId,
+        Enabled = !Model.ViewerIsPoster,
     };
     var reactBlock = new ReactViewModel() {
         Type = ReactionType.Block,
@@ -23,6 +25,7 @@
         HasReacted = Model.HasBlocked,
         Count = Model.BlockCount,
         ViewerId = Model.ViewerId,
+        Enabled = !Model.ViewerIsPoster,
     };
     var reactReport = new ReactViewModel() {
         Type = ReactionType.Report,
@@ -31,6 +34,7 @@
         HasReacted = Model.HasReported,
         Count = Model.ReportCount,
         ViewerId = Model.ViewerId,
+        Enabled = !Model.ViewerIsPoster,
     };
 }
 <div class="contains-goto">

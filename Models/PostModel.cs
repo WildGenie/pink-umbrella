@@ -76,5 +76,17 @@ namespace seattle.Models
 
         [NotMapped]
         public int? ViewerId { get; set; }
+
+        [NotMapped]
+        public bool HasBeenBlockedOrReported { get; set; }
+        
+        [NotMapped]
+        public List<ReactionModel> Reactions { get; set; } = new List<ReactionModel>();
+
+        [NotMapped]
+        public bool ViewerIsFollowing { get; set; }
+
+        [NotMapped]
+        public bool ViewerIsPoster => ViewerId.HasValue && UserId == ViewerId.Value;
     }
 }

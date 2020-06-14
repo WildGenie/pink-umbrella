@@ -23,7 +23,7 @@
         count = Model.Count.ToString();
     }
 
-    var containerClass = Model.ViewerId.HasValue && (Model.Subject != ReactionSubject.Profile || Model.ViewerId.Value != Model.ToId) ? "contains-ajax" : "";
+    var containerClass = Model.Enabled && Model.ViewerId.HasValue ? "contains-ajax" : "";
 }
 <div class="@containerClass">
     @if (Model.ViewerId.HasValue)

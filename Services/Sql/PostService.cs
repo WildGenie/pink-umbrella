@@ -51,10 +51,15 @@ namespace seattle.Services.Sql
             _dbContext.Posts.Add(post);
             await _dbContext.SaveChangesAsync();
 
-            await ExtractMentions(post);
-
-            _dbContext.Mentions.AddRange(post.Mentions);
-            await _dbContext.SaveChangesAsync();
+            if (post.Visibility != Visibility.HIDDEN)
+            {
+                await ExtractMentions(post);
+                if (post.Mentions.Any())
+                {
+                    _dbContext.Mentions.AddRange(post.Mentions);
+                    await _dbContext.SaveChangesAsync();
+                }
+            }
 
             return new NewPostResult() {
                 Error = false
@@ -81,22 +86,77 @@ namespace seattle.Services.Sql
         {
             var p = await _dbContext.Posts.FindAsync(id);
             await BindReferences(p, viewerId);
-            return p;
+            if (CanView(p, viewerId))
+            {
+                return p;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private bool CanView(PostModel p, int? viewerId)
+        {
+            if (p.ViewerIsPoster)
+            {
+                return true;
+            }
+            
+            if (p.HasBeenBlockedOrReported)
+            {
+                return false;
+            }
+
+            switch (p.Visibility)
+            {
+                case Visibility.HIDDEN: return false;
+                case Visibility.VISIBLE_TO_FOLLOWERS:
+                if (!p.ViewerIsFollowing)
+                {
+                    return false;
+                }
+                break;
+                case Visibility.VISIBLE_TO_REGISTERED:
+                if (!viewerId.HasValue)
+                {
+                    return false;
+                }
+                break;
+            }
+            return true;
         }
 
         private async Task BindReferences(PostModel p, int? viewerId)
         {
             p.ViewerId = viewerId;
-            p.Mentions = await _dbContext.Mentions.Where(m => m.PostId == p.Id).ToListAsync();
+            var mentions = await _dbContext.Mentions.Where(m => m.PostId == p.Id).ToListAsync();
+            foreach (var m in mentions)
+            {
+                m.MentionedUser = await _users.GetUser(m.MentionedUserId, viewerId);
+            }
+            p.Mentions = mentions.Where(m => m.MentionedUser != null).ToList();
 
             if (viewerId.HasValue)
             {
-                var reactions = await _dbContext.PostReactions.Where(r => r.UserId == viewerId && r.ToId == p.Id).Select(r => r.Type).ToListAsync();
+                p.Reactions = await _dbContext.PostReactions.Where(r => r.UserId == viewerId && r.ToId == p.Id).ToListAsync();
+                if (!p.ViewerIsPoster)
+                {
+                    var reactions = p.Reactions.Select(r => r.Type).ToHashSet();
+                    p.HasLiked = reactions.Contains(ReactionType.Like);
+                    p.HasDisliked = reactions.Contains(ReactionType.Dislike);
+                    p.HasBlocked = reactions.Contains(ReactionType.Block);
+                    p.HasReported = reactions.Contains(ReactionType.Report);
 
-                p.HasLiked = reactions.Contains(ReactionType.Like);
-                p.HasDisliked = reactions.Contains(ReactionType.Dislike);
-                p.HasBlocked = reactions.Contains(ReactionType.Block);
-                p.HasReported = reactions.Contains(ReactionType.Report);
+                    p.ViewerIsFollowing = (await _dbContext.ProfileReactions.FirstOrDefaultAsync(r => r.ToId == p.UserId && r.UserId == viewerId.Value && r.Type == ReactionType.Follow)) != null;
+                
+                    var blockOrReport = await _dbContext.ProfileReactions.FirstOrDefaultAsync(r => ((r.ToId == viewerId.Value && r.UserId == p.UserId) || (r.ToId == p.UserId && r.UserId == viewerId.Value) && (r.Type == ReactionType.Block || r.Type == ReactionType.Report)));
+                    p.HasBeenBlockedOrReported = p.Reactions.Any(r => r.Type == ReactionType.Block || r.Type == ReactionType.Report) || blockOrReport != null;
+                }
+                else
+                {
+                    p.ViewerIsFollowing = true;
+                }
             }
         }
 
@@ -135,52 +195,66 @@ namespace seattle.Services.Sql
 
         public async Task<FeedModel> GetFeedForUser(int userId, int? viewerId, bool includeReplies, PaginationModel pagination)
         {
-            var posts = await _dbContext.Posts.Where(p => p.UserId == userId).OrderByDescending(p => p.WhenCreated).Skip(pagination.start).Take(pagination.count).ToListAsync();
+            var posts = await _dbContext.Posts.Where(p => p.UserId == userId).OrderByDescending(p => p.WhenCreated).ToListAsync();
+            var keepers = new List<PostModel>();
             foreach (var p in posts) {
                 await BindReferences(p, viewerId);
+                if (CanView(p, viewerId))
+                {
+                    keepers.Add(p);
+                }
             }
             return new FeedModel() {
-                Items = posts,
+                Items = keepers.Skip(pagination.start).Take(pagination.count).ToList(),
                 Pagination = pagination,
                 RepliesIncluded = includeReplies,
                 UserId = userId,
                 ViewerId = viewerId,
-                Total = _dbContext.Posts.Count()
+                Total = keepers.Count()
             };
         }
 
         public async Task<FeedModel> GetMentionsForUser(int userId, int? viewerId, bool includeReplies, PaginationModel pagination)
         {
             var mentions =  _dbContext.Mentions.Where(m => m.MentionedUserId == userId);
-            var paginated = await mentions.OrderByDescending(p => p.WhenMentioned).Skip(pagination.start).Take(pagination.count).ToListAsync();
+            var paginated = await mentions.OrderByDescending(p => p.WhenMentioned).ToListAsync();
             var posts = new List<PostModel>();
             foreach (var p in mentions) {
-                posts.Add(await GetPost(p.PostId, viewerId));
+                var post = await GetPost(p.PostId, viewerId);
+                if (post != null)
+                {
+                    posts.Add(post);
+                }
             }
             return new FeedModel() {
-                Items = posts,
+                Items = posts.Skip(pagination.start).Take(pagination.count).ToList(),
                 Pagination = pagination,
                 RepliesIncluded = includeReplies,
                 UserId = userId,
                 ViewerId = viewerId,
-                Total = mentions.Count()
+                Total = posts.Count()
             };
         }
 
         public async Task<FeedModel> GetPostsForUser(int userId, int? viewerId, bool includeReplies, PaginationModel pagination)
         {
             var posts = _dbContext.Posts.Where(p => p.UserId == userId);
-            var paginated = await posts.OrderByDescending(p => p.WhenCreated).Skip(pagination.start).Take(pagination.count).ToListAsync();
+            var paginated = await posts.OrderByDescending(p => p.WhenCreated).ToListAsync();
+            var keepers = new List<PostModel>();
             foreach (var p in posts) {
                 await BindReferences(p, viewerId);
+                if (CanView(p, viewerId))
+                {
+                    keepers.Add(p);
+                }
             }
             return new FeedModel() {
-                Items = paginated,
+                Items = keepers.Skip(pagination.start).Take(pagination.count).ToList(),
                 Pagination = pagination,
                 RepliesIncluded = includeReplies,
                 UserId = userId,
                 ViewerId = viewerId,
-                Total = posts.Count()
+                Total = keepers.Count()
             };
         }
     }

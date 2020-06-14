@@ -11,5 +11,7 @@ namespace seattle.ViewModels.Shared
 
         public bool HasReacted { get; set; }
         public int Count { get; set; }
+
+        public bool Enabled { get; set; }
     }
 }
