@@ -36,6 +36,10 @@
         ViewerId = Model.ViewerId,
         Enabled = !Model.ViewerIsPoster,
     };
+    
+    var reactions = new List<ReactViewModel>() {
+        reactLike, reactDislike, reactBlock, reactReport,
+    };
 }
 <div class="contains-goto">
     <a class="goto" asp-controller="Post" asp-action="Index" asp-route-id="@Model.Id">goto</a>
@@ -89,10 +93,5 @@
         }
     </ul>
 }
-<ul>
-    <li><partial name="_ReactButton" model="reactLike" /></li>
-    <li><partial name="_ReactButton" model="reactDislike" /></li>
-    <li><partial name="_ReactButton" model="reactBlock" /></li>
-    <li><partial name="_ReactButton" model="reactReport" /></li>
-</ul>
+<partial name="_ReactButtonList" model="reactions" /></li>
 </div>

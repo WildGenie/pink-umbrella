@@ -1,0 +1,8 @@
+@using System.Collections
+@model IEnumerable<ReactViewModel>
+<ul class="react-list">
+    @foreach (var item in Model)
+    {
+        <li><partial name="_ReactButton" model="item" /></li>
+    }
+</ul>

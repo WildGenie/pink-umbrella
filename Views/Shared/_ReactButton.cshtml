@@ -25,7 +25,7 @@
 
     var containerClass = Model.Enabled && Model.ViewerId.HasValue ? "contains-ajax" : "";
 }
-<div class="@containerClass">
+<div class="@containerClass" title="@Model.Type.ToString()">
     @if (Model.ViewerId.HasValue)
     {
         <a class="ajax" asp-action="@actionPrefix@Model.Type" asp-controller="Reaction" asp-route-id="@Model.ToId" asp-route-subject="@Model.Subject" data-response-type="html" data-response-handler="replacewith"></a>

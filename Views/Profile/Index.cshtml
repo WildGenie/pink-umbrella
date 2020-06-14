@@ -55,6 +55,10 @@
         ViewerId = Model.MyProfile?.Id,
         Enabled = reactEnabled,
     };
+
+    var reactions = new List<ReactViewModel>() {
+        reactLike, reactDislike, reactBlock, reactReport, reactFollow
+    };
 }
 
 <div class="text-center">
@@ -84,13 +88,7 @@
     }
     <p>@Model.Profile.Bio</p>
     
-    <ul>
-        <li><partial name="_ReactButton" model="reactLike" /></li>
-        <li><partial name="_ReactButton" model="reactDislike" /></li>
-        <li><partial name="_ReactButton" model="reactFollow" /></li>
-        <li><partial name="_ReactButton" model="reactBlock" /></li>
-        <li><partial name="_ReactButton" model="reactReport" /></li>
-    </ul>
+    <partial name="_ReactButtonList" model="reactions" /></li>
 </div>
 
 <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">

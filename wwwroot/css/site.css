@@ -110,3 +110,13 @@ ul.highlight-selected > li.selected {
   font-weight: bold;
   font-size: large;
 }
+
+.react-list {
+  list-style: none;
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-template-rows: max-content;
+  grid-auto-flow: column;
+  padding: 0;
+  text-align: center;
+}
