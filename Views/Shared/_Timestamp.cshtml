@@ -1,0 +1,6 @@
+@model Nullable<System.DateTime>
+@if (Model.HasValue)
+{
+    var since = _strings.RoundTime(DateTime.UtcNow.Subtract(Model.Value));
+    <span title=@_strings.format(Model.Value)>@since ago</span>
+}

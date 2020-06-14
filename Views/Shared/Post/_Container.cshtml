@@ -36,7 +36,7 @@
         ViewerId = Model.ViewerId,
         Enabled = !Model.ViewerIsPoster,
     };
-    
+
     var reactions = new List<ReactViewModel>() {
         reactLike, reactDislike, reactBlock, reactReport,
     };
@@ -51,7 +51,7 @@
             <i>@@@Model.User.Handle</i>
             <a class="goto" asp-controller="Profile" asp-action="Index" asp-route-id="@Model.UserId">goto</a>
         </span>
-        &bull; @Model.WhenCreated
+        &bull; <partial name="_Timestamp" model="Model.WhenCreated" /></li>
         @if (Model.Visibility != Visibility.VISIBLE_TO_WORLD)
         {
             switch (Model.Visibility)
