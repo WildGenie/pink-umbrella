@@ -8,6 +8,7 @@ namespace PinkUmbrella.Repositories
         public string SiteName => "Pink Umbrella";
         public string GitHubUrl => "https://github.com/viveret/pink-umbrella";
         public string WikiUrl => "https://github.com/viveret/pink-umbrella/wiki";
+        public string ReportBugUrl => "https://github.com/viveret/pink-umbrella/issues/new";
         public string ContributorsUrl => "https://github.com/viveret/pink-umbrella/graphs/contributors";
         public string CommunityDocUrl => "https://docs.google.com/document/d/13RdzrgGWLu21BfCVKf5BBSJgpk2cvhixYOZnRv1bITM/edit#";
 

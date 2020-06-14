@@ -118,6 +118,7 @@
             @if (!_environment.IsProduction()) {
                 <span> - </span><a asp-area="" asp-controller="Debug" asp-action="Index">Debug</a>
             }
+            - <a href="@_strings.ReportBugUrl" target="_blank">Report Issue</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
