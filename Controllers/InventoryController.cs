@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -30,7 +31,7 @@ namespace PinkUmbrella.Controllers
             _inventories = inventories;
         }
 
-        [Route("/Inventory")]
+        [Route("/Inventory"), Authorize]
         public async Task<IActionResult> Index()
         {
             ViewData["Controller"] = "Inventory";
@@ -38,8 +39,9 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentUserAsync();
             var model = new IndexViewModel() {
                 MyProfile = user,
-                Resources = await _resources.QueryInventory(user.Id, -1, null, new PaginationModel() { start = 0, count = 10 }),
-                Inventories = await _inventories.GetForUser(user.Id),
+                Resources = await _resources.QueryUser(user.Id, user.Id, null, new PaginationModel() { start = 0, count = 10 }),
+                Inventories = await _inventories.GetForUser(user.Id, user.Id),
+                AddResourceEnabled = true,
             };
             model.NewResource.AvailableBrands = await _resources.GetBrands();
             model.NewResource.AvailableCategories = await _resources.GetCategories();
@@ -47,34 +49,52 @@ namespace PinkUmbrella.Controllers
             return View(model);
         }
 
+        [Route("/Inventory/Profile/{id}")]
+        public async Task<IActionResult> Profile(int id)
+        {
+            ViewData["Controller"] = "Inventory";
+            ViewData["Action"] = nameof(Profile);
+            var user = await GetCurrentUserAsync();
+            var model = new IndexViewModel() {
+                MyProfile = user,
+                Resources = await _resources.QueryUser(id, user?.Id, null, new PaginationModel() { start = 0, count = 10 }),
+                Inventories = await _inventories.GetForUser(id, user?.Id),
+                AddResourceEnabled = false,
+            };
+            return View("Index", model);
+        }
+
         public async Task<IActionResult> IndexMore(string queryText, int start, int count)
         {
             var user = await GetCurrentUserAsync();
             return View(new IndexViewModel() {
                 MyProfile = await GetCurrentUserAsync(),
-                Resources = await _resources.QueryInventory(user.Id, -1, queryText, new PaginationModel() { start = start, count = count })
+                Resources = await _resources.QueryUser(user.Id, user.Id, queryText, new PaginationModel() { start = start, count = count })
             });
         }
 
         [Route("/Inventory/{id}")]
-        public async Task<IActionResult> Index(int id, int selected, string queryText)
+        public async Task<IActionResult> Index(int id, int? selected, string queryText)
         {
             ViewData["Controller"] = "Inventory";
             ViewData["Action"] = nameof(Index);
-            var user = await GetCurrentUserAsync();
-            var inventories = await _inventories.GetForUser(user.Id);
-            var inventory = inventories.SingleOrDefault(i => i.Id == id);
+            
+            var currentUser = await GetCurrentUserAsync();
+            var inventory = await _inventories.Get(id, currentUser?.Id);
             if (inventory == null) {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
+            
+            var inventories = await _inventories.GetForUser(inventory.OwnerUserId, currentUser?.Id);
 
             var model = new IndexViewModel() {
                 InventoryId = id,
                 SelectedId = selected,
                 MyProfile = await GetCurrentUserAsync(),
-                Resources = await _resources.QueryInventory(user.Id, id, queryText, new PaginationModel() { start = 0, count = 10 }),
+                Resources = await _resources.QueryInventory(id, currentUser?.Id, queryText, new PaginationModel() { start = 0, count = 10 }),
                 Inventories = inventories,
                 Inventory = inventory,
+                AddResourceEnabled = currentUser?.Id == inventory.OwnerUserId,
             };
             model.NewResource.Resource.InventoryId = id;
             return View("Inventory", model);
@@ -128,7 +148,7 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentUserAsync();
             return View(new ResourceViewModel() {
                 MyProfile = await GetCurrentUserAsync(),
-                Resource = await _resources.GetResource(id),
+                Resource = await _resources.GetResource(id, user?.Id),
                 ReturnUrl = Request.Headers["Referer"].ToString()
             });
         }

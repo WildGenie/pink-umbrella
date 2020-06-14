@@ -6,7 +6,7 @@ namespace PinkUmbrella.Services
 {
     public interface ISearchService
     {
-        Task<SearchResultsModel> Search(string text, SearchResultOrder order, PaginationModel pagination);
+        Task<SearchResultsModel> Search(string text, int? viewerId, SearchResultOrder order, PaginationModel pagination);
 
         ISearchableService Get(SearchResultType type);
     }

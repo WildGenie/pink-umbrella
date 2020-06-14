@@ -24,5 +24,9 @@ namespace PinkUmbrella.Services
         Task<List<UserProfileModel>> GetFollowing(int userId, int? viewerId);
 
         Task<List<UserProfileModel>> GetBlocked(int userId, int? viewerId);
+
+        Task BindReferences(UserProfileModel user, int? viewerId);
+
+        bool CanView(UserProfileModel user, int? viewerId);
     }
 }

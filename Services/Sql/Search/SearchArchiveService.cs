@@ -19,7 +19,7 @@ namespace PinkUmbrella.Services.Sql.Search
 
         public string ControllerName => "Archive";
 
-        public async Task<SearchResultsModel> Search(string text, SearchResultOrder order, PaginationModel pagination)
+        public async Task<SearchResultsModel> Search(string text, int? viewerId, SearchResultOrder order, PaginationModel pagination)
         {
             var query = _dbContext.ArchivedMedia.Where(p => p.DisplayName.Contains(text) || p.Description.Contains(text));
             

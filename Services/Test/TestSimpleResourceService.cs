@@ -122,14 +122,14 @@ namespace PinkUmbrella.Services
 
         private string DescriptionForCategoryAndName(string category, string name) { return ItemUnits.TryGetValue(name, out var unit) ? unit : "Default description"; }
 
-        public Task<List<SimpleResourceModel>> GetAllForUser(int id) => throw new NotImplementedException();
+        public Task<List<SimpleResourceModel>> GetAllForUser(int id, int? viewerId) => throw new NotImplementedException();
 
-        public Task<List<SimpleResourceModel>> QueryInventory(int userId, int inventoryId, string text, PaginationModel pagination)
+        public Task<List<SimpleResourceModel>> QueryInventory(int inventoryId, int? viewerId, string text, PaginationModel pagination)
         {
             throw new NotImplementedException();
         }
 
-        public Task<SimpleResourceModel> GetResource(int id) => throw new NotImplementedException();
+        public Task<SimpleResourceModel> GetResource(int id, int? viewerId) => throw new NotImplementedException();
 
         public Task<SimpleResourceModel> CreateResource(SimpleResourceModel initial) => throw new NotImplementedException();
 
@@ -144,5 +144,10 @@ namespace PinkUmbrella.Services
         public Task<List<string>> GetCategories() => Task.FromResult(Categories.ToList());
 
         public Task<List<string>> GetUnits() => Task.FromResult(ItemUnits.Values.Distinct().ToList());
+
+        public Task<List<SimpleResourceModel>> QueryUser(int userId, int? viewerId, string text, PaginationModel pagination)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

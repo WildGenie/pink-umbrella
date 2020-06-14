@@ -7,6 +7,6 @@ namespace PinkUmbrella.Services
     {
         SearchResultType ResultType { get; }
         string ControllerName { get; }
-        Task<SearchResultsModel> Search(string text, SearchResultOrder order, PaginationModel pagination);
+        Task<SearchResultsModel> Search(string text, int? viewerId, SearchResultOrder order, PaginationModel pagination);
     }
 }

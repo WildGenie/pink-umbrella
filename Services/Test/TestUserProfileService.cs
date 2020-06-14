@@ -104,5 +104,15 @@ namespace PinkUmbrella.Services.Test
         {
             throw new NotImplementedException();
         }
+
+        public bool CanView(UserProfileModel user, int? viewerId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task BindReferences(UserProfileModel user, int? viewerId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

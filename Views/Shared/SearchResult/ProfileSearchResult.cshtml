@@ -1,7 +1,9 @@
 ﻿@model UserProfileModel
 <div class="contains-goto">
+    <i class="fas fa-user-circle"></i>
     <a class="goto" asp-controller="Profile" asp-action="Index" asp-route-id="@Model.Id">goto</a>
     <b>@Model.DisplayName</b>
     <i>@@@Model.Handle</i>
     <span>&bull; @Model.Bio</span>
+    <span style="float: right">Joined <partial name="_Timestamp" model="@Model.WhenCreated" /></span>
 </div>

@@ -24,12 +24,12 @@ namespace PinkUmbrella.Services.NoSql
             return null;
         }
 
-        public async Task<SearchResultsModel> Search(string text, SearchResultOrder order, PaginationModel pagination)
+        public async Task<SearchResultsModel> Search(string text, int? viewerId, SearchResultOrder order, PaginationModel pagination)
         {
             var list = new List<SearchResultModel>();
             int totalResults = 0;
             foreach (var searchable in _searchables) {
-                var results = await searchable.Search(text, order, pagination);
+                var results = await searchable.Search(text, viewerId, order, pagination);
                 list.AddRange(results.Results);
                 totalResults += results.TotalResults;
             }

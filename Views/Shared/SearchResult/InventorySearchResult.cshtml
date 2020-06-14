@@ -1,0 +1,8 @@
+﻿@model SimpleInventoryModel
+<div class="contains-goto">
+    <i class="fas fa-box-open"></i>
+    <a class="goto" asp-controller="Inventory" asp-action="Index" asp-route-id="@Model.Id">goto</a>
+    <b>@Model.DisplayName</b>
+    <span>&bull; @Model.Description</span>
+    <span style="float: right">Created <partial name="_Timestamp" model="@Model.WhenCreated" /></span>
+</div>

@@ -52,8 +52,16 @@ namespace PinkUmbrella.Controllers
                     await _signInManager.SignOutAsync();
                     return RedirectToAction(nameof(Index));
                 }
-                return View("IndexAnonymous", model);
+                return View("Welcome", model);
             }
+        }
+
+        [Route("/Welcome")]
+        public IActionResult Welcome()
+        {
+            ViewData["Controller"] = "Home";
+            ViewData["Action"] = nameof(Welcome);
+            return View();
         }
 
         [Route("/Mentions")]
@@ -109,9 +117,9 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentUserAsync();
             SearchResultsModel results;
             if (t.HasValue) {
-                results = await _searchService.Get(t.Value).Search(q, order, pagination);
+                results = await _searchService.Get(t.Value).Search(q, user?.Id, order, pagination);
             } else {
-                results = await _searchService.Search(q, order, pagination);
+                results = await _searchService.Search(q, user?.Id, order, pagination);
             }
 
             return View(new SearchViewModel() {

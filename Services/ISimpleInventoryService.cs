@@ -6,8 +6,8 @@ namespace PinkUmbrella.Services
 {
     public interface ISimpleInventoryService
     {
-        Task<List<SimpleInventoryModel>> GetForUser(int userId);
-        Task<SimpleInventoryModel> Get(int id);
+        Task<List<SimpleInventoryModel>> GetForUser(int userId, int? viewerId);
+        Task<SimpleInventoryModel> Get(int id, int? viewerId);
         Task<SimpleInventoryModel> CreateInventory(SimpleInventoryModel initial);
     }
 }

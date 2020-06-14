@@ -2,15 +2,20 @@
 @model IndexViewModel
 @{
     ViewData["Title"] = "Inventory";
-}
-
-@if (Model.Inventories.Any()) {
-<div>
-    <partial name="_InventoryList" />
-    <h1>Resources from all inventories</h1>
-    <partial name="_ResourceList" model="Model" />
-</div>
-<partial name="_NewResourceIndex" />
-} else {
-<partial name="_NewInventory" model="Model.NewInventory" />
+    if (Model.Inventories.Any())
+    {
+        <div>
+            <partial name="_InventoryList" />
+            <h1>Resources from all inventories</h1>
+            <partial name="_ResourceList" model="Model" />
+        </div>
+        if (Model.AddResourceEnabled)
+        {
+            <partial name="_NewResourceIndex" />
+        }
+    }
+    else if (Model.AddResourceEnabled)
+    {
+        <partial name="_NewInventory" model="Model.NewInventory" />
+    }
 }

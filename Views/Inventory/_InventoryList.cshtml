@@ -2,13 +2,24 @@
 @model IndexViewModel
 @{
     var everythingLiClass = !Model.InventoryId.HasValue ? "selected" : "";
+    var allId = Model.MyProfile != null ? (Model.MyProfile.Id == Model.Inventory?.OwnerUserId ? null : Model.Inventory?.OwnerUserId) : Model.Inventory?.OwnerUserId;
 }
 <h1>Inventories</h1>
 <ul class="highlight-selected">
+    @if (allId.HasValue)
+    {
+    <li class="@everythingLiClass"><a asp-controller="Inventory" asp-action="Profile" asp-route-id="@allId">All</a></li>
+    }
+    else
+    {
     <li class="@everythingLiClass"><a asp-controller="Inventory" asp-action="Index" asp-route-id="">All</a></li>
+    }
     @foreach (var i in Model.Inventories) {
         var liClass = i.Id == Model.InventoryId ? "selected" : "";
         <li class="@liClass"><a asp-controller="Inventory" asp-action="Index" asp-route-id="@i.Id">@i.Id - @i.DisplayName</a></li>
     }
+    @if (Model.AddResourceEnabled)
+    {
     <li><a asp-controller="Inventory" asp-action="NewInventory">Add Inventory</a></li>
+    }
 </ul>

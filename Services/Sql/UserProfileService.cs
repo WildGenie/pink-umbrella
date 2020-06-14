@@ -70,7 +70,7 @@ namespace PinkUmbrella.Services.Sql
             return null;
         }
 
-        private bool CanView(UserProfileModel user, int? viewerId)
+        public bool CanView(UserProfileModel user, int? viewerId)
         {
             if (viewerId.HasValue && user.Id == viewerId.Value)
             {
@@ -155,7 +155,7 @@ namespace PinkUmbrella.Services.Sql
             return ret;
         }
 
-        private async Task BindReferences(UserProfileModel user, int? viewerId)
+        public async Task BindReferences(UserProfileModel user, int? viewerId)
         {
             if (viewerId.HasValue)
             {

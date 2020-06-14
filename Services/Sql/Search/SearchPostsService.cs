@@ -3,23 +3,26 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using PinkUmbrella.Models;
 using PinkUmbrella.Repositories;
+using System.Collections.Generic;
 
 namespace PinkUmbrella.Services.Sql.Search
 {
     public class SearchPostsService : ISearchableService
     {
         private readonly SimpleDbContext _dbContext;
+        private readonly IPostService _posts;
 
-        public SearchPostsService(SimpleDbContext dbContext)
+        public SearchPostsService(SimpleDbContext dbContext, IPostService posts)
         {
             _dbContext = dbContext;
+            _posts = posts;
         }
 
         public SearchResultType ResultType => SearchResultType.Post;
 
         public string ControllerName => "Posts";
 
-        public async Task<SearchResultsModel> Search(string text, SearchResultOrder order, PaginationModel pagination)
+        public async Task<SearchResultsModel> Search(string text, int? viewerId, SearchResultOrder order, PaginationModel pagination)
         {
             var query = _dbContext.Posts.Where(p => p.Content.Contains(text));
             
@@ -33,15 +36,22 @@ namespace PinkUmbrella.Services.Sql.Search
                 query = query.OrderBy(q => q.WhenCreated);
                 break;
             }
-
-            var totalCount = query.Count();
-            var results = await query.Skip(pagination.start).Take(pagination.count).ToListAsync();
+            var searchResults = await query.ToListAsync();
+            var results = new List<PostModel>();
+            foreach (var r in searchResults)
+            {
+                await _posts.BindReferences(r, viewerId);
+                if (_posts.CanView(r, viewerId))
+                {
+                    results.Add(r);
+                }
+            }
             return new SearchResultsModel() {
-                Results = results.Select(p => new SearchResultModel() {
+                Results = results.Skip(pagination.start).Take(pagination.count).Select(p => new SearchResultModel() {
                     Type = ResultType,
                     Value = p,
                 }).ToList(),
-                TotalResults = totalCount
+                TotalResults = results.Count()
             };
         }
     }

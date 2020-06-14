@@ -24,12 +24,12 @@ namespace PinkUmbrella.Services.Sql
             return initial;
         }
 
-        public async Task<SimpleInventoryModel> Get(int id)
+        public async Task<SimpleInventoryModel> Get(int id, int? viewerId)
         {
             return await _dbContext.Inventories.FindAsync(id);
         }
 
-        public Task<List<SimpleInventoryModel>> GetForUser(int userId)
+        public Task<List<SimpleInventoryModel>> GetForUser(int userId, int? viewerId)
         {
             return _dbContext.Inventories.Where(i => i.OwnerUserId == userId).ToListAsync();
         }

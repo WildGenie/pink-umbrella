@@ -6,11 +6,13 @@ namespace PinkUmbrella.Services
 {
     public interface ISimpleResourceService
     {
-        Task<List<SimpleResourceModel>> GetAllForUser(int id);
+        Task<List<SimpleResourceModel>> QueryUser(int userId, int? viewerId, string text, PaginationModel pagination);
+        
+        Task<List<SimpleResourceModel>> GetAllForUser(int id, int? viewerId);
 
-        Task<List<SimpleResourceModel>> QueryInventory(int userId, int inventoryId, string text, PaginationModel pagination);
+        Task<List<SimpleResourceModel>> QueryInventory(int inventoryId, int? viewerId, string text, PaginationModel pagination);
 
-        Task<SimpleResourceModel> GetResource(int id);
+        Task<SimpleResourceModel> GetResource(int id, int? viewerId);
 
         Task<SimpleResourceModel> CreateResource(SimpleResourceModel initial);
 

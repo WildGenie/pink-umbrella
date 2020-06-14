@@ -96,7 +96,7 @@ namespace PinkUmbrella.Services.Sql
             }
         }
 
-        private bool CanView(PostModel p, int? viewerId)
+        public bool CanView(PostModel p, int? viewerId)
         {
             if (p.ViewerIsPoster)
             {
@@ -127,7 +127,7 @@ namespace PinkUmbrella.Services.Sql
             return true;
         }
 
-        private async Task BindReferences(PostModel p, int? viewerId)
+        public async Task BindReferences(PostModel p, int? viewerId)
         {
             if (p.User == null)
             {

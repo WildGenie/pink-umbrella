@@ -51,10 +51,15 @@ namespace PinkUmbrella.Services.Sql
             return r;
         }
 
-        public async Task<List<SimpleResourceModel>> GetAllForUser(int id)
+        public async Task<List<SimpleResourceModel>> GetAllForUser(int id, int? viewerId)
         {
             var invs = await _dbContext.Inventories.Where(i => i.OwnerUserId == id).ToListAsync();
             return invs.SelectMany(i => _dbContext.Resources.Where(r => r.InventoryId == i.Id)).ToList();
+        }
+
+        public Task<List<SimpleResourceModel>> GetAllForInventory(int id, int? viewerId)
+        {
+            return _dbContext.Resources.Where(r => r.InventoryId == id).ToListAsync();
         }
 
         public Task<List<string>> GetBrands()
@@ -67,7 +72,7 @@ namespace PinkUmbrella.Services.Sql
             return _dbContext.Resources.Select(r => r.Category).Distinct().ToListAsync();
         }
 
-        public async Task<SimpleResourceModel> GetResource(int id)
+        public async Task<SimpleResourceModel> GetResource(int id, int? viewerId)
         {
             return await _dbContext.Resources.FindAsync(id);
         }
@@ -77,9 +82,19 @@ namespace PinkUmbrella.Services.Sql
             return _dbContext.Resources.Select(r => r.Units).Distinct().ToListAsync();
         }
 
-        public async Task<List<SimpleResourceModel>> QueryInventory(int userId, int inventoryId, string text, PaginationModel pagination)
+        public async Task<List<SimpleResourceModel>> QueryInventory(int inventoryId, int? viewerId, string text, PaginationModel pagination)
         {
-            var forUser = await GetAllForUser(userId);
+            var forUser = await GetAllForInventory(inventoryId, viewerId);
+            if (string.IsNullOrWhiteSpace(text)) {
+                return forUser;
+            } else {
+                return forUser.Where(r => r.Name.Contains(text)).ToList();
+            }
+        }
+
+        public async Task<List<SimpleResourceModel>> QueryUser(int userId, int? viewerId, string text, PaginationModel pagination)
+        {
+            var forUser = await GetAllForUser(userId, viewerId);
             if (string.IsNullOrWhiteSpace(text)) {
                 return forUser;
             } else {

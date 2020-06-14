@@ -16,5 +16,10 @@ namespace PinkUmbrella.Services
         Task<FeedModel> GetFeedForUser(int userId, int? viewerId, bool includeReplies, PaginationModel pagination);
         Task<FeedModel> GetMentionsForUser(int userId, int? viewerId, bool includeReplies, PaginationModel pagination);
         Task<FeedModel> GetPostsForUser(int userId, int? viewerId, bool includeReplies, PaginationModel pagination);
+
+
+        Task BindReferences(PostModel post, int? viewerId);
+
+        bool CanView(PostModel post, int? viewerId);
     }
 }

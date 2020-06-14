@@ -19,7 +19,7 @@ namespace PinkUmbrella.Services.Sql.Search
 
         public string ControllerName => "Shop";
 
-        public async Task<SearchResultsModel> Search(string text, SearchResultOrder order, PaginationModel pagination)
+        public async Task<SearchResultsModel> Search(string text, int? viewerId, SearchResultOrder order, PaginationModel pagination)
         {
             var query = _dbContext.Shops.Where(p => p.Handle.Contains(text) || p.DisplayName.Contains(text));
 

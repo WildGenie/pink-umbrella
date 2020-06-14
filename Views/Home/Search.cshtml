@@ -20,7 +20,7 @@
                         }
                         var liClass = rt == Model.Type ? "selected" : "";
                         <li class="nav-item @liClass">
-                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Search" asp-route-t="@rt"><u>
+                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Search" asp-route-t="@rt" asp-route-q="@Model.SearchText" asp-route-Order="@Model.Order"><u>
                                 @switch (rt) {
                                     case SearchResultType.ArchiveMedia:
                                     <span>Photos, Videos, and Media</span>
@@ -52,6 +52,7 @@
         </div>
     </nav>
     <form asp-action="Search" asp-controller="Home" method="get">
+        <input type="hidden" value="@Model.Type" name="t" />
         <div asp-validation-summary="All" class="text-danger"></div>
         <div class="form-group">
             <input asp-for="SearchText" name="q" class="form-control" placeholder="Type keywords here..." />
@@ -67,7 +68,7 @@
         </div>
         <button type="submit" class="btn btn-primary">Search</button>
     </form>
-    <p>@Model.Results.TotalResults results</p>
+    <p>Showing @Model.Results.Results.Count() of @Model.Results.TotalResults results</p>
 </div>
 
 <div>
