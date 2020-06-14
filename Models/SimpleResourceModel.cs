@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace seattle.Models
+namespace PinkUmbrella.Models
 {
     public class SimpleResourceModel
     {

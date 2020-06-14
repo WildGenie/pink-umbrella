@@ -1,7 +1,7 @@
 using System.ComponentModel;
-using seattle.Util;
+using PinkUmbrella.Util;
 
-namespace seattle.Models
+namespace PinkUmbrella.Models
 {
     public enum Visibility
     {

@@ -2,10 +2,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using seattle.Models;
-using seattle.Repositories;
+using PinkUmbrella.Models;
+using PinkUmbrella.Repositories;
 
-namespace seattle.Services.Sql.React
+namespace PinkUmbrella.Services.Sql.React
 {
     public class ShopReactionService : IReactableService
     {

@@ -1,7 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<UserProfileModel> SignInManager
 @inject UserManager<UserProfileModel> UserManager
-@model seattle.ViewModels.Account.DeleteAccountViewModel
+@model PinkUmbrella.ViewModels.Account.DeleteAccountViewModel
 @{
     ViewData["Title"] = "Personal Data";
     var RequirePassword = Context.Items.ContainsKey("RequirePassword") ? (bool)Context.Items["RequirePassword"] : true;

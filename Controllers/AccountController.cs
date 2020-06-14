@@ -10,12 +10,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
-using seattle.Models;
-using seattle.Services;
-using seattle.ViewModels.Account;
-using seattle.Util;
+using PinkUmbrella.Models;
+using PinkUmbrella.Services;
+using PinkUmbrella.ViewModels.Account;
+using PinkUmbrella.Util;
 
-namespace seattle.Controllers
+namespace PinkUmbrella.Controllers
 {
     public class AccountController: BaseController
     {
@@ -383,7 +383,7 @@ namespace seattle.Controllers
                             protocol: Request.Scheme);
 
                         // TODO: replace with View() of email
-                        //await _emailSender.SendEmailAsync(input.Email, "Seattle: Confirm your email",
+                        //await _emailSender.SendEmailAsync(input.Email, "PinkUmbrella: Confirm your email",
                         //$"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
                     }
                     else

@@ -1,6 +1,6 @@
-using seattle.Models;
+using PinkUmbrella.Models;
 
-namespace seattle.ViewModels.Shared
+namespace PinkUmbrella.ViewModels.Shared
 {
     public class ReactViewModel
     {

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Microsoft.AspNetCore.Identity;
-using seattle.Models;
+using PinkUmbrella.Models;
 
-namespace seattle.ViewModels.Home
+namespace PinkUmbrella.ViewModels.Home
 {
     public class PrivacyViewModel: BaseViewModel
     {

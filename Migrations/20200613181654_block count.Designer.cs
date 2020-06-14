@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using seattle.Repositories;
+using PinkUmbrella.Repositories;
 
-namespace seattle.Migrations
+namespace PinkUmbrella.Migrations
 {
     [DbContext(typeof(SimpleDbContext))]
     [Migration("20200613181654_block count")]
@@ -117,7 +117,7 @@ namespace seattle.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("seattle.Models.ArchivedMediaModel", b =>
+            modelBuilder.Entity("PinkUmbrella.Models.ArchivedMediaModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -177,7 +177,7 @@ namespace seattle.Migrations
                     b.ToTable("ArchivedMedia");
                 });
 
-            modelBuilder.Entity("seattle.Models.MentionModel", b =>
+            modelBuilder.Entity("PinkUmbrella.Models.MentionModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -207,7 +207,7 @@ namespace seattle.Migrations
                     b.ToTable("Mentions");
                 });
 
-            modelBuilder.Entity("seattle.Models.PostModel", b =>
+            modelBuilder.Entity("PinkUmbrella.Models.PostModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -266,7 +266,7 @@ namespace seattle.Migrations
                     b.ToTable("Posts");
                 });
 
-            modelBuilder.Entity("seattle.Models.PostTagModel", b =>
+            modelBuilder.Entity("PinkUmbrella.Models.PostTagModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -281,7 +281,7 @@ namespace seattle.Migrations
                     b.ToTable("PostTags");
                 });
 
-            modelBuilder.Entity("seattle.Models.ReactionModel", b =>
+            modelBuilder.Entity("PinkUmbrella.Models.ReactionModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -304,7 +304,7 @@ namespace seattle.Migrations
                     b.ToTable("ReactionModel");
                 });
 
-            modelBuilder.Entity("seattle.Models.ShopModel", b =>
+            modelBuilder.Entity("PinkUmbrella.Models.ShopModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -349,7 +349,7 @@ namespace seattle.Migrations
                     b.ToTable("Shops");
                 });
 
-            modelBuilder.Entity("seattle.Models.SimpleInventoryModel", b =>
+            modelBuilder.Entity("PinkUmbrella.Models.SimpleInventoryModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -382,7 +382,7 @@ namespace seattle.Migrations
                     b.ToTable("Inventories");
                 });
 
-            modelBuilder.Entity("seattle.Models.SimpleResourceModel", b =>
+            modelBuilder.Entity("PinkUmbrella.Models.SimpleResourceModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -442,7 +442,7 @@ namespace seattle.Migrations
                     b.ToTable("Resources");
                 });
 
-            modelBuilder.Entity("seattle.Models.UserGroupModel", b =>
+            modelBuilder.Entity("PinkUmbrella.Models.UserGroupModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -481,7 +481,7 @@ namespace seattle.Migrations
                     b.ToTable("AspNetRoles");
                 });
 
-            modelBuilder.Entity("seattle.Models.UserProfileModel", b =>
+            modelBuilder.Entity("PinkUmbrella.Models.UserProfileModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -622,7 +622,7 @@ namespace seattle.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
-                    b.HasOne("seattle.Models.UserGroupModel", null)
+                    b.HasOne("PinkUmbrella.Models.UserGroupModel", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -631,7 +631,7 @@ namespace seattle.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("seattle.Models.UserProfileModel", null)
+                    b.HasOne("PinkUmbrella.Models.UserProfileModel", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -640,7 +640,7 @@ namespace seattle.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("seattle.Models.UserProfileModel", null)
+                    b.HasOne("PinkUmbrella.Models.UserProfileModel", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -649,13 +649,13 @@ namespace seattle.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
                 {
-                    b.HasOne("seattle.Models.UserGroupModel", null)
+                    b.HasOne("PinkUmbrella.Models.UserGroupModel", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("seattle.Models.UserProfileModel", null)
+                    b.HasOne("PinkUmbrella.Models.UserProfileModel", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -664,31 +664,31 @@ namespace seattle.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("seattle.Models.UserProfileModel", null)
+                    b.HasOne("PinkUmbrella.Models.UserProfileModel", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("seattle.Models.MentionModel", b =>
+            modelBuilder.Entity("PinkUmbrella.Models.MentionModel", b =>
                 {
-                    b.HasOne("seattle.Models.UserProfileModel", "MentionedUser")
+                    b.HasOne("PinkUmbrella.Models.UserProfileModel", "MentionedUser")
                         .WithMany()
                         .HasForeignKey("MentionedUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("seattle.Models.PostModel", "Post")
+                    b.HasOne("PinkUmbrella.Models.PostModel", "Post")
                         .WithMany()
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("seattle.Models.PostModel", b =>
+            modelBuilder.Entity("PinkUmbrella.Models.PostModel", b =>
                 {
-                    b.HasOne("seattle.Models.UserProfileModel", "User")
+                    b.HasOne("PinkUmbrella.Models.UserProfileModel", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

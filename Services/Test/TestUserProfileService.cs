@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using seattle.Models;
-using seattle.ViewModels.Account;
+using PinkUmbrella.Models;
+using PinkUmbrella.ViewModels.Account;
 
-namespace seattle.Services.Test
+namespace PinkUmbrella.Services.Test
 {
     public class TestUserProfileService: IUserProfileService
     {

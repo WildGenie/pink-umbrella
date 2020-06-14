@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 
-namespace seattle.Models
+namespace PinkUmbrella.Models
 {
     [DisplayName("Post"), Description("A post a user types or uploads.")]
     public class PostModel

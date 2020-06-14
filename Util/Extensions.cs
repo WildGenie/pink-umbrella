@@ -1,9 +1,9 @@
 using System;
 using System.ComponentModel;
 using System.Reflection;
-using seattle.Models;
+using PinkUmbrella.Models;
 
-namespace seattle.Util
+namespace PinkUmbrella.Util
 {
     public static class Extensions
     {

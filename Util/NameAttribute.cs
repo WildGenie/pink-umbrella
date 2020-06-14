@@ -1,6 +1,6 @@
 using System;
 
-namespace seattle.Util
+namespace PinkUmbrella.Util
 {
     public class NameAttribute : Attribute
     {

@@ -1,14 +1,14 @@
 using System.Text.RegularExpressions;
 
-namespace seattle.Repositories
+namespace PinkUmbrella.Repositories
 {
     public class StringRepository
     {
         public static string AllowedUserNameChars => "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-        public string SiteName => "seattle.git";
-        public string GitHubUrl => "https://github.com/viveret/seattle";
-        public string WikiUrl => "https://github.com/viveret/seattle/wiki";
-        public string ContributorsUrl => "https://github.com/viveret/seattle/graphs/contributors";
+        public string SiteName => "Pink Umbrella";
+        public string GitHubUrl => "https://github.com/viveret/pink-umbrella";
+        public string WikiUrl => "https://github.com/viveret/pink-umbrella/wiki";
+        public string ContributorsUrl => "https://github.com/viveret/pink-umbrella/graphs/contributors";
         public string CommunityDocUrl => "https://docs.google.com/document/d/13RdzrgGWLu21BfCVKf5BBSJgpk2cvhixYOZnRv1bITM/edit#";
 
 

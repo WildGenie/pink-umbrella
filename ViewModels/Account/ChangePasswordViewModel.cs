@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using seattle.Models;
+using PinkUmbrella.Models;
 
-namespace seattle.ViewModels.Account
+namespace PinkUmbrella.ViewModels.Account
 {
     public class ChangePasswordViewModel
     {

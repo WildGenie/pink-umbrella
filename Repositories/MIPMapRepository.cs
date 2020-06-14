@@ -1,6 +1,6 @@
-using seattle.Models;
+using PinkUmbrella.Models;
 
-namespace seattle.Repositories
+namespace PinkUmbrella.Repositories
 {
     public class MIPMapRepository
     {

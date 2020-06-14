@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace seattle.Models
+namespace PinkUmbrella.Models
 {
     public class ArchivedMediaModel
     {

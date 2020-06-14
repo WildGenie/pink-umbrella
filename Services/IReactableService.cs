@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using seattle.Models;
+using PinkUmbrella.Models;
 
-namespace seattle.Services
+namespace PinkUmbrella.Services
 {
     public interface IReactableService
     {

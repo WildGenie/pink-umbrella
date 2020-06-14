@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using seattle.Models;
+using PinkUmbrella.Models;
 
-namespace seattle.ViewModels.Post
+namespace PinkUmbrella.ViewModels.Post
 {
     public class PostViewModel
     {

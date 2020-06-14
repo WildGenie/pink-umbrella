@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using seattle.Services;
+using PinkUmbrella.Services;
 
-namespace seattle.Services.Sql
+namespace PinkUmbrella.Services.Sql
 {
     public class ArchiveService : IArchiveService
     {

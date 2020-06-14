@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.ComponentModel;
-using seattle.Models;
+using PinkUmbrella.Models;
 
-namespace seattle.ViewModels.Inventory
+namespace PinkUmbrella.ViewModels.Inventory
 {
     public class IndexViewModel
     {

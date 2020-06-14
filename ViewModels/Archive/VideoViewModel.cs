@@ -1,4 +1,4 @@
-namespace seattle.ViewModels.Archive
+namespace PinkUmbrella.ViewModels.Archive
 {
     public class VideoViewModel : BaseViewModel
     {

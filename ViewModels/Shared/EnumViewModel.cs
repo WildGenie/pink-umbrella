@@ -1,6 +1,6 @@
 using System;
 
-namespace seattle.ViewModels.Shared
+namespace PinkUmbrella.ViewModels.Shared
 {
     public class EnumViewModel
     {

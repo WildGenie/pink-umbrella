@@ -12,10 +12,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Logging;
 
-using seattle.Models;
-using seattle.Services;
+using PinkUmbrella.Models;
+using PinkUmbrella.Services;
 
-namespace seattle.Controllers
+namespace PinkUmbrella.Controllers
 {
     public class BaseController: Controller
     {

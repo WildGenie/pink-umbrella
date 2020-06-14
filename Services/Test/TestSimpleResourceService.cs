@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using seattle.Models;
+using PinkUmbrella.Models;
 
-namespace seattle.Services
+namespace PinkUmbrella.Services
 {
     public class TestSimpleResourceService: ISimpleResourceService
     {
@@ -48,7 +48,7 @@ namespace seattle.Services
             { "Socks", "Clothing for your lower half" },
             { "Back Packs", "Clothing to hold stuff" },
             { "Shields", "Flat reinforced equipment you can hold to defend yourself" },
-            { "Umbrellas", "In most places this protects from rain, but in Seattle it protects from riot police" },
+            { "Umbrellas", "In most places this protects from rain, but in PinkUmbrella it protects from riot police" },
             { "Traffic Cones", "Used to diffuse tear gas" },
             { "Barricade", "Protects people from vehicles" },
             { "Honey Bucket", "Provides a place for people to relieve themselves anywhere" },

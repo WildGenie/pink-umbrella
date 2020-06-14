@@ -1,4 +1,4 @@
-namespace seattle.ViewModels.Account
+namespace PinkUmbrella.ViewModels.Account
 {
     public class ResetPasswordViewModel
     {

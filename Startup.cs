@@ -13,15 +13,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using seattle.Models;
-using seattle.Repositories;
-using seattle.Services;
-using seattle.Services.NoSql;
-using seattle.Services.Sql;
-using seattle.Services.Sql.React;
-using seattle.Services.Sql.Search;
+using PinkUmbrella.Models;
+using PinkUmbrella.Repositories;
+using PinkUmbrella.Services;
+using PinkUmbrella.Services.NoSql;
+using PinkUmbrella.Services.Sql;
+using PinkUmbrella.Services.Sql.React;
+using PinkUmbrella.Services.Sql.Search;
 
-namespace seattle
+namespace PinkUmbrella
 {
     public class Startup
     {

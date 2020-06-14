@@ -8,11 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using seattle.Models;
-using seattle.Services;
-using seattle.ViewModels.Shop;
+using PinkUmbrella.Models;
+using PinkUmbrella.Services;
+using PinkUmbrella.ViewModels.Shop;
 
-namespace seattle.Controllers
+namespace PinkUmbrella.Controllers
 {
     [AllowAnonymous]
     public class ShopController : BaseController

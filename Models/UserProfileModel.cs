@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 
-namespace seattle.Models
+namespace PinkUmbrella.Models
 {
     [DisplayName("User Profile"), Description("Profile data for each user.")]
     public class UserProfileModel : IdentityUser<int>

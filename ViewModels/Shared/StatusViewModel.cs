@@ -1,4 +1,4 @@
-namespace seattle.ViewModels.Shared
+namespace PinkUmbrella.ViewModels.Shared
 {
     public class StatusViewModel
     {

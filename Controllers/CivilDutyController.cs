@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using seattle.Models;
-using seattle.Services;
+using PinkUmbrella.Models;
+using PinkUmbrella.Services;
 
-namespace seattle.Controllers
+namespace PinkUmbrella.Controllers
 {
     public class CivicDutyController : BaseController
     {

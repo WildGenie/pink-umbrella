@@ -2,10 +2,10 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using seattle.Models;
-using seattle.Repositories;
+using PinkUmbrella.Models;
+using PinkUmbrella.Repositories;
 
-namespace seattle.Services.Sql.Search
+namespace PinkUmbrella.Services.Sql.Search
 {
     public class SearchProfilesService : ISearchableService
     {

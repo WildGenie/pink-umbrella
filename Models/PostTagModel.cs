@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace seattle.Models
+namespace PinkUmbrella.Models
 {
     public class PostTagModel
     {

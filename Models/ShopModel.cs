@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 
-namespace seattle.Models
+namespace PinkUmbrella.Models
 {
     [DisplayName("Business Page"), Description("A virtual storefront for local businesses.")]
     public class ShopModel

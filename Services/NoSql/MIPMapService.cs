@@ -1,4 +1,4 @@
-namespace seattle.Services.NoSql
+namespace PinkUmbrella.Services.NoSql
 {
     public class MIPMapService: IMIPMapService
     {

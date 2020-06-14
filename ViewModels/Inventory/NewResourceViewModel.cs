@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using seattle.Models;
+using PinkUmbrella.Models;
 
-namespace seattle.ViewModels.Inventory
+namespace PinkUmbrella.ViewModels.Inventory
 {
     public class NewResourceViewModel
     {

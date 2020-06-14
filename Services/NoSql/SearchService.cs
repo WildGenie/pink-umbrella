@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using seattle.Models;
-using seattle.Services;
+using PinkUmbrella.Models;
+using PinkUmbrella.Services;
 
-namespace seattle.Services.NoSql
+namespace PinkUmbrella.Services.NoSql
 {
     public class SearchService : ISearchService
     {

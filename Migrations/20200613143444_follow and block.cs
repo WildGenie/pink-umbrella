@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace seattle.Migrations
+namespace PinkUmbrella.Migrations
 {
     public partial class followandblock : Migration
     {

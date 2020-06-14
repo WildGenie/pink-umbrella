@@ -1,6 +1,6 @@
-using seattle.Models;
+using PinkUmbrella.Models;
 
-namespace seattle.ViewModels.Home
+namespace PinkUmbrella.ViewModels.Home
 {
     public class IndexViewModel: BaseViewModel
     {

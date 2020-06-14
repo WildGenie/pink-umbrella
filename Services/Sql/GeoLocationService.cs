@@ -1,6 +1,6 @@
-using seattle.Models;
+using PinkUmbrella.Models;
 
-namespace seattle.Services.Sql
+namespace PinkUmbrella.Services.Sql
 {
     public class GeoLocationService: IGeoLocationService
     {

@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel;
 
-namespace seattle.Models
+namespace PinkUmbrella.Models
 {
     public class MentionModel
     {

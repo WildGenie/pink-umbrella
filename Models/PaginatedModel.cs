@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace seattle.Models
+namespace PinkUmbrella.Models
 {
     public class PaginatedModel<T>
     {

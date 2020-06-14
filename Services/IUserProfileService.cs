@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using seattle.Models;
-using seattle.ViewModels.Account;
+using PinkUmbrella.Models;
+using PinkUmbrella.ViewModels.Account;
 
-namespace seattle.Services
+namespace PinkUmbrella.Services
 {
     public interface IUserProfileService
     {

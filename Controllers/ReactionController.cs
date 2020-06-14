@@ -8,12 +8,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using seattle.Models;
-using seattle.Services;
-using seattle.ViewModels.Home;
-using seattle.ViewModels.Shared;
+using PinkUmbrella.Models;
+using PinkUmbrella.Services;
+using PinkUmbrella.ViewModels.Home;
+using PinkUmbrella.ViewModels.Shared;
 
-namespace seattle.Controllers
+namespace PinkUmbrella.Controllers
 {
     [Authorize]
     public class ReactionController: BaseController

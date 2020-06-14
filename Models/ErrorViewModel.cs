@@ -1,6 +1,6 @@
 using System;
 
-namespace seattle.Models
+namespace PinkUmbrella.Models
 {
     public class ErrorViewModel
     {

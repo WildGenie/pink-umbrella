@@ -7,12 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using seattle.Models;
-using seattle.Services;
-using seattle.ViewModels.Shop;
-using seattle.ViewModels.Archive;
+using PinkUmbrella.Models;
+using PinkUmbrella.Services;
+using PinkUmbrella.ViewModels.Shop;
+using PinkUmbrella.ViewModels.Archive;
 
-namespace seattle.Controllers
+namespace PinkUmbrella.Controllers
 {
     public class ArchiveController : BaseController
     {

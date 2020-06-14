@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace seattle.Services
+namespace PinkUmbrella.Services
 {
     public interface IArchiveService
     {

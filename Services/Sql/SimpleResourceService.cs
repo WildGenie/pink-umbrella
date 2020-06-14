@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using seattle.Models;
-using seattle.Repositories;
+using PinkUmbrella.Models;
+using PinkUmbrella.Repositories;
 
-namespace seattle.Services.Sql
+namespace PinkUmbrella.Services.Sql
 {
     public class SimpleResourceService : ISimpleResourceService
     {

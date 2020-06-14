@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 
-namespace seattle.ViewModels.Account
+namespace PinkUmbrella.ViewModels.Account
 {
     public class RegisterInputModel
     {

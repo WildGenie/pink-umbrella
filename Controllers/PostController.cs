@@ -8,12 +8,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using seattle.Models;
-using seattle.Services;
-using seattle.ViewModels.Post;
-using seattle.ViewModels.Home;
+using PinkUmbrella.Models;
+using PinkUmbrella.Services;
+using PinkUmbrella.ViewModels.Post;
+using PinkUmbrella.ViewModels.Home;
 
-namespace seattle.Controllers
+namespace PinkUmbrella.Controllers
 {
     [AllowAnonymous]
     public class PostController : BaseController

@@ -1,6 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Http.Features
-@using seattle.Services;
-@model seattle.ViewModels.Account.IndexViewModel
+@using PinkUmbrella.Services;
+@model PinkUmbrella.ViewModels.Account.IndexViewModel
 @{
     var consentFeature = Context.Features.Get<ITrackingConsentFeature>();
     var showBanner = !consentFeature?.CanTrack ?? false;
