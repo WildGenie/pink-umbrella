@@ -200,7 +200,7 @@ namespace PinkUmbrella.Services.Sql
 
         public async Task<FeedModel> GetFeedForUser(int userId, int? viewerId, bool includeReplies, PaginationModel pagination)
         {
-            var posts = await _dbContext.Posts.Where(p => p.UserId == userId).OrderByDescending(p => p.WhenCreated).ToListAsync();
+            var posts = await _dbContext.Posts.Where(p => p.UserId == userId && p.IsReply == includeReplies).OrderByDescending(p => p.WhenCreated).ToListAsync();
             var keepers = new List<PostModel>();
             foreach (var p in posts) {
                 await BindReferences(p, viewerId);
@@ -221,7 +221,7 @@ namespace PinkUmbrella.Services.Sql
 
         public async Task<FeedModel> GetMentionsForUser(int userId, int? viewerId, bool includeReplies, PaginationModel pagination)
         {
-            var mentions =  _dbContext.Mentions.Where(m => m.MentionedUserId == userId);
+            var mentions =  _dbContext.Mentions.Where(m => m.MentionedUserId == userId && m.Post.IsReply == includeReplies);
             var paginated = await mentions.OrderByDescending(p => p.WhenMentioned).ToListAsync();
             var posts = new List<PostModel>();
             foreach (var p in mentions) {
@@ -243,7 +243,7 @@ namespace PinkUmbrella.Services.Sql
 
         public async Task<FeedModel> GetPostsForUser(int userId, int? viewerId, bool includeReplies, PaginationModel pagination)
         {
-            var posts = _dbContext.Posts.Where(p => p.UserId == userId);
+            var posts = _dbContext.Posts.Where(p => p.UserId == userId && p.IsReply == includeReplies);
             var paginated = await posts.OrderByDescending(p => p.WhenCreated).ToListAsync();
             var keepers = new List<PostModel>();
             foreach (var p in posts) {
