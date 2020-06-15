@@ -12,11 +12,13 @@ $(() => {
 
     $(document).on('click', '.contains-ajax', (ev) => {
         ev.preventDefault();
-        let $ajax = $(ev.target).closest('.contains-ajax').find('a.ajax');
+        let $parent = $(ev.target).closest('.contains-ajax');
+        let $ajax = $parent.find('a.ajax');
         let href = $ajax.attr('href');
         let method = $ajax.attr('data-method') || 'POST';
         let responseHandler = $ajax.attr('data-response-handler');
         let responseType = $ajax.attr('data-response-type');
+        let responseOnClosest = $ajax.attr('data-response-on-closest');
 
         let p = $.ajax({
             url: href,
@@ -24,12 +26,24 @@ $(() => {
             dataType: responseType,
         });
         if (responseHandler) {
-            p.then(r => $ajax.trigger(responseHandler, [r, $ajax]));
+            if (responseOnClosest && responseOnClosest.trim().length > 0) {
+                p.then(r => $ajax.closest(responseOnClosest).trigger(responseHandler, [r, $ajax]));
+            } else {
+                p.then(r => $ajax.trigger(responseHandler, [r, $ajax]));
+            }
         }
         return false;
     });
 
     $(document).on('replacewith', '.contains-ajax', (ev, r, $ajax) => {
         $ajax.closest('.contains-ajax')[0].outerHTML = r;
+    });
+
+    $(document).on('post-replacewith', '.post', (ev, r, $ajax) => {
+        let $post = $ajax.closest('.post');
+        let $newElement = $(r);
+        $newElement.css('height', $post[0].clientHeight + 'px')
+        $post.after($newElement);
+        $post.remove();
     });
 });

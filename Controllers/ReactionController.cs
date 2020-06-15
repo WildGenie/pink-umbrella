@@ -19,14 +19,12 @@ namespace PinkUmbrella.Controllers
     public class ReactionController: BaseController
     {
         private readonly ILogger<ReactionController> _logger;
-        private readonly IReactionService _reactions;
 
         public ReactionController(IWebHostEnvironment environment, ILogger<ReactionController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IReactionService reactions):
-            base(environment, signInManager, userManager, posts, userProfiles)
+            base(environment, signInManager, userManager, posts, userProfiles, reactions)
         {
             _logger = logger;
-            _reactions = reactions;
         }
 
         public async Task<IActionResult> Like(int id, ReactionSubject subject) => await React(id, ReactionType.Like, subject);

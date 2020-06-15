@@ -21,8 +21,8 @@ namespace PinkUmbrella.Controllers
         private readonly IShopService _shops;
 
         public ShopController(IWebHostEnvironment environment, ILogger<ShopController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IShopService shops):
-            base(environment, signInManager, userManager, posts, userProfiles)
+            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IShopService shops, IReactionService reactions):
+            base(environment, signInManager, userManager, posts, userProfiles, reactions)
         {
             _logger = logger;
             _shops = shops;

@@ -20,8 +20,8 @@ namespace PinkUmbrella.Controllers
         private readonly IArchiveService _archive;
 
         public ArchiveController(IWebHostEnvironment environment, ILogger<ArchiveController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IArchiveService archive):
-            base(environment, signInManager, userManager, posts, userProfiles)
+            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IArchiveService archive, IReactionService reactions):
+            base(environment, signInManager, userManager, posts, userProfiles, reactions)
         {
             _logger = logger;
             _archive = archive;

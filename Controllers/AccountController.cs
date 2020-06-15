@@ -28,9 +28,10 @@ namespace PinkUmbrella.Controllers
                 IWebHostEnvironment environment,
                 UserManager<UserProfileModel> userManager,
                 SignInManager<UserProfileModel> signInManager,
-                IPostService posts, IUserProfileService userProfiles
+                IPostService posts, IUserProfileService userProfiles,
+                IReactionService reactions
                 ) :
-            base(environment, signInManager, userManager, posts, userProfiles)
+            base(environment, signInManager, userManager, posts, userProfiles, reactions)
         {
             _logger = logger;
         }

@@ -24,8 +24,9 @@ namespace PinkUmbrella.Controllers
         private readonly ISearchService _searchService;
 
         public HomeController(IWebHostEnvironment environment, ILogger<HomeController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService postService, IUserProfileService userProfiles, ISearchService searchService):
-            base(environment, signInManager, userManager, postService, userProfiles)
+            UserManager<UserProfileModel> userManager, IPostService postService, IUserProfileService userProfiles, ISearchService searchService,
+            IReactionService reactions):
+            base(environment, signInManager, userManager, postService, userProfiles, reactions)
         {
             _logger = logger;
             _searchService = searchService;

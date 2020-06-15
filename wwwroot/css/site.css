@@ -92,15 +92,18 @@ ul.highlight-selected > li.selected {
   background: var(--accent-color);
 }
 
-.contains-goto, .contains-ajax {
+
+
+
+.contains-goto:not(.show), .contains-ajax:not(.show) {
   cursor: pointer;
 }
 
-.contains-goto:hover {
+.contains-goto:not(.show):hover {
   background: rgba(0, 0, 0, 0.1);
 }
 
-.contains-goto > a.goto, .contains-ajax > a.ajax {
+.contains-goto:not(.show) > a.goto, .contains-ajax:not(.show) > a.ajax {
   display: none;
 }
 

@@ -21,8 +21,8 @@ namespace PinkUmbrella.Controllers
         private readonly ILogger<PostController> _logger;
 
         public PostController(IWebHostEnvironment environment, ILogger<PostController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles):
-            base(environment, signInManager, userManager, posts, userProfiles)
+            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IReactionService reactions):
+            base(environment, signInManager, userManager, posts, userProfiles, reactions)
         {
             _logger = logger;
         }
@@ -44,6 +44,31 @@ namespace PinkUmbrella.Controllers
             {
                 return View();
             }
+        }
+
+        [Authorize]
+        public async Task<IActionResult> Unblock(int id)
+        {
+            var user = await GetCurrentUserAsync();
+            await _reactions.UnReact(user.Id, id, ReactionType.Block, ReactionSubject.Post);
+            return await ViewPost(id);
+        }
+
+        [Authorize]
+        public async Task<IActionResult> Block(int id)
+        {
+            var user = await GetCurrentUserAsync();
+            await _reactions.React(user.Id, id, ReactionType.Block, ReactionSubject.Post);
+            return await ViewPost(id);
+        }
+
+        public async Task<IActionResult> ViewPost(int id)
+        {
+            var user = await GetCurrentUserAsync();
+            var post = await _posts.GetPost(id, user?.Id);
+
+            ViewData["PartialName"] = "Post/_Container";
+            return View("_NoLayout", post);
         }
 
         [HttpPost]

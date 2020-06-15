@@ -144,7 +144,7 @@ namespace PinkUmbrella.Services.Sql
 
             if (viewerId.HasValue)
             {
-                p.Reactions = await _dbContext.PostReactions.Where(r => r.UserId == viewerId && r.ToId == p.Id).ToListAsync();
+                p.Reactions = await _dbContext.PostReactions.Where(r => r.UserId == viewerId.Value && r.ToId == p.Id).ToListAsync();
                 if (!p.ViewerIsPoster)
                 {
                     var reactions = p.Reactions.Select(r => r.Type).ToHashSet();
@@ -156,7 +156,7 @@ namespace PinkUmbrella.Services.Sql
                     p.ViewerIsFollowing = (await _dbContext.ProfileReactions.FirstOrDefaultAsync(r => r.ToId == p.UserId && r.UserId == viewerId.Value && r.Type == ReactionType.Follow)) != null;
                 
                     var blockOrReport = await _dbContext.ProfileReactions.FirstOrDefaultAsync(r => ((r.ToId == viewerId.Value && r.UserId == p.UserId) || (r.ToId == p.UserId && r.UserId == viewerId.Value) && (r.Type == ReactionType.Block || r.Type == ReactionType.Report)));
-                    p.HasBeenBlockedOrReported = p.Reactions.Any(r => r.Type == ReactionType.Block || r.Type == ReactionType.Report) || blockOrReport != null;
+                    p.HasBeenBlockedOrReported =  blockOrReport != null; // p.Reactions.Any(r => r.Type == ReactionType.Block || r.Type == ReactionType.Report)
                 }
                 else
                 {

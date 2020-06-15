@@ -24,15 +24,18 @@ namespace PinkUmbrella.Controllers
         protected readonly UserManager<UserProfileModel> _userManager;
         protected readonly IPostService _posts;
         protected readonly IUserProfileService _userProfiles;
+        protected readonly IReactionService _reactions;
         
         public BaseController(IWebHostEnvironment environment, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles)
+            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles,
+            IReactionService reactions)
         {
             _environment = environment;
             _signInManager = signInManager;
             _userManager = userManager;
             _posts = posts;
             _userProfiles = userProfiles;
+            _reactions = reactions;
         }
 
         protected Task<UserProfileModel> GetCurrentUserAsync()

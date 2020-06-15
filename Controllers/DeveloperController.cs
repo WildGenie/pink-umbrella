@@ -22,8 +22,8 @@ namespace PinkUmbrella.Controllers
 
         public DeveloperController(IWebHostEnvironment environment, ILogger<DeveloperController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IDebugService debugService,
-            RoleManager<UserGroupModel> roleManager):
-            base(environment, signInManager, userManager, posts, userProfiles)
+            RoleManager<UserGroupModel> roleManager, IReactionService reactions):
+            base(environment, signInManager, userManager, posts, userProfiles, reactions)
         {
             _logger = logger;
             _debugService = debugService;

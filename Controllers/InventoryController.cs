@@ -23,8 +23,8 @@ namespace PinkUmbrella.Controllers
         public InventoryController(IWebHostEnvironment environment, ILogger<InventoryController> logger,
             SignInManager<UserProfileModel> signInManager, UserManager<UserProfileModel> userManager,
             IPostService posts, IUserProfileService userProfiles, ISimpleResourceService resourceService,
-            ISimpleInventoryService inventories):
-            base(environment, signInManager, userManager, posts, userProfiles)
+            ISimpleInventoryService inventories, IReactionService reactions):
+            base(environment, signInManager, userManager, posts, userProfiles, reactions)
         {
             _logger = logger;
             _resources = resourceService;

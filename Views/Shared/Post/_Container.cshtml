@@ -1,97 +1,13 @@
 ﻿@model PostModel
-@{
-    var reactLike = new ReactViewModel() {
-        Type = ReactionType.Like,
-        Subject = ReactionSubject.Post,
-        ToId = Model.Id,
-        HasReacted = Model.HasLiked,
-        Count = Model.LikeCount,
-        ViewerId = Model.ViewerId,
-        Enabled = !Model.ViewerIsPoster,
-    };
-    var reactDislike = new ReactViewModel() {
-        Type = ReactionType.Dislike,
-        Subject = ReactionSubject.Post,
-        ToId = Model.Id,
-        HasReacted = Model.HasDisliked,
-        Count = Model.DislikeCount,
-        ViewerId = Model.ViewerId,
-        Enabled = !Model.ViewerIsPoster,
-    };
-    var reactBlock = new ReactViewModel() {
-        Type = ReactionType.Block,
-        Subject = ReactionSubject.Post,
-        ToId = Model.Id,
-        HasReacted = Model.HasBlocked,
-        Count = Model.BlockCount,
-        ViewerId = Model.ViewerId,
-        Enabled = !Model.ViewerIsPoster,
-    };
-    var reactReport = new ReactViewModel() {
-        Type = ReactionType.Report,
-        Subject = ReactionSubject.Post,
-        ToId = Model.Id,
-        HasReacted = Model.HasReported,
-        Count = Model.ReportCount,
-        ViewerId = Model.ViewerId,
-        Enabled = !Model.ViewerIsPoster,
-    };
-
-    var reactions = new List<ReactViewModel>() {
-        reactLike, reactDislike, reactBlock, reactReport,
-    };
-}
-<div class="contains-goto">
-    <a class="goto" asp-controller="Post" asp-action="Index" asp-route-id="@Model.Id">goto</a>
-    <p>
-        <span class="contains-goto">
-            <b>
-                @Model.User.DisplayName
-            </b>
-            <i>@@@Model.User.Handle</i>
-            <a class="goto" asp-controller="Profile" asp-action="Index" asp-route-id="@Model.UserId">goto</a>
-        </span>
-        &bull; <partial name="_Timestamp" model="Model.WhenCreated" /></li>
-        @if (Model.Visibility != Visibility.VISIBLE_TO_WORLD)
-        {
-            switch (Model.Visibility)
-            {
-                case Visibility.HIDDEN:
-                <span>&bull; Hidden to everyone</span>
-                break;
-                case Visibility.VISIBLE_TO_REGISTERED:
-                <span>&bull; Visible to other users on this site</span>
-                break;
-                case Visibility.VISIBLE_TO_FOLLOWERS:
-                if (Model.UserId == Model.ViewerId)
-                {
-                <span>&bull; Only visible to your followers</span>
-                }
-                else
-                {
-                <span>&bull; Only visible to this user's followers</span>
-                }
-                break;
-            }
-        }
-    </p>
-@switch (Model.PostType)
+@if (Model.HasBlocked)
 {
-    case PostType.Text:
-    <partial name="Post/Text" />
-    break;
-    default:
-    <div>No view for @Model.PostType</div>
-    break;
+    <partial name="Post/_Blocked" />
 }
-@if (Model.Mentions.Any())
+else if (Model.HasReported)
 {
-    <span>Mentions:</span>
-    <ul>
-        @foreach (var mention in Model.Mentions) {
-            <li class="contains-goto">@mention.MentionedUser.DisplayName<a class="goto" asp-controller="Profile" asp-action="Index" asp-route-id="@mention.MentionedUserId">goto</a></li>
-        }
-    </ul>
+    <partial name="Post/_Reported" />
 }
-<partial name="_ReactButtonList" model="reactions" /></li>
-</div>
+else
+{
+    <partial name="Post/_Regular" />
+}
