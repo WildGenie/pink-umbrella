@@ -262,5 +262,37 @@ namespace PinkUmbrella.Services.Sql
                 Total = keepers.Count()
             };
         }
+
+        public async Task<PaginatedModel<PostModel>> GetMostReportedPosts()
+        {
+            var posts = _dbContext.Posts.Where(p => p.ReportCount > 0).OrderByDescending(p => p.ReportCount);
+            return await ToPaginatedModel(posts);
+        }
+        
+        public async Task<PaginatedModel<PostModel>> GetMostBlockedPosts()
+        {
+            var posts = _dbContext.Posts.Where(p => p.BlockCount > 0).OrderByDescending(p => p.BlockCount);
+            return await ToPaginatedModel(posts);
+        }
+
+        public async Task<PaginatedModel<PostModel>> GetMostDislikedPosts()
+        {
+            var posts = _dbContext.Posts.Where(p => p.DislikeCount > 0).OrderByDescending(p => p.DislikeCount);
+            return await ToPaginatedModel(posts);
+        }
+
+        private async Task<PaginatedModel<PostModel>> ToPaginatedModel(IQueryable<PostModel> posts)
+        {
+            foreach (var p in posts)
+            {
+                await BindReferences(p, null);
+            }
+            return new PaginatedModel<PostModel>()
+            {
+                Items = await posts.Take(10).ToListAsync(),
+                Total = posts.Count(),
+                Pagination = new PaginationModel(),
+            };
+        }
     }
 }

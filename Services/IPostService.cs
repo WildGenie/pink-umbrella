@@ -21,5 +21,11 @@ namespace PinkUmbrella.Services
         Task BindReferences(PostModel post, int? viewerId);
 
         bool CanView(PostModel post, int? viewerId);
+
+        Task<PaginatedModel<PostModel>> GetMostReportedPosts();
+        
+        Task<PaginatedModel<PostModel>> GetMostBlockedPosts();
+
+        Task<PaginatedModel<PostModel>> GetMostDislikedPosts();
     }
 }

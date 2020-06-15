@@ -104,7 +104,12 @@ namespace PinkUmbrella.Controllers
             {
                 ViewData["Controller"] = "Debug";
                 ViewData["Action"] = nameof(Posts);
-                return View();
+                return View(new PostsViewModel() {
+                    MyProfile = user,
+                    MostReportedPosts = await _posts.GetMostReportedPosts(),
+                    MostBlockedPosts = await _posts.GetMostBlockedPosts(),
+                    MostDislikedPosts = await _posts.GetMostDislikedPosts(),
+                });
             }
             else
             {

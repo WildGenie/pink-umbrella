@@ -53,9 +53,13 @@ namespace PinkUmbrella.Services.Sql
             await _userManager.UpdateAsync(user);
         }
 
-        public Task<List<UserProfileModel>> GetMostRecentlyCreatedUsers()
+        public async Task<PaginatedModel<UserProfileModel>> GetMostRecentlyCreatedUsers()
         {
-            throw new System.NotImplementedException();
+            return new PaginatedModel<UserProfileModel>() {
+                Items = await _userManager.Users.OrderByDescending(u => u.Id).Take(10).ToListAsync(),
+                Total = _userManager.Users.Count(),
+                Pagination = new PaginationModel(),
+            };
         }
 
         public async Task<UserProfileModel> GetUser(int id, int? viewerId)

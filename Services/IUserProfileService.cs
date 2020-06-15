@@ -7,7 +7,7 @@ namespace PinkUmbrella.Services
 {
     public interface IUserProfileService
     {
-        Task<List<UserProfileModel>> GetMostRecentlyCreatedUsers();
+        Task<PaginatedModel<UserProfileModel>> GetMostRecentlyCreatedUsers();
 
         Task<UserProfileModel> GetUser(int id, int? viewerId);
 
