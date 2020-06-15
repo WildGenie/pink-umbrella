@@ -12,7 +12,7 @@
     <partial name="_Covid19" />
     <partial name="Profile/_Container" />
 </div>
-@if (!Model.Profile.HasBlocked)
+@if (!Model.Profile.HasBlocked && !Model.Profile.HasReported)
 {
 <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
     <div class="container">

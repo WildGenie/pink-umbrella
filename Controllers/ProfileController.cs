@@ -106,40 +106,16 @@ namespace PinkUmbrella.Controllers
             }
         }
 
-        // [Authorize]
-        // public async Task<IActionResult> Unblock(int id)
+        // public async Task<IActionResult> ViewProfile(int id)
         // {
-        //     var user = await GetCurrentUserAsync();
-        //     await _reactions.UnReact(user.Id, id, ReactionType.Block, ReactionSubject.Profile);
-        //     return await ViewProfile(id);
+        //     var cuser = await GetCurrentUserAsync();
+        //     var user = await _userProfiles.GetUser(id, cuser?.Id);
+
+        //     ViewData["PartialName"] = "Profile/_Container";
+        //     return View("_NoLayout", new ProfileViewModel() {
+        //         MyProfile = cuser,
+        //         Profile = user,
+        //     });
         // }
-
-        // [Authorize]
-        // public async Task<IActionResult> Block(int id)
-        // {
-        //     var user = await GetCurrentUserAsync();
-        //     await _reactions.React(user.Id, id, ReactionType.Block, ReactionSubject.Profile);
-        //     return await ViewProfile(id);
-        // }
-
-        // [Authorize]
-        // public async Task<IActionResult> Report(int id)
-        // {
-        //     var user = await GetCurrentUserAsync();
-        //     await _reactions.React(user.Id, id, ReactionType.Report, ReactionSubject.Profile);
-        //     return await ViewProfile(id);
-        // }
-
-        public async Task<IActionResult> ViewProfile(int id)
-        {
-            var cuser = await GetCurrentUserAsync();
-            var user = await _userProfiles.GetUser(id, cuser?.Id);
-
-            ViewData["PartialName"] = "Profile/_Container";
-            return View("_NoLayout", new ProfileViewModel() {
-                MyProfile = cuser,
-                Profile = user,
-            });
-        }
     }
 }
