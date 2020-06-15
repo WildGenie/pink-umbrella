@@ -33,7 +33,7 @@ namespace PinkUmbrella.Controllers
         public async Task<IActionResult> Index()
         {
             var user = await GetCurrentUserAsync();
-            if (await _userManager.IsInRoleAsync(user, "dev"))
+            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "dev"))
             {
                 ViewData["Controller"] = "Developer";
                 ViewData["Action"] = nameof(Index);
@@ -51,7 +51,7 @@ namespace PinkUmbrella.Controllers
         public async Task<IActionResult> Users()
         {
             var user = await GetCurrentUserAsync();
-            if (await _userManager.IsInRoleAsync(user, "dev"))
+            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "dev"))
             {
                 ViewData["Controller"] = "Developer";
                 ViewData["Action"] = nameof(Users);
@@ -69,7 +69,7 @@ namespace PinkUmbrella.Controllers
         public async Task<IActionResult> Exceptions(PaginationModel pagination)
         {
             var user = await GetCurrentUserAsync();
-            if (await _userManager.IsInRoleAsync(user, "dev"))
+            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "dev"))
             {
                 ViewData["Controller"] = "Developer";
                 ViewData["Action"] = nameof(Exceptions);
@@ -87,7 +87,7 @@ namespace PinkUmbrella.Controllers
         public async Task<IActionResult> ThrowException()
         {
             var user = await GetCurrentUserAsync();
-            if (await _userManager.IsInRoleAsync(user, "dev"))
+            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "dev"))
             {
                 throw new Exception("You threw this exception");
             }
@@ -100,7 +100,7 @@ namespace PinkUmbrella.Controllers
         public async Task<IActionResult> Posts()
         {
             var user = await GetCurrentUserAsync();
-            if (await _userManager.IsInRoleAsync(user, "dev"))
+            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "dev"))
             {
                 ViewData["Controller"] = "Developer";
                 ViewData["Action"] = nameof(Posts);
@@ -120,7 +120,7 @@ namespace PinkUmbrella.Controllers
         public async Task<IActionResult> Community()
         {
             var user = await GetCurrentUserAsync();
-            if (await _userManager.IsInRoleAsync(user, "dev"))
+            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "dev"))
             {
                 ViewData["Controller"] = "Developer";
                 ViewData["Action"] = nameof(Community);
@@ -136,7 +136,7 @@ namespace PinkUmbrella.Controllers
         public async Task<IActionResult> GiveAccessToGroup()
         {
             var user = await GetCurrentUserAsync();
-            if (await _userManager.IsInRoleAsync(user, "dev"))
+            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "dev"))
             {
                 return View();
             }
@@ -151,7 +151,7 @@ namespace PinkUmbrella.Controllers
         public async Task<IActionResult> GiveAccessToGroup(int toUserId, string group)
         {
             var user = await GetCurrentUserAsync();
-            if (await _userManager.IsInRoleAsync(user, "dev"))
+            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "dev"))
             {
                 if (await _roleManager.RoleExistsAsync(group))
                 {
