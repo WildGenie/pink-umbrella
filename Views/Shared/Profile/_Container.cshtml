@@ -1,0 +1,14 @@
+﻿@using PinkUmbrella.ViewModels.Profile;
+@model ProfileViewModel
+@if (Model.Profile.HasBlocked)
+{
+    <partial name="Profile/_Blocked" />
+}
+else if (Model.Profile.HasReported)
+{
+    <partial name="Profile/_Reported" />
+}
+else
+{
+    <partial name="Profile/_Regular" />
+}

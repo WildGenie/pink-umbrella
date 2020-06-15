@@ -74,7 +74,7 @@ namespace PinkUmbrella.Controllers
         }
 
         [Route("/Inventory/{id}")]
-        public async Task<IActionResult> Index(int id, int? selected, string queryText)
+        public async Task<IActionResult> Inventory(int id, int? selected = null, string queryText = null)
         {
             ViewData["Controller"] = "Inventory";
             ViewData["Action"] = nameof(Index);
@@ -123,6 +123,13 @@ namespace PinkUmbrella.Controllers
         public Task<IActionResult> NewResourceIndex([Bind(Prefix="NewResource.Resource")] SimpleResourceModel Resource)
         {
             return NewResource(Resource);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> NewInventory()
+        {
+            var user = await GetCurrentUserAsync();
+            return View(new NewInventoryViewModel());
         }
 
         [HttpPost]

@@ -175,7 +175,7 @@ namespace PinkUmbrella.Services.Sql
                 user.HasReported = reactionTypes.Contains(ReactionType.Report);
 
                 var blockOrReport = await _dbContext.ProfileReactions.FirstOrDefaultAsync(r => r.ToId == viewerId.Value && r.UserId == user.Id && (r.Type == ReactionType.Block || r.Type == ReactionType.Report));
-                user.HasBeenBlockedOrReported = blockOrReport != null; // user.Reactions.Any(r => r.Type == ReactionType.Block || r.Type == ReactionType.Report) || 
+                user.HasBeenBlockedOrReported = blockOrReport != null;
             }
         }
 

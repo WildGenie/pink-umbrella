@@ -16,7 +16,7 @@
     }
     @foreach (var i in Model.Inventories) {
         var liClass = i.Id == Model.InventoryId ? "selected" : "";
-        <li class="@liClass"><a asp-controller="Inventory" asp-action="Index" asp-route-id="@i.Id">@i.Id - @i.DisplayName</a></li>
+        <li class="@liClass"><a asp-controller="Inventory" asp-action="Inventory" asp-route-id="@i.Id">@i.DisplayName - @i.Description</a></li>
     }
     @if (Model.AddResourceEnabled)
     {

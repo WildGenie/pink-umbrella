@@ -7,91 +7,11 @@
     var postsLiClass = actionName == "Index" ? "selected" : "";
     var repliesLiClass = actionName == "Replies" ? "selected" : "";
     var mentionsLiClass = actionName == "Mentions" ? "selected" : "";
-    
-    var reactEnabled = (Model.MyProfile?.Id ?? -1) != Model.Profile.Id;
-
-    var reactLike = new ReactViewModel() {
-        Type = ReactionType.Like,
-        Subject = ReactionSubject.Profile,
-        ToId = Model.Profile.Id,
-        HasReacted = Model.Profile.HasLiked,
-        Count = Model.Profile.LikeCount,
-        ViewerId = Model.MyProfile?.Id,
-        Enabled = reactEnabled,
-    };
-    var reactDislike = new ReactViewModel() {
-        Type = ReactionType.Dislike,
-        Subject = ReactionSubject.Profile,
-        ToId = Model.Profile.Id,
-        HasReacted = Model.Profile.HasDisliked,
-        Count = Model.Profile.DislikeCount,
-        ViewerId = Model.MyProfile?.Id,
-        Enabled = reactEnabled,
-    };
-    var reactBlock = new ReactViewModel() {
-        Type = ReactionType.Block,
-        Subject = ReactionSubject.Profile,
-        ToId = Model.Profile.Id,
-        HasReacted = Model.Profile.HasBlocked,
-        Count = Model.Profile.BlockCount,
-        ViewerId = Model.MyProfile?.Id,
-        Enabled = reactEnabled,
-    };
-    var reactReport = new ReactViewModel() {
-        Type = ReactionType.Report,
-        Subject = ReactionSubject.Profile,
-        ToId = Model.Profile.Id,
-        HasReacted = Model.Profile.HasReported,
-        Count = Model.Profile.ReportCount,
-        ViewerId = Model.MyProfile?.Id,
-        Enabled = reactEnabled,
-    };
-    var reactFollow = new ReactViewModel() {
-        Type = ReactionType.Follow,
-        Subject = ReactionSubject.Profile,
-        ToId = Model.Profile.Id,
-        HasReacted = Model.Profile.HasFollowed,
-        Count = Model.Profile.FollowCount,
-        ViewerId = Model.MyProfile?.Id,
-        Enabled = reactEnabled,
-    };
-
-    var reactions = new List<ReactViewModel>() {
-        reactLike, reactDislike, reactBlock, reactReport, reactFollow
-    };
 }
-
 <div class="text-center">
     <partial name="_Covid19" />
-    <h1>@ViewData["Title"]</h1>
-    <i>@@@Model.Profile.Handle</i>
-    @if (Model.Profile.Visibility != Visibility.VISIBLE_TO_WORLD)
-    {
-        switch (Model.Profile.Visibility)
-        {
-            case Visibility.HIDDEN:
-            <span>&bull; Hidden to everyone</span>
-            break;
-            case Visibility.VISIBLE_TO_REGISTERED:
-            <span>&bull; Visible to other users on this site</span>
-            break;
-            case Visibility.VISIBLE_TO_FOLLOWERS:
-            if (Model.Profile.Id == Model.MyProfile?.Id)
-            {
-            <span>&bull; Only visible to your followers</span>
-            }
-            else
-            {
-            <span>&bull; Only visible to this user's followers</span>
-            }
-            break;
-        }
-    }
-    <p>@Model.Profile.Bio</p>
-    
-    <partial name="_ReactButtonList" model="reactions" /></li>
+    <partial name="Profile/_Container" />
 </div>
-
 <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
     <div class="container">
         <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
@@ -109,5 +29,4 @@
         </div>
     </div>
 </nav>
-
 <partial name="_FeedList" model="Model.Feed" />
