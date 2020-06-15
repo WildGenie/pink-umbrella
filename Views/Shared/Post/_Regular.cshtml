@@ -37,6 +37,8 @@
         Count = Model.ReportCount,
         ViewerId = Model.ViewerId,
         Enabled = !Model.ViewerIsPoster,
+        ManualReactionUrl = "/Post/Report/" + Model.Id,
+        ResponseHandler = "post-replacewith",
     };
 
     var reactions = new List<ReactViewModel>() {

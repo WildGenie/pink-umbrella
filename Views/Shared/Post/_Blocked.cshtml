@@ -1,5 +1,5 @@
 ﻿@model PostModel
-<div class="contains-ajax show" style="display: grid; grid-template-columns: max-content; align-items: center; justify-content: center;">
+<div class="contains-ajax show center-xy">
     <p>
         <span>You have blocked this post.</span>
         <a class="ajax" asp-action="Unblock" asp-controller="Post" asp-route-id="@Model.Id" data-response-type="html" data-response-handler="replacewith">Unblock Post</a>

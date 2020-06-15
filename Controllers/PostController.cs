@@ -62,6 +62,14 @@ namespace PinkUmbrella.Controllers
             return await ViewPost(id);
         }
 
+        [Authorize]
+        public async Task<IActionResult> Report(int id)
+        {
+            var user = await GetCurrentUserAsync();
+            await _reactions.React(user.Id, id, ReactionType.Report, ReactionSubject.Post);
+            return await ViewPost(id);
+        }
+
         public async Task<IActionResult> ViewPost(int id)
         {
             var user = await GetCurrentUserAsync();

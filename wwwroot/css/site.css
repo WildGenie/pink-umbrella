@@ -123,3 +123,16 @@ ul.highlight-selected > li.selected {
   padding: 0;
   text-align: center;
 }
+
+
+
+
+
+
+
+.center-xy {
+  display: grid;
+  grid-template-columns: max-content;
+  align-items: center;
+  justify-content: center;
+}
