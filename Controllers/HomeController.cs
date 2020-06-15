@@ -131,7 +131,7 @@ namespace PinkUmbrella.Controllers
             });
         }
 
-        [Route("/Error")]
+        [Route("/Error/{code}")]
         public IActionResult Error(string code)
         {
             string originalUrl = null;

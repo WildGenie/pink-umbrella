@@ -13,6 +13,10 @@ namespace PinkUmbrella.Repositories
         public string ContributorsUrl => "https://github.com/viveret/pink-umbrella/graphs/contributors";
         public string CommunityDocUrl => "https://docs.google.com/document/d/13RdzrgGWLu21BfCVKf5BBSJgpk2cvhixYOZnRv1bITM/edit#";
 
+        public string RoleDeveloper => "dev";
+
+
+        public string BetaMsg => "This is the beta version.";
 
 
         public Regex ExtractMentionsRegex { get; } = new Regex(@"@([a-zA-Z0-9_]+)");
@@ -23,7 +27,7 @@ namespace PinkUmbrella.Repositories
             {
                 case "400": return "The request was invalid.";
                 case "401": return "The request was not authorized.";
-                case "403": return "That request is forbidden.";
+                case "403": return "The request was not authorized.";
                 case "404": return "The requested page does not exist.";
                 case "405": return "The method of the request is not allowed.";
                 case "408": return "The requested page timed out.";

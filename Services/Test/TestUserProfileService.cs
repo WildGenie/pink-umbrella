@@ -110,7 +110,47 @@ namespace PinkUmbrella.Services.Test
             throw new NotImplementedException();
         }
 
+        public Task<GroupAccessCodeModel> GetGroupAccessCodeAsync(string code)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task ConsumeGroupAccessCodeAsync(GroupAccessCodeModel code)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task BindReferences(UserProfileModel user, int? viewerId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task MakeFirstUserDev(UserProfileModel user)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task ConsumeGroupAccessCodeAsync(UserProfileModel user, GroupAccessCodeModel code)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task NewGroupAccessCode(int createdByUserId, int forUserId, string group)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<GroupAccessCodeModel> GetGroupAccessCodeAsync(string code, int userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<GroupAccessCodeModel> IUserProfileService.NewGroupAccessCode(int createdByUserId, int forUserId, string group)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<GroupAccessCodeModel>> GetUnusedUnexpiredAccessCodes()
         {
             throw new NotImplementedException();
         }

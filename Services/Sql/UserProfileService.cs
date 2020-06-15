@@ -14,15 +14,18 @@ namespace PinkUmbrella.Services.Sql
     {
         private readonly SignInManager<UserProfileModel> _signInManager;
         private readonly UserManager<UserProfileModel> _userManager;
+        private readonly RoleManager<UserGroupModel> _roleManager;
         private readonly SimpleDbContext _dbContext;
 
         public UserProfileService(
                 UserManager<UserProfileModel> userManager,
                 SignInManager<UserProfileModel> signInManager,
+                RoleManager<UserGroupModel> roleManager,
                 SimpleDbContext dbContext
                 ) {
                     _userManager = userManager;
                     _signInManager = signInManager;
+                    _roleManager = roleManager;
                     _dbContext = dbContext;
                 }
 
@@ -170,6 +173,73 @@ namespace PinkUmbrella.Services.Sql
                 var blockOrReport = await _dbContext.ProfileReactions.FirstOrDefaultAsync(r => r.ToId == viewerId.Value && r.UserId == user.Id && (r.Type == ReactionType.Block || r.Type == ReactionType.Report));
                 user.HasBeenBlockedOrReported = user.Reactions.Any(r => r.Type == ReactionType.Block || r.Type == ReactionType.Report) || blockOrReport != null;
             }
+        }
+
+        public async Task<GroupAccessCodeModel> GetGroupAccessCodeAsync(string code, int userId)
+        {
+            var c = await _dbContext.GroupAccessCodes.SingleOrDefaultAsync(c => c.WhenConsumed == null && c.Code == code && c.ForUserId == userId);
+            if (c != null && c.WhenExpires >= DateTime.UtcNow)
+            {
+                return c;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public async Task ConsumeGroupAccessCodeAsync(UserProfileModel user, GroupAccessCodeModel c)
+        {
+            if (c.WhenExpires >= DateTime.UtcNow)
+            {
+                await _userManager.AddToRoleAsync(user, c.GroupName);
+                c.WhenConsumed = DateTime.UtcNow;
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
+        public async Task<GroupAccessCodeModel> NewGroupAccessCode(GroupAccessCodeModel info)
+        {
+            info.Code = Guid.NewGuid().ToString();
+            info.WhenCreated = DateTime.UtcNow;
+            info.WhenExpires = DateTime.UtcNow.AddDays(1);
+            _dbContext.GroupAccessCodes.Add(info);
+            await _dbContext.SaveChangesAsync();
+            return info;
+        }
+
+        public Task<GroupAccessCodeModel> NewGroupAccessCode(int createdByUserId, int forUserId, string group)
+        {
+            return NewGroupAccessCode(new GroupAccessCodeModel() {
+                CreatedByUserId = createdByUserId,
+                ForUserId = forUserId,
+                GroupName = group,
+            });
+        }
+
+        public async Task MakeFirstUserDev(UserProfileModel user)
+        {
+            if (_userManager.Users.Count() == 1)
+            {
+                if (!await _roleManager.RoleExistsAsync("dev"))
+                {
+                    var result = await _roleManager.CreateAsync(new UserGroupModel() { Name = "dev", OwnerId = -1, GroupType = GroupType.Dev });
+                    if (!result.Succeeded)
+                    {
+                        throw new Exception("Cannot create dev group");
+                    }
+                }
+                if (!await _userManager.IsInRoleAsync(user, "dev"))
+                {
+                    await _userManager.AddToRoleAsync(user, "dev");
+                }
+            }
+        }
+
+        public async Task<List<GroupAccessCodeModel>> GetUnusedUnexpiredAccessCodes()
+        {
+            var now = DateTime.UtcNow;
+            return await _dbContext.GroupAccessCodes.Where(c => c.WhenConsumed == null && c.WhenExpires < now).ToListAsync();
         }
     }
 }

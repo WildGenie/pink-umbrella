@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -13,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using PinkUmbrella.Models;
 using PinkUmbrella.Repositories;
 using PinkUmbrella.Services;
@@ -20,6 +23,7 @@ using PinkUmbrella.Services.NoSql;
 using PinkUmbrella.Services.Sql;
 using PinkUmbrella.Services.Sql.React;
 using PinkUmbrella.Services.Sql.Search;
+using PinkUmbrella.Util;
 
 namespace PinkUmbrella
 {
@@ -34,10 +38,12 @@ namespace PinkUmbrella
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<SimpleDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<SimpleDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("MainConnection")));
+            services.AddDbContext<LogDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("LogConnection")));
             
             services.AddIdentity<UserProfileModel, UserGroupModel>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<SimpleDbContext>()
+                .AddEntityFrameworkStores<LogDbContext>()
                 .AddDefaultTokenProviders();
 
             services.AddSingleton<MIPMapRepository>();
@@ -51,6 +57,7 @@ namespace PinkUmbrella
             services.AddScoped<ISimpleInventoryService, SimpleInventoryService>();
             services.AddScoped<IPostService, PostService>();
             services.AddScoped<IShopService, ShopService>();
+            services.AddScoped<IDebugService, DebugService>();
             
             services.AddScoped<ISearchableService, SearchPostsService>();
             services.AddScoped<ISearchableService, SearchProfilesService>();
@@ -91,7 +98,7 @@ namespace PinkUmbrella
                 options.ExpireTimeSpan = TimeSpan.FromDays(1);
 
                 options.LoginPath = "/Account/Login";
-                options.AccessDeniedPath = "/Account/AccessDenied";
+                options.AccessDeniedPath = "/Error/403";
                 options.SlidingExpiration = true;
             });
 
@@ -111,12 +118,9 @@ namespace PinkUmbrella
             }
             else
             {
-                app.UseExceptionHandler("/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
-            app.UseStatusCodePagesWithReExecute("/Error", "?code={0}");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
@@ -125,6 +129,7 @@ namespace PinkUmbrella
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseMiddleware<LogErrorRedirectProd>();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

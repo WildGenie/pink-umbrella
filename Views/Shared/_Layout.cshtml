@@ -26,7 +26,14 @@
       type="image/png" 
       href="/favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    @if (_environment.IsProduction())
+    {
     <title>@ViewData["Title"] - @_strings.SiteName</title>
+    }
+    else
+    {
+    <title>Beta - @ViewData["Title"] - @_strings.SiteName</title>
+    }
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
     
@@ -37,7 +44,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index"><i class="fa fa-umbrella accent-color"></i> @_strings.SiteName</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index"><i class="fa fa-umbrella accent-color"></i> @_strings.SiteName @if (!_environment.IsProduction()) { <i class="fas fa-robot" title="@_strings.BetaMsg"></i> }</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -118,7 +125,8 @@
             &bull; <a asp-area="" asp-controller="Home" asp-action="About"><i class="fas fa-question-circle"></i> About Us</a>
             &bull; <a href="@_strings.WikiUrl" target="_blank"><i class="fas fa-info-circle"></i> Wiki</a>
             &bull; <a href="@_strings.GitHubUrl" target="_blank"><i class="fab fa-github"></i> GitHub</a>
-            @if (!_environment.IsProduction()) {
+            @if (User.IsInRole(_strings.RoleDeveloper))
+            {
                 <span> &bull; </span><a asp-area="" asp-controller="Debug" asp-action="Index"><i class="fas fa-robot"></i> Debug</a>
             }
             &bull; <a href="@_strings.ReportBugUrl" target="_blank"><i class="fas fa-bug"></i> Report Issue</a>

@@ -28,5 +28,15 @@ namespace PinkUmbrella.Services
         Task BindReferences(UserProfileModel user, int? viewerId);
 
         bool CanView(UserProfileModel user, int? viewerId);
+
+        Task<GroupAccessCodeModel> NewGroupAccessCode(int createdByUserId, int forUserId, string group);
+
+        Task<GroupAccessCodeModel> GetGroupAccessCodeAsync(string code, int userId);
+        
+        Task ConsumeGroupAccessCodeAsync(UserProfileModel user, GroupAccessCodeModel code);
+
+        Task MakeFirstUserDev(UserProfileModel user);
+
+        Task<List<GroupAccessCodeModel>> GetUnusedUnexpiredAccessCodes();
     }
 }

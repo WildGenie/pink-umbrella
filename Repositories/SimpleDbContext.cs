@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using PinkUmbrella.Models;
+using System;
+using System.Threading.Tasks;
 
 namespace PinkUmbrella.Repositories
 {
@@ -21,6 +23,7 @@ namespace PinkUmbrella.Repositories
         public DbSet<ArchivedMediaModel> ArchivedMedia { get; set; }
         public DbSet<MentionModel> Mentions { get; set; }
 
+        public DbSet<GroupAccessCodeModel> GroupAccessCodes { get; set; }
 
         public SimpleDbContext(DbContextOptions<SimpleDbContext> options): base(options) {
 

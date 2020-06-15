@@ -9,17 +9,22 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PinkUmbrella.Models;
 using PinkUmbrella.Services;
 using PinkUmbrella.ViewModels.Account;
 using PinkUmbrella.Util;
+using System.Diagnostics;
 
 namespace PinkUmbrella.Controllers
 {
     public class AccountController: BaseController
     {
+        private readonly ILogger<AccountController> _logger;
+
         public AccountController(
+                ILogger<AccountController> logger,
                 IWebHostEnvironment environment,
                 UserManager<UserProfileModel> userManager,
                 SignInManager<UserProfileModel> signInManager,
@@ -27,6 +32,7 @@ namespace PinkUmbrella.Controllers
                 ) :
             base(environment, signInManager, userManager, posts, userProfiles)
         {
+            _logger = logger;
         }
 
         [Authorize]
@@ -372,6 +378,8 @@ namespace PinkUmbrella.Controllers
                 var result = await _userManager.CreateAsync(user, input.Password);
                 if (result.Succeeded)
                 {
+                    await _userProfiles.MakeFirstUserDev(user);
+
                     // await eventLog.Log(user.Id, EventNames.Account.Register.Success, null);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     if (_environment.IsProduction())
@@ -486,6 +494,31 @@ namespace PinkUmbrella.Controllers
             user.BioVisibility = MyProfile.BioVisibility.Min(user.Visibility);
             await _userManager.UpdateAsync(user);
             return RedirectToAction(nameof(Index));
+        }
+
+        [Authorize, Route("/AddMeToGroup/{code}")]
+        public async Task<IActionResult> AddMeToGroup(string code)
+        {
+            if (!string.IsNullOrWhiteSpace(code))
+            {
+                var user = await GetCurrentUserAsync();
+                var groupAccess = await _userProfiles.GetGroupAccessCodeAsync(code, user.Id);
+                if (groupAccess != null)
+                {
+                    if (!await _userManager.IsInRoleAsync(user, groupAccess.GroupName))
+                    {
+                        _logger.LogInformation($"Adding {user.Id} ({user.Email}) to {groupAccess.GroupName} role");
+                        await _userProfiles.ConsumeGroupAccessCodeAsync(user, groupAccess);
+                        return Content("You are now a part of " + groupAccess.GroupName);
+                    }
+                    else
+                    {
+                        return Content("You were already a part of " + groupAccess.GroupName);
+                    }
+                }
+            }
+            
+            return NotFound();
         }
     }
 }
