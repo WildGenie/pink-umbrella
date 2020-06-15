@@ -22,14 +22,16 @@ namespace PinkUmbrella.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ISearchService _searchService;
+        private readonly IFeedService _feedService;
 
         public HomeController(IWebHostEnvironment environment, ILogger<HomeController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService postService, IUserProfileService userProfiles, ISearchService searchService,
-            IReactionService reactions):
+            IReactionService reactions, IFeedService feedService):
             base(environment, signInManager, userManager, postService, userProfiles, reactions)
         {
             _logger = logger;
             _searchService = searchService;
+            _feedService = feedService;
         }
 
         public async Task<IActionResult> Index()
@@ -44,7 +46,7 @@ namespace PinkUmbrella.Controllers
 
             if (user != null)
             {
-                model.MyFeed = await _posts.GetFeedForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 });
+                model.MyFeed = await _feedService.GetFeedForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 });
                 return View(model);
             }
             else

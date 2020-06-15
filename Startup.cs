@@ -57,6 +57,7 @@ namespace PinkUmbrella
             services.AddScoped<ISimpleInventoryService, SimpleInventoryService>();
             services.AddScoped<IPostService, PostService>();
             services.AddScoped<IShopService, ShopService>();
+            services.AddScoped<IFeedService, FeedService>();
             services.AddScoped<IDebugService, DebugService>();
             
             services.AddScoped<ISearchableService, SearchPostsService>();

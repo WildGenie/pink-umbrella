@@ -6,6 +6,5 @@ namespace PinkUmbrella.Models
         Image,
         Poll,
         Event,
-        Shop
     }
 }

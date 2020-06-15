@@ -1,4 +1,6 @@
-﻿@{
+﻿@using PinkUmbrella.ViewModels.Home
+@model IndexViewModel
+@{
     ViewData["Title"] = "Home Page";
     var visibilities = new SelectList(Html.GetEnumSelectList<Visibility>(), "Value", "Text");
 }
@@ -36,4 +38,23 @@
     </nav>
 </div>
 <partial name="_NewPostForm" model="Model.NewPost" />
+@if (Model.MyFeed.Total > 0)
+{
 <partial name="_FeedList" model="Model.MyFeed" />
+}
+else
+{
+    <hr />
+    switch (Model.Source)
+    {
+        case FeedSource.Following:
+        <p>You are not following anybody. Find people to follow by <a asp-action="Search" asp-controller="Home" asp-route-t="@SearchResultType.Profile">searching the community</a>!</p>
+        break;
+        case FeedSource.Mentions:
+        <p>Nobody has mentioned you yet. Find someone by <a asp-action="Search" asp-controller="Home" asp-route-t="@SearchResultType.Profile">searching the community</a> and mention them by using their handle with a @@ infront, like <strong>@@viv</strong></p>
+        break;
+        case FeedSource.Myself:
+        <p>You have not made any posts. Don't be shy!</p>
+        break;
+    }
+}
