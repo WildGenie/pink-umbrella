@@ -1,0 +1,13 @@
+@{
+    ViewData["Title"] = "Give Access to Group";
+}
+
+<partial name="_Header" />
+<form method="POST">
+    <label for="toUserId">To User Id</label>
+    <input name="toUserId" type="number" required>
+    <label for="group">Group</label>
+    <input name="group" type="text" required>
+
+    <button type="submit">Submit</button>
+</form>

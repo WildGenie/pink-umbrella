@@ -1,0 +1,11 @@
+@model PaginatedModel<LoggedExceptionModel>
+<div>
+    @if (Model.Pagination.start == 0)
+    {
+        <span>@Model.Total total exceptions</span>
+    }
+    @foreach (var ex in Model.Items) {
+        <hr />
+        <partial name="_ExceptionListItem" model="ex" />
+    }
+</div>

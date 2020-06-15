@@ -1,0 +1,36 @@
+﻿@{
+    var actionName = (string) ViewData["Action"];
+    var detailsLiClass = actionName == "Index" ? "selected" : "";
+    var exceptionsLiClass = actionName == "Exceptions" ? "selected" : "";
+    var usersLiClass = actionName == "Users" ? "selected" : "";
+    var postsLiClass = actionName == "Posts" ? "selected" : "";
+    var communityLiClass = actionName == "Community" ? "selected" : "";
+    var giveAccessToGroupLiClass = actionName == "GiveAccessToGroup" ? "selected" : "";
+}
+<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+    <div class="container">
+        <h1>Debug</h1>
+        <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+            <ul class="navbar-nav flex-grow-1 highlight-selected">
+                <li class="nav-item @detailsLiClass">
+                    <a class="nav-link text-dark" asp-controller="Developer" asp-action="Index"><u>Debug</u></a>
+                </li>
+                <li class="nav-item @exceptionsLiClass">
+                    <a class="nav-link text-dark" asp-controller="Developer" asp-action="Exceptions"><u>Exceptions</u></a>
+                </li>
+                <li class="nav-item @usersLiClass">
+                    <a class="nav-link text-dark" asp-controller="Developer" asp-action="Users"><u>Users</u></a>
+                </li>
+                <li class="nav-item @postsLiClass">
+                    <a class="nav-link text-dark" asp-controller="Developer" asp-action="Posts"><u>Posts</u></a>
+                </li>
+                <li class="nav-item @communityLiClass">
+                    <a class="nav-link text-dark" asp-controller="Developer" asp-action="Community"><u>Community</u></a>
+                </li>
+                <li class="nav-item @giveAccessToGroupLiClass">
+                    <a class="nav-link text-dark" asp-controller="Developer" asp-action="GiveAccessToGroup"><u>Give Access to Group</u></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

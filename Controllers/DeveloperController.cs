@@ -10,17 +10,17 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using PinkUmbrella.Models;
 using PinkUmbrella.Services;
-using PinkUmbrella.ViewModels.Debug;
+using PinkUmbrella.ViewModels.Developer;
 
 namespace PinkUmbrella.Controllers
 {
-    public class DebugController : BaseController
+    public class DeveloperController : BaseController
     {
-        private readonly ILogger<DebugController> _logger;
+        private readonly ILogger<DeveloperController> _logger;
         private readonly IDebugService _debugService;
         private readonly RoleManager<UserGroupModel> _roleManager;
 
-        public DebugController(IWebHostEnvironment environment, ILogger<DebugController> logger, SignInManager<UserProfileModel> signInManager,
+        public DeveloperController(IWebHostEnvironment environment, ILogger<DeveloperController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IDebugService debugService,
             RoleManager<UserGroupModel> roleManager):
             base(environment, signInManager, userManager, posts, userProfiles)
@@ -35,7 +35,7 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentUserAsync();
             if (await _userManager.IsInRoleAsync(user, "dev"))
             {
-                ViewData["Controller"] = "Debug";
+                ViewData["Controller"] = "Developer";
                 ViewData["Action"] = nameof(Index);
                 return View(new IndexViewModel() {
                     MyProfile = user,
@@ -53,7 +53,7 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentUserAsync();
             if (await _userManager.IsInRoleAsync(user, "dev"))
             {
-                ViewData["Controller"] = "Debug";
+                ViewData["Controller"] = "Developer";
                 ViewData["Action"] = nameof(Users);
                 return View(new UsersViewModel() {
                     MyProfile = user,
@@ -71,7 +71,7 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentUserAsync();
             if (await _userManager.IsInRoleAsync(user, "dev"))
             {
-                ViewData["Controller"] = "Debug";
+                ViewData["Controller"] = "Developer";
                 ViewData["Action"] = nameof(Exceptions);
                 return View(new ExceptionsViewModel() {
                     MyProfile = user,
@@ -102,7 +102,7 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentUserAsync();
             if (await _userManager.IsInRoleAsync(user, "dev"))
             {
-                ViewData["Controller"] = "Debug";
+                ViewData["Controller"] = "Developer";
                 ViewData["Action"] = nameof(Posts);
                 return View(new PostsViewModel() {
                     MyProfile = user,
@@ -122,7 +122,7 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentUserAsync();
             if (await _userManager.IsInRoleAsync(user, "dev"))
             {
-                ViewData["Controller"] = "Debug";
+                ViewData["Controller"] = "Developer";
                 ViewData["Action"] = nameof(Community);
                 return View();
             }

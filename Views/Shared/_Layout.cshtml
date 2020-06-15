@@ -14,7 +14,7 @@
     var inventoryLiClass = controllerName == "Inventory" ? "selected" : "";
     var civicDutyLiClass = controllerName == "CivicDuty" ? "selected" : "";
     var shopLiClass = controllerName == "Shop" ? "selected" : "";
-    var debugLiClass = controllerName == "Debug" ? "selected" : "";
+    var debugLiClass = controllerName == "Developer" ? "selected" : "";
     var privacyLiClass = controllerName == "Home" && actionName == "Privacy" ? "selected" : "";
     var aboutLiClass = controllerName == "Home" && actionName == "About" ? "selected" : "";
 }
@@ -127,7 +127,7 @@
             &bull; <a href="@_strings.GitHubUrl" target="_blank"><i class="fab fa-github"></i> GitHub</a>
             @if (User.IsInRole(_strings.RoleDeveloper))
             {
-                <span> &bull; </span><a asp-area="" asp-controller="Debug" asp-action="Index"><i class="fas fa-robot"></i> Debug</a>
+                <span> &bull; </span><a asp-area="" asp-controller="Developer" asp-action="Index"><i class="fas fa-robot"></i> Debug</a>
             }
             &bull; <a href="@_strings.ReportBugUrl" target="_blank"><i class="fas fa-bug"></i> Report Issue</a>
         </div>
