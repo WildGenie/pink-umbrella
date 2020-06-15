@@ -1,5 +1,6 @@
 using System;
 using System.Text.RegularExpressions;
+using PinkUmbrella.Models;
 
 namespace PinkUmbrella.Repositories
 {
@@ -342,6 +343,246 @@ namespace PinkUmbrella.Repositories
             {
                 return null;
             }
+        }
+
+        public string GetMessage(ReactionType t, ReactionSubject subject)
+        {
+            switch (subject)
+            {
+                case ReactionSubject.Post:
+                switch (t)
+                {
+                    case ReactionType.Like:
+                    return "Liked post";
+                    case ReactionType.Dislike:
+                    return "Disliked post";
+                    case ReactionType.Report:
+                    return "Reported post";
+                    case ReactionType.Block:
+                    return "Blocked post";
+                }
+                break;
+                case ReactionSubject.Profile:
+                switch (t)
+                {
+                    case ReactionType.Like:
+                    return "Liked profile";
+                    case ReactionType.Dislike:
+                    return "Disliked profile";
+                    case ReactionType.Report:
+                    return "Reported profile";
+                    case ReactionType.Block:
+                    return "Blocked profile";
+                    case ReactionType.Follow:
+                    return "Followed profile";
+                }
+                break;
+                case ReactionSubject.Shop:
+                switch (t)
+                {
+                    case ReactionType.Like:
+                    return "Liked shop";
+                    case ReactionType.Dislike:
+                    return "Disliked shop";
+                    case ReactionType.Report:
+                    return "Reported shop";
+                    case ReactionType.Block:
+                    return "Blocked shop";
+                    case ReactionType.Follow:
+                    return "Followed shop";
+                }
+                break;
+                case ReactionSubject.ArchivedMedia:
+                switch (t)
+                {
+                    case ReactionType.Like:
+                    return "Liked media";
+                    case ReactionType.Dislike:
+                    return "Disliked media";
+                    case ReactionType.Report:
+                    return "Reported media";
+                    case ReactionType.Block:
+                    return "Blocked media";
+                }
+                break;
+            }
+            return "no message";
+        }
+
+        public string GetUndoMessage(ReactionType t, ReactionSubject subject)
+        {
+            switch (subject)
+            {
+                case ReactionSubject.Post:
+                switch (t)
+                {
+                    case ReactionType.Like:
+                    return "Unliked post";
+                    case ReactionType.Dislike:
+                    return "Un-disliked post";
+                    case ReactionType.Block:
+                    return "Unblocked post";
+                }
+                break;
+                case ReactionSubject.Profile:
+                switch (t)
+                {
+                    case ReactionType.Like:
+                    return "Unliked profile";
+                    case ReactionType.Dislike:
+                    return "Un-disliked profile";
+                    case ReactionType.Block:
+                    return "Unblocked profile";
+                    case ReactionType.Follow:
+                    return "Unfollowed profile";
+                }
+                break;
+                case ReactionSubject.Shop:
+                switch (t)
+                {
+                    case ReactionType.Like:
+                    return "Unliked shop";
+                    case ReactionType.Dislike:
+                    return "Un-disliked shop";
+                    case ReactionType.Block:
+                    return "Unblocked shop";
+                    case ReactionType.Follow:
+                    return "Unfollowed shop";
+                }
+                break;
+                case ReactionSubject.ArchivedMedia:
+                switch (t)
+                {
+                    case ReactionType.Like:
+                    return "Unliked media";
+                    case ReactionType.Dislike:
+                    return "Un-disliked media";
+                    case ReactionType.Block:
+                    return "Unblocked media";
+                }
+                break;
+            }
+            return "no undo message";
+        }
+
+        public string GetCTA(ReactionType t, ReactionSubject subject)
+        {
+            switch (subject)
+            {
+                case ReactionSubject.Post:
+                switch (t)
+                {
+                    case ReactionType.Like:
+                    return "Like post";
+                    case ReactionType.Dislike:
+                    return "Dislike post";
+                    case ReactionType.Report:
+                    return "Report post";
+                    case ReactionType.Block:
+                    return "Block post";
+                }
+                break;
+                case ReactionSubject.Profile:
+                switch (t)
+                {
+                    case ReactionType.Like:
+                    return "Like profile";
+                    case ReactionType.Dislike:
+                    return "Dislike profile";
+                    case ReactionType.Report:
+                    return "Report profile";
+                    case ReactionType.Block:
+                    return "Block profile";
+                    case ReactionType.Follow:
+                    return "Follow profile";
+                }
+                break;
+                case ReactionSubject.Shop:
+                switch (t)
+                {
+                    case ReactionType.Like:
+                    return "Like shop";
+                    case ReactionType.Dislike:
+                    return "Dislike shop";
+                    case ReactionType.Report:
+                    return "Report shop";
+                    case ReactionType.Block:
+                    return "Block shop";
+                    case ReactionType.Follow:
+                    return "Follow shop";
+                }
+                break;
+                case ReactionSubject.ArchivedMedia:
+                switch (t)
+                {
+                    case ReactionType.Like:
+                    return "Like media";
+                    case ReactionType.Dislike:
+                    return "Dislike media";
+                    case ReactionType.Report:
+                    return "Report media";
+                    case ReactionType.Block:
+                    return "Block media";
+                }
+                break;
+            }
+            return "no message";
+        }
+
+        public string GetUndoCTA(ReactionType t, ReactionSubject subject)
+        {
+            switch (subject)
+            {
+                case ReactionSubject.Post:
+                switch (t)
+                {
+                    case ReactionType.Like:
+                    return "Unlike post";
+                    case ReactionType.Dislike:
+                    return "Un-dislike post";
+                    case ReactionType.Block:
+                    return "Unblock post";
+                }
+                break;
+                case ReactionSubject.Profile:
+                switch (t)
+                {
+                    case ReactionType.Like:
+                    return "Unlike profile";
+                    case ReactionType.Dislike:
+                    return "Un-dislike profile";
+                    case ReactionType.Block:
+                    return "Unblock profile";
+                    case ReactionType.Follow:
+                    return "Unfollow profile";
+                }
+                break;
+                case ReactionSubject.Shop:
+                switch (t)
+                {
+                    case ReactionType.Like:
+                    return "Unlike shop";
+                    case ReactionType.Dislike:
+                    return "Un-dislike shop";
+                    case ReactionType.Block:
+                    return "Unblock shop";
+                    case ReactionType.Follow:
+                    return "Unfollow shop";
+                }
+                break;
+                case ReactionSubject.ArchivedMedia:
+                switch (t)
+                {
+                    case ReactionType.Like:
+                    return "Unlike media";
+                    case ReactionType.Dislike:
+                    return "Un-dislike media";
+                    case ReactionType.Block:
+                    return "Unblock media";
+                }
+                break;
+            }
+            return "no undo message";
         }
     }
 }

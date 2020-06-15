@@ -100,7 +100,7 @@ namespace PinkUmbrella.Controllers
             return View("Inventory", model);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public async Task<IActionResult> NewResource(SimpleResourceModel Resource)
         {
             var user = await GetCurrentUserAsync();
@@ -119,20 +119,20 @@ namespace PinkUmbrella.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public Task<IActionResult> NewResourceIndex([Bind(Prefix="NewResource.Resource")] SimpleResourceModel Resource)
         {
             return NewResource(Resource);
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public async Task<IActionResult> NewInventory()
         {
             var user = await GetCurrentUserAsync();
             return View(new NewInventoryViewModel());
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public async Task<IActionResult> NewInventory(SimpleInventoryModel Inventory)
         {
             var user = await GetCurrentUserAsync();

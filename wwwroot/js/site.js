@@ -39,6 +39,11 @@ $(() => {
         $ajax.closest('.contains-ajax')[0].outerHTML = r;
     });
 
+    $(document).on('page-reload', '.contains-ajax', (ev, r, $ajax) => {
+        ev.preventDefault();
+        location.reload();
+    });
+
     $(document).on('post-replacewith', '.post', (ev, r, $ajax) => {
         let $post = $ajax.closest('.post');
         let $newElement = $(r);

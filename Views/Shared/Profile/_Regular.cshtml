@@ -29,6 +29,7 @@
         Count = Model.Profile.BlockCount,
         ViewerId = Model.MyProfile?.Id,
         Enabled = !viewingOwnProfile,
+        ResponseHandler = "page-reload",
     };
     var reactReport = new ReactViewModel() {
         Type = ReactionType.Report,
@@ -38,6 +39,7 @@
         Count = Model.Profile.ReportCount,
         ViewerId = Model.MyProfile?.Id,
         Enabled = !viewingOwnProfile,
+        ResponseHandler = "page-reload",
     };
     var reactFollow = new ReactViewModel() {
         Type = ReactionType.Follow,

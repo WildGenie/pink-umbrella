@@ -12,7 +12,7 @@
         }
         else
         {
-        <a class="ajax" asp-action="@actionPrefix@Model.Type" asp-controller="Reaction" asp-route-id="@Model.ToId" asp-route-subject="@Model.Subject" data-response-type="html" data-response-handler="replacewith"></a>
+        <a class="ajax" asp-action="@actionPrefix@Model.Type" asp-controller="Reaction" asp-route-id="@Model.ToId" asp-route-subject="@Model.Subject" data-response-type="html" data-response-handler="@Model.ResponseHandler"></a>
         }
     }
     @if (Model.HasReacted)

@@ -106,29 +106,29 @@ namespace PinkUmbrella.Controllers
             }
         }
 
-        [Authorize]
-        public async Task<IActionResult> Unblock(int id)
-        {
-            var user = await GetCurrentUserAsync();
-            await _reactions.UnReact(user.Id, id, ReactionType.Block, ReactionSubject.Profile);
-            return await ViewProfile(id);
-        }
+        // [Authorize]
+        // public async Task<IActionResult> Unblock(int id)
+        // {
+        //     var user = await GetCurrentUserAsync();
+        //     await _reactions.UnReact(user.Id, id, ReactionType.Block, ReactionSubject.Profile);
+        //     return await ViewProfile(id);
+        // }
 
-        [Authorize]
-        public async Task<IActionResult> Block(int id)
-        {
-            var user = await GetCurrentUserAsync();
-            await _reactions.React(user.Id, id, ReactionType.Block, ReactionSubject.Profile);
-            return await ViewProfile(id);
-        }
+        // [Authorize]
+        // public async Task<IActionResult> Block(int id)
+        // {
+        //     var user = await GetCurrentUserAsync();
+        //     await _reactions.React(user.Id, id, ReactionType.Block, ReactionSubject.Profile);
+        //     return await ViewProfile(id);
+        // }
 
-        [Authorize]
-        public async Task<IActionResult> Report(int id)
-        {
-            var user = await GetCurrentUserAsync();
-            await _reactions.React(user.Id, id, ReactionType.Report, ReactionSubject.Profile);
-            return await ViewProfile(id);
-        }
+        // [Authorize]
+        // public async Task<IActionResult> Report(int id)
+        // {
+        //     var user = await GetCurrentUserAsync();
+        //     await _reactions.React(user.Id, id, ReactionType.Report, ReactionSubject.Profile);
+        //     return await ViewProfile(id);
+        // }
 
         public async Task<IActionResult> ViewProfile(int id)
         {

@@ -1,7 +1,20 @@
-﻿@model PostModel
+﻿@using PinkUmbrella.ViewModels.Profile;
+@model ProfileViewModel
+@{
+    var reactBlock = new ReactViewModel() {
+        Type = ReactionType.Block,
+        Subject = ReactionSubject.Profile,
+        ToId = Model.Profile.Id,
+        HasReacted = Model.Profile.HasBlocked,
+        Count = Model.Profile.BlockCount,
+        ViewerId = Model.MyProfile?.Id,
+        Enabled = true,
+        ResponseHandler = "page-reload",
+    };
+}
 <div class="contains-ajax show center-xy">
     <p>
-        <span>You have blocked this post.</span>
-        <a class="ajax" asp-action="Unblock" asp-controller="Post" asp-route-id="@Model.Id" data-response-type="html" data-response-handler="replacewith">Unblock Post</a>
+        <span>You have blocked this profile.</span>
+        <partial name="_ReactLink" model="reactBlock" />
     </p>
 </div>
