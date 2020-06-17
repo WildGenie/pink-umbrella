@@ -4,7 +4,8 @@ namespace PinkUmbrella.Models
     {
         Profile,
         Post,
-        ArchiveMedia,
+        Photo,
+        Video,
         Inventory,
         CivicDuty,
         Shop

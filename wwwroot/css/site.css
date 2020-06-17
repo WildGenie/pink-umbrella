@@ -136,3 +136,13 @@ ul.highlight-selected > li.selected {
   align-items: center;
   justify-content: center;
 }
+
+
+
+
+.archived-media.image {
+  width: 100%;
+  max-height: 30vh;
+  object-fit: contain;
+  padding: 0.5rem;
+}

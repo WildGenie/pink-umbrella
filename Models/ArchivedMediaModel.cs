@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PinkUmbrella.Models
 {
@@ -23,6 +25,9 @@ namespace PinkUmbrella.Models
         public string Path { get; set; }
         
         public int UserId { get; set; }
+
+        [DefaultValue(null), ]
+        public int? RelatedPostId { get; set; }
 
         [DefaultValue(Visibility.VISIBLE_TO_REGISTERED)]
         public Visibility Visibility { get; set; }
@@ -49,5 +54,47 @@ namespace PinkUmbrella.Models
 
         [DefaultValue(0)]
         public int ReportCount { get; set; }
+
+        [DefaultValue(0)]
+        public int BlockCount { get; set; }
+
+        [DefaultValue(false)]
+        public bool UploadedStatus { get; set; }
+
+        public ArchivedMediaType MediaType { get; set; }
+
+
+        public UserProfileModel User { get; set; }
+
+        public PostModel RelatedPost { get; set; }
+
+
+        [NotMapped]
+        public bool HasLiked { get; set; }
+        
+        [NotMapped]
+        public bool HasDisliked { get; set; }
+        
+        [NotMapped]
+        public bool HasBlocked { get; set; }
+
+        [NotMapped]
+        public bool HasReported { get; set; }
+
+
+        [NotMapped]
+        public int? ViewerId { get; set; }
+
+        [NotMapped]
+        public bool HasBeenBlockedOrReported { get; set; }
+        
+        [NotMapped]
+        public List<ReactionModel> Reactions { get; set; } = new List<ReactionModel>();
+
+        [NotMapped]
+        public bool ViewerIsFollowing { get; set; }
+
+        [NotMapped]
+        public bool ViewerIsPoster => ViewerId.HasValue && UserId == ViewerId.Value;
     }
 }

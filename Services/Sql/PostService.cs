@@ -165,14 +165,11 @@ namespace PinkUmbrella.Services.Sql
             }
         }
 
-        public Task UpdateShadowBanStatus(int id, bool status)
+        public async Task UpdateShadowBanStatus(int id, bool status)
         {
-            throw new System.NotImplementedException();
-        }
-
-        public Task<List<PostModel>> UserPosts(int userId, int? viewerId, PaginationModel pagination)
-        {
-            throw new System.NotImplementedException();
+            var p = await _dbContext.Posts.FindAsync(id);
+            p.ShadowBanned = status;
+            await _dbContext.SaveChangesAsync();
         }
 
         private async Task ExtractMentions(PostModel p)

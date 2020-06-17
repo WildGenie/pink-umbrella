@@ -16,6 +16,7 @@ namespace PinkUmbrella.Models
         [DefaultValue(null)]
         public int? DeletedByUserId { get; set; }
 
+        // Deprecated
         public int MipmapId { get; set; }
 
         [DisplayName("Inventory")]

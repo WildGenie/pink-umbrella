@@ -1,0 +1,31 @@
+@model List<SearchResultModel>
+@foreach (var result in Model) {
+    <hr />
+    switch (result.Type)
+    {
+        case SearchResultType.Profile:
+        <partial name="SearchResult/ProfileSearchResult" model="result.Value" />
+        break;
+        case SearchResultType.Post:
+        <partial name="SearchResult/PostSearchResult" model="result.Value" />
+        break;
+        case SearchResultType.Photo:
+        <partial name="SearchResult/ArchiveSearchResult" model="result.Value" />
+        break;
+        case SearchResultType.Video:
+        <partial name="SearchResult/ArchiveSearchResult" model="result.Value" />
+        break;
+        case SearchResultType.Inventory:
+        <partial name="SearchResult/InventorySearchResult" model="result.Value" />
+        break;
+        case SearchResultType.CivicDuty:
+        <partial name="SearchResult/CivicDutySearchResult" model="result.Value" />
+        break;
+        case SearchResultType.Shop:
+        <partial name="SearchResult/ShopSearchResult" model="result.Value" />
+        break;
+        default:
+        <div>No view for @result.Type</div>
+        break;
+    }
+}

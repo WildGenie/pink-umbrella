@@ -9,8 +9,8 @@ using PinkUmbrella.Repositories;
 namespace PinkUmbrella.Migrations
 {
     [DbContext(typeof(SimpleDbContext))]
-    [Migration("20200613181654_block count")]
-    partial class blockcount
+    [Migration("20200616051236_Initial again")]
+    partial class Initialagain
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -123,6 +123,9 @@ namespace PinkUmbrella.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("BlockCount")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("ContainsProfanity")
                         .HasColumnType("INTEGER");
 
@@ -151,6 +154,9 @@ namespace PinkUmbrella.Migrations
                         .HasColumnType("TEXT")
                         .HasMaxLength(500);
 
+                    b.Property<int?>("RelatedPostId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("ReportCount")
                         .HasColumnType("INTEGER");
 
@@ -158,6 +164,9 @@ namespace PinkUmbrella.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("SizeBytes")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("UploadedStatus")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("UserId")
@@ -174,7 +183,43 @@ namespace PinkUmbrella.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("RelatedPostId");
+
+                    b.HasIndex("UserId");
+
                     b.ToTable("ArchivedMedia");
+                });
+
+            modelBuilder.Entity("PinkUmbrella.Models.GroupAccessCodeModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("CreatedByUserId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ForUserId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("GroupName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("WhenConsumed")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("WhenCreated")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("WhenExpires")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GroupAccessCodes");
                 });
 
             modelBuilder.Entity("PinkUmbrella.Models.MentionModel", b =>
@@ -665,6 +710,19 @@ namespace PinkUmbrella.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
                     b.HasOne("PinkUmbrella.Models.UserProfileModel", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PinkUmbrella.Models.ArchivedMediaModel", b =>
+                {
+                    b.HasOne("PinkUmbrella.Models.PostModel", "RelatedPost")
+                        .WithMany()
+                        .HasForeignKey("RelatedPostId");
+
+                    b.HasOne("PinkUmbrella.Models.UserProfileModel", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

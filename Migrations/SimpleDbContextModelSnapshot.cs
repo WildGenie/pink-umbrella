@@ -121,6 +121,9 @@ namespace PinkUmbrella.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("BlockCount")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("ContainsProfanity")
                         .HasColumnType("INTEGER");
 
@@ -141,6 +144,9 @@ namespace PinkUmbrella.Migrations
                     b.Property<int>("LikeCount")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("MediaType")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("OriginalName")
                         .HasColumnType("TEXT")
                         .HasMaxLength(100);
@@ -149,6 +155,9 @@ namespace PinkUmbrella.Migrations
                         .HasColumnType("TEXT")
                         .HasMaxLength(500);
 
+                    b.Property<int?>("RelatedPostId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("ReportCount")
                         .HasColumnType("INTEGER");
 
@@ -156,6 +165,9 @@ namespace PinkUmbrella.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("SizeBytes")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("UploadedStatus")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("UserId")
@@ -171,6 +183,10 @@ namespace PinkUmbrella.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("RelatedPostId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("ArchivedMedia");
                 });
@@ -695,6 +711,19 @@ namespace PinkUmbrella.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
                     b.HasOne("PinkUmbrella.Models.UserProfileModel", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PinkUmbrella.Models.ArchivedMediaModel", b =>
+                {
+                    b.HasOne("PinkUmbrella.Models.PostModel", "RelatedPost")
+                        .WithMany()
+                        .HasForeignKey("RelatedPostId");
+
+                    b.HasOne("PinkUmbrella.Models.UserProfileModel", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

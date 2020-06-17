@@ -46,10 +46,8 @@ namespace PinkUmbrella
                 .AddEntityFrameworkStores<LogDbContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddSingleton<MIPMapRepository>();
             services.AddSingleton<StringRepository>();
 
-            services.AddScoped<IMIPMapService, MIPMapService>();
             services.AddScoped<IArchiveService, ArchiveService>();
             services.AddScoped<IGeoLocationService, GeoLocationService>();
             services.AddScoped<IUserProfileService, UserProfileService>();
@@ -63,7 +61,8 @@ namespace PinkUmbrella
             services.AddScoped<ISearchableService, SearchPostsService>();
             services.AddScoped<ISearchableService, SearchProfilesService>();
             services.AddScoped<ISearchableService, SearchShopsService>();
-            services.AddScoped<ISearchableService, SearchArchiveService>();
+            services.AddScoped<ISearchableService, SearchArchivedPhotosService>();
+            services.AddScoped<ISearchableService, SearchArchivedVideosService>();
             services.AddScoped<ISearchableService, SearchInventoryService>();
             services.AddScoped<ISearchService, SearchService>();
 

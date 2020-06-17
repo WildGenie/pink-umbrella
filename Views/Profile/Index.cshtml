@@ -7,6 +7,9 @@
     var postsLiClass = actionName == "Index" ? "selected" : "";
     var repliesLiClass = actionName == "Replies" ? "selected" : "";
     var mentionsLiClass = actionName == "Mentions" ? "selected" : "";
+    var mediaLiClass = actionName == "ArchivedMedia" ? "selected" : "";
+    var photosLiClass = actionName == "Photos" ? "selected" : "";
+    var videosLiClass = actionName == "Videos" ? "selected" : "";
 }
 <div class="text-center">
     <partial name="_Covid19" />
@@ -27,9 +30,26 @@
                 <li class="nav-item @mentionsLiClass">
                     <a class="nav-link text-dark" asp-controller="Profile" asp-action="Mentions" asp-route-id="@Model.Profile.Id"><u>Mentions</u></a>
                 </li>
+                <li class="nav-item my-2"><span class="px-1">&nbsp;&nbsp;</span><span class="border-left border-dark">&nbsp;</span><span class="px-1">&nbsp;</span></li>
+                <li class="nav-item @mediaLiClass">
+                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="ArchivedMedia" asp-route-id="@Model.Profile.Id"><u>Archived Media</u></a>
+                </li>
+                <li class="nav-item @photosLiClass">
+                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="Photos" asp-route-id="@Model.Profile.Id"><u>Photos</u></a>
+                </li>
+                <li class="nav-item @videosLiClass">
+                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="Videos" asp-route-id="@Model.Profile.Id"><u>Videos</u></a>
+                </li>
             </ul>
         </div>
     </div>
 </nav>
-<partial name="_FeedList" model="Model.Feed" />
+if (Model.Feed != null)
+{
+    <partial name="_FeedList" model="Model.Feed" />
+}
+else if (Model.Media != null)
+{
+    <partial name="_ArchivedMediaList" model="Model.Media" />
+}
 }

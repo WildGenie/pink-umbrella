@@ -51,4 +51,12 @@ $(() => {
         $post.after($newElement);
         $post.remove();
     });
+
+    $(document).on('archived-media-replacewith', '.archived-media', (ev, r, $ajax) => {
+        let $post = $ajax.closest('.archived-media');
+        let $newElement = $(r);
+        $newElement.css('height', $post[0].clientHeight + 'px')
+        $post.after($newElement);
+        $post.remove();
+    });
 });

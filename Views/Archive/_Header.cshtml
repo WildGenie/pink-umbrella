@@ -1,0 +1,28 @@
+﻿@{
+    var actionName = (string) ViewData["Action"];
+    var indexLiClass = actionName == "Index" ? "selected" : "";
+    var photosLiClass = actionName == "Photos" ? "selected" : "";
+    var videosLiClass = actionName == "Videos" ? "selected" : "";
+    var uploadLiClass = actionName == "Upload" ? "selected" : "";
+}
+<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+    <div class="container">
+        <h1>Your Media Archive</h1>
+        <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+            <ul class="navbar-nav flex-grow-1 highlight-selected">
+                <li class="nav-item @indexLiClass">
+                    <a class="nav-link text-dark" asp-controller="Archive" asp-action="Index"><u>All</u></a>
+                </li>
+                <li class="nav-item @photosLiClass">
+                    <a class="nav-link text-dark" asp-controller="Archive" asp-action="Photos"><u>Photos</u></a>
+                </li>
+                <li class="nav-item @videosLiClass">
+                    <a class="nav-link text-dark" asp-controller="Archive" asp-action="Videos"><u>Videos</u></a>
+                </li>
+                <li class="nav-item @uploadLiClass">
+                    <a class="nav-link text-dark" asp-controller="Archive" asp-action="Upload"><u>Upload</u></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

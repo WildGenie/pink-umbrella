@@ -3,7 +3,7 @@ namespace PinkUmbrella.Models
     public enum PostType
     {
         Text,
-        Image,
+        ArchivedMedia,
         Poll,
         Event,
     }

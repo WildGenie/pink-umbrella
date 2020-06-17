@@ -1,7 +1,7 @@
-﻿@model PostModel
+﻿@model ArchivedMediaModel
 <div class="contains-ajax show center-xy">
     <p>
-        <span>You have blocked this post.</span>
-        <a class="ajax" asp-action="Unblock" asp-controller="Post" asp-route-id="@Model.Id" data-response-type="html" data-response-handler="replacewith">Unblock Post</a>
+        <span>You have blocked this media.</span>
+        <a class="ajax" asp-action="Unblock" asp-controller="Media" asp-route-id="@Model.Id" data-response-type="html" data-response-handler="replacewith">Unblock Media</a>
     </p>
 </div>

@@ -3,37 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace PinkUmbrella.Migrations
 {
-    public partial class init : Migration
+    public partial class Initialagain : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "ArchivedMedia",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    OriginalName = table.Column<string>(maxLength: 100, nullable: true),
-                    DisplayName = table.Column<string>(maxLength: 100, nullable: true),
-                    Description = table.Column<string>(maxLength: 1000, nullable: true),
-                    SizeBytes = table.Column<int>(nullable: false),
-                    Path = table.Column<string>(maxLength: 500, nullable: true),
-                    UserId = table.Column<int>(nullable: false),
-                    Visibility = table.Column<int>(nullable: false),
-                    WhenCreated = table.Column<DateTime>(nullable: false),
-                    WhenDeleted = table.Column<DateTime>(nullable: true),
-                    DeletedByUserId = table.Column<int>(nullable: true),
-                    ContainsProfanity = table.Column<bool>(nullable: false),
-                    ShadowBanned = table.Column<bool>(nullable: false),
-                    LikeCount = table.Column<int>(nullable: false),
-                    DislikeCount = table.Column<int>(nullable: false),
-                    ReportCount = table.Column<int>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ArchivedMedia", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
@@ -92,11 +65,32 @@ namespace PinkUmbrella.Migrations
                     BannedByUserId = table.Column<int>(nullable: true),
                     LikeCount = table.Column<int>(nullable: false),
                     DislikeCount = table.Column<int>(nullable: false),
-                    ReportCount = table.Column<int>(nullable: false)
+                    ReportCount = table.Column<int>(nullable: false),
+                    BlockCount = table.Column<int>(nullable: false),
+                    FollowCount = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GroupAccessCodes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    WhenCreated = table.Column<DateTime>(nullable: false),
+                    WhenExpires = table.Column<DateTime>(nullable: false),
+                    WhenConsumed = table.Column<DateTime>(nullable: true),
+                    Code = table.Column<string>(nullable: true),
+                    CreatedByUserId = table.Column<int>(nullable: false),
+                    ForUserId = table.Column<int>(nullable: false),
+                    GroupName = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GroupAccessCodes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -317,6 +311,7 @@ namespace PinkUmbrella.Migrations
                     LikeCount = table.Column<int>(nullable: false),
                     DislikeCount = table.Column<int>(nullable: false),
                     ReportCount = table.Column<int>(nullable: false),
+                    BlockCount = table.Column<int>(nullable: false),
                     Content = table.Column<string>(maxLength: 1000, nullable: true),
                     NextInChain = table.Column<int>(nullable: false)
                 },
@@ -330,6 +325,87 @@ namespace PinkUmbrella.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "ArchivedMedia",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    OriginalName = table.Column<string>(maxLength: 100, nullable: true),
+                    DisplayName = table.Column<string>(maxLength: 100, nullable: true),
+                    Description = table.Column<string>(maxLength: 1000, nullable: true),
+                    SizeBytes = table.Column<int>(nullable: false),
+                    Path = table.Column<string>(maxLength: 500, nullable: true),
+                    UserId = table.Column<int>(nullable: false),
+                    RelatedPostId = table.Column<int>(nullable: true),
+                    Visibility = table.Column<int>(nullable: false),
+                    WhenCreated = table.Column<DateTime>(nullable: false),
+                    WhenDeleted = table.Column<DateTime>(nullable: true),
+                    DeletedByUserId = table.Column<int>(nullable: true),
+                    ContainsProfanity = table.Column<bool>(nullable: false),
+                    ShadowBanned = table.Column<bool>(nullable: false),
+                    LikeCount = table.Column<int>(nullable: false),
+                    DislikeCount = table.Column<int>(nullable: false),
+                    ReportCount = table.Column<int>(nullable: false),
+                    BlockCount = table.Column<int>(nullable: false),
+                    UploadedStatus = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ArchivedMedia", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ArchivedMedia_Posts_RelatedPostId",
+                        column: x => x.RelatedPostId,
+                        principalTable: "Posts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ArchivedMedia_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Mentions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    WhenMentioned = table.Column<DateTime>(nullable: false),
+                    PostId = table.Column<int>(nullable: false),
+                    MentionedUserId = table.Column<int>(nullable: false),
+                    WhenMentionedUserSeenMention = table.Column<DateTime>(nullable: true),
+                    WhenMentionedUserDismissMention = table.Column<DateTime>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Mentions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Mentions_AspNetUsers_MentionedUserId",
+                        column: x => x.MentionedUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Mentions_Posts_PostId",
+                        column: x => x.PostId,
+                        principalTable: "Posts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ArchivedMedia_RelatedPostId",
+                table: "ArchivedMedia",
+                column: "RelatedPostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ArchivedMedia_UserId",
+                table: "ArchivedMedia",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -369,6 +445,16 @@ namespace PinkUmbrella.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Mentions_MentionedUserId",
+                table: "Mentions",
+                column: "MentionedUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Mentions_PostId",
+                table: "Mentions",
+                column: "PostId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Posts_UserId",
                 table: "Posts",
                 column: "UserId");
@@ -395,10 +481,13 @@ namespace PinkUmbrella.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "GroupAccessCodes");
+
+            migrationBuilder.DropTable(
                 name: "Inventories");
 
             migrationBuilder.DropTable(
-                name: "Posts");
+                name: "Mentions");
 
             migrationBuilder.DropTable(
                 name: "PostTags");
@@ -414,6 +503,9 @@ namespace PinkUmbrella.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Posts");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

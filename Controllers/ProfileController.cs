@@ -18,12 +18,15 @@ namespace PinkUmbrella.Controllers
     public class ProfileController: BaseController
     {
         private readonly ILogger<ProfileController> _logger;
+        private readonly IArchiveService _archive;
 
         public ProfileController(IWebHostEnvironment environment, ILogger<ProfileController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IReactionService reactions):
+            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IReactionService reactions,
+            IArchiveService archive):
             base(environment, signInManager, userManager, posts, userProfiles, reactions)
         {
             _logger = logger;
+            _archive = archive;
         }
 
         [Route("/Profile"), Authorize]
@@ -88,6 +91,49 @@ namespace PinkUmbrella.Controllers
                     MyProfile = currentUser,
                     Profile = user,
                     Feed = await _posts.GetMentionsForUser(user.Id, currentUser?.Id, false, new PaginationModel() { count = 10, start = 0 })
+                });
+            }
+        }
+        
+        [Route("/Profile/{id}/Photos")]
+        public async Task<IActionResult> Photos(int id)
+        {
+            ViewData["Controller"] = "Profile";
+            ViewData["Action"] = nameof(Photos);
+            return await ViewMedia(id, ArchivedMediaType.Photo);
+        }
+        
+        [Route("/Profile/{id}/Videos")]
+        public async Task<IActionResult> Videos(int id)
+        {
+            ViewData["Controller"] = "Profile";
+            ViewData["Action"] = nameof(Videos);
+            return await ViewMedia(id, ArchivedMediaType.Video);
+        }
+        
+        [Route("/Profile/{id}/ArchivedMedia")]
+        public async Task<IActionResult> ArchivedMedia(int id)
+        {
+            ViewData["Controller"] = "Profile";
+            ViewData["Action"] = nameof(ArchivedMedia);
+            return await ViewMedia(id, null);
+        }
+
+        private async Task<IActionResult> ViewMedia(int id, ArchivedMediaType? type)
+        {
+            var currentUser = await GetCurrentUserAsync();
+            var user = await _userProfiles.GetUser(id, currentUser?.Id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return View("Index", new IndexViewModel()
+                {
+                    MyProfile = currentUser,
+                    Profile = user,
+                    Media = await _archive.GetMediaForUser(user.Id, currentUser?.Id, type, new PaginationModel() { count = 10, start = 0 })
                 });
             }
         }

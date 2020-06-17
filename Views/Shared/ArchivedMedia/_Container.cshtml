@@ -1,0 +1,13 @@
+﻿@model ArchivedMediaModel
+@if (Model.HasBlocked)
+{
+    <partial name="ArchivedMedia/_Blocked" />
+}
+else if (Model.HasReported)
+{
+    <partial name="ArchivedMedia/_Reported" />
+}
+else
+{
+    <partial name="ArchivedMedia/_Regular" />
+}

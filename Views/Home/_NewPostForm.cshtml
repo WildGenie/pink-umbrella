@@ -6,7 +6,7 @@
             <label asp-for="Visibility"></label>
         </div>
         <div class="col-md-3">
-            <select asp-for="Visibility" class="form-control">
+            <select asp-for="Visibility" class="form-control" autocomplete="off">
                 <partial name="_EnumOptions" model="new EnumViewModel() { Type = typeof(Visibility), Selected = Model.Visibility }" />
             </select>
             <span asp-validation-for="Visibility" class="text-danger"></span>
@@ -23,7 +23,7 @@
             <label asp-for="Content"></label>
         </div>
         <div class="col-md-10">
-            <input asp-for="Content" placeholder="Speak your message..." class="form-control"/>
+            <input asp-for="Content" placeholder="Speak your message..." class="form-control" autocomplete="off"/>
             <span asp-validation-for="Content" class="text-danger"></span>
         </div>
     </div>

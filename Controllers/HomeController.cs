@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using PinkUmbrella.Models;
 using PinkUmbrella.Services;
 using PinkUmbrella.ViewModels.Home;
+using PinkUmbrella.Services.Sql.Search;
 
 namespace PinkUmbrella.Controllers
 {
@@ -112,18 +113,13 @@ namespace PinkUmbrella.Controllers
         }
         
         [Route("/Search")]
-        public async Task<IActionResult> Search(string q, SearchResultOrder order, SearchResultType? t, int start, int count = 10)
+        public async Task<IActionResult> Search(string q, SearchResultOrder order = SearchResultOrder.Top, SearchResultType? t = null, int start = 0, int count = 10)
         {
             ViewData["Controller"] = "Home";
             ViewData["Action"] = nameof(Search);
             var pagination = new PaginationModel() { start = start, count = count };
             var user = await GetCurrentUserAsync();
-            SearchResultsModel results;
-            if (t.HasValue) {
-                results = await _searchService.Get(t.Value).Search(q, user?.Id, order, pagination);
-            } else {
-                results = await _searchService.Search(q, user?.Id, order, pagination);
-            }
+            SearchResultsModel results = await _searchService.Search(q, user?.Id, t, order, pagination);
 
             return View(new SearchViewModel() {
                 SearchText = q,

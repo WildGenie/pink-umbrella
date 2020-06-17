@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using PinkUmbrella.Models;
-using PinkUmbrella.Services;
 
 namespace PinkUmbrella.Services.NoSql
 {
@@ -14,28 +13,32 @@ namespace PinkUmbrella.Services.NoSql
             _searchables = searchables;
         }
 
-        public ISearchableService Get(SearchResultType type)
+        public IEnumerable<ISearchableService> Get(SearchResultType type)
         {
             foreach (var searchable in _searchables) {
                 if (searchable.ResultType == type) {
-                    return searchable;
+                    yield return searchable;
                 }
             }
-            return null;
         }
 
-        public async Task<SearchResultsModel> Search(string text, int? viewerId, SearchResultOrder order, PaginationModel pagination)
+        public async Task<SearchResultsModel> Search(string text, int? viewerId, SearchResultType? type, SearchResultOrder order, PaginationModel pagination)
         {
             var list = new List<SearchResultModel>();
             int totalResults = 0;
             foreach (var searchable in _searchables) {
+                if (type.HasValue && type.Value != searchable.ResultType)
+                {
+                    continue;
+                }
                 var results = await searchable.Search(text, viewerId, order, pagination);
+                if (results.Results.Count == 0)
+                {
+                    continue;
+                }
                 list.AddRange(results.Results);
                 totalResults += results.TotalResults;
             }
-
-            // list.Sort(r => r.WhenCreated);
-
             return new SearchResultsModel() {
                 Results = list,
                 TotalResults = totalResults

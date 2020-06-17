@@ -22,8 +22,11 @@
                         <li class="nav-item @liClass">
                             <a class="nav-link text-dark" asp-controller="Home" asp-action="Search" asp-route-t="@rt" asp-route-q="@Model.SearchText" asp-route-Order="@Model.Order"><u>
                                 @switch (rt) {
-                                    case SearchResultType.ArchiveMedia:
-                                    <span>Photos, Videos, and Media</span>
+                                    case SearchResultType.Photo:
+                                    <span>Photos</span>
+                                    break;
+                                    case SearchResultType.Video:
+                                    <span>Videos</span>
                                     break;
                                     case SearchResultType.CivicDuty:
                                     <span>Civic Duties</span>
@@ -72,31 +75,5 @@
 </div>
 
 <div>
-    @foreach (var result in Model.Results.Results) {
-        <hr />
-        switch (result.Type)
-        {
-            case SearchResultType.Profile:
-            <partial name="SearchResult/ProfileSearchResult" model="result.Value" />
-            break;
-            case SearchResultType.Post:
-            <partial name="SearchResult/PostSearchResult" model="result.Value" />
-            break;
-            case SearchResultType.ArchiveMedia:
-            <partial name="SearchResult/ArchiveSearchResult" model="result.Value" />
-            break;
-            case SearchResultType.Inventory:
-            <partial name="SearchResult/InventorySearchResult" model="result.Value" />
-            break;
-            case SearchResultType.CivicDuty:
-            <partial name="SearchResult/CivicDutySearchResult" model="result.Value" />
-            break;
-            case SearchResultType.Shop:
-            <partial name="SearchResult/ShopSearchResult" model="result.Value" />
-            break;
-            default:
-            <div>No view for @result.Type</div>
-            break;
-        }
-    }
+    <partial name="_SearchResultList" model="@Model.Results.Results" />
 </div>

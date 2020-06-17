@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Text.RegularExpressions;
 using PinkUmbrella.Models;
 
@@ -583,6 +584,15 @@ namespace PinkUmbrella.Repositories
                 break;
             }
             return "no undo message";
+        }
+
+        public string GetContentType(string extension)
+        {
+            switch (extension)
+            {
+                case "png": return "image/png";
+            }
+            return "application/octet-stream";
         }
     }
 }

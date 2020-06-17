@@ -2,13 +2,13 @@
 
 namespace PinkUmbrella.Migrations
 {
-    public partial class blockcount : Migration
+    public partial class Mediatype : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<int>(
-                name: "BlockCount",
-                table: "Posts",
+                name: "MediaType",
+                table: "ArchivedMedia",
                 nullable: false,
                 defaultValue: 0);
         }
@@ -16,8 +16,8 @@ namespace PinkUmbrella.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "BlockCount",
-                table: "Posts");
+                name: "MediaType",
+                table: "ArchivedMedia");
         }
     }
 }

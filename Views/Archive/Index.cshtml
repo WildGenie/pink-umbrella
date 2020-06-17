@@ -1,8 +1,6 @@
-﻿@{
-    ViewData["Title"] = "Media Archive";
-}
-
+﻿@using PinkUmbrella.ViewModels.Archive
+@model IndexViewModel
+<partial name="_Header" />
 <div>
-    <h1>@ViewData["Title"]</h1>
-    Coming soon...
+    <partial name="_ArchivedMediaList" model="@Model.Items" />
 </div>

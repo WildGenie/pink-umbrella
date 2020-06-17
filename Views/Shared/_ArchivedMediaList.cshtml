@@ -1,0 +1,5 @@
+@model PaginatedModel<ArchivedMediaModel>
+@foreach (var result in Model.Items) {
+    <hr />
+    <partial name="ArchivedMedia/_Container" model="result" />
+}
