@@ -11,13 +11,18 @@ namespace PinkUmbrella.Repositories
         public DbSet<SimpleResourceModel> Resources { get; set; }
         public DbSet<SimpleInventoryModel> Inventories { get; set; }
         public DbSet<PostModel> Posts { get; set; }
-        public DbSet<PostTagModel> PostTags { get; set; }
         public DbSet<ShopModel> Shops { get; set; }
 
         public DbSet<ReactionModel> PostReactions { get; set; }
         public DbSet<ReactionModel> ShopReactions { get; set; }
         public DbSet<ReactionModel> ProfileReactions { get; set; }
         public DbSet<ReactionModel> ArchivedMediaReactions { get; set; }
+
+        public DbSet<TagModel> AllTags { get; set; }
+        public DbSet<TaggedModel> PostTags { get; set; }
+        public DbSet<TaggedModel> ShopTags { get; set; }
+        public DbSet<TaggedModel> ProfileTags { get; set; }
+        public DbSet<TaggedModel> ArchivedMediaTags { get; set; }
         
 
         public DbSet<ArchivedMediaModel> ArchivedMedia { get; set; }

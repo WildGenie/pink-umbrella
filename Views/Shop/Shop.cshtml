@@ -1,0 +1,17 @@
+﻿@using PinkUmbrella.ViewModels.Shop
+@model ShopViewModel
+@{
+    ViewData["Title"] = Model.Shop?.DisplayName ?? "Shop Not Found";
+}
+
+<div>
+    <h1>@ViewData["Title"]</h1>
+    @if (Model.Shop != null)
+    {
+        <partial name="Shop/Display" model="Model.Shop" />
+    }
+    else
+    {
+        <p>Shop not found</p>
+    }
+</div>

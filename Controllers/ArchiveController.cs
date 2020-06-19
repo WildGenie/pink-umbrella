@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using PinkUmbrella.Models;
 using PinkUmbrella.Services;
-using PinkUmbrella.ViewModels.Shop;
 using PinkUmbrella.ViewModels.Archive;
 using Microsoft.AspNetCore.Http;
 using PinkUmbrella.Repositories;
@@ -29,8 +28,8 @@ namespace PinkUmbrella.Controllers
 
         public ArchiveController(IWebHostEnvironment environment, ILogger<ArchiveController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IArchiveService archive,
-            IReactionService reactions, StringRepository strings):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions)
+            IReactionService reactions, StringRepository strings, ITagService tags):
+            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags)
         {
             _logger = logger;
             _archive = archive;

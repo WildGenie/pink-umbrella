@@ -27,8 +27,8 @@ namespace PinkUmbrella.Controllers
 
         public HomeController(IWebHostEnvironment environment, ILogger<HomeController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService postService, IUserProfileService userProfiles, ISearchService searchService,
-            IReactionService reactions, IFeedService feedService):
-            base(environment, signInManager, userManager, postService, userProfiles, reactions)
+            IReactionService reactions, IFeedService feedService, ITagService tags):
+            base(environment, signInManager, userManager, postService, userProfiles, reactions, tags)
         {
             _logger = logger;
             _searchService = searchService;

@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
+using System.Data.Common;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using PinkUmbrella.Models;
 
 namespace PinkUmbrella.Util
@@ -60,11 +64,11 @@ namespace PinkUmbrella.Util
 
         public static string GetPropertyDescription(this object root, string propertyName)
         {
-            Type type = root.GetType();
+            Type type = root?.GetType();
 
             //Tries to find a DescriptionAttribute for a potential friendly name
             //for the enum
-            MemberInfo[] memberInfo = type.GetMember(propertyName);
+            MemberInfo[] memberInfo = type?.GetMember(propertyName);
             if (memberInfo != null && memberInfo.Length > 0)
             {
                 object[] attrs = memberInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
@@ -77,6 +81,48 @@ namespace PinkUmbrella.Util
             }
             //If we have no description attribute, just return the ToString of the enum
             return propertyName;
+        }
+
+        public static string GetPropertyPlaceHolder(this object root, string propertyName)
+        {
+            Type type = root?.GetType();
+
+            //Tries to find a DescriptionAttribute for a potential friendly name
+            //for the enum
+            MemberInfo[] memberInfo = type?.GetMember(propertyName);
+            if (memberInfo != null && memberInfo.Length > 0)
+            {
+                object[] attrs = memberInfo[0].GetCustomAttributes(typeof(InputPlaceHolderAttribute), false);
+
+                if (attrs != null && attrs.Length > 0)
+                {
+                    //Pull out the description value
+                    return ((InputPlaceHolderAttribute)attrs[0]).Text;
+                }
+            }
+            //If we have no description attribute, just return an empty string
+            return string.Empty;
+        }
+
+        public static string GetDebugValue(this object root, string propertyName)
+        {
+            Type type = root?.GetType();
+
+            //Tries to find a DebugValueAttribute for a potential friendly name
+            //for the enum
+            MemberInfo[] memberInfo = type?.GetMember(propertyName);
+            if (memberInfo != null && memberInfo.Length > 0)
+            {
+                object[] attrs = memberInfo[0].GetCustomAttributes(typeof(DebugValueAttribute), false);
+
+                if (attrs != null && attrs.Length > 0)
+                {
+                    //Pull out the debug value
+                    return ((DebugValueAttribute)attrs[0]).Value;
+                }
+            }
+            //If we have no debug attribute, just return an empty string
+            return string.Empty;
         }
 
         public static Visibility Min(this Visibility a, Visibility b)
@@ -118,6 +164,30 @@ namespace PinkUmbrella.Util
                 return true;
 
             return source.IndexOf(toCheck, comp) >= 0;
-        } 
+        }
+
+        // https://stackoverflow.com/a/46013305/11765486
+        public static List<T> RawSqlQuery<T>(this DbContext context, string query, Func<DbDataReader, T> map)
+        {
+            using (var command = context.Database.GetDbConnection().CreateCommand())
+            {
+                command.CommandText = query;
+                command.CommandType = CommandType.Text;
+
+                context.Database.OpenConnection();
+
+                using (var result = command.ExecuteReader())
+                {
+                    var entities = new List<T>();
+
+                    while (result.Read())
+                    {
+                        entities.Add(map(result));
+                    }
+
+                    return entities;
+                }
+            }
+        }
     }
 }

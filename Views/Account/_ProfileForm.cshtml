@@ -3,25 +3,25 @@
     <div asp-validation-summary="All" class="text-danger"></div>
     <div class="form-group">
         <label asp-for="MyProfile.DisplayName">Display Name</label>
-        <div>@Model.MyProfile.GetPropertyDescription(nameof(Model.MyProfile.DisplayName))</div>
+        <small>@Model.MyProfile.GetPropertyDescription(nameof(Model.MyProfile.DisplayName))</small>
         <input asp-for="MyProfile.DisplayName" class="form-control" />
         <span asp-validation-for="MyProfile.DisplayName" class="text-danger"></span>
     </div>
     <div class="form-group">
         <label asp-for="MyProfile.Handle"></label>
-        <div>@Model.MyProfile.GetPropertyDescription(nameof(Model.MyProfile.Handle))</div>
+        <small>@Model.MyProfile.GetPropertyDescription(nameof(Model.MyProfile.Handle))</small>
         <input asp-for="MyProfile.Handle" class="form-control" />
         <span asp-validation-for="MyProfile.Handle" class="text-danger"></span>
     </div>
     <div class="form-group">
         <label asp-for="MyProfile.Bio"></label>
-        <div>@Model.MyProfile.GetPropertyDescription(nameof(Model.MyProfile.Bio))</div>
+        <small>@Model.MyProfile.GetPropertyDescription(nameof(Model.MyProfile.Bio))</small>
         <input asp-for="MyProfile.Bio" class="form-control" />
         <span asp-validation-for="MyProfile.Bio" class="text-danger"></span>
     </div>
     <div class="form-group">
         <label asp-for="MyProfile.BioVisibility"></label>
-        <div>@Model.MyProfile.GetPropertyDescription(nameof(Model.MyProfile.BioVisibility))</div>
+        <small>@Model.MyProfile.GetPropertyDescription(nameof(Model.MyProfile.BioVisibility))</small>
         <select asp-for="MyProfile.BioVisibility" class="form-control">
             <partial name="_EnumOptions" model="new EnumViewModel() { Type = typeof(Visibility), Selected = Model.MyProfile.BioVisibility }" />
         </select>
@@ -29,7 +29,7 @@
     </div>
     <div class="form-group">
         <label asp-for="MyProfile.WhenLastLoggedInVisibility"></label>
-        <div>@Model.MyProfile.GetPropertyDescription(nameof(Model.MyProfile.WhenLastLoggedInVisibility))</div>
+        <small>@Model.MyProfile.GetPropertyDescription(nameof(Model.MyProfile.WhenLastLoggedInVisibility))</small>
         <select asp-for="MyProfile.WhenLastLoggedInVisibility" class="form-control">
             <partial name="_EnumOptions" model="new EnumViewModel() { Type = typeof(Visibility), Selected = Model.MyProfile.WhenLastLoggedInVisibility }" />
         </select>
@@ -37,7 +37,7 @@
     </div>
     <div class="form-group">
         <label asp-for="MyProfile.WhenLastOnlineVisibility"></label>
-        <div>@Model.MyProfile.GetPropertyDescription(nameof(Model.MyProfile.WhenLastOnlineVisibility))</div>
+        <small>@Model.MyProfile.GetPropertyDescription(nameof(Model.MyProfile.WhenLastOnlineVisibility))</small>
         <select asp-for="MyProfile.WhenLastOnlineVisibility" class="form-control">
             <partial name="_EnumOptions" model="new EnumViewModel() { Type = typeof(Visibility), Selected = Model.MyProfile.WhenLastOnlineVisibility }" />
         </select>

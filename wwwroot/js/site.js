@@ -59,4 +59,13 @@ $(() => {
         $post.after($newElement);
         $post.remove();
     });
+
+    $(document).on('click', 'form button.js-debug-values', (ev) => {
+        let $form = $(ev.target).closest('form');
+        let $inputs = $('input[data-debug-value],select[data-debug-value],textarea[data-debug-value]');
+        for (let i = 0; i < $inputs.length; i++) {
+            let $input = $($inputs.get(i));
+            $input.val($input.attr('data-debug-value'));
+        }
+    });
 });

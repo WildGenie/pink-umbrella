@@ -2,9 +2,8 @@ using PinkUmbrella.Models;
 
 namespace PinkUmbrella.ViewModels.Shop
 {
-    public class ShopViewModel
+    public class ShopViewModel: BaseViewModel
     {
-        public object MyProfile { get; set; }
         public ShopModel Shop { get; set; }
     }
 }

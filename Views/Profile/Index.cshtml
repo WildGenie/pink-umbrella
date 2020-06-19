@@ -10,6 +10,7 @@
     var mediaLiClass = actionName == "ArchivedMedia" ? "selected" : "";
     var photosLiClass = actionName == "Photos" ? "selected" : "";
     var videosLiClass = actionName == "Videos" ? "selected" : "";
+    var shopsLiClass = actionName == "Shops" ? "selected" : "";
 }
 <div class="text-center">
     <partial name="_Covid19" />
@@ -40,6 +41,10 @@
                 <li class="nav-item @videosLiClass">
                     <a class="nav-link text-dark" asp-controller="Profile" asp-action="Videos" asp-route-id="@Model.Profile.Id"><u>Videos</u></a>
                 </li>
+                <li class="nav-item my-2"><span class="px-1">&nbsp;&nbsp;</span><span class="border-left border-dark">&nbsp;</span><span class="px-1">&nbsp;</span></li>
+                <li class="nav-item @shopsLiClass">
+                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="Shops" asp-route-id="@Model.Profile.Id"><u>Shops</u></a>
+                </li>
             </ul>
         </div>
     </div>
@@ -51,5 +56,16 @@ if (Model.Feed != null)
 else if (Model.Media != null)
 {
     <partial name="_ArchivedMediaList" model="Model.Media" />
+}
+else if (Model.Shops != null)
+{
+    if (Model.Shops.Count > 0)
+    {
+        <partial name="_ShopsList" model="Model.Shops" />
+    }
+    else
+    {
+        <p>This user has no shops.</p>
+    }
 }
 }

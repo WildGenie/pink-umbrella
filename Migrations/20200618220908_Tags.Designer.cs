@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PinkUmbrella.Repositories;
 
 namespace PinkUmbrella.Migrations
 {
     [DbContext(typeof(SimpleDbContext))]
-    partial class SimpleDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200618220908_Tags")]
+    partial class Tags
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -401,11 +403,6 @@ namespace PinkUmbrella.Migrations
 
                     b.Property<DateTime?>("WhenDeleted")
                         .HasColumnType("TEXT");
-
-                    b.Property<string>("ZipCode")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(20);
 
                     b.HasKey("Id");
 

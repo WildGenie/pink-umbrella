@@ -48,6 +48,7 @@ namespace PinkUmbrella
 
             services.AddSingleton<StringRepository>();
 
+            services.AddScoped<ITagService, TagService>();
             services.AddScoped<IArchiveService, ArchiveService>();
             services.AddScoped<IGeoLocationService, GeoLocationService>();
             services.AddScoped<IUserProfileService, UserProfileService>();

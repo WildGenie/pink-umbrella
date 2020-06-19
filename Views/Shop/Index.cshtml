@@ -1,10 +1,26 @@
 ﻿@using PinkUmbrella.ViewModels.Shop
-@model ShopViewModel
+@model IndexViewModel
 @{
-    ViewData["Title"] = "Shop";
+    ViewData["Title"] = "Shops";
 }
 
 <div>
     <h1>@ViewData["Title"]</h1>
-    Coming soon...
+    @if (Model.Categories != null)
+    {
+        foreach (var category in Model.Categories.Items)
+        {
+            <hr />
+            <h3>@category.Tag (@category.UseCount)</h3>
+            <p>@category.Tag.Topic</p>
+        }
+    }
+    else
+    {
+        foreach (var shop in Model.ShopsList)
+        {
+            <hr />
+            <partial name="Shop/DisplayResult" model="shop" />
+        }
+    }
 </div>

@@ -1,0 +1,78 @@
+@model ShopModel
+@{
+    var hasWebsiteLink = string.IsNullOrWhiteSpace(Model.WebsiteLink);
+    var hasMenuLink = string.IsNullOrWhiteSpace(Model.MenuLink);
+    var hasLinks = hasMenuLink || hasWebsiteLink;
+
+    var reactLike = new ReactViewModel() {
+        Type = ReactionType.Like,
+        Subject = ReactionSubject.Post,
+        ToId = Model.Id,
+        HasReacted = Model.HasLiked,
+        Count = Model.LikeCount,
+        ViewerId = Model.ViewerId,
+        Enabled = !Model.ViewerIsOwner,
+    };
+    var reactDislike = new ReactViewModel() {
+        Type = ReactionType.Dislike,
+        Subject = ReactionSubject.Post,
+        ToId = Model.Id,
+        HasReacted = Model.HasDisliked,
+        Count = Model.DislikeCount,
+        ViewerId = Model.ViewerId,
+        Enabled = !Model.ViewerIsOwner,
+    };
+    var reactReport = new ReactViewModel() {
+        Type = ReactionType.Report,
+        Subject = ReactionSubject.Post,
+        ToId = Model.Id,
+        HasReacted = false,
+        Count = Model.ReportCount,
+        ViewerId = Model.ViewerId,
+        Enabled = !Model.ViewerIsOwner,
+        ManualReactionUrl = "/Post/Report/" + Model.Id,
+        ResponseHandler = "post-replacewith",
+    };
+
+    var reactions = new List<ReactViewModel>() {
+        reactLike, reactDislike, reactReport,
+    };
+
+    var locationString = $"{Model.StreetAddress}, {_strings.CityState} {Model.ZipCode}";
+}
+<small>Last updated <partial name="_Timestamp" model="Model.LastUpdated" /> - published <partial name="_Timestamp" model="Model.WhenCreated" /></small>
+@if (Model.ViewerIsOwner)
+{
+    if (Model.Visibility != Visibility.VISIBLE_TO_WORLD)
+    {
+        switch (Model.Visibility)
+        {
+            case Visibility.HIDDEN:
+            <span>&bull; Hidden to everyone</span>
+            break;
+            case Visibility.VISIBLE_TO_REGISTERED:
+            <span>&bull; Visible to other users on this site</span>
+            break;
+        }
+    }
+}
+<p>
+    Managed by 
+    <a asp-controller="Profile" asp-action="Index" asp-route-id="@Model.UserId">@Model.OwnerUser.DisplayName</a>
+</p>
+<p><a href="https://www.google.com/maps/search/?api=1&query=@Uri.EscapeDataString(locationString)" target="_blank"><i class="fas fa-map-marker-alt"></i> @locationString</a></p>
+@if (hasLinks)
+{
+    <ul>
+        @if (hasWebsiteLink)
+        {
+        <li><a href="@Model.WebsiteLink" target="_blank"><i class="fas fa-external-link-alt"></i> Website</a></li>
+        }
+        @if (hasMenuLink)
+        {
+        <li><a href="@Model.MenuLink" target="_blank"><i class="fas fa-book-open"></i> Menu</a></li>
+        }
+    </ul>
+}
+<p>@Model.Description</p>
+<partial name="_ReactButtonList" model="reactions" />

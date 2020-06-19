@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using PinkUmbrella.Models;
 
 namespace PinkUmbrella.ViewModels.Profile
@@ -7,5 +8,7 @@ namespace PinkUmbrella.ViewModels.Profile
         public FeedModel Feed { get; set; }
 
         public PaginatedModel<ArchivedMediaModel> Media { get; set; }
+
+        public List<ShopModel> Shops { get; set; }
     }
 }

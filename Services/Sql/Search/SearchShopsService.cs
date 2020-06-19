@@ -21,7 +21,12 @@ namespace PinkUmbrella.Services.Sql.Search
 
         public async Task<SearchResultsModel> Search(string text, int? viewerId, SearchResultOrder order, PaginationModel pagination)
         {
-            var query = _dbContext.Shops.Where(p => p.Handle.Contains(text) || p.DisplayName.Contains(text));
+            var query = _dbContext.Shops.Where(s => s.WhenDeleted == null);
+            if (!string.IsNullOrWhiteSpace(text))
+            {
+                var textToLower = text.ToLower();
+                query = query.Where(p => p.Handle.ToLower().Contains(textToLower) || p.DisplayName.ToLower().Contains(textToLower) || p.Description.ToLower().Contains(textToLower));
+            }
 
             switch (order) {
                 case SearchResultOrder.Top:

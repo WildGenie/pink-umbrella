@@ -21,8 +21,9 @@ namespace PinkUmbrella.Controllers
         private readonly ILogger<PostController> _logger;
 
         public PostController(IWebHostEnvironment environment, ILogger<PostController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IReactionService reactions):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions)
+            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles,
+            IReactionService reactions, ITagService tags):
+            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags)
         {
             _logger = logger;
         }

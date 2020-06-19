@@ -20,6 +20,8 @@ namespace PinkUmbrella.Repositories
 
         public string BetaMsg => "This is the beta version.";
 
+        public string CityState => "Seattle, WA";
+
 
         public Regex ExtractMentionsRegex { get; } = new Regex(@"@([a-zA-Z0-9_]+)");
 

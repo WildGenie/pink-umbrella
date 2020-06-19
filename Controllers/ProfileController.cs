@@ -19,14 +19,16 @@ namespace PinkUmbrella.Controllers
     {
         private readonly ILogger<ProfileController> _logger;
         private readonly IArchiveService _archive;
+        private readonly IShopService _shops;
 
         public ProfileController(IWebHostEnvironment environment, ILogger<ProfileController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IReactionService reactions,
-            IArchiveService archive):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions)
+            IArchiveService archive, ITagService tags, IShopService shops):
+            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags)
         {
             _logger = logger;
             _archive = archive;
+            _shops = shops;
         }
 
         [Route("/Profile"), Authorize]
@@ -117,6 +119,28 @@ namespace PinkUmbrella.Controllers
             ViewData["Controller"] = "Profile";
             ViewData["Action"] = nameof(ArchivedMedia);
             return await ViewMedia(id, null);
+        }
+        
+        [Route("/Profile/{id}/Shops")]
+        public async Task<IActionResult> Shops(int id)
+        {
+            ViewData["Controller"] = "Profile";
+            ViewData["Action"] = nameof(Shops);
+            var currentUser = await GetCurrentUserAsync();
+            var user = await _userProfiles.GetUser(id, currentUser?.Id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return View("Index", new IndexViewModel()
+                {
+                    MyProfile = currentUser,
+                    Profile = user,
+                    Shops = await _shops.GetShopsForUser(user.Id, currentUser?.Id) // , new PaginationModel() { count = 10, start = 0 }
+                });
+            }
         }
 
         private async Task<IActionResult> ViewMedia(int id, ArchivedMediaType? type)
