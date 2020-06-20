@@ -246,20 +246,19 @@ namespace PinkUmbrella.Services.Sql
         
         public async Task<List<TagModel>> GetCompletionsForTag(string prefix)
         {
-            if (Debugger.IsAttached)
+            prefix = prefix.ToLower();
+            var ret = await _dbContext.AllTags.Where(t => t.Tag.ToLower().StartsWith(prefix)).Take(10).ToListAsync();
+            if (ret.Count == 0 && Debugger.IsAttached)
             {
-                var ret = new List<TagModel>();
+                ret = new List<TagModel>();
                 for (int i = 0; i < 5; i++)
                 {
-                    ret.Add(new TagModel() { Id = i + 1, Tag = $"Test tag {i}" });
+                    ret.Add(new TagModel() { Id = -1, Tag = $"Test tag {i}" });
                 }
                 return ret;
             }
-            else
-            {
-                prefix = prefix.ToLower();
-                return await _dbContext.AllTags.Where(t => t.Tag.ToLower().StartsWith(prefix)).Take(10).ToListAsync();
-            }
+            
+            return ret;
         }
 
         public async Task Save(ReactionSubject subject, List<TagModel> tags, int userId, int toId)
