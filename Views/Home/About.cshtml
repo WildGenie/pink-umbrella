@@ -2,19 +2,4 @@
     ViewData["Title"] = "About Us";
 }
 <h1>@ViewData["Title"]</h1>
-<div>
-    <p>
-        Our core values are to <b>prioritize privacy, transparency, and communication within the community</b>, and we have done that in the following ways:
-        <ul>
-            <li>We have open sourced our goals and features list <a href="@_strings.CommunityDocUrl" target="_blank">here</a>.</li>
-            <li>We have open sourced our code <a href="@_strings.GitHubUrl" target="_blank">here</a>. contributors welcomed and encouraged.</li>
-            <li>We have opened many communication channels for direct communication with the community.</li>
-        </ul>
-    </p>
-    <h4>Our Team</h4>
-    <p>
-        Our team is a collective of locals who want to support their local community with the skills they have developed and perfected.
-        We all have parts we can play in supporting the movement for justice and peaceful protesting.
-        You can view individual contributors <a href="@_strings.ContributorsUrl" target="_blank">here</a>.
-    </p>
-</div>
+<partial name="_WhatWhy" />

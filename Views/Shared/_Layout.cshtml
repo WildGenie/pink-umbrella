@@ -121,11 +121,11 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            2020 - <i class="fa fa-umbrella accent-color" style="transform: ScaleX(-1)"></i> @_strings.SiteName
+            2020 <i class="fa fa-umbrella accent-color" style="transform: ScaleX(-1)"></i> @_strings.SiteName for @_strings.CityState
+            &bull; <a href="@_strings.GitHubUrl" target="_blank"><i class="fab fa-github"></i> GitHub</a>
             &bull; <a asp-area="" asp-controller="Home" asp-action="Privacy"><i class="fas fa-user-secret"></i> Privacy</a>
             &bull; <a asp-area="" asp-controller="Home" asp-action="About"><i class="fas fa-question-circle"></i> About Us</a>
             &bull; <a href="@_strings.WikiUrl" target="_blank"><i class="fas fa-info-circle"></i> Wiki</a>
-            &bull; <a href="@_strings.GitHubUrl" target="_blank"><i class="fab fa-github"></i> GitHub</a>
             @if (User.IsInRole(_strings.RoleDeveloper) || System.Diagnostics.Debugger.IsAttached)
             {
                 <span> &bull; </span><a asp-area="" asp-controller="Developer" asp-action="Index"><i class="fas fa-robot"></i> Debug</a>

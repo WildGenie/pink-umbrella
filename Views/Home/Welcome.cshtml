@@ -2,10 +2,12 @@
     ViewData["Title"] = "Welcome";
 }
 
-<div class="text-center">
-    <h1>Welcome to @_strings.SiteName</h1>
-    <p>The community's motto: <strong>prioritize privacy, transparency, and communication within the community.</strong></p>
-    <p>Contribute by providing input or feedback on our <a href="@_strings.CommunityDocUrl">Community Document</a> or by commiting code to the <a href="@_strings.GitHubUrl">GitHub Repository</a></p>
-
+<div class="text-center mb-5">
     <partial name="_Covid19" />
+
+    <h1>Welcome to @_strings.SiteName</h1>
+    <p>Our core values: <strong>prioritize privacy, transparency, and communication within the community.</strong></p>
+    <p>Contribute by providing input or feedback on our <a href="@_strings.CommunityDocUrl" target="_blank">Community Document</a> or by contributing to the <a href="@_strings.GitHubUrl" target="_blank">GitHub Repository</a></p>
 </div>
+
+<partial name="_WhatWhy" />
