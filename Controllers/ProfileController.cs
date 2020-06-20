@@ -142,6 +142,57 @@ namespace PinkUmbrella.Controllers
                 });
             }
         }
+        
+        [Route("/Profile/{id}/Following")]
+        public async Task<IActionResult> Following(int id)
+        {
+            ViewData["Controller"] = "Profile";
+            ViewData["Action"] = nameof(Following);
+            return await ViewUserList(id, UserListType.Following);
+        }
+
+        [Route("/Profile/{id}/Followers")]
+        public async Task<IActionResult> Followers(int id)
+        {
+            ViewData["Controller"] = "Profile";
+            ViewData["Action"] = nameof(Followers);
+            return await ViewUserList(id, UserListType.Followers);
+        }
+
+        private async Task<IActionResult> ViewUserList(int id, UserListType type)
+        {
+            var currentUser = await GetCurrentUserAsync();
+            var user = await _userProfiles.GetUser(id, currentUser?.Id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                var list = new List<UserProfileModel>();
+                switch (type)
+                {
+                    case UserListType.Followers:
+                    list = await _userProfiles.GetFollowers(user.Id, currentUser?.Id);
+                    break;
+                    case UserListType.Following:
+                    list = await _userProfiles.GetFollowing(user.Id, currentUser?.Id);
+                    break;
+                }
+                return ViewUserListForUser(user, currentUser, type, list);
+            }
+        }
+
+        private IActionResult ViewUserListForUser(UserProfileModel user, UserProfileModel currentUser, UserListType type, List<UserProfileModel> list)
+        {
+            return View("Index", new IndexViewModel()
+            {
+                MyProfile = currentUser,
+                Profile = user,
+                Users = list,
+                UserListType = type,
+            });
+        }
 
         private async Task<IActionResult> ViewMedia(int id, ArchivedMediaType? type)
         {

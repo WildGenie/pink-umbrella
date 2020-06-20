@@ -11,6 +11,8 @@
     var photosLiClass = actionName == "Photos" ? "selected" : "";
     var videosLiClass = actionName == "Videos" ? "selected" : "";
     var shopsLiClass = actionName == "Shops" ? "selected" : "";
+    var followersLiClass = actionName == "Followers" ? "selected" : "";
+    var followingLiClass = actionName == "Following" ? "selected" : "";
 }
 <div class="text-center">
     <partial name="_Covid19" />
@@ -45,6 +47,13 @@
                 <li class="nav-item @shopsLiClass">
                     <a class="nav-link text-dark" asp-controller="Profile" asp-action="Shops" asp-route-id="@Model.Profile.Id"><u>Shops</u></a>
                 </li>
+                <li class="nav-item my-2"><span class="px-1">&nbsp;&nbsp;</span><span class="border-left border-dark">&nbsp;</span><span class="px-1">&nbsp;</span></li>
+                <li class="nav-item @followersLiClass">
+                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="Followers" asp-route-id="@Model.Profile.Id"><u>Followers</u></a>
+                </li>
+                <li class="nav-item @followingLiClass">
+                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="Following" asp-route-id="@Model.Profile.Id"><u>Following</u></a>
+                </li>
             </ul>
         </div>
     </div>
@@ -56,6 +65,25 @@ if (Model.Feed != null)
 else if (Model.Media != null)
 {
     <partial name="ArchivedMedia/List" model="Model.Media" />
+}
+else if (Model.Users != null)
+{
+    if (Model.Users.Count > 0)
+    {
+        <partial name="Profile/List" model="Model.Users" />
+    }
+    else
+    {
+        switch (Model.UserListType)
+        {
+            case UserListType.Followers:
+            <p>This user has no followers.</p>
+            break;
+            case UserListType.Following:
+            <p>This user is not following anyone.</p>
+            break;
+        }
+    }
 }
 else if (Model.Shops != null)
 {

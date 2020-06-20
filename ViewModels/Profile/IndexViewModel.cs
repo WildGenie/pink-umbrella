@@ -10,5 +10,9 @@ namespace PinkUmbrella.ViewModels.Profile
         public PaginatedModel<ArchivedMediaModel> Media { get; set; }
 
         public List<ShopModel> Shops { get; set; }
+        
+        public List<UserProfileModel> Users { get; set; }
+        
+        public UserListType UserListType { get; set; }
     }
 }
