@@ -62,9 +62,9 @@ namespace PinkUmbrella.Util
             return enumerationValue.ToString();
         }
 
-        public static string GetPropertyDescription(this object root, string propertyName)
+        public static string GetPropertyDescription<T>(this T root, string propertyName)
         {
-            Type type = root?.GetType();
+            Type type = typeof(T);
 
             //Tries to find a DescriptionAttribute for a potential friendly name
             //for the enum
@@ -83,9 +83,9 @@ namespace PinkUmbrella.Util
             return propertyName;
         }
 
-        public static string GetPropertyPlaceHolder(this object root, string propertyName)
+        public static string GetPropertyPlaceHolder<T>(this T root, string propertyName)
         {
-            Type type = root?.GetType();
+            Type type = typeof(T);
 
             //Tries to find a DescriptionAttribute for a potential friendly name
             //for the enum
@@ -104,9 +104,9 @@ namespace PinkUmbrella.Util
             return string.Empty;
         }
 
-        public static string GetDebugValue(this object root, string propertyName)
+        public static string GetDebugValue<T>(this T root, string propertyName)
         {
-            Type type = root?.GetType();
+            Type type = typeof(T);
 
             //Tries to find a DebugValueAttribute for a potential friendly name
             //for the enum

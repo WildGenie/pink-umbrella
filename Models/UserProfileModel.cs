@@ -38,7 +38,7 @@ namespace PinkUmbrella.Models
         [PersonalData, StringLength(30), Required, Description("An identifiable handle to easily reference your profile.")]
         public string Handle { get; set; }
 
-        [PersonalData, DisplayName("Display Name"), StringLength(30), Required, Description("The name displayed to other users.")]
+        [PersonalData, DisplayName("Display Name"), StringLength(50), Required, Description("The name displayed to other users.")]
         public string DisplayName { get; set; }
 
         [PersonalData, StringLength(1000), Description("A biography of your profile shown to other users.")]

@@ -14,7 +14,7 @@ namespace PinkUmbrella.ViewModels.Inventory
         public List<SimpleInventoryModel> Inventories { get; set; } = new List<SimpleInventoryModel>();
         public SimpleInventoryModel Inventory { get; set; }
         public NewResourceViewModel NewResource { get; set; } = new NewResourceViewModel();
-        public NewInventoryViewModel NewInventory { get; set; } = new NewInventoryViewModel();
+        public SimpleInventoryModel NewInventory { get; set; } = new SimpleInventoryModel();
 
         public bool AddResourceEnabled { get; set; } = false;
     }

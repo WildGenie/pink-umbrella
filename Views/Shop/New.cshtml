@@ -59,7 +59,7 @@
     <div class="form-group">
         <label asp-for="Shop.Description"></label>
         <small>@Model.Shop.GetPropertyDescription(nameof(Model.Shop.Description))</small>
-        <textarea asp-for="Shop.Description" class="form-control"  placeholder="@Model.Shop.GetPropertyPlaceHolder(nameof(Model.Shop.Description))" data-debug-value="@Model.Shop.GetDebugValue(nameof(Model.Shop.Description))"></textarea>
+        <textarea asp-for="Shop.Description" class="form-control" placeholder="@Model.Shop.GetPropertyPlaceHolder(nameof(Model.Shop.Description))" data-debug-value="@Model.Shop.GetDebugValue(nameof(Model.Shop.Description))"></textarea>
         <span asp-validation-for="Shop.Description" class="text-danger"></span>
     </div>
     <div class="form-group">
@@ -77,8 +77,5 @@
         <span asp-validation-for="Shop.Visibility" class="text-danger"></span>
     </div>
     <button type="submit" class="btn btn-primary">Publish Store</button>
-    @if (System.Diagnostics.Debugger.IsAttached)
-    {
-        <button type="button" class="btn btn-success js-debug-values">(Debug) Fill fields with test data</button>   
-    }
+    <partial name="Button/DebugValuesButton" />
 </form>

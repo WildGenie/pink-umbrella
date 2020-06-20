@@ -10,7 +10,12 @@
     <div class="form-group">
         <label asp-for="MyProfile.Handle"></label>
         <small>@Model.MyProfile.GetPropertyDescription(nameof(Model.MyProfile.Handle))</small>
-        <input asp-for="MyProfile.Handle" class="form-control" />
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">@@</span>
+            </div>
+            <input asp-for="MyProfile.Handle" class="form-control" placeholder="@Model.MyProfile.GetPropertyPlaceHolder(nameof(Model.MyProfile.Handle))" data-debug-value="@Model.MyProfile.GetDebugValue(nameof(Model.MyProfile.Handle))" />
+        </div>
         <span asp-validation-for="MyProfile.Handle" class="text-danger"></span>
     </div>
     <div class="form-group">

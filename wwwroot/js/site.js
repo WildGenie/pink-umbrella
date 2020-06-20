@@ -65,14 +65,20 @@ $(() => {
         let $inputs = $('input[data-debug-value],select[data-debug-value],textarea[data-debug-value]');
         for (let i = 0; i < $inputs.length; i++) {
             let $input = $($inputs.get(i));
-            $input.val($input.attr('data-debug-value'));
-            if ($input.is('.js-tags')) {
-                CachedTagEditors[$input.closest('.js-tag-editor').attr('data-tag-editor-id')].load();
+            let newVal = $input.attr('data-debug-value').trim();
+            if (newVal.length > 0) {
+                $input.val(newVal);
+                if ($input.is('.js-tags')) {
+                    CachedTagEditors[$input.closest('.js-tag-editor').attr('data-tag-editor-id')].load();
+                }
             }
         }
     });
 
-    new TagEditor();
+    let $tagEditor = $('.js-tag-editor');
+    if ($tagEditor.length > 0) {
+        new TagEditor($tagEditor);
+    }
 });
 
 

@@ -97,7 +97,7 @@ namespace PinkUmbrella.Models
         [NotMapped]
         public List<ReactionModel> Reactions { get; set; } = new List<ReactionModel>();
 
-        [NotMapped]
+        [NotMapped, Description("Make your business easier for other users to find.")]
         public List<TagModel> Tags { get; set; } = new List<TagModel>();
 
         [NotMapped]

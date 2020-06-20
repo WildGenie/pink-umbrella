@@ -1,0 +1,56 @@
+﻿@using PinkUmbrella.ViewModels.Inventory
+@model NewResourceViewModel
+<div asp-validation-summary="All" class="text-danger"></div>
+<div class="form-group">
+    <label asp-for="Resource.Category"></label>
+    <small>@Model.Resource.GetPropertyDescription(nameof(Model.Resource.Category))</small>
+    <input list="datalist-Category" asp-for="Resource.Category" class="form-control" placeholder="@Model.Resource.GetPropertyPlaceHolder(nameof(Model.Resource.Category))" data-debug-value="@Model.Resource.GetDebugValue(nameof(Model.Resource.Category))" />
+    <datalist id="datalist-Category">
+        @foreach (var c in Model.AvailableCategories) {
+            <option value="@c">@c</option>
+        }
+    </datalist>
+    <span asp-validation-for="Resource.Category" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="Resource.Name"></label>
+    <small>@Model.Resource.GetPropertyDescription(nameof(Model.Resource.Name))</small>
+    <input asp-for="Resource.Name" class="form-control" placeholder="@Model.Resource.GetPropertyPlaceHolder(nameof(Model.Resource.Name))" data-debug-value="@Model.Resource.GetDebugValue(nameof(Model.Resource.Name))" />
+    <span asp-validation-for="Resource.Name" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="Resource.Brand"></label>
+    <small>@Model.Resource.GetPropertyDescription(nameof(Model.Resource.Brand))</small>
+    <input list="datalist-Brand" asp-for="Resource.Brand" class="form-control" placeholder="@Model.Resource.GetPropertyPlaceHolder(nameof(Model.Resource.Brand))" data-debug-value="@Model.Resource.GetDebugValue(nameof(Model.Resource.Brand))" />
+    <datalist id="datalist-Brand">
+        @foreach (var b in Model.AvailableBrands) {
+            <option value="@b">@b</option>
+        }
+    </datalist>
+    <span asp-validation-for="Resource.Brand" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="Resource.Description"></label>
+    <small>@Model.Resource.GetPropertyDescription(nameof(Model.Resource.Description))</small>
+    <input asp-for="Resource.Description" class="form-control" placeholder="@Model.Resource.GetPropertyPlaceHolder(nameof(Model.Resource.Description))" data-debug-value="@Model.Resource.GetDebugValue(nameof(Model.Resource.Description))" />
+    <span asp-validation-for="Resource.Description" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="Resource.Units"></label>
+    <small>@Model.Resource.GetPropertyDescription(nameof(Model.Resource.Units))</small>
+    <input list="datalist-Unit" asp-for="Resource.Units" class="form-control" placeholder="@Model.Resource.GetPropertyPlaceHolder(nameof(Model.Resource.Units))" data-debug-value="@Model.Resource.GetDebugValue(nameof(Model.Resource.Units))" />
+    <datalist id="datalist-Unit">
+        @foreach (var u in Model.AvailableUnits) {
+            <option value="@u">@u</option>
+        }
+    </datalist>
+    <span asp-validation-for="Resource.Units" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="Resource.Amount"></label>
+    <small>@Model.Resource.GetPropertyDescription(nameof(Model.Resource.Amount))</small>
+    <input asp-for="Resource.Amount" class="form-control" placeholder="@Model.Resource.GetPropertyPlaceHolder(nameof(Model.Resource.Amount))" data-debug-value="@Model.Resource.GetDebugValue(nameof(Model.Resource.Amount))" />
+    <span asp-validation-for="Resource.Amount" class="text-danger"></span>
+</div>
+<partial name="Button/AddButton" />
+<partial name="Button/DebugValuesButton" />

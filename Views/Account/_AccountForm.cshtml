@@ -2,7 +2,7 @@
 <form asp-controller="Account" asp-action="UpdateAccount" method="POST">
     <div asp-validation-summary="All" class="text-danger"></div>
     <div class="form-group">
-        <label asp-for="MyProfile.UserName"></label>
+        <label asp-for="MyProfile.UserName">Username</label>
         <input asp-for="MyProfile.UserName" class="form-control" disabled />
     </div>
     <div class="form-group">
@@ -23,7 +23,7 @@
     </div>
     <div class="form-group">
         <label asp-for="MyProfile.Visibility"></label>
-        <div>@Model.MyProfile.GetPropertyDescription(nameof(Model.MyProfile.Visibility))</div>
+        <small>@Model.MyProfile.GetPropertyDescription(nameof(Model.MyProfile.Visibility))</small>
         <select asp-for="MyProfile.Visibility" class="form-control">
             <partial name="_EnumOptions" model="new EnumViewModel() { Type = typeof(Visibility), Selected = Model.MyProfile.Visibility }" />
         </select>

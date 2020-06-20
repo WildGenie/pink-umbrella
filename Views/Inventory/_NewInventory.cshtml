@@ -1,17 +1,20 @@
 ﻿@using PinkUmbrella.ViewModels.Inventory
-@model NewInventoryViewModel
+@model SimpleInventoryModel
 <h4>Create new inventory</h4>
 <form asp-action="NewInventory" asp-controller="Inventory" method="POST">
     <div asp-validation-summary="All" class="text-danger"></div>
     <div class="form-group">
-        <label asp-for="Inventory.DisplayName"></label>
-        <input asp-for="Inventory.DisplayName" class="form-control" />
-        <span asp-validation-for="Inventory.DisplayName" class="text-danger"></span>
+        <label asp-for="DisplayName"></label>
+        <small>@Model.GetPropertyDescription(nameof(Model.DisplayName))</small>
+        <input asp-for="DisplayName" class="form-control" placeholder="@Model.GetPropertyPlaceHolder(nameof(Model.DisplayName))" data-debug-value="@Model.GetDebugValue(nameof(Model.DisplayName))" />
+        <span asp-validation-for="DisplayName" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="Inventory.Description"></label>
-        <input asp-for="Inventory.Description" class="form-control" />
-        <span asp-validation-for="Inventory.Description" class="text-danger"></span>
+        <label asp-for="Description"></label>
+        <small>@Model.GetPropertyDescription(nameof(Model.Description))</small>
+        <input asp-for="Description" class="form-control" placeholder="@Model.GetPropertyPlaceHolder(nameof(Model.Description))" data-debug-value="@Model.GetDebugValue(nameof(Model.Description))" />
+        <span asp-validation-for="Description" class="text-danger"></span>
     </div>
-    <button type="submit" class="btn btn-primary">Add</button>
+    <partial name="Button/AddButton" />
+    <partial name="_DebugValuesButton" />
 </form>
