@@ -1,9 +1,13 @@
 ﻿@using PinkUmbrella.ViewModels.Home
 @model FeedModel
-
-<div>
-    @foreach (var result in Model.Items) {
+@if (Model.Items.Count > 0)
+{
+    foreach (var result in Model.Items) {
         <hr />
         <partial name="Post/_Container" model="result" />
     }
-</div>
+}
+else
+{
+    <p>No posts to show.</p>
+}

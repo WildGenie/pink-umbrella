@@ -1,5 +1,12 @@
 @model List<ShopModel>
-@foreach (var result in Model) {
-    <hr />
-    <partial name="Shop/DisplayResult" model="result" />
+@if (Model.Count > 0)
+{
+    foreach (var result in Model) {
+        <hr />
+        <partial name="Shop/DisplayResult" model="result" />
+    }
+}
+else
+{
+    <p>No shops to show.</p>
 }

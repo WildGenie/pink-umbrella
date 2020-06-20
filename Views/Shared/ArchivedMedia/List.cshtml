@@ -1,5 +1,12 @@
 @model PaginatedModel<ArchivedMediaModel>
-@foreach (var result in Model.Items) {
-    <hr />
-    <partial name="ArchivedMedia/_Container" model="result" />
+@if (Model.Items.Count > 0)
+{
+    foreach (var result in Model.Items) {
+        <hr />
+        <partial name="ArchivedMedia/_Container" model="result" />
+    }
+}
+else
+{
+    <p>No archived media to show.</p>
 }
