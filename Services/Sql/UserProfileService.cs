@@ -130,15 +130,15 @@ namespace PinkUmbrella.Services.Sql
             await _userManager.UpdateAsync(user);
         }
 
-        public async Task<List<UserProfileModel>> GetFollowers(int userId, int? viewerId)
+        public async Task<List<UserProfileModel>> GetFollowing(int userId, int? viewerId)
         {
-            var ids = await _dbContext.ProfileReactions.Where(r => r.UserId == userId && r.Type == ReactionType.Follow).Select(r => r.UserId).ToListAsync();
+            var ids = await _dbContext.ProfileReactions.Where(r => r.UserId == userId && r.Type == ReactionType.Follow).Select(r => r.ToId).ToListAsync();
             return await GetUsers(ids, viewerId);
         }
 
-        public async Task<List<UserProfileModel>> GetFollowing(int userId, int? viewerId)
+        public async Task<List<UserProfileModel>> GetFollowers(int userId, int? viewerId)
         {
-            var ids = await _dbContext.ProfileReactions.Where(r => r.ToId == userId && r.Type == ReactionType.Follow).Select(r => r.ToId).ToListAsync();
+            var ids = await _dbContext.ProfileReactions.Where(r => r.ToId == userId && r.Type == ReactionType.Follow).Select(r => r.UserId).ToListAsync();
             return await GetUsers(ids, viewerId);
         }
 
