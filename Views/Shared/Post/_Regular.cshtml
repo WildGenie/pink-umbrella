@@ -50,13 +50,12 @@
 <div class="contains-goto post">
     <a class="goto" asp-controller="Post" asp-action="Index" asp-route-id="@Model.Id">goto</a>
     <p>
-        <span class="contains-goto">
+        <a style="display: inline" asp-controller="Profile" asp-action="Index" asp-route-id="@Model.UserId">
             <b>
                 @Model.User.DisplayName
             </b>
             <i>@@@Model.User.Handle</i>
-            <a class="goto" asp-controller="Profile" asp-action="Index" asp-route-id="@Model.UserId">goto</a>
-        </span>
+        </a>
         &bull; <partial name="_Timestamp" model="Model.WhenCreated" /></li>
         @if (Model.Visibility != Visibility.VISIBLE_TO_WORLD)
         {
