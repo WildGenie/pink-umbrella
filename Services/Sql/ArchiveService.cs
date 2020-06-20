@@ -254,14 +254,14 @@ namespace PinkUmbrella.Services.Sql
 
         public ArchivedMediaType? ResolveMediaType(string path)
         {
-            switch (Path.GetExtension(path))
+            switch (Path.GetExtension(path).ToLower())
             {
-                case "png": return ArchivedMediaType.Photo;
-                case "jpeg": return ArchivedMediaType.Photo;
-                case "jpg": return ArchivedMediaType.Photo;
-                // case "avi": return ArchivedMediaType.Video;
-                // case "mp4": return ArchivedMediaType.Video;
-                // case "webm": return ArchivedMediaType.Video;
+                case ".png": return ArchivedMediaType.Photo;
+                case ".jpeg": return ArchivedMediaType.Photo;
+                case ".jpg": return ArchivedMediaType.Photo;
+                // case ".avi": return ArchivedMediaType.Video;
+                // case ".mp4": return ArchivedMediaType.Video;
+                // case ".webm": return ArchivedMediaType.Video;
                 default: return null;
             }
         }
