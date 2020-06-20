@@ -41,6 +41,13 @@
     var locationString = $"{Model.StreetAddress}, {_strings.CityState} {Model.ZipCode}";
 
     var tags = new TagEditorViewModel() { Tags = Model.Tags };
+    var travelModes = new string [] { "driving", "transit", "bicycling", "walking" };
+    var travelIcons = new Dictionary<string, string>() {
+        { "driving", "fas fa-car" },
+        { "transit", "fas fa-bus" },
+        { "bicycling", "fas fa-biking" },
+        { "walking", "fas fa-walking" }
+    };
 }
 <small>Last updated <partial name="_Timestamp" model="Model.LastUpdated" /> - published <partial name="_Timestamp" model="Model.WhenCreated" /></small>
 @if (Model.ViewerIsOwner)
@@ -62,7 +69,13 @@
     Managed by 
     <a asp-controller="Profile" asp-action="Index" asp-route-id="@Model.UserId">@Model.OwnerUser.DisplayName</a>
 </p>
-<p><a href="https://www.google.com/maps/search/?api=1&query=@Uri.EscapeDataString(locationString)" target="_blank"><i class="fas fa-map-marker-alt"></i> @locationString</a></p>
+<ul>
+    <li><a href="https://www.google.com/maps/search/?api=1&query=@Uri.EscapeDataString(locationString)" target="_blank"><i class="fas fa-map-marker-alt"></i> @locationString</a></li>
+    @foreach (var travelMode in travelModes)
+    {
+        <li><a href="https://www.google.com/maps/dir/?api=1&travelmode=@travelMode&destination=@Uri.EscapeDataString(locationString)" target="_blank"><i class="@travelIcons[travelMode]"></i> Directions for @travelMode</a></li>
+    }
+</ul>
 @if (hasLinks)
 {
     <ul>
