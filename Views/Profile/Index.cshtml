@@ -51,17 +51,17 @@
 </nav>
 if (Model.Feed != null)
 {
-    <partial name="_FeedList" model="Model.Feed" />
+    <partial name="Post/List" model="Model.Feed" />
 }
 else if (Model.Media != null)
 {
-    <partial name="_ArchivedMediaList" model="Model.Media" />
+    <partial name="ArchivedMedia/List" model="Model.Media" />
 }
 else if (Model.Shops != null)
 {
     if (Model.Shops.Count > 0)
     {
-        <partial name="_ShopsList" model="Model.Shops" />
+        <partial name="Shop/List" model="Model.Shops" />
     }
     else
     {

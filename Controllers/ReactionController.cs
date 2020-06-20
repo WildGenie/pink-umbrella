@@ -42,7 +42,7 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentUserAsync();
             var reactionId = await _reactions.React(user.Id, toId, t, subject);
 
-            ViewData["PartialName"] = "_ReactButton";
+            ViewData["PartialName"] = "Button/ReactButton";
             return View("_NoLayout", new ReactViewModel()
             {
                 HasReacted = true,
@@ -69,7 +69,7 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentUserAsync();
             await _reactions.UnReact(user.Id, toId, t, subject);
 
-            ViewData["PartialName"] = "_ReactButton";
+            ViewData["PartialName"] = "Button/ReactButton";
             return View("_NoLayout", new ReactViewModel()
             {
                 HasReacted = false,
