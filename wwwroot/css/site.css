@@ -196,3 +196,22 @@ ul.highlight-selected > li.selected {
 .js-tag-editor .js-tag-editor--tag .js-tag-editor--delete-tag {
   cursor: pointer;
 }
+
+.js-new-post-form {
+  display: grid;
+  grid-template-columns: 2fr 3fr 5fr 1fr;
+  grid-template-rows: max-content max-content;
+  grid-gap: 1rem;
+  justify-items: center;
+  align-items: center;
+  width: 50vw;
+  margin: 0 auto;
+}
+
+.js-new-post-form label, .js-new-post-form input {
+  margin: 0;
+}
+
+.js-new-post-form input#Content {
+  grid-column: span 3;
+}
