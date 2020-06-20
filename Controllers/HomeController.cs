@@ -113,7 +113,9 @@ namespace PinkUmbrella.Controllers
         }
         
         [Route("/Search")]
-        public async Task<IActionResult> Search(string q, SearchResultOrder order = SearchResultOrder.Top, SearchResultType? t = null, int start = 0, int count = 10)
+        public async Task<IActionResult> Search(string q, SearchResultOrder order = SearchResultOrder.Top,
+                                                SearchResultType? t = null, int start = 0, int count = 10,
+                                                string[] tags = null)
         {
             ViewData["Controller"] = "Home";
             ViewData["Action"] = nameof(Search);

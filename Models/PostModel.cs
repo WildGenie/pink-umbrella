@@ -60,6 +60,9 @@ namespace PinkUmbrella.Models
         [NotMapped]
         public List<MentionModel> Mentions { get; set; } = new List<MentionModel>();
 
+        [NotMapped]
+        public List<TagModel> Tags { get; set; } = new List<TagModel>();
+
 
         [NotMapped]
         public bool HasLiked { get; set; }

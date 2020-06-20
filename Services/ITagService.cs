@@ -32,10 +32,14 @@ namespace PinkUmbrella.Services
 
         Task<PaginatedModel<UsedTagModel>> GetMostUsedTags();
 
-        Task<List<TaggedModel>> GetTagsForSubject(ReactionSubject subject, int? viewerId);
+        Task<List<TagModel>> GetTagsForSubject(ReactionSubject subject, int? viewerId);
 
-        Task<List<TaggedModel>> GetTagsFor(int toId, ReactionSubject subject, int? viewerId);
+        Task<List<TagModel>> GetTagsFor(int toId, ReactionSubject subject, int? viewerId);
 
         Task<TagModel> TryGetOrCreateTag(TagModel tag, int? viewerId);
+
+        Task<List<TagModel>> GetCompletionsForTag(string prefix);
+
+        Task Save(ReactionSubject subject, List<TagModel> tags, int userId, int toId);
     }
 }

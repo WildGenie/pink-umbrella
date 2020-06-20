@@ -146,3 +146,53 @@ ul.highlight-selected > li.selected {
   object-fit: contain;
   padding: 0.5rem;
 }
+
+.ui-widget.ui-widget-content {
+  border-color: var(--accent-color);
+}
+
+.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active, a.ui-button:active, .ui-button:active, .ui-button.ui-state-active:hover {
+  background-color: var(--accent-color)  !important;
+  border-color: var(--accent-color)  !important;
+  color: white !important;
+}
+
+.js-tag-editor {
+  padding: .5rem .25rem;
+  height: auto;
+}
+
+.js-tag-display {
+  padding: .25rem .125rem;
+  height: auto;
+}
+
+.js-tag-editor .js-search-field {
+  border: none;
+  min-width: 20rem;
+}
+
+.js-tag-editor .js-tag-editor--url {
+  position: absolute;
+}
+
+.js-tag-editor .js-search-field {
+  margin: .25rem;
+}
+
+.js-tag-editor .js-tag-editor--tag, .js-tag-display .js-tag-display--tag {
+  padding: .5rem;
+  margin: .25rem;
+  border-radius: 4px;
+  color: white;
+  background-color: var(--accent-color);
+}
+
+.js-tag-display .js-tag-display--tag {
+  padding: .25rem;
+  margin: .125rem;
+}
+
+.js-tag-editor .js-tag-editor--tag .js-tag-editor--delete-tag {
+  cursor: pointer;
+}

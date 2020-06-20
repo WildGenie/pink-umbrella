@@ -25,6 +25,8 @@ namespace PinkUmbrella.Repositories
 
         public Regex ExtractMentionsRegex { get; } = new Regex(@"@([a-zA-Z0-9_]+)");
 
+        public Regex ExtractTagsRegex { get; } = new Regex(@"#([a-zA-Z0-9_]+)");
+
         public string StatusCodeMessage(string code)
         {
             switch (code)

@@ -1,0 +1,18 @@
+@model TagEditorViewModel
+@{
+    string debugTagJson = null;
+    if (Model.DebugValue != null)
+    {
+        debugTagJson = $"[{string.Join(',', Model.DebugValue.Select(t => new { value = t.Id, label = t.Tag }).Select(t => System.Text.Json.JsonSerializer.Serialize(t)))}]";
+    }
+    string tagJson = null;
+    if (Model.Tags != null && Model.Tags.Count > 0)
+    {
+        tagJson = $"[{string.Join(',', Model.Tags.Select(t => new { value = t.Id, label = t.Tag }).Select(t => System.Text.Json.JsonSerializer.Serialize(t)))}]";
+    }
+}
+<div class="js-tag-editor @Model.HtmlClasses" data-tag-editor-id="-1" id="@Model.HtmlId" >
+    <a class="js-tag-editor--url" asp-action="Completions" asp-controller="Tag"></a>
+    <input class="js-tags" name="@Model.InputName" type="hidden" value="@tagJson" data-debug-value="@debugTagJson" />
+    <input class="js-search-field" placeholder="@Model.Placeholder" />
+</div>

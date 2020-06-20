@@ -12,6 +12,7 @@ using PinkUmbrella.Models;
 using PinkUmbrella.Services;
 using PinkUmbrella.ViewModels.Shop;
 using PinkUmbrella.ViewModels;
+using System.IO;
 
 namespace PinkUmbrella.Controllers
 {
@@ -19,7 +20,7 @@ namespace PinkUmbrella.Controllers
     {
         private readonly ILogger<ShopController> _logger;
         private readonly IShopService _shops;
-
+        
         public ShopController(IWebHostEnvironment environment, ILogger<ShopController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IShopService shops, 
             IReactionService reactions, ITagService tags):
@@ -84,32 +85,91 @@ namespace PinkUmbrella.Controllers
             ViewData["Controller"] = "Shop";
             ViewData["Action"] = nameof(New);
             var user = await GetCurrentUserAsync();
+            await GetShopTagsDebugValue();
             return View(new NewShopViewModel() {
                 MyProfile = user
             });
         }
 
+        public class SimpleTag {
+            public string label { get; set; }
+            public int value { get; set; }
+        }
+
         [HttpPost]
-        public async Task<IActionResult> New(NewShopViewModel model)
+        public async Task<IActionResult> New(NewShopViewModel model, string tagsJson)
         {
             var user = await GetCurrentUserAsync();
             var shop = model.Validate(this.ModelState);
             shop.UserId = user.Id;
-            var error = await _shops.TryCreateShop(shop);
-            if (error != null)
+
+            using (var ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(tagsJson)))
             {
-                this.ModelState.AddModelError(error.ParamName, error.Message);
+                var tags = await System.Text.Json.JsonSerializer.DeserializeAsync<List<SimpleTag>>(ms);
+                foreach (var tag in tags)
+                {
+                    var tm = new TagModel() {
+                        Tag = tag.label,
+                        Id = tag.value,
+                    };
+                    var newTag = await _tags.TryGetOrCreateTag(tm, user.Id);
+                    if (newTag != null)
+                    {
+                        shop.Tags.Add(newTag);
+                    }
+                    else
+                    {
+                        shop.Tags.Add(tm);
+                        ModelState.AddModelError(nameof(ShopModel.Tags), $"Tag invalid: {tm.Tag}");
+                    }
+                }
             }
+
+            if (this.ModelState.ErrorCount == 0)
+            {
+                var error = await _shops.TryCreateShop(shop);
+                if (error != null)
+                {
+                    this.ModelState.AddModelError(error.ParamName, error.Message);
+                }
+            }
+
             if (this.ModelState.ErrorCount == 0)
             {
                 return RedirectToAction(nameof(Index), new { handle = shop.Handle });
             }
             else
             {
+                await GetShopTagsDebugValue();
                 ViewData["Controller"] = "Shop";
                 ViewData["Action"] = nameof(New);
                 model.MyProfile = user;
                 return View(model);
+            }
+        }
+
+        private async Task GetShopTagsDebugValue()
+        {
+            if (Debugger.IsAttached)
+            {
+                var debug = new List<TagModel>();
+                foreach (var tmp in new string[] {})
+                {
+                    var t = await _tags.GetTag("", null);
+                    if (t != null)
+                    {
+                        debug.Add(t);
+                    }
+                }
+
+                if (debug.Count == 0 && Debugger.IsAttached)
+                {
+                    for (int i = 0; i < 5; i++)
+                    {
+                        debug.Add(new TagModel() { Id = i + 1, Tag = $"Test tag {i}" });
+                    }
+                }
+                ViewData["ShopTagsDebugValue"] = debug;
             }
         }
     }

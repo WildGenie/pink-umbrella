@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -102,50 +104,53 @@ namespace PinkUmbrella.Services.Sql
             };
         }
 
-        public async Task<TagModel> GetTag(string text, int? viewerId) => await _dbContext.AllTags.SingleOrDefaultAsync(t => t.Tag == text);
+        public async Task<TagModel> GetTag(string text, int? viewerId) => await _dbContext.AllTags.SingleOrDefaultAsync(t => t.Tag.ToLower() == text.ToLower());
 
         public async Task<TagModel> GetTag(int id, int? viewerId) => await _dbContext.AllTags.FindAsync(id);
 
-        public async Task<List<TaggedModel>> GetTagsFor(int toId, ReactionSubject subject, int? viewerId)
+        public async Task<List<TagModel>> GetTagsFor(int toId, ReactionSubject subject, int? viewerId)
         {
-            var tags = new List<TaggedModel>();
+            var taggeds = new List<TaggedModel>();
             switch (subject)
             {
                 case ReactionSubject.ArchivedMedia:
-                    tags = await _dbContext.ArchivedMediaTags.Where(t => t.ToId == toId).ToListAsync();
+                    taggeds = await _dbContext.ArchivedMediaTags.Where(t => t.ToId == toId).ToListAsync();
                     break;
                 case ReactionSubject.Post:
-                    tags = await _dbContext.PostTags.Where(t => t.ToId == toId).ToListAsync();
+                    taggeds = await _dbContext.PostTags.Where(t => t.ToId == toId).ToListAsync();
                     break;
                 case ReactionSubject.Profile:
-                    tags = await _dbContext.ProfileTags.Where(t => t.ToId == toId).ToListAsync();
+                    taggeds = await _dbContext.ProfileTags.Where(t => t.ToId == toId).ToListAsync();
                     break;
                 case ReactionSubject.Shop:
-                    tags = await _dbContext.ShopTags.Where(t => t.ToId == toId).ToListAsync();
+                    taggeds = await _dbContext.ShopTags.Where(t => t.ToId == toId).ToListAsync();
                     break;
                 default:
                     break;
             }
-
-            return await BindReferencesAndGetViewable(viewerId, tags);
+            return await BindReferencesAndGetViewable(viewerId, taggeds);
         }
 
-        private async Task<List<TaggedModel>> BindReferencesAndGetViewable(int? viewerId, List<TaggedModel> tags)
+        private async Task<List<TagModel>> BindReferencesAndGetViewable(int? viewerId, List<TaggedModel> tags)
         {
-            var keepers = new List<TaggedModel>();
+            var keepers = new List<TagModel>();
             foreach (var t in tags)
             {
                 await BindReferences(t, viewerId);
                 if (CanView(t, viewerId))
                 {
-                    keepers.Add(t);
+                    var tag = await this.GetTag(t.TagId, viewerId);
+                    if (tag != null)
+                    {
+                        keepers.Add(tag);
+                    }
                 }
             }
 
             return keepers;
         }
 
-        public async Task<List<TaggedModel>> GetTagsForSubject(ReactionSubject subject, int? viewerId)
+        public async Task<List<TagModel>> GetTagsForSubject(ReactionSubject subject, int? viewerId)
         {
             var tags = new List<TaggedModel>();
             switch (subject)
@@ -171,13 +176,31 @@ namespace PinkUmbrella.Services.Sql
 
         public async Task<TagModel> TryGetOrCreateTag(TagModel tag, int? viewerId)
         {
-            var by_tag = await GetTag(tag.Tag, viewerId);
+            TagModel by_tag = null;
+            if (tag.Id > 0)
+            {
+                by_tag = await GetTag(tag.Id, viewerId);
+                if (by_tag == null)
+                {
+                    return null;
+                }
+            }
+            else if (!string.IsNullOrWhiteSpace(tag.Tag))
+            {
+                by_tag = await GetTag(tag.Tag, viewerId);
+            }
+            else
+            {
+                return null;
+            }
+
             if (by_tag != null)
             {
                 return by_tag;
             }
             else if (viewerId.HasValue)
             {
+                tag.Id = 0;
                 tag.CreatedByUserId = viewerId.Value;
                 await _dbContext.AllTags.AddAsync(tag);
                 await _dbContext.SaveChangesAsync();
@@ -192,7 +215,7 @@ namespace PinkUmbrella.Services.Sql
         public async Task<PaginatedModel<UsedTagModel>> GetMostUsedTagsForSubject(ReactionSubject subject)
         {
             var tags = await GetTagsForSubject(subject, null);
-            var used = tags.GroupBy(g => g.TagId).Select(g => new UsedTagModel() { Tag = g.First().Tag, UseCount = g.Count() });
+            var used = tags.GroupBy(g => g.Id).Select(g => new UsedTagModel() { Tag = g.First(), UseCount = g.Count() });
             return new PaginatedModel<UsedTagModel>() {
                 Items = used.OrderByDescending(t => t.UseCount).Take(10).ToList(),
                 Total = used.Count(),
@@ -219,6 +242,63 @@ namespace PinkUmbrella.Services.Sql
         public Task<PaginatedModel<TagModel>> GetMostDislikedTagsForSubject(ReactionSubject subject)
         {
             throw new System.NotImplementedException();
+        }
+        
+        public async Task<List<TagModel>> GetCompletionsForTag(string prefix)
+        {
+            if (Debugger.IsAttached)
+            {
+                var ret = new List<TagModel>();
+                for (int i = 0; i < 5; i++)
+                {
+                    ret.Add(new TagModel() { Id = i + 1, Tag = $"Test tag {i}" });
+                }
+                return ret;
+            }
+            else
+            {
+                prefix = prefix.ToLower();
+                return await _dbContext.AllTags.Where(t => t.Tag.ToLower().StartsWith(prefix)).Take(10).ToListAsync();
+            }
+        }
+
+        public async Task Save(ReactionSubject subject, List<TagModel> tags, int userId, int toId)
+        {
+            DbSet<TaggedModel> src = null;
+            switch (subject)
+            {
+                case ReactionSubject.ArchivedMedia:
+                    src = _dbContext.ArchivedMediaTags;
+                    break;
+                case ReactionSubject.Post:
+                    src = _dbContext.PostTags;
+                    break;
+                case ReactionSubject.Profile:
+                    src = _dbContext.ProfileTags;
+                    break;
+                case ReactionSubject.Shop:
+                    src = _dbContext.ShopTags;
+                    break;
+                default:
+                    break;
+            }
+
+            var alreadyTaggedIds = await src.Where(t => t.ToId == toId && t.UserId == userId).ToDictionaryAsync(k => k.TagId, v => v);
+            var taggeds = tags.Where(t => !alreadyTaggedIds.ContainsKey(t.Id)).Select(t => new TaggedModel() { TagId = t.Id, ToId = toId, UserId = userId, WhenCreated = DateTime.UtcNow }).ToList();
+            var noLongerTagged = new List<TaggedModel>();
+            foreach (var noLongerTaggedId in alreadyTaggedIds.Keys.Except(tags.Select(t => t.Id)))
+            {
+                noLongerTagged.Add(alreadyTaggedIds[noLongerTaggedId]);
+            }
+
+            if (taggeds.Count > 0)
+            {
+                await src.AddRangeAsync(taggeds);
+            }
+            if (noLongerTagged.Count > 0)
+            {
+                src.RemoveRange(noLongerTagged);
+            }
         }
     }
 }

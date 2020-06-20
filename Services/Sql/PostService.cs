@@ -14,12 +14,14 @@ namespace PinkUmbrella.Services.Sql
         private readonly SimpleDbContext _dbContext;
         private readonly StringRepository _strings;
         private readonly IUserProfileService _users;
+        private readonly ITagService _tags;
 
-        public PostService(SimpleDbContext dbContext, StringRepository strings, IUserProfileService users)
+        public PostService(SimpleDbContext dbContext, StringRepository strings, IUserProfileService users, ITagService tags)
         {
             _dbContext = dbContext;
             _strings = strings;
             _users = users;
+            _tags = tags;
         }
 
         public async Task<NewPostResult> TryCreatePosts(List<PostModel> post_chain)
@@ -51,14 +53,28 @@ namespace PinkUmbrella.Services.Sql
             _dbContext.Posts.Add(post);
             await _dbContext.SaveChangesAsync();
 
+            bool postInsertChanges = false;
+
             if (post.Visibility != Visibility.HIDDEN)
             {
                 await ExtractMentions(post);
                 if (post.Mentions.Any())
                 {
                     _dbContext.Mentions.AddRange(post.Mentions);
-                    await _dbContext.SaveChangesAsync();
+                    postInsertChanges = true;
                 }
+            }
+
+            await ExtractTags(post);
+            if (post.Tags.Any())
+            {
+                await _tags.Save(ReactionSubject.Post, post.Tags, post.UserId, post.Id);
+                postInsertChanges = true;
+            }
+
+            if (postInsertChanges)
+            {
+                await _dbContext.SaveChangesAsync();
             }
 
             return new NewPostResult() {
@@ -163,6 +179,15 @@ namespace PinkUmbrella.Services.Sql
                     p.ViewerIsFollowing = true;
                 }
             }
+
+            if (p.Tags == null)
+            {
+                p.Tags = new List<TagModel>();
+            }
+            else if (p.Tags.Count == 0)
+            {
+                p.Tags = await _tags.GetTagsFor(p.Id, ReactionSubject.Shop, viewerId);
+            }
         }
 
         public async Task UpdateShadowBanStatus(int id, bool status)
@@ -190,6 +215,22 @@ namespace PinkUmbrella.Services.Sql
                             MentionedUserId = user.Id,
                             MentionedUser = user
                         });
+                    }
+                }
+            }
+        }
+
+        private async Task ExtractTags(PostModel p)
+        {
+            var handles = _strings.ExtractTagsRegex.Matches(p.Content).Cast<Match>().Select(m => m.Value.Substring(1)).ToList();
+            var tagIds = new List<int>();
+
+            foreach (var handle in handles) {
+                var tag = await _tags.TryGetOrCreateTag(new TagModel() { Tag = handle }, p.UserId);
+                if (tag != null) {
+                    if (!tagIds.Contains(tag.Id))
+                    {
+                        p.Tags.Add(tag);
                     }
                 }
             }

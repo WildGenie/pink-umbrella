@@ -39,6 +39,8 @@
     };
 
     var locationString = $"{Model.StreetAddress}, {_strings.CityState} {Model.ZipCode}";
+
+    var tags = new TagEditorViewModel() { Tags = Model.Tags };
 }
 <small>Last updated <partial name="_Timestamp" model="Model.LastUpdated" /> - published <partial name="_Timestamp" model="Model.WhenCreated" /></small>
 @if (Model.ViewerIsOwner)
@@ -76,3 +78,4 @@
 }
 <p>@Model.Description</p>
 <partial name="_ReactButtonList" model="reactions" />
+<partial name="Tag/Display" model="tags" />

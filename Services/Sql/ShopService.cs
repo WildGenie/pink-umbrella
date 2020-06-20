@@ -13,11 +13,13 @@ namespace PinkUmbrella.Services.Sql
     {
         private readonly SimpleDbContext _dbContext;
         private readonly IUserProfileService _users;
+        private readonly ITagService _tags;
 
-        public ShopService(SimpleDbContext dbContext, IUserProfileService users)
+        public ShopService(SimpleDbContext dbContext, IUserProfileService users, ITagService tags)
         {
             _dbContext = dbContext;
             _users = users;
+            _tags = tags;
         }
 
         public async Task BindReferences(ShopModel shop, int? viewerId)
@@ -42,6 +44,15 @@ namespace PinkUmbrella.Services.Sql
                     var blockOrReport = await _dbContext.ProfileReactions.FirstOrDefaultAsync(r => ((r.ToId == viewerId.Value && r.UserId == shop.UserId) || (r.ToId == shop.UserId && r.UserId == viewerId.Value) && (r.Type == ReactionType.Block || r.Type == ReactionType.Report)));
                     shop.HasBeenBlockedOrReported =  blockOrReport != null; // p.Reactions.Any(r => r.Type == ReactionType.Block || r.Type == ReactionType.Report)
                 }
+            }
+
+            if (shop.Tags == null)
+            {
+                shop.Tags = new List<TagModel>();
+            }
+            else if (shop.Tags.Count == 0)
+            {
+                shop.Tags = await _tags.GetTagsFor(shop.Id, ReactionSubject.Shop, viewerId);
             }
         }
 
@@ -160,9 +171,19 @@ namespace PinkUmbrella.Services.Sql
             return keepers;
         }
 
-        public Task<List<ShopModel>> GetShopsTaggedUnder(TagModel tag, int? viewerId)
+        public async Task<List<ShopModel>> GetShopsTaggedUnder(TagModel tag, int? viewerId)
         {
-            throw new NotImplementedException();
+            var tagged = await _dbContext.ShopTags.Where(t => t.TagId == tag.Id).ToListAsync();
+            var shops = new List<ShopModel>();
+            foreach (var t in tagged)
+            {
+                var shop = await GetShopById(t.ToId, viewerId);
+                if (shop != null)
+                {
+                    shops.Add(shop);
+                }
+            }
+            return shops;
         }
 
         public async Task<ArgumentException> TryCreateShop(ShopModel shop)
@@ -171,10 +192,30 @@ namespace PinkUmbrella.Services.Sql
             {
                 return new ArgumentException("Shop cannot be visible to followers only", nameof(shop.Visibility));
             }
+
+            var existingShopHandle = await _dbContext.Shops.FirstOrDefaultAsync(s => s.Handle.ToLower() == shop.Handle.ToLower());
+            if (existingShopHandle != null)
+            {
+                return new ArgumentException("Shop handle taken", nameof(shop.Handle));
+            }
+
             shop.WhenCreated = DateTime.UtcNow;
             shop.LastUpdated = DateTime.UtcNow;
             await _dbContext.AddAsync(shop);
             await _dbContext.SaveChangesAsync();
+
+            var postInsertChanges = false;
+
+            if (shop.Tags.Any())
+            {
+                await _tags.Save(ReactionSubject.Post, shop.Tags, shop.UserId, shop.Id);
+                postInsertChanges = true;
+            }
+
+            if (postInsertChanges)
+            {
+                await _dbContext.SaveChangesAsync();
+            }
             return null;
         }
     }

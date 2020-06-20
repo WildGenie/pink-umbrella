@@ -11,8 +11,14 @@
         foreach (var category in Model.Categories.Items)
         {
             <hr />
-            <h3>@category.Tag (@category.UseCount)</h3>
+            <h3>@category.Tag.Tag (@category.UseCount)</h3>
             <p>@category.Tag.Topic</p>
+            foreach (var shop in Model.ShopsByCategory[category.Tag.Id])
+            {
+                <ul>
+                    <li><partial name="SearchResult/ShopSearchResult" model="shop" /></li>
+                </ul>
+            }
         }
     }
     else

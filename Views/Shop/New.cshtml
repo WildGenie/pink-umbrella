@@ -2,6 +2,13 @@
 @model NewShopViewModel
 @{
     ViewData["Title"] = "New Shop";
+    var tagEditor = new TagEditorViewModel() {
+        HtmlClasses = "form-control",
+        Placeholder = Model.Shop.GetPropertyPlaceHolder(nameof(Model.Shop.Tags)),
+        DebugValue = ViewData["ShopTagsDebugValue"] as List<TagModel>,
+        InputName = "tagsJson",
+        Tags = Model.Shop.Tags,
+    };
 }
 
 <h1>@ViewData["Title"]</h1>
@@ -54,6 +61,12 @@
         <small>@Model.Shop.GetPropertyDescription(nameof(Model.Shop.Description))</small>
         <textarea asp-for="Shop.Description" class="form-control"  placeholder="@Model.Shop.GetPropertyPlaceHolder(nameof(Model.Shop.Description))" data-debug-value="@Model.Shop.GetDebugValue(nameof(Model.Shop.Description))"></textarea>
         <span asp-validation-for="Shop.Description" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Shop.Tags"></label>
+        <small>@Model.Shop.GetPropertyDescription(nameof(Model.Shop.Tags))</small>
+        <partial name="Tag/Editor" model="tagEditor" />
+        <span asp-validation-for="Shop.Tags" class="text-danger"></span>
     </div>
     <div class="form-group">
         <label asp-for="Shop.Visibility"></label>

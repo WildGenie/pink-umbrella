@@ -98,6 +98,9 @@ namespace PinkUmbrella.Models
         public List<ReactionModel> Reactions { get; set; } = new List<ReactionModel>();
 
         [NotMapped]
+        public List<TagModel> Tags { get; set; } = new List<TagModel>();
+
+        [NotMapped]
         public bool ViewerIsOwner => ViewerId.HasValue && UserId == ViewerId.Value;
     }
 }

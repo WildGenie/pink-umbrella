@@ -52,5 +52,21 @@ namespace PinkUmbrella.Controllers
                 return View(model);
             }
         }
+
+        [Route("/Tag/Completions/{prefix}")]
+        public async Task<IActionResult> Completions(string prefix)
+        {
+            if (!string.IsNullOrWhiteSpace(prefix))
+            {
+                var tags = await _tags.GetCompletionsForTag(prefix);
+                return Json(new {
+                    items = tags.Select(t => new { value = t.Id.ToString(), label = t.Tag }).ToArray()
+                });
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
     }
 }

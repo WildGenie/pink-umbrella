@@ -44,6 +44,8 @@
     var reactions = new List<ReactViewModel>() {
         reactLike, reactDislike, reactBlock, reactReport,
     };
+
+    var tags = new TagEditorViewModel() { Tags = Model.Tags };
 }
 <div class="contains-goto post">
     <a class="goto" asp-controller="Post" asp-action="Index" asp-route-id="@Model.Id">goto</a>
@@ -98,4 +100,5 @@
         </ul>
     }
     <partial name="_ReactButtonList" model="reactions" /></li>
+    <partial name="Tag/Display" model="tags" />
 </div>
