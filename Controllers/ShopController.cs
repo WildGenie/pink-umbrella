@@ -166,7 +166,7 @@ namespace PinkUmbrella.Controllers
                 {
                     for (int i = 0; i < 5; i++)
                     {
-                        debug.Add(new TagModel() { Id = -1, Tag = $"Test tag {i}" });
+                        debug.Add(new TagModel() { Id = -1, Tag = $"TestTag{i}" });
                     }
                 }
                 ViewData["ShopTagsDebugValue"] = debug;

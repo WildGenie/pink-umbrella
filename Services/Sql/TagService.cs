@@ -253,7 +253,7 @@ namespace PinkUmbrella.Services.Sql
                 ret = new List<TagModel>();
                 for (int i = 0; i < 5; i++)
                 {
-                    ret.Add(new TagModel() { Id = -1, Tag = $"Test tag {i}" });
+                    ret.Add(new TagModel() { Id = -1, Tag = $"TestTag{i}" });
                 }
                 return ret;
             }
