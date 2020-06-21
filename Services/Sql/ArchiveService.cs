@@ -24,6 +24,12 @@ namespace PinkUmbrella.Services.Sql
             _users = users;
             _posts = posts;
             _env = env;
+
+            var path = _env.ContentRootPath + "/Upload/Archive";
+            if (!System.IO.Directory.Exists(path))
+            {
+                System.IO.Directory.CreateDirectory(path);
+            }
         }
 
         public async Task BindReferences(ArchivedMediaModel media, int? viewerId)
