@@ -47,6 +47,7 @@ namespace PinkUmbrella
                 .AddDefaultTokenProviders();
 
             services.AddSingleton<StringRepository>();
+            services.AddSingleton<CategorizedLinksRepository>();
 
             services.AddScoped<ITagService, TagService>();
             services.AddScoped<IArchiveService, ArchiveService>();

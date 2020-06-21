@@ -1,0 +1,12 @@
+@model LinkViewModel
+@{
+    var target = Model.NewTab ? "_blank" : null;
+    if (string.IsNullOrWhiteSpace(Model.Url))
+    {
+        <a asp-action="@Model.Action" asp-controller="@Model.Controller" asp-all-route-data="Model.RouteData" class="@Model.HtmlClass" id="@Model.HtmlId" target="@target">@Model.Text</a>
+    }
+    else
+    {
+        <a href="https://@Model.Url" class="@Model.HtmlClass" id="@Model.HtmlId" target="@target">@Model.Text</a>
+    }
+}

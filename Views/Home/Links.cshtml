@@ -1,0 +1,23 @@
+﻿@inject CategorizedLinksRepository _links
+@{
+    ViewData["Title"] = "Links";
+    var linkModel = new LinkViewModel() {
+        NewTab = true,
+    };
+}
+<h1>@ViewData["Title"]</h1>
+@foreach (var category in Enum.GetValues(typeof(LinkCategory)).Cast<LinkCategory>())
+{
+    if (_links.CategoryTitles.TryGetValue(category, out var title))
+    {
+        <h3>@title</h3>
+        <ul>
+        @foreach (var url in _links.CategorizedLinks[category])
+        {
+            linkModel.Url = url.Url;
+            linkModel.Text = url.Text;
+            <li><partial name="Button/Link" model="linkModel" /></li>
+        }
+        </ul>
+    }
+}

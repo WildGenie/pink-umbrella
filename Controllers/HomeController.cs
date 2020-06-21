@@ -132,6 +132,14 @@ namespace PinkUmbrella.Controllers
             });
         }
 
+        [Route("/Links")]
+        public IActionResult Links()
+        {
+            ViewData["Controller"] = "Home";
+            ViewData["Action"] = nameof(Links);
+            return View();
+        }
+
         [Route("/Error/{code}")]
         public IActionResult Error(string code)
         {
