@@ -10,8 +10,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using PinkUmbrella.Models;
 using PinkUmbrella.Services;
-using PinkUmbrella.ViewModels.Shop;
 using PinkUmbrella.ViewModels;
+using PinkUmbrella.ViewModels.Shop;
+using PinkUmbrella.ViewModels.Shared;
 using System.IO;
 
 namespace PinkUmbrella.Controllers
@@ -77,6 +78,18 @@ namespace PinkUmbrella.Controllers
                     }
                 }
             }
+        }
+
+        public async Task<IActionResult> Tags()
+        {
+            ViewData["Controller"] = "Shop";
+            ViewData["Action"] = nameof(Tags);
+            var user = await GetCurrentUserAsync();
+            return View(new TagsViewModel() {
+                MyProfile = user,
+                Tags = await _tags.GetTagsForSubject(ReactionSubject.Shop, user?.Id),
+                Type = SearchResultType.Shop,
+            });
         }
 
         [HttpGet]

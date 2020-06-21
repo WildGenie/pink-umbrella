@@ -1,0 +1,37 @@
+@if (Model.Visibility != Visibility.VISIBLE_TO_WORLD)
+{
+    switch (Model.Visibility)
+    {
+        case Visibility.HIDDEN:
+        <span>&bull; Hidden to everyone</span>
+        break;
+        case Visibility.VISIBLE_TO_REGISTERED:
+        <span>&bull; Visible to other users on this site</span>
+        break;
+        case Visibility.VISIBLE_TO_FOLLOWERS:
+        if (Model.UserId == Model.ViewerId)
+        {
+        <span>&bull; Only visible to your followers</span>
+        }
+        else
+        {
+        <span>&bull; Only visible to this user's followers</span>
+        }
+        break;
+    }
+}
+@* @if (Model.ViewerIsOwner)
+{
+    if (Model.Visibility != Visibility.VISIBLE_TO_WORLD)
+    {
+        switch (Model.Visibility)
+        {
+            case Visibility.HIDDEN:
+            <span>&bull; Hidden to everyone</span>
+            break;
+            case Visibility.VISIBLE_TO_REGISTERED:
+            <span>&bull; Visible to other users on this site</span>
+            break;
+        }
+    }
+} *@

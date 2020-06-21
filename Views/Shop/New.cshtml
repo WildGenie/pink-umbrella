@@ -1,7 +1,7 @@
 ﻿@using PinkUmbrella.ViewModels.Shop
 @model NewShopViewModel
 @{
-    ViewData["Title"] = "New Shop";
+    ViewData["Title"] = "List Your Business";
     var tagEditor = new TagEditorViewModel() {
         HtmlClasses = "form-control",
         Placeholder = Model.Shop.GetPropertyPlaceHolder(nameof(Model.Shop.Tags)),
@@ -10,8 +10,7 @@
         Tags = Model.Shop.Tags,
     };
 }
-
-<h1>@ViewData["Title"]</h1>
+<partial name="_Header" />
 <form asp-action="New" asp-controller="Shop" method="POST">
     <div asp-validation-summary="All" class="text-danger"></div>
     <div class="form-group">

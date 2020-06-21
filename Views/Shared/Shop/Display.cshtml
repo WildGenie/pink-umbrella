@@ -49,22 +49,8 @@
         { "walking", "fas fa-walking" }
     };
 }
+<partial name="_VisibilityStatus" />
 <small>Last updated <partial name="_Timestamp" model="Model.LastUpdated" /> - published <partial name="_Timestamp" model="Model.WhenCreated" /></small>
-@if (Model.ViewerIsOwner)
-{
-    if (Model.Visibility != Visibility.VISIBLE_TO_WORLD)
-    {
-        switch (Model.Visibility)
-        {
-            case Visibility.HIDDEN:
-            <span>&bull; Hidden to everyone</span>
-            break;
-            case Visibility.VISIBLE_TO_REGISTERED:
-            <span>&bull; Visible to other users on this site</span>
-            break;
-        }
-    }
-}
 <p>
     Managed by 
     <a asp-controller="Profile" asp-action="Index" asp-route-id="@Model.UserId">@Model.OwnerUser.DisplayName</a>
@@ -76,6 +62,7 @@
         <li><a href="https://www.google.com/maps/dir/?api=1&travelmode=@travelMode&destination=@Uri.EscapeDataString(locationString)" target="_blank"><i class="@travelIcons[travelMode]"></i> Directions for @travelMode</a></li>
     }
 </ul>
+
 @if (hasLinks)
 {
     <ul>

@@ -1,0 +1,7 @@
+@model UserProfileModel
+<a style="display: inline" asp-controller="Profile" asp-action="Index" asp-route-id="@Model.Id">
+    <b>
+        @Model.DisplayName
+    </b>
+    <i>@@@Model.Handle</i>
+</a>

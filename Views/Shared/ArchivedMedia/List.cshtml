@@ -2,8 +2,8 @@
 @if (Model.Items.Count > 0)
 {
     foreach (var result in Model.Items) {
-        <hr />
         <partial name="ArchivedMedia/_Container" model="result" />
+        <hr />
     }
 }
 else

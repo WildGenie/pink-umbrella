@@ -51,36 +51,9 @@
     <a class="goto" asp-controller="Archive" asp-action="Media" asp-route-id="@Model.Id">goto</a>
     <p>
         <span>@Model.DisplayName</span><i> by </i>
-        <span class="contains-goto">
-            <b>
-                @Model.User.DisplayName
-            </b>
-            <i>@@@Model.User.Handle</i>
-            <a class="goto" asp-controller="Profile" asp-action="Index" asp-route-id="@Model.UserId">goto</a>
-        </span>
+        <partial name="Profile/Goto" model="Model.User" />
         &bull; <partial name="_Timestamp" model="Model.WhenCreated" /></li>
-        @if (Model.Visibility != Visibility.VISIBLE_TO_WORLD)
-        {
-            switch (Model.Visibility)
-            {
-                case Visibility.HIDDEN:
-                <span>&bull; Hidden to everyone</span>
-                break;
-                case Visibility.VISIBLE_TO_REGISTERED:
-                <span>&bull; Visible to other users on this site</span>
-                break;
-                case Visibility.VISIBLE_TO_FOLLOWERS:
-                if (Model.UserId == Model.ViewerId)
-                {
-                <span>&bull; Only visible to your followers</span>
-                }
-                else
-                {
-                <span>&bull; Only visible to this user's followers</span>
-                }
-                break;
-            }
-        }
+        <partial name="_VisibilityStatus" />
     </p>
     <p class="text-center">@Model.Description</p>
     @switch (ext)

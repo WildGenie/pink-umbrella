@@ -60,37 +60,37 @@
                         @if (SignInManager.IsSignedIn(User)) 
                         {
                             <li class="nav-item @accountLiClass">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Index">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Index" >
                                     <i class="fa fa-cogs"></i> Account
                                 </a>
                             </li>
                             <li class="nav-item @profileLiClass">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Profile" asp-action="Index">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Profile" asp-action="Index" asp-route-id="@null" >
                                     <i class="far fa-user-circle"></i> Profile
                                 </a>
                             </li>
                             <li class="nav-item @archiveLiClass">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Archive" asp-action="Index">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Archive" asp-action="Index" >
                                     <i class="fas fa-photo-video"></i> Media Archive
                                 </a>
                             </li>
                             <li class="nav-item @inventoryLiClass">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Inventory" asp-action="Index">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Inventory" asp-action="Index" >
                                     <i class="fa fa-boxes"></i> Inventory
                                 </a>
                             </li>
                             <li class="nav-item @civicDutyLiClass">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="CivicDuty" asp-action="Index">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="CivicDuty" asp-action="Index" >
                                     <i class="far fa-handshake"></i> Civic Duty
                                 </a>
                             </li>
                             <li class="nav-item @shopLiClass">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Shop" asp-action="Index">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Shop" asp-action="Index" asp-route-handle="@null">
                                     <i class="fas fa-store"></i> Shop
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout" >
                                     <i class="fa fa-sign-out-alt"></i> Logout
                                 </a>
                             </li>
