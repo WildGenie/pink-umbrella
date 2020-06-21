@@ -16,7 +16,7 @@ namespace PinkUmbrella.Repositories
 
         public static readonly SimpleLinkModel[] CityDataLinks = {
             new SimpleLinkModel() { Url = "data.seattle.gov/City-Business/Discrimination-Case-Settlements-by-Month/qqw9-cbst", Text = "Discrimination Case Settlements" },
-            new SimpleLinkModel() { Url = "data.seattle.gov/Public-Safety/Use-Of-Force/ppi5-g2bj", Text = "Use of Force" },
+            new SimpleLinkModel() { Url = "data.seattle.gov/Public-Safety/Use-Of-Force/ppi5-g2bj", Text = "Use of Force by SPD" },
             new SimpleLinkModel() { Url = "data.seattle.gov/City-Business/-of-City-of-Seattle-Employees-by-Department/5aky-hgur", Text = "Salaries of City of Seattle Employees by Department" },
             new SimpleLinkModel() { Url = "data.seattle.gov/Public-Safety/SPD-Officer-Involved-Shooting-OIS-Data/mg5r-efcm", Text = "SPD Officer Involved Shooting (OIS) Data" },
         };
