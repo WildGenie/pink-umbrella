@@ -33,5 +33,16 @@ namespace PinkUmbrella.Repositories
         public SimpleDbContext(DbContextOptions<SimpleDbContext> options): base(options) {
 
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<ShopModel>()
+                .HasIndex(e => e.Handle).IsUnique();
+
+            modelBuilder.Entity<UserProfileModel>()
+                .HasIndex(e => e.Handle).IsUnique();
+        }
     }
 }

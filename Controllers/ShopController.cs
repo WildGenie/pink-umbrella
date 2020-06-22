@@ -185,5 +185,17 @@ namespace PinkUmbrella.Controllers
                 ViewData["ShopTagsDebugValue"] = debug;
             }
         }
+
+        public async Task<IActionResult> IsHandleUnique([FromQuery(Name="Shop.Handle")] string handle)
+        {
+            if (!string.IsNullOrWhiteSpace(handle))
+            {
+                return Json(!await _shops.HandleExists(handle));
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
     }
 }

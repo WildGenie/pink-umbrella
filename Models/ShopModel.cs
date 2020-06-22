@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using PinkUmbrella.Util;
 
 namespace PinkUmbrella.Models
@@ -19,6 +20,7 @@ namespace PinkUmbrella.Models
         public Visibility Visibility { get; set; } = Visibility.VISIBLE_TO_WORLD;
 
         [Required, StringLength(100), PersonalData, Description("An identifiable handle to easily reference your shop."), InputPlaceHolder("my_shop"), DebugValue("planet_express")]
+        [Remote("IsHandleUnique", "Shop",  HttpMethod = "GET", ErrorMessage = "Handle already in use.")]
         public string Handle { get; set; }
 
         [Required, StringLength(200), PersonalData, DisplayName("Display Name"), Description("The name of your shop displayed to other users."), InputPlaceHolder("My Shop"), DebugValue("Planet Express")]

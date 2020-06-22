@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Text.RegularExpressions;
 using PinkUmbrella.Models;
@@ -29,6 +30,12 @@ namespace PinkUmbrella.Repositories
         public Regex ExtractMentionsRegex { get; } = new Regex(@"@([a-zA-Z0-9_]+)");
 
         public Regex ExtractTagsRegex { get; } = new Regex(@"#([a-zA-Z0-9_]+)");
+
+        public Regex ValidHandleRegex { get; } = new Regex(@"[a-zA-Z0-9_]+");
+
+        public bool ValidEmail(string email) => EmailValidator.IsValid(email);
+
+        private readonly EmailAddressAttribute EmailValidator = new EmailAddressAttribute();
 
         public string StatusCodeMessage(string code)
         {

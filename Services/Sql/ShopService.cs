@@ -218,5 +218,11 @@ namespace PinkUmbrella.Services.Sql
             }
             return null;
         }
+
+        public async Task<bool> HandleExists(string handle)
+        {
+            var shop = await _dbContext.Shops.FirstOrDefaultAsync(u => u.Handle.ToLower() == handle);
+            return shop != null;
+        }
     }
 }

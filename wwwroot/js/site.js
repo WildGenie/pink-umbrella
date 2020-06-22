@@ -75,6 +75,32 @@ $(() => {
         }
     });
 
+    let jsKeypressValidateTimeoutHandle = null;
+    let $jsKeypressValidateTimeoutHandleError = null;
+    $("input.js-keypress-validate").keyup((ev) => {
+        if (jsKeypressValidateTimeoutHandle) {
+            clearTimeout(jsKeypressValidateTimeoutHandle);
+        }
+        if ($jsKeypressValidateTimeoutHandleError) {
+            $jsKeypressValidateTimeoutHandleError.remove();
+            $jsKeypressValidateTimeoutHandleError = null;
+        }
+        jsKeypressValidateTimeoutHandle = setTimeout(() => {
+            if (!ev.target.classList.contains('input-validation-error')) {
+                $.ajax({
+                    url: ev.target.dataset.valRemoteUrl + '?' + ev.target.name + '=' + encodeURIComponent(ev.target.value),
+                    dataType: 'json'
+                }).then(r => {
+                    if (r !== true) {
+                        $jsKeypressValidateTimeoutHandleError = $('<span class="text-danger"></span>');
+                        $jsKeypressValidateTimeoutHandleError.text(ev.target.dataset.valRemote);
+                        $(ev.target).parent().after($jsKeypressValidateTimeoutHandleError);
+                    }
+                });
+            }
+        }, 500);
+    });
+
     let $tagEditor = $('.js-tag-editor');
     if ($tagEditor.length > 0) {
         new TagEditor($tagEditor);

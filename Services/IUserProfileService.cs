@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PinkUmbrella.Models;
 using PinkUmbrella.ViewModels.Account;
 
@@ -13,7 +14,7 @@ namespace PinkUmbrella.Services
 
         Task<UserProfileModel> GetUser(string handle, int? viewerId);
 
-        UserProfileModel CreateUser(RegisterInputModel initial);
+        Task<UserProfileModel> CreateUser(RegisterInputModel initial, ModelStateDictionary modelState);
 
         Task DeleteUser(int id, int by_user_id);
 
@@ -38,5 +39,7 @@ namespace PinkUmbrella.Services
         Task MakeFirstUserDev(UserProfileModel user);
 
         Task<List<GroupAccessCodeModel>> GetUnusedUnexpiredAccessCodes();
+
+        Task<bool> HandleExists(string handle);
     }
 }

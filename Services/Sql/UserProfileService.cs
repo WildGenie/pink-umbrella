@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using PinkUmbrella.Models;
 using PinkUmbrella.Repositories;
 using PinkUmbrella.ViewModels.Account;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace PinkUmbrella.Services.Sql
 {
@@ -16,33 +17,60 @@ namespace PinkUmbrella.Services.Sql
         private readonly UserManager<UserProfileModel> _userManager;
         private readonly RoleManager<UserGroupModel> _roleManager;
         private readonly SimpleDbContext _dbContext;
+        private readonly StringRepository _strings;
 
         public UserProfileService(
                 UserManager<UserProfileModel> userManager,
                 SignInManager<UserProfileModel> signInManager,
                 RoleManager<UserGroupModel> roleManager,
-                SimpleDbContext dbContext
+                SimpleDbContext dbContext,
+                StringRepository strings
                 ) {
                     _userManager = userManager;
                     _signInManager = signInManager;
                     _roleManager = roleManager;
                     _dbContext = dbContext;
+                    _strings = strings;
                 }
 
-        public UserProfileModel CreateUser(RegisterInputModel input)
+        public async Task<UserProfileModel> CreateUser(RegisterInputModel input, ModelStateDictionary modelState)
         {
-            return new UserProfileModel {
-                UserName = input.Email,
-                Email = input.Email,
-                Handle = input.Handle,
-                DisplayName = input.DisplayName,
-                WhenCreated = DateTime.UtcNow,
-                Bio = "Hey, I'm " + input.DisplayName,
-                Visibility = Visibility.VISIBLE_TO_WORLD,
-                BioVisibility = Visibility.VISIBLE_TO_WORLD,
-                WhenLastLoggedInVisibility = Visibility.VISIBLE_TO_WORLD,
-                WhenLastOnlineVisibility = Visibility.VISIBLE_TO_WORLD,
-            };
+            if (string.IsNullOrWhiteSpace(input.Email))
+            {
+                modelState.AddModelError(nameof(input.Email), "Email is empty");
+            }
+            else if (!_strings.ValidEmail(input.Email))
+            {
+                modelState.AddModelError(nameof(input.Email), "Email is invalid");
+            }
+            else if (string.IsNullOrWhiteSpace(input.Handle))
+            {
+                modelState.AddModelError(nameof(input.Handle), "Handle is empty");
+            }
+            else if (!_strings.ValidHandleRegex.IsMatch(input.Handle))
+            {
+                modelState.AddModelError(nameof(input.Handle), "Handle is invalid");
+            }
+            else if (await HandleExists(input.Handle))
+            {
+                modelState.AddModelError(nameof(input.Handle), "Handle already used");
+            }
+            else
+            {
+                return new UserProfileModel {
+                    UserName = input.Email,
+                    Email = input.Email,
+                    Handle = input.Handle,
+                    DisplayName = input.DisplayName,
+                    WhenCreated = DateTime.UtcNow,
+                    Bio = "Hey, I'm " + input.DisplayName,
+                    Visibility = Visibility.VISIBLE_TO_WORLD,
+                    BioVisibility = Visibility.VISIBLE_TO_WORLD,
+                    WhenLastLoggedInVisibility = Visibility.VISIBLE_TO_WORLD,
+                    WhenLastOnlineVisibility = Visibility.VISIBLE_TO_WORLD,
+                };
+            }
+            return null;
         }
 
         public async Task DeleteUser(int id, int by_user_id)
@@ -244,6 +272,12 @@ namespace PinkUmbrella.Services.Sql
         {
             var now = DateTime.UtcNow;
             return await _dbContext.GroupAccessCodes.Where(c => c.WhenConsumed == null && c.WhenExpires < now).ToListAsync();
+        }
+
+        public async Task<bool> HandleExists(string handle)
+        {
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Handle.ToLower() == handle);
+            return user != null;
         }
     }
 }

@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 
 namespace PinkUmbrella.Models
 {
@@ -35,7 +36,9 @@ namespace PinkUmbrella.Models
         [PersonalData, DisplayName("When Last Online Visibility"), DefaultValue(Visibility.VISIBLE_TO_WORLD), Description("Visibility of when you last connected to other users.")]
         public Visibility WhenLastOnlineVisibility { get; set; }
 
-        [PersonalData, StringLength(30), Required, Description("An identifiable handle to easily reference your profile.")]
+        [PersonalData, StringLength(30, MinimumLength = 3), Required, Description("An identifiable handle to easily reference your profile.")]
+        [Remote("IsHandleUnique", "Account",  HttpMethod = "GET", ErrorMessage = "Handle already in use.")]
+        [RegularExpression(@"[a-zA-Z0-9_]{3,30}", ErrorMessage = "Handle must be between 3 and 30 characters, and only contain letters, numbers, and underscores.")]
         public string Handle { get; set; }
 
         [PersonalData, DisplayName("Display Name"), StringLength(50), Required, Description("The name displayed to other users.")]

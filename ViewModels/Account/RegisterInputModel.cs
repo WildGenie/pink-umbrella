@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using PinkUmbrella.Util;
 
 namespace PinkUmbrella.ViewModels.Account
@@ -40,6 +41,8 @@ namespace PinkUmbrella.ViewModels.Account
         [StringLength(30, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 3)]
         [DataType(DataType.Text), Display(Name = "Handle"), InputPlaceHolder("your_name"), DebugValue("test_acct")]
         [Description("An identifiable handle to easily reference your profile")]
+        [Remote("IsHandleUnique", "Account",  HttpMethod = "GET", ErrorMessage = "Handle already in use.")]
+        [RegularExpression(@"[a-zA-Z0-9_]+")]
         public string Handle { get; set; }
     }
 }

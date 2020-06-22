@@ -28,5 +28,7 @@ namespace PinkUmbrella.Services
         Task<ArgumentException> TryCreateShop(ShopModel shop);
 
         Task<List<ShopModel>> GetShopsTaggedUnder(TagModel tag, int? viewerId);
+
+        Task<bool> HandleExists(string handle);
     }
 }

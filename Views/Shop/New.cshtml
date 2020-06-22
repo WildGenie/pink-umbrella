@@ -22,7 +22,7 @@
     <div class="form-group">
         <label asp-for="Shop.Handle"></label>
         <small>@Model.Shop.GetPropertyDescription(nameof(Model.Shop.Handle))</small>
-        <input asp-for="Shop.Handle" class="form-control"  placeholder="@Model.Shop.GetPropertyPlaceHolder(nameof(Model.Shop.Handle))" data-debug-value="@Model.Shop.GetDebugValue(nameof(Model.Shop.Handle))" />
+        <input asp-for="Shop.Handle" class="form-control js-keypress-validate" placeholder="@Model.Shop.GetPropertyPlaceHolder(nameof(Model.Shop.Handle))" data-debug-value="@Model.Shop.GetDebugValue(nameof(Model.Shop.Handle))" autocomplete="off" />
         <span asp-validation-for="Shop.Handle" class="text-danger"></span>
     </div>
     <div class="form-group">

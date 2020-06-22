@@ -370,53 +370,56 @@ namespace PinkUmbrella.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Register(string returnUrl, [Bind] RegisterInputModel input)
         {
-            ViewData["Controller"] = "Account";
-            ViewData["Action"] = nameof(Register);
             returnUrl = returnUrl ?? Url.Content("~/");
             if (ModelState.IsValid)
             {
-                var user = _userProfiles.CreateUser(input);
-                var result = await _userManager.CreateAsync(user, input.Password);
-                if (result.Succeeded)
+                var user = await _userProfiles.CreateUser(input, ModelState);
+                if (ModelState.IsValid)
                 {
-                    await _userProfiles.MakeFirstUserDev(user);
-
-                    // await eventLog.Log(user.Id, EventNames.Account.Register.Success, null);
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    if (_environment.IsProduction())
+                    var result = await _userManager.CreateAsync(user, input.Password);
+                    if (result.Succeeded)
                     {
-                        var callbackUrl = Url.Page(
-                            "/Account/ConfirmEmail",
-                            pageHandler: null,
-                            values: new { userId = user.Id, code = code },
-                            protocol: Request.Scheme);
+                        await _userProfiles.MakeFirstUserDev(user);
 
-                        // TODO: replace with View() of email
-                        //await _emailSender.SendEmailAsync(input.Email, "PinkUmbrella: Confirm your email",
-                        //$"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-                    }
-                    else
-                    {
-                        var result2 = await _userManager.ConfirmEmailAsync(user, code);
-                        if (!result2.Succeeded)
+                        // await eventLog.Log(user.Id, EventNames.Account.Register.Success, null);
+                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                        if (_environment.IsProduction())
                         {
-                            //AddErrors(result2);
-                            return View("ConfirmEmail");
-                        }
-                    }
+                            var callbackUrl = Url.Page(
+                                "/Account/ConfirmEmail",
+                                pageHandler: null,
+                                values: new { userId = user.Id, code = code },
+                                protocol: Request.Scheme);
 
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return LocalRedirect(returnUrl);
-                }
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                            // TODO: replace with View() of email
+                            //await _emailSender.SendEmailAsync(input.Email, "PinkUmbrella: Confirm your email",
+                            //$"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                        }
+                        else
+                        {
+                            var result2 = await _userManager.ConfirmEmailAsync(user, code);
+                            if (!result2.Succeeded)
+                            {
+                                //AddErrors(result2);
+                                return View("ConfirmEmail");
+                            }
+                        }
+
+                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        return LocalRedirect(returnUrl);
+                    }
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
                 }
             }
 
             // await eventLog.Log(-1, EventNames.Account.Register.Error, null);
             // If we got this far, something failed, redisplay form
             ViewData["ReturnUrl"] = returnUrl;
+            ViewData["Controller"] = "Account";
+            ViewData["Action"] = nameof(Register);
             return View(new RegisterViewModel() {
                 ReturnUrl = returnUrl,
                 Input = input,
@@ -487,6 +490,10 @@ namespace PinkUmbrella.Controllers
         public async Task<IActionResult> UpdateProfile([Bind] UserProfileModel MyProfile)
         {
             var user = await GetCurrentUserAsync();
+            if (MyProfile.Handle != user.Handle && await _userProfiles.HandleExists(MyProfile.Handle))
+            {
+                return BadRequest("Handle already in use");
+            }
             user.DisplayName = MyProfile.DisplayName;
             user.Handle = MyProfile.Handle;
             user.Bio = MyProfile.Bio;
@@ -520,6 +527,28 @@ namespace PinkUmbrella.Controllers
             }
             
             return NotFound();
+        }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> IsHandleUnique([FromQuery(Name="MyProfile.Handle")] string handle_1, [FromQuery(Name="Input.Handle")] string handle_2)
+        {
+            var handle = handle_1 ?? handle_2;
+            if (!string.IsNullOrWhiteSpace(handle))
+            {
+                var user = await GetCurrentUserAsync();
+                if (user?.Handle == handle)
+                {
+                    return Json(true);
+                }
+                else
+                {
+                    return Json(!await _userProfiles.HandleExists(handle));
+                }
+            }
+            else
+            {
+                return NotFound();
+            }
         }
     }
 }
