@@ -22,6 +22,8 @@ namespace PinkUmbrella.Repositories
 
         public string BetaMsg => "This is the beta version.";
 
+        public string InDevelopmentMsg => "This site is still being developed and may change or break.";
+
         public string CityState => "Seattle, WA";
 
         public string PasswordPlaceholder => "***************";

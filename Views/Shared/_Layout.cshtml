@@ -1,27 +1,6 @@
-﻿@using Microsoft.AspNetCore.Identity
-@using Microsoft.AspNetCore.Hosting
+﻿@using Microsoft.AspNetCore.Hosting
 @using Microsoft.Extensions.Hosting
 @inject IWebHostEnvironment _environment
-@inject SignInManager<UserProfileModel> SignInManager
-@inject UserManager<UserProfileModel> UserManager
-@inject INotificationService _notifications
-@model PinkUmbrella.ViewModels.BaseViewModel
-@{
-    var controllerName = (string) ViewData["Controller"];
-    var actionName = (string) ViewData["Action"];
-    var accountLiClass = controllerName == "Account" ? "selected" : "";
-    var searchLiClass = controllerName == "Home" && actionName == "Search" ? "selected" : "";
-    var profileLiClass = controllerName == "Profile" ? "selected" : "";
-    var archiveLiClass = controllerName == "Archive" ? "selected" : "";
-    var inventoryLiClass = controllerName == "Inventory" ? "selected" : "";
-    var civicDutyLiClass = controllerName == "CivicDuty" ? "selected" : "";
-    var shopLiClass = controllerName == "Shop" ? "selected" : "";
-    var debugLiClass = controllerName == "Developer" ? "selected" : "";
-    var privacyLiClass = controllerName == "Home" && actionName == "Privacy" ? "selected" : "";
-    var aboutLiClass = controllerName == "Home" && actionName == "About" ? "selected" : "";
-
-    var unviewedNotificationsCount = Model?.MyProfile != null ? await _notifications.GetUnviewedNotificationsCount(Model.MyProfile.Id) : 0;
-}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -36,7 +15,7 @@
     }
     else
     {
-    <title>Beta - @ViewData["Title"] - @_strings.SiteName</title>
+    <title>@ViewData["Title"] - @_strings.SiteName - Beta</title>
     }
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
@@ -46,82 +25,7 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/black-tie/jquery-ui.css" crossorigin="anonymous" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index"><i class="fa fa-umbrella accent-color"></i> @_strings.SiteName @if (!_environment.IsProduction()) { <i class="fas fa-robot" title="@_strings.BetaMsg"></i> }</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <ul class="navbar-nav flex-grow-1 highlight-selected">
-                        <li class="nav-item @searchLiClass">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Search">
-                                <i class="fa fa-search"></i> Search
-                            </a>
-                        </li>
-                        @if (SignInManager.IsSignedIn(User)) 
-                        {
-                            <li class="nav-item @accountLiClass">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Index" >
-                                    <i class="fa fa-cogs"></i> Account
-                                </a>
-                            </li>
-                            <li class="nav-item @profileLiClass">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Profile" asp-action="Index" asp-route-id="@null" >
-                                    <i class="far fa-user-circle"></i> Profile
-                                </a>
-                            </li>
-                            <li class="nav-item @archiveLiClass">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Archive" asp-action="Index" >
-                                    <i class="fas fa-photo-video"></i> Media Archive
-                                </a>
-                            </li>
-                            <li class="nav-item @inventoryLiClass">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Inventory" asp-action="Index" >
-                                    <i class="fa fa-boxes"></i> Inventory
-                                </a>
-                            </li>
-                            <li class="nav-item @civicDutyLiClass">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="CivicDuty" asp-action="Index" >
-                                    <i class="far fa-handshake"></i> Civic Duty
-                                </a>
-                            </li>
-                            <li class="nav-item @shopLiClass">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Shop" asp-action="Index" asp-route-handle="@null">
-                                    <i class="fas fa-store"></i> Shop
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout" >
-                                    <i class="fa fa-sign-out-alt"></i> Logout
-                                </a>
-                            </li>
-                            <li class="nav-item @(unviewedNotificationsCount > 0 ? "selected" : "")">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Notifications" >
-                                    <i class="fa fa-bell"></i> @_strings.CountRound(unviewedNotificationsCount)
-                                </a>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item @accountLiClass">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">
-                                    <i class="fas fa-sign-in-alt"></i> Register or Login
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Search" asp-route-t="@SearchResultType.Shop">
-                                    <i class="fas fa-store"></i> Shop
-                                </a>
-                            </li>
-                        }
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
+    <partial name="_LayoutHeader" />
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()

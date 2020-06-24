@@ -321,7 +321,7 @@ namespace PinkUmbrella.Services.Sql
         public async Task<FeedModel> GetPostsForUser(int userId, int? viewerId, bool includeReplies, PaginationModel pagination)
         {
             var posts = _dbContext.Posts.Where(p => p.UserId == userId && p.IsReply == includeReplies);
-            var paginated = await posts.OrderByDescending(p => p.WhenCreated).ToListAsync();
+            var paginated = await posts.OrderByDescending(p => p.Id).ToListAsync();
             var keepers = new List<PostModel>();
             foreach (var p in posts) {
                 await BindReferences(p, viewerId);
