@@ -20,7 +20,7 @@
     var privacyLiClass = controllerName == "Home" && actionName == "Privacy" ? "selected" : "";
     var aboutLiClass = controllerName == "Home" && actionName == "About" ? "selected" : "";
 
-    var unviewedNotificationsCount = await _notifications.GetUnviewedNotificationsCount(Model.MyProfile.Id);
+    var unviewedNotificationsCount = Model?.MyProfile != null ? await _notifications.GetUnviewedNotificationsCount(Model.MyProfile.Id) : 0;
 }
 <!DOCTYPE html>
 <html lang="en">
