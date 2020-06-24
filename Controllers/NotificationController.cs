@@ -30,8 +30,6 @@ namespace PinkUmbrella.Controllers
 
         public async Task<IActionResult> ViewedSince(int id)
         {
-            ViewData["Controller"] = "Tag";
-            ViewData["Action"] = nameof(Index);
             var user = await GetCurrentUserAsync();
             await _notifications.ViewedSince(user.Id, id);
             return Ok();
@@ -39,8 +37,6 @@ namespace PinkUmbrella.Controllers
 
         public async Task<IActionResult> DismissSince(int id)
         {
-            ViewData["Controller"] = "Tag";
-            ViewData["Action"] = nameof(Index);
             var user = await GetCurrentUserAsync();
             await _notifications.DismissSince(user.Id, id);
             return Ok();
@@ -48,8 +44,6 @@ namespace PinkUmbrella.Controllers
 
         public async Task<IActionResult> Dismissed(int id)
         {
-            ViewData["Controller"] = "Tag";
-            ViewData["Action"] = nameof(Index);
             var user = await GetCurrentUserAsync();
             await _notifications.Dismiss(user.Id, id);
             return Ok();

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using PinkUmbrella.Models;
 using PinkUmbrella.Services;
+using PinkUmbrella.ViewModels;
 
 namespace PinkUmbrella.Controllers
 {
@@ -24,11 +25,13 @@ namespace PinkUmbrella.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             ViewData["Controller"] = "CivicDuty";
             ViewData["Action"] = nameof(Index);
-            return View();
+            return View(new BaseViewModel() {
+                MyProfile = await GetCurrentUserAsync()
+            });
         }
     }
 }

@@ -57,6 +57,7 @@ namespace PinkUmbrella.Controllers
                         shopsByCategory[category.Tag.Id] = await _shops.GetShopsTaggedUnder(category.Tag, user?.Id);
                     }
                     var model = new IndexViewModel() {
+                        MyProfile = user,
                         ShopsByCategory = shopsByCategory,
                         Categories = topTags
                     };
@@ -68,6 +69,7 @@ namespace PinkUmbrella.Controllers
                     if (allShops.Count > 0)
                     {
                         var model = new IndexViewModel() {
+                            MyProfile = user,
                             ShopsList = allShops
                         };
                         return View(model);

@@ -112,6 +112,7 @@ namespace PinkUmbrella.Controllers
                 return RedirectToAction(nameof(Index), new { Id = Resource.InventoryId, Selected = Resource.Id });
             } else {
                 return View(new NewResourceViewModel() {
+                    MyProfile = user,
                     Resource = Resource,
                     AvailableBrands = await _resources.GetBrands(),
                     AvailableCategories = await _resources.GetCategories(),
@@ -130,7 +131,10 @@ namespace PinkUmbrella.Controllers
         public async Task<IActionResult> NewInventory()
         {
             var user = await GetCurrentUserAsync();
-            return View(new SimpleInventoryModel());
+            return View(new NewInventoryViewModel() {
+                MyProfile = user,
+                Inventory = new SimpleInventoryModel()
+            });
         }
 
         [HttpPost, Authorize]
@@ -143,7 +147,10 @@ namespace PinkUmbrella.Controllers
             if (result != null) {
                 return RedirectToAction(nameof(Inventory), new { Id = Inventory.Id });
             } else {
-                return View(Inventory);   
+                return View(new NewInventoryViewModel() {
+                    MyProfile = user,
+                    Inventory = Inventory
+                });
             }
         }
 
