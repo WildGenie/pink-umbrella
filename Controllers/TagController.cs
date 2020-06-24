@@ -22,8 +22,8 @@ namespace PinkUmbrella.Controllers
 
         public TagController(IWebHostEnvironment environment, ILogger<ShopController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IShopService shops,
-            IReactionService reactions, ITagService tags):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags)
+            IReactionService reactions, ITagService tags, INotificationService notifications):
+            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications)
         {
             _logger = logger;
             _shops = shops;

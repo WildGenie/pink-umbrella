@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PinkUmbrella.Models;
+using PinkUmbrella.Models.AhPushIt;
 using PinkUmbrella.Repositories;
 
 namespace PinkUmbrella.Services.Sql
@@ -15,13 +16,15 @@ namespace PinkUmbrella.Services.Sql
         private readonly StringRepository _strings;
         private readonly IUserProfileService _users;
         private readonly ITagService _tags;
+        private readonly INotificationService _notifications;
 
-        public PostService(SimpleDbContext dbContext, StringRepository strings, IUserProfileService users, ITagService tags)
+        public PostService(SimpleDbContext dbContext, StringRepository strings, IUserProfileService users, ITagService tags, INotificationService notifications)
         {
             _dbContext = dbContext;
             _strings = strings;
             _users = users;
             _tags = tags;
+            _notifications = notifications;
         }
 
         public async Task<NewPostResult> TryCreatePosts(List<PostModel> post_chain)
@@ -75,11 +78,68 @@ namespace PinkUmbrella.Services.Sql
             if (postInsertChanges)
             {
                 await _dbContext.SaveChangesAsync();
+
+                await SendOutNotifications(post);
             }
 
             return new NewPostResult() {
                 Error = false
             };
+        }
+
+        private async Task SendOutNotifications(PostModel post)
+        {
+            if (post.PostType == PostType.Text)
+            {
+                await SendOutNotificationsToTagFollowers(post);
+                await SendOutNotificationsToPosterFollowers(post);
+                await SendOutNotificationsToMentioned(post);
+            }
+        }
+
+        private async Task SendOutNotificationsToTagFollowers(PostModel post)
+        {
+            var tagIds = post.Tags.Select(t => t.Id).ToArray();
+            var tagFollowers = await _dbContext.FollowingPostTags.Where(f => tagIds.Contains(f.TagId)).Select(u => u.UserId).Distinct().ToArrayAsync();
+            if (tagFollowers.Length > 0)
+            {
+                await _notifications.Publish(new Models.AhPushIt.Notification() {
+                    FromUserId = post.UserId,
+                    SubjectId = post.Id,
+                    Priority = NotificationPriority.Normal,
+                    Subject = ReactionSubject.Post,
+                    Type = NotificationType.TEXT_POST_FOLLOWED_TAG,
+                }, tagFollowers);
+            }
+        }
+
+        private async Task SendOutNotificationsToPosterFollowers(PostModel post)
+        {
+            var followers = await _users.GetFollowers(post.UserId, post.UserId);
+            if (followers.Count > 0)
+            {
+                await _notifications.Publish(new Models.AhPushIt.Notification() {
+                    FromUserId = post.UserId,
+                    SubjectId = post.Id,
+                    Priority = NotificationPriority.Normal,
+                    Subject = ReactionSubject.Post,
+                    Type = NotificationType.TEXT_POST_FOLLOWED_USER,
+                }, followers.Select(u => u.Id).ToArray());
+            }
+        }
+
+        private async Task SendOutNotificationsToMentioned(PostModel post)
+        {
+            if (post.Mentions.Count > 0)
+            {
+                await _notifications.Publish(new Models.AhPushIt.Notification() {
+                    FromUserId = post.UserId,
+                    SubjectId = post.Id,
+                    Priority = NotificationPriority.Normal,
+                    Subject = ReactionSubject.Post,
+                    Type = NotificationType.TEXT_POST_MENTION,
+                }, post.Mentions.Select(u => u.MentionedUserId).ToArray());
+            }
         }
 
         public Task<NewPostResult> TryCreateTextPosts(int userId, string[] post_chain, Visibility visibility)

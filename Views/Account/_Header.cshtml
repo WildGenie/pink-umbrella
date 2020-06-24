@@ -3,6 +3,7 @@
     var detailsLiClass = actionName == "Index" ? "selected" : "";
     var personalDataLiClass = (actionName == "PersonalData" || actionName == "Delete") ? "selected" : "";
     var changePassLiClass = actionName == "ChangePassword" ? "selected" : "";
+    var notificationSettingsLiClass = actionName == "NotificationSettings" ? "selected" : "";
 }
 <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
     <div class="container">
@@ -17,6 +18,9 @@
                 </li>
                 <li class="nav-item @changePassLiClass">
                     <a class="nav-link text-dark" asp-controller="Account" asp-action="ChangePassword"><u>Change Password</u></a>
+                </li>
+                <li class="nav-item @notificationSettingsLiClass">
+                    <a class="nav-link text-dark" asp-controller="Account" asp-action="NotificationSettings"><u>Notification Settings</u></a>
                 </li>
             </ul>
         </div>

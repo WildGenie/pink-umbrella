@@ -1,0 +1,47 @@
+﻿@using Microsoft.AspNetCore.Http.Features
+@using PinkUmbrella.Services;
+@using PinkUmbrella.Models.AhPushIt;
+@model PinkUmbrella.ViewModels.Account.NotificationSettingsViewModel
+@{
+    ViewData["Title"] = "Notification Settings";
+    var methods = Enum.GetValues(typeof(NotificationMethod)).Cast<NotificationMethod>();
+    var types = Enum.GetValues(typeof(NotificationType)).Cast<NotificationType>();
+    var settingsGroupedByType = Model.Settings.Where(s => s.Enabled).GroupBy(g => g.Type).ToDictionary(k => k.Key, v => v.Select(m => m.Method).ToHashSet());
+}
+<partial name="_Header" />
+@using (Html.BeginForm("NotificationSettings", "Account", null, FormMethod.Post, true, null))
+{
+    <div class="float-right" style="display: grid; grid-template-columns: max-content; grid-gap: .5rem;">
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+        @foreach (var method in methods)
+        {
+            <button type="submit" name="submit" value="@method" class="btn btn-warning"><i class="fas fa-undo"></i> All @method</button>
+        }
+    </div>
+    <div style="display: grid; grid-template-columns: 3fr repeat(4, 1fr);  grid-gap: .5rem; justify-items: center">
+    @foreach (var setting in types)
+    {
+        <b>@setting.GetDisplayName()</b>
+        @foreach (var method in methods)
+        {
+            var name = $"{setting}-{method}";
+            var id = $"cb_{method}_{setting}";
+            <div class="form-check form-check-inline">
+                @if (settingsGroupedByType[setting].Contains(method))
+                {
+                    <input data-notif-type="@setting" data-notif-method="@method" class="form-check-input" type="checkbox" id="@id" name="enabledTypeMethods" value="@name" checked autocomplete="off">
+                }
+                else
+                {
+                    <input data-notif-type="@setting" data-notif-method="@method" class="form-check-input" type="checkbox" id="@id" name="enabledTypeMethods" value="@name" autocomplete="off">
+                }
+                <label class="form-check-label" for="@id">@method</label>
+            </div>
+        }
+    }
+    </div>
+}
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/notification-settings.js" asp-append-version="true"></script>
+}

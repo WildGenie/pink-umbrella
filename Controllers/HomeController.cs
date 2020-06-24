@@ -27,8 +27,8 @@ namespace PinkUmbrella.Controllers
 
         public HomeController(IWebHostEnvironment environment, ILogger<HomeController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService postService, IUserProfileService userProfiles, ISearchService searchService,
-            IReactionService reactions, IFeedService feedService, ITagService tags):
-            base(environment, signInManager, userManager, postService, userProfiles, reactions, tags)
+            IReactionService reactions, IFeedService feedService, ITagService tags, INotificationService notifications):
+            base(environment, signInManager, userManager, postService, userProfiles, reactions, tags, notifications)
         {
             _logger = logger;
             _searchService = searchService;
@@ -95,22 +95,6 @@ namespace PinkUmbrella.Controllers
             };
             return View(nameof(Index), model);
         }
-
-        [Route("/Privacy")]
-        public IActionResult Privacy()
-        {
-            ViewData["Controller"] = "Home";
-            ViewData["Action"] = nameof(Privacy);
-            return View(new PrivacyViewModel());
-        }
-
-        [Route("/About")]
-        public IActionResult About()
-        {
-            ViewData["Controller"] = "Home";
-            ViewData["Action"] = nameof(About);
-            return View();
-        }
         
         [Route("/Search")]
         public async Task<IActionResult> Search(string q, SearchResultOrder order = SearchResultOrder.Top,
@@ -132,11 +116,59 @@ namespace PinkUmbrella.Controllers
             });
         }
 
+        [Authorize, HttpGet]
+        public async Task<IActionResult> Notifications(int? sinceId = null, bool includeViewed = true, bool includeDismissed = false, PaginationModel pagination = null)
+        {
+            ViewData["Controller"] = "Home";
+            ViewData["Action"] = nameof(Notifications);
+            var user = await GetCurrentUserAsync();
+            var notifs = await _notifications.GetNotifications(user.Id, sinceId, includeViewed, includeDismissed, pagination ?? new PaginationModel());
+
+            var fromUsers = new Dictionary<int, UserProfileModel>();
+            foreach (var notif in notifs.Items)
+            {
+                if (fromUsers.TryGetValue(notif.Notif.FromUserId, out var userProfile))
+                {
+                    notif.FromUser = userProfile;
+                }
+                else
+                {
+                    notif.FromUser = await _userManager.FindByIdAsync(notif.Notif.FromUserId.ToString());
+                    fromUsers.Add(notif.Notif.FromUserId, notif.FromUser);
+                }
+            }
+
+            return View(new NotificationsViewModel()
+            {
+                MyProfile = user,
+                Items = notifs,
+                SinceId = sinceId,
+                IncludeViewed = includeViewed,
+                IncludeDismissed = includeDismissed,
+            });
+        }
+
         [Route("/Links")]
         public IActionResult Links()
         {
             ViewData["Controller"] = "Home";
             ViewData["Action"] = nameof(Links);
+            return View();
+        }
+
+        [Route("/Privacy")]
+        public IActionResult Privacy()
+        {
+            ViewData["Controller"] = "Home";
+            ViewData["Action"] = nameof(Privacy);
+            return View(new PrivacyViewModel());
+        }
+
+        [Route("/About")]
+        public IActionResult About()
+        {
+            ViewData["Controller"] = "Home";
+            ViewData["Action"] = nameof(About);
             return View();
         }
 

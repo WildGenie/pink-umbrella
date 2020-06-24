@@ -17,8 +17,9 @@ namespace PinkUmbrella.Controllers
         private readonly ILogger<CivicDutyController> _logger;
 
         public CivicDutyController(IWebHostEnvironment environment, ILogger<CivicDutyController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IReactionService reactions, ITagService tags):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags)
+            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IReactionService reactions, ITagService tags,
+            INotificationService notifications):
+            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications)
         {
             _logger = logger;
         }

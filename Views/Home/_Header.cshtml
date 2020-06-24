@@ -1,0 +1,33 @@
+﻿@{
+    var actionName = (string) ViewData["Action"];
+    var followingLiClass = actionName == "Index" ? "selected" : "";
+    var mentionsLiClass = actionName == "Mentions" ? "selected" : "";
+    var yourPostsLiClass = actionName == "MyPosts" ? "selected" : "";
+    var notificationsLiClass = actionName == "Notifications" ? "selected" : "";
+}
+@model PinkUmbrella.ViewModels.BaseViewModel
+<div class="text-center">
+    <partial name="_Covid19" />
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <div class="container">
+            <h1>Hello, @Model.MyProfile.DisplayName</h1>
+            <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                <ul class="navbar-nav flex-grow-1 highlight-selected">
+                    <li class="nav-item @followingLiClass">
+                        <a class="nav-link text-dark" asp-controller="Home" asp-action="Index"><u>Following</u></a>
+                    </li>
+                    <li class="nav-item @mentionsLiClass">
+                        <a class="nav-link text-dark" asp-controller="Home" asp-action="Mentions"><u>Mentions</u></a>
+                    </li>
+                    <li class="nav-item @yourPostsLiClass">
+                        <a class="nav-link text-dark" asp-controller="Home" asp-action="MyPosts"><u>Your Posts</u></a>
+                    </li>
+                    <li class="nav-item my-2"><span class="px-1">&nbsp;&nbsp;</span><span class="border-left border-dark">&nbsp;</span><span class="px-1">&nbsp;</span></li>
+                    <li class="nav-item @notificationsLiClass">
+                        <a class="nav-link text-dark" asp-controller="Home" asp-action="Notifications"><u>Notifications</u></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>

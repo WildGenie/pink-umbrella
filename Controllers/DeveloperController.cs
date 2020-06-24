@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using PinkUmbrella.Models;
 using PinkUmbrella.Services;
 using PinkUmbrella.ViewModels.Developer;
+using PinkUmbrella.Models.AhPushIt;
 
 namespace PinkUmbrella.Controllers
 {
@@ -22,8 +23,8 @@ namespace PinkUmbrella.Controllers
 
         public DeveloperController(IWebHostEnvironment environment, ILogger<DeveloperController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IDebugService debugService,
-            RoleManager<UserGroupModel> roleManager, IReactionService reactions, ITagService tags):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags)
+            RoleManager<UserGroupModel> roleManager, IReactionService reactions, ITagService tags, INotificationService notifications):
+            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications)
         {
             _logger = logger;
             _debugService = debugService;
@@ -158,6 +159,57 @@ namespace PinkUmbrella.Controllers
                     var code = await _userProfiles.NewGroupAccessCode(user.Id, toUserId, group);
                     return Content($"You have given {toUserId} access to {group}. The link is\n<a href=\"/AddMeToGroup/{code.Code}\">{code.Code}</a>");
                 }
+            }
+            
+            return Redirect("/Error/404");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SendNotification(int postId, string group)
+        {
+            var user = await GetCurrentUserAsync();
+            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "dev"))
+            {
+                int[] recipients = null;
+                if (group == "*")
+                {
+                    recipients = _userManager.Users.Select(u => u.Id).ToArray();
+                }
+                else if (await _roleManager.RoleExistsAsync(group))
+                {
+                    recipients = (await _userManager.GetUsersInRoleAsync(group)).Select(u => u.Id).ToArray();
+                }
+
+                await _notifications.Publish(new Notification() {
+                    FromUserId = user.Id,
+                    Priority = NotificationPriority.Normal,
+                    Type = NotificationType.DIRECT_NOTIFICATION,
+                    Subject = ReactionSubject.Post,
+                    SubjectId = postId,
+                }, recipients);
+                return Content($"You have sent {postId} to {group} ({recipients.Length} recipients). ");
+            }
+            
+            return Redirect("/Error/404");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> NotificationsForUser(int userId, int? sinceId = null, bool includeViewed = true, bool includeDismissed = false, PaginationModel pagination = null)
+        {
+            var user = await GetCurrentUserAsync();
+            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "dev"))
+            {
+                ViewData["Controller"] = "Account";
+                ViewData["Action"] = nameof(NotificationsForUser);
+
+                return View(new NotificationsViewModel()
+                {
+                    MyProfile = user,
+                    Items = await _notifications.GetNotifications(userId, sinceId, includeViewed, includeDismissed, pagination ?? new PaginationModel()),
+                    SinceId = sinceId,
+                    IncludeViewed = includeViewed,
+                    IncludeDismissed = includeDismissed,
+                });
             }
             
             return Redirect("/Error/404");

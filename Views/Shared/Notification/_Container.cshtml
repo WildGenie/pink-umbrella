@@ -1,0 +1,43 @@
+﻿@using PinkUmbrella.Models.AhPushIt
+@model PinkUmbrella.Models.AhPushIt.UserNotification
+@{
+    var cclass = "";
+    switch (Model.Notif.Priority)
+    {
+        case NotificationPriority.Critical:
+        cclass += "bg-danger";
+        break;
+        case NotificationPriority.High:
+        cclass += "bg-warning";
+        break;
+    }
+}
+<div class="js-notification-container notification-container contains-goto @cclass">
+    @switch (Model.Notif.Subject)
+    {
+        case ReactionSubject.Post:
+        <a class="goto" asp-action="Index" asp-controller="Post" asp-route-id="@Model.Notif.SubjectId">goto</a>
+        break;
+        case ReactionSubject.Profile:
+        <a class="goto" asp-action="Index" asp-controller="Profile" asp-route-id="@Model.Notif.SubjectId">goto</a>
+        break;
+        case ReactionSubject.ArchivedMedia:
+        <a class="goto" asp-action="Index" asp-controller="Archive" asp-route-id="@Model.Notif.SubjectId">goto</a>
+        break;
+        case ReactionSubject.Shop:
+        <a class="goto" asp-action="Index" asp-controller="Shop" asp-route-id="@Model.Notif.SubjectId">goto</a>
+        break;
+        default:
+            <ul>
+                <li><b>Subject:</b> @Model.Notif.Subject</li>
+                <li><b>Subject Id:</b> @Model.Notif.SubjectId</li>
+            </ul>
+        break;
+    }
+    <div class="contains-ajax js-notification--dismiss float-right" title="Dismiss">
+        <i class="fas fa-times"></i>
+        <a class="ajax" asp-action="Dismissed" asp-controller="Notification" asp-route-id="@Model.User.Id" data-response-handler="notification-dismiss">ajax</a>
+    </div>
+    <partial name="_Timestamp" model="Model.Notif.WhenCreated" />
+    <partial name="Notification/@(Model.Notif.Type)" />
+</div>

@@ -21,8 +21,9 @@ namespace PinkUmbrella.Controllers
         private readonly ILogger<ReactionController> _logger;
 
         public ReactionController(IWebHostEnvironment environment, ILogger<ReactionController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles,IReactionService reactions, ITagService tags):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags)
+            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles,IReactionService reactions, ITagService tags,
+            INotificationService notifications):
+            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications)
         {
             _logger = logger;
         }

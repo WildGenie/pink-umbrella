@@ -4,6 +4,8 @@
 @inject IWebHostEnvironment _environment
 @inject SignInManager<UserProfileModel> SignInManager
 @inject UserManager<UserProfileModel> UserManager
+@inject INotificationService _notifications
+@model PinkUmbrella.ViewModels.BaseViewModel
 @{
     var controllerName = (string) ViewData["Controller"];
     var actionName = (string) ViewData["Action"];
@@ -17,6 +19,8 @@
     var debugLiClass = controllerName == "Developer" ? "selected" : "";
     var privacyLiClass = controllerName == "Home" && actionName == "Privacy" ? "selected" : "";
     var aboutLiClass = controllerName == "Home" && actionName == "About" ? "selected" : "";
+
+    var unviewedNotificationsCount = await _notifications.GetUnviewedNotificationsCount(Model.MyProfile.Id);
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -92,6 +96,11 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout" >
                                     <i class="fa fa-sign-out-alt"></i> Logout
+                                </a>
+                            </li>
+                            <li class="nav-item @(unviewedNotificationsCount > 0 ? "selected" : "")">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Notifications" >
+                                    <i class="fa fa-bell"></i> @_strings.CountRound(unviewedNotificationsCount)
                                 </a>
                             </li>
                         }

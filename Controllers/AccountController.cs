@@ -16,6 +16,7 @@ using PinkUmbrella.Services;
 using PinkUmbrella.ViewModels.Account;
 using PinkUmbrella.Util;
 using System.Diagnostics;
+using PinkUmbrella.Models.AhPushIt;
 
 namespace PinkUmbrella.Controllers
 {
@@ -29,9 +30,10 @@ namespace PinkUmbrella.Controllers
                 UserManager<UserProfileModel> userManager,
                 SignInManager<UserProfileModel> signInManager,
                 IPostService posts, IUserProfileService userProfiles,
-                IReactionService reactions, ITagService tags
+                IReactionService reactions, ITagService tags,
+                INotificationService notifications
                 ) :
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags)
+            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications)
         {
             _logger = logger;
         }
@@ -549,6 +551,67 @@ namespace PinkUmbrella.Controllers
             {
                 return NotFound();
             }
+        }
+
+        [Authorize, HttpGet]
+        public async Task<IActionResult> NotificationSettings()
+        {
+            ViewData["Controller"] = "Account";
+            ViewData["Action"] = nameof(NotificationSettings);
+            var user = await GetCurrentUserAsync();
+
+            return View(new NotificationSettingsViewModel()
+            {
+                MyProfile = user,
+                Settings = await _notifications.GetMethodSettings(user.Id)
+            });
+        }
+
+        [Authorize, HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> NotificationSettings(string[] enabledTypeMethods, string submit)
+        {
+            ViewData["Controller"] = "Account";
+            ViewData["Action"] = nameof(NotificationSettings);
+            var user = await GetCurrentUserAsync();
+
+            if (string.IsNullOrWhiteSpace(submit))
+            {
+                var typeMethods = new Dictionary<NotificationType, List<NotificationMethod>>();
+
+                foreach (var typeMethod in enabledTypeMethods)
+                {
+                    var split = typeMethod.Split('-');
+                    if (Enum.TryParse(typeof(NotificationType), split[0], true, out var type))
+                    {
+                        if (Enum.TryParse(typeof(NotificationMethod), split[1], true, out var method))
+                        {
+                            if (typeMethods.TryGetValue((NotificationType)type, out var methods))
+                            {
+                                methods.Add((NotificationMethod) method);
+                            }
+                            else
+                            {
+                                typeMethods.Add((NotificationType) type, new List<NotificationMethod>() { (NotificationMethod) method });
+                            }
+                        }
+                    }
+                }
+
+                await _notifications.UpdateMethodSettings(user.Id, typeMethods);
+            }
+            else
+            {
+                if (Enum.TryParse(typeof(NotificationMethod), submit, true, out var method))
+                {
+                    await _notifications.UpdateMethodSettingsSetAll(user.Id, (NotificationMethod) method);
+                }
+            }
+
+            return View(new NotificationSettingsViewModel()
+            {
+                MyProfile = user,
+                Settings = await _notifications.GetMethodSettings(user.Id)
+            });
         }
     }
 }

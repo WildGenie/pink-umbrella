@@ -28,8 +28,8 @@ namespace PinkUmbrella.Controllers
 
         public ArchiveController(IWebHostEnvironment environment, ILogger<ArchiveController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IArchiveService archive,
-            IReactionService reactions, StringRepository strings, ITagService tags):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags)
+            IReactionService reactions, StringRepository strings, ITagService tags, INotificationService notifications):
+            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications)
         {
             _logger = logger;
             _archive = archive;

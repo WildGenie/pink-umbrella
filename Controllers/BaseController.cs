@@ -26,10 +26,11 @@ namespace PinkUmbrella.Controllers
         protected readonly IUserProfileService _userProfiles;
         protected readonly IReactionService _reactions;
         protected readonly ITagService _tags;
+        protected readonly INotificationService _notifications;
         
         public BaseController(IWebHostEnvironment environment, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles,
-            IReactionService reactions, ITagService tags)
+            IReactionService reactions, ITagService tags, INotificationService notifications)
         {
             _environment = environment;
             _signInManager = signInManager;
@@ -38,12 +39,10 @@ namespace PinkUmbrella.Controllers
             _userProfiles = userProfiles;
             _reactions = reactions;
             _tags = tags;
+            _notifications = notifications;
         }
 
-        protected Task<UserProfileModel> GetCurrentUserAsync()
-        {
-            return _userManager.GetUserAsync(HttpContext.User);
-        }
+        protected Task<UserProfileModel> GetCurrentUserAsync() => _userManager.GetUserAsync(HttpContext.User);
 
         protected bool IsAjaxRequest() {
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")

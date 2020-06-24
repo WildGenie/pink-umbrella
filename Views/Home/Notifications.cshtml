@@ -1,0 +1,34 @@
+﻿@using Microsoft.AspNetCore.Http.Features
+@using PinkUmbrella.Services;
+@using PinkUmbrella.Models.AhPushIt;
+@model PinkUmbrella.ViewModels.Home.NotificationsViewModel
+@{
+    ViewData["Title"] = "Notifications";
+    var anyUnviewed = false;
+    var latestId = -1;
+}
+<partial name="_Header" />
+@if (Model.Items.Total > 0)
+{
+    @foreach (var notif in Model.Items.Items)
+    {
+        if (notif.User.WhenViewed == null)
+        {
+            anyUnviewed = true;
+        }
+        latestId = Math.Max(latestId, notif.User.Id);
+        <partial name="Notification/_Container" model="notif" />
+        <hr />
+    }
+    @if (anyUnviewed)
+    {
+        <div class="contains-ajax js-notifications--viewed">
+            <a class="ajax" asp-action="ViewedSince" asp-controller="Notification" asp-route-id="@latestId">ajax</a>
+        </div>
+        <script languag="javascript" type="text/javascript">setTimeout(() =>  document.getElementsByClassName('js-notifications--viewed')[0].click(), 2000);</script>
+    }
+}
+else
+{
+    <p>No notifications. Sweet!</p>
+}

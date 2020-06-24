@@ -23,7 +23,7 @@ $(() => {
         let p = $.ajax({
             url: href,
             type: method,
-            dataType: responseType,
+            dataType: responseType || 'html',
         });
         if (responseHandler) {
             if (responseOnClosest && responseOnClosest.trim().length > 0) {
@@ -99,6 +99,11 @@ $(() => {
                 });
             }
         }, 500);
+    });
+
+    $(document).on('notification-dismiss', '.js-notification-container', (ev, r, $ajax) => {
+        let $container = $ajax.closest('.js-notification-container');
+        $container.remove();
     });
 
     let $tagEditor = $('.js-tag-editor');

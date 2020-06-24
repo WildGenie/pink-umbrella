@@ -1,0 +1,24 @@
+﻿@using Microsoft.AspNetCore.Http.Features
+@using PinkUmbrella.Services;
+@using PinkUmbrella.Models.AhPushIt;
+@model PinkUmbrella.ViewModels.Developer.NotificationsViewModel
+@{
+    ViewData["Title"] = "Notifications for User";
+}
+<partial name="_Header" />
+@foreach (var notif in Model.Items.Items)
+{
+    <ul>
+        <li><b>@notif.Notif.Type</b> (@notif.Notif.Priority)</li>
+        <li><b>From: </b> @notif.Notif.FromUserId</li>
+        <li><b>Recipients:</b> @notif.Notif.RecipientCount</li>
+        <li><b>Subject:</b> @notif.Notif.Subject</li>
+        <li><b>Subject Id:</b> @notif.Notif.SubjectId</li>
+        <li><b>When Created:</b> @notif.Notif.WhenCreated</li>
+        <li><b>When Delivered:</b> @notif.User.WhenDelivered</li>
+        <li><b>When Viewed:</b> @notif.User.WhenViewed</li>
+        <li><b>When Dismissed:</b> @notif.User.WhenDismissed</li>
+        <li><b>View Count:</b> @notif.Notif.ViewCount</li>
+    </ul>
+    <hr />
+}

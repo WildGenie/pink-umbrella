@@ -1,0 +1,22 @@
+@using Microsoft.AspNetCore.Identity
+@using System.Linq
+@using Microsoft.EntityFrameworkCore;
+@inject RoleManager<UserGroupModel> UserGroups
+<h3>Send Notification</h3>
+@using (Html.BeginForm("SendNotification", "Developer", null, FormMethod.Post, true, null))
+{
+    <label for="postId">Post Id</label>
+    <input name="postId" type="number" required>
+
+    <label for="group">Group</label>
+    <input name="group" type="text" list="groups" required>
+    <datalist id="groups">
+        <option value="*">All</option>
+        @foreach (var g in await UserGroups.Roles.ToListAsync())
+        {
+            <option value="@g.Name">@g.Name</option>
+        }
+    </datalist>
+
+    <button type="submit" class="btn btn-primary">Send Notification</button>
+}

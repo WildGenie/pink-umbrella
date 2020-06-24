@@ -23,6 +23,8 @@ namespace PinkUmbrella.Repositories
         public DbSet<TaggedModel> ShopTags { get; set; }
         public DbSet<TaggedModel> ProfileTags { get; set; }
         public DbSet<TaggedModel> ArchivedMediaTags { get; set; }
+
+        public DbSet<FollowingTagModel> FollowingPostTags { get; set; }
         
 
         public DbSet<ArchivedMediaModel> ArchivedMedia { get; set; }

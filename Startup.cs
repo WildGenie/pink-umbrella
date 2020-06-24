@@ -40,15 +40,18 @@ namespace PinkUmbrella
         {
             services.AddDbContext<SimpleDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("MainConnection")));
             services.AddDbContext<LogDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("LogConnection")));
+            services.AddDbContext<AhPushItDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("NotificationConnection")));
             
             services.AddIdentity<UserProfileModel, UserGroupModel>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<SimpleDbContext>()
                 .AddEntityFrameworkStores<LogDbContext>()
+                .AddEntityFrameworkStores<AhPushItDbContext>()
                 .AddDefaultTokenProviders();
 
             services.AddSingleton<StringRepository>();
             services.AddSingleton<CategorizedLinksRepository>();
 
+            services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<ITagService, TagService>();
             services.AddScoped<IArchiveService, ArchiveService>();
             services.AddScoped<IGeoLocationService, GeoLocationService>();

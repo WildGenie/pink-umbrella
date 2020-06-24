@@ -191,6 +191,23 @@ namespace PinkUmbrella.Migrations
                     b.ToTable("ArchivedMedia");
                 });
 
+            modelBuilder.Entity("PinkUmbrella.Models.FollowingTagModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TagId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FollowingPostTags");
+                });
+
             modelBuilder.Entity("PinkUmbrella.Models.GroupAccessCodeModel", b =>
                 {
                     b.Property<int>("Id")
@@ -408,6 +425,9 @@ namespace PinkUmbrella.Migrations
                         .HasMaxLength(20);
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Handle")
+                        .IsUnique();
 
                     b.ToTable("Shops");
                 });
@@ -639,7 +659,7 @@ namespace PinkUmbrella.Migrations
                     b.Property<string>("DisplayName")
                         .IsRequired()
                         .HasColumnType("TEXT")
-                        .HasMaxLength(30);
+                        .HasMaxLength(50);
 
                     b.Property<string>("Email")
                         .HasColumnType("TEXT")
@@ -725,6 +745,9 @@ namespace PinkUmbrella.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Handle")
+                        .IsUnique();
 
                     b.HasIndex("NormalizedEmail")
                         .HasName("EmailIndex");
