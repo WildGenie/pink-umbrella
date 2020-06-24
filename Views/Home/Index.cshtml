@@ -6,13 +6,13 @@
 }
 <partial name="_Header" />
 <partial name="_NewPostForm" model="Model.NewPost" />
+<hr />
 @if (Model.MyFeed.Total > 0)
 {
 <partial name="Post/List" model="Model.MyFeed" />
 }
 else
 {
-    <hr />
     switch (Model.Source)
     {
         case FeedSource.Following:
