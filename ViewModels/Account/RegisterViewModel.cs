@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PinkUmbrella.ViewModels.Account
 {
-    public class RegisterViewModel
+    public class RegisterViewModel: BaseViewModel
     {
         public string ReturnUrl { get; set; }
 

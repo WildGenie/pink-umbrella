@@ -231,7 +231,7 @@ namespace PinkUmbrella.Services.Sql
 
                     p.ViewerIsFollowing = (await _dbContext.ProfileReactions.FirstOrDefaultAsync(r => r.ToId == p.UserId && r.UserId == viewerId.Value && r.Type == ReactionType.Follow)) != null;
                 
-                    var blockOrReport = await _dbContext.ProfileReactions.FirstOrDefaultAsync(r => ((r.ToId == viewerId.Value && r.UserId == p.UserId) || (r.ToId == p.UserId && r.UserId == viewerId.Value) && (r.Type == ReactionType.Block || r.Type == ReactionType.Report)));
+                    var blockOrReport = await _dbContext.ProfileReactions.FirstOrDefaultAsync(r => (((r.ToId == viewerId.Value && r.UserId == p.UserId) || (r.ToId == p.UserId && r.UserId == viewerId.Value)) && (r.Type == ReactionType.Block || r.Type == ReactionType.Report)));
                     p.HasBeenBlockedOrReported =  blockOrReport != null; // p.Reactions.Any(r => r.Type == ReactionType.Block || r.Type == ReactionType.Report)
                 }
                 else

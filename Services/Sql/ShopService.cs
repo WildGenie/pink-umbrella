@@ -41,7 +41,7 @@ namespace PinkUmbrella.Services.Sql
                     shop.HasDisliked = reactions.Contains(ReactionType.Dislike);
                     shop.HasReported = reactions.Contains(ReactionType.Report);
                 
-                    var blockOrReport = await _dbContext.ProfileReactions.FirstOrDefaultAsync(r => ((r.ToId == viewerId.Value && r.UserId == shop.UserId) || (r.ToId == shop.UserId && r.UserId == viewerId.Value) && (r.Type == ReactionType.Block || r.Type == ReactionType.Report)));
+                    var blockOrReport = await _dbContext.ProfileReactions.FirstOrDefaultAsync(r => (((r.ToId == viewerId.Value && r.UserId == shop.UserId) || (r.ToId == shop.UserId && r.UserId == viewerId.Value)) && (r.Type == ReactionType.Block || r.Type == ReactionType.Report)));
                     shop.HasBeenBlockedOrReported =  blockOrReport != null; // p.Reactions.Any(r => r.Type == ReactionType.Block || r.Type == ReactionType.Report)
                 }
             }
