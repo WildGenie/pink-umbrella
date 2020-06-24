@@ -1,10 +1,3 @@
 ﻿@using PinkUmbrella.Models.AhPushIt
 @model PinkUmbrella.Models.AhPushIt.UserNotification
-<ul>
-    <li><b>@Model.Notif.Type</b> (@Model.Notif.Priority)</li>
-    <li><b>From: </b> @Model.Notif.FromUserId</li>
-    <li><b>Recipients:</b> @Model.Notif.RecipientCount</li>
-    <li><b>When Created:</b> @Model.Notif.WhenCreated</li>
-    <li><b>When Delivered:</b> @Model.User.WhenDelivered</li>
-    <li><b>View Count:</b> @Model.Notif.ViewCount</li>
-</ul>
+<p><partial name="Profile/Goto" model="Model.FromUser" /> made a post with a tag you follow</p>
