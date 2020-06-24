@@ -274,12 +274,23 @@ namespace PinkUmbrella.Services.Sql
 
         public async Task ViewedSince(int userId, int notificationRecipientId)
         {
-            var notifs = await _db.Recipients.Where(r => r.ToUserId == userId && r.Id < notificationRecipientId && r.WhenViewed == null).ToListAsync();
+            var notifs = await _db.Recipients.Where(r => r.ToUserId == userId && r.Id <= notificationRecipientId && r.WhenViewed == null).ToListAsync();
             if (notifs.Count > 0)
             {
+                var recordViewCount = new Dictionary<int, Notification>();
                 foreach (var notif in notifs)
                 {
                     notif.WhenViewed = DateTime.UtcNow;
+                    if (recordViewCount.TryGetValue(notif.NotificationId, out var n))
+                    {
+                        n.ViewCount++;
+                    }
+                    else
+                    {
+                        var tmp = await _db.Notifications.FindAsync(notif.NotificationId);
+                        tmp.ViewCount++;
+                        recordViewCount.Add(tmp.Id, tmp);
+                    }
                 }
                 await _db.SaveChangesAsync();
             }
