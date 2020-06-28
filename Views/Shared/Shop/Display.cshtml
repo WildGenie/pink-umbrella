@@ -38,7 +38,7 @@
         reactLike, reactDislike, reactReport,
     };
 
-    var locationString = $"{Model.StreetAddress}, {_strings.CityState} {Model.ZipCode}";
+    var locationString = $"{Model.StreetAddress}, {_strings.Instance.HostDisplayName} {Model.ZipCode}";
 
     var tags = new TagEditorViewModel() { Tags = Model.Tags };
     var travelModes = new string [] { "driving", "transit", "bicycling", "walking" };

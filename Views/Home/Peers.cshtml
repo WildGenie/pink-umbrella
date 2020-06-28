@@ -1,0 +1,23 @@
+﻿@model PinkUmbrella.ViewModels.Home.PeersViewModel
+@{
+    ViewData["Title"] = "Peers";
+}
+<h1>@ViewData["Title"]</h1>
+@if (Model.Peers.Count > 0)
+{
+    @foreach (var peer in Model.Peers)
+    {
+        <h3>@peer.DisplayName</h3>
+        <small>@peer.Handle</small>
+    }
+}
+else
+{
+    <p>No peers. Why not add one?</p>
+}
+<hr />
+<form asp-action="PreviewPeer" asp-controller="Home" method="GET">
+    <label>Handle</label>
+    <input name="handle" />
+    <button type="submit">Preview</button>
+</form>

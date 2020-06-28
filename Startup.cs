@@ -20,6 +20,7 @@ using PinkUmbrella.Models;
 using PinkUmbrella.Repositories;
 using PinkUmbrella.Services;
 using PinkUmbrella.Services.NoSql;
+using PinkUmbrella.Services.Peer;
 using PinkUmbrella.Services.Sql;
 using PinkUmbrella.Services.Sql.React;
 using PinkUmbrella.Services.Sql.Search;
@@ -41,15 +42,31 @@ namespace PinkUmbrella
             services.AddDbContext<SimpleDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("MainConnection")));
             services.AddDbContext<LogDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("LogConnection")));
             services.AddDbContext<AhPushItDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("NotificationConnection")));
+            services.AddDbContext<AuthDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("AuthConnection")));
             
             services.AddIdentity<UserProfileModel, UserGroupModel>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<SimpleDbContext>()
                 .AddEntityFrameworkStores<LogDbContext>()
                 .AddEntityFrameworkStores<AhPushItDbContext>()
+                .AddEntityFrameworkStores<AuthDbContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddSingleton<StringRepository>();
+            services.AddSingleton<StringRepository>((_) => new StringRepository(Configuration.GetSection("Strings")));
             services.AddSingleton<CategorizedLinksRepository>();
+            services.AddSingleton<ExternalDbOptions>((_) => new ExternalDbOptions() {
+                ExtractDbHandle = ExternalDbOptions.ExtractDomain,
+                OpenDbContext = (handle) => {
+                    System.IO.Directory.CreateDirectory($"Peers/{handle}");
+                    var options = new DbContextOptionsBuilder<SimpleDbContext>();
+                    options.UseSqlite($"Peers/{handle}/in.db; Read Only=True;");
+                    return Task.FromResult<DbContext>(new SimpleDbContext(options.Options));
+                }
+            });
+
+            services.AddScoped<IExternalDbContext, ExternalDbContext>();
+            services.AddScoped<IPeerConnectionTypeResolver, PeerConnectionTypeResolver>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IPeerService, PeerService>();
 
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<ITagService, TagService>();
@@ -135,8 +152,14 @@ namespace PinkUmbrella
             app.UseAuthorization();
 
             app.UseMiddleware<LogErrorRedirectProd>();
+            app.UseMiddleware<ExternalDbMiddleware>();
+
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapControllerRoute(
+                    name: "api",
+                    pattern: "api/{controller=System}/{action=Index}/{id?}"
+                );
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");

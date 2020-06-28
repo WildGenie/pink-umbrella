@@ -3,14 +3,25 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Configuration;
 using PinkUmbrella.Models;
 
 namespace PinkUmbrella.Repositories
 {
     public class StringRepository
     {
-        public static string AllowedUserNameChars => "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-        public string SiteName => "Pink Umbrella";
+        public class InstanceStrings
+        {
+            public InstanceStrings(IConfigurationSection configuration)
+            {
+                ConfigurationBinder.Bind(configuration, this);
+            }
+
+            public string HostDisplayName { get; set; }
+        }
+
+        public readonly InstanceStrings Instance;
+
         public string GitHubUrl => "https://github.com/pink-umbrella/pink-umbrella";
         public string WikiUrl => "https://github.com/pink-umbrella/pink-umbrella/wiki";
         public string ReportBugUrl => "https://github.com/pink-umbrella/pink-umbrella/issues/new";
@@ -22,12 +33,12 @@ namespace PinkUmbrella.Repositories
 
         public string BetaMsg => "This is the beta version.";
 
-        public string InDevelopmentMsg => "This site is still being developed and may change or break.";
-
-        public string CityState => "Seattle, WA";
+        public string InDevelopmentMsg => "This software is still being developed and may change or break.";
 
         public string PasswordPlaceholder => "***************";
 
+        public static string AllowedUserNameChars => "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+        public string SiteName => "Pink Umbrella";
 
         public Regex ExtractMentionsRegex { get; } = new Regex(@"@([a-zA-Z0-9_]+)");
 
@@ -38,6 +49,11 @@ namespace PinkUmbrella.Repositories
         public bool ValidEmail(string email) => EmailValidator.IsValid(email);
 
         private readonly EmailAddressAttribute EmailValidator = new EmailAddressAttribute();
+
+        public StringRepository(IConfigurationSection configurationSection)
+        {
+            Instance = new InstanceStrings(configurationSection);
+        }
 
         public string StatusCodeMessage(string code)
         {

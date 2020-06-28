@@ -51,14 +51,18 @@ namespace PinkUmbrella.Repositories
         };
 
         public static readonly SimpleLinkModel[] SocialMediaLinks = {
-            new SimpleLinkModel() { Url = "https://twitter.com/seattlepd", Text = "SPD's Twitter" },
-            new SimpleLinkModel() { Url = "https://twitter.com/MayorJenny", Text = "Mayor Jenny Durkan's Twitter" },
-            new SimpleLinkModel() { Url = "https://twitter.com/carmenbest", Text = "SPD Chief Best's Twitter" },
+            new SimpleLinkModel() { Url = "twitter.com/seattlepd", Text = "SPD's Twitter" },
+            new SimpleLinkModel() { Url = "twitter.com/MayorJenny", Text = "Mayor Jenny Durkan's Twitter" },
+            new SimpleLinkModel() { Url = "twitter.com/carmenbest", Text = "SPD Chief Best's Twitter" },
         };
 
         public static readonly SimpleLinkModel[] FundsOrDonationLinks = {
             new SimpleLinkModel() { Url = "blacklivesseattle.org/bail-fund/", Text = "Black Lives Matter Seattle-King County Freedom Fund" },
             new SimpleLinkModel() { Url = "www.nwcombailfund.org/", Text = "Northwest Community Bail Fund" },
+        };
+
+        public static readonly SimpleLinkModel[] RecommendedSoftwareLinks = {
+            new SimpleLinkModel() { Url = "iris.to/", Text = "Iris.to: Encrypted, free, open source chat" },
         };
 
 
@@ -74,6 +78,7 @@ namespace PinkUmbrella.Repositories
             { LinkCategory.HealthAndWellness, HealthAndWellnessLinks },
             { LinkCategory.SocialMedia, SocialMediaLinks },
             { LinkCategory.FundsOrDonation, FundsOrDonationLinks },
+            { LinkCategory.RecommendedSoftware, RecommendedSoftwareLinks },
         };
 
         public readonly Dictionary<LinkCategory, string> CategoryTitles = new Dictionary<LinkCategory, string>() {
@@ -88,6 +93,7 @@ namespace PinkUmbrella.Repositories
             // { LinkCategory.HealthAndWellness, "Health and Wellness" },
             { LinkCategory.SocialMedia, "Social Media Links" },
             { LinkCategory.FundsOrDonation, "Funds and Donation Links" },
+            { LinkCategory.RecommendedSoftware, "Recommended Software" },
         };
     }
 }

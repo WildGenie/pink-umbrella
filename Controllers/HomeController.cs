@@ -15,6 +15,8 @@ using PinkUmbrella.Models;
 using PinkUmbrella.Services;
 using PinkUmbrella.ViewModels.Home;
 using PinkUmbrella.Services.Sql.Search;
+using PinkUmbrella.ViewModels;
+using PinkUmbrella.ViewModels.Peer;
 
 namespace PinkUmbrella.Controllers
 {
@@ -24,15 +26,17 @@ namespace PinkUmbrella.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly ISearchService _searchService;
         private readonly IFeedService _feedService;
+        private readonly IPeerService _peers;
 
         public HomeController(IWebHostEnvironment environment, ILogger<HomeController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService postService, IUserProfileService userProfiles, ISearchService searchService,
-            IReactionService reactions, IFeedService feedService, ITagService tags, INotificationService notifications):
+            IReactionService reactions, IFeedService feedService, ITagService tags, INotificationService notifications, IPeerService peers):
             base(environment, signInManager, userManager, postService, userProfiles, reactions, tags, notifications)
         {
             _logger = logger;
             _searchService = searchService;
             _feedService = feedService;
+            _peers = peers;
         }
 
         public async Task<IActionResult> Index()
@@ -61,11 +65,11 @@ namespace PinkUmbrella.Controllers
         }
 
         [Route("/Welcome")]
-        public IActionResult Welcome()
+        public async Task<IActionResult> Welcome()
         {
             ViewData["Controller"] = "Home";
             ViewData["Action"] = nameof(Welcome);
-            return View();
+            return View(new BaseViewModel() { MyProfile = await GetCurrentUserAsync() });
         }
 
         [Route("/Mentions")]
@@ -149,27 +153,48 @@ namespace PinkUmbrella.Controllers
         }
 
         [Route("/Links")]
-        public IActionResult Links()
+        public async Task<IActionResult> Links()
         {
             ViewData["Controller"] = "Home";
             ViewData["Action"] = nameof(Links);
-            return View();
+            return View(new BaseViewModel() { MyProfile = await GetCurrentUserAsync() });
         }
 
         [Route("/Privacy")]
-        public IActionResult Privacy()
+        public async Task<IActionResult> Privacy()
         {
             ViewData["Controller"] = "Home";
             ViewData["Action"] = nameof(Privacy);
-            return View(new PrivacyViewModel());
+            return View(new PrivacyViewModel() { MyProfile = await GetCurrentUserAsync() });
         }
 
         [Route("/About")]
-        public IActionResult About()
+        public async Task<IActionResult> About()
         {
             ViewData["Controller"] = "Home";
             ViewData["Action"] = nameof(About);
-            return View();
+            return View(new BaseViewModel() { MyProfile = await GetCurrentUserAsync() });
+        }
+
+        [Route("/Peers")]
+        public async Task<IActionResult> Peers()
+        {
+            ViewData["Controller"] = "Home";
+            ViewData["Action"] = nameof(Peers);
+            return View(new PeersViewModel() {
+                 MyProfile = await GetCurrentUserAsync(),
+                 Peers = await _peers.GetPeers(),
+            });
+        }
+
+        public async Task<IActionResult> PreviewPeer(string handle)
+        {
+            ViewData["Controller"] = "Home";
+            ViewData["Action"] = nameof(PreviewPeer);
+            return View(new PeerViewModel() {
+                 MyProfile = await GetCurrentUserAsync(),
+                 Peer = await (await _peers.Open(handle)).Query(),
+            });
         }
 
         [Route("/Error/{code}")]

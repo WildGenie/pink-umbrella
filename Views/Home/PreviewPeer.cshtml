@@ -1,0 +1,19 @@
+﻿@model PinkUmbrella.ViewModels.Peer.PeerViewModel
+@{
+    ViewData["Title"] = "Preview Peer";
+}
+<h1>@ViewData["Title"]</h1>
+<h3>@Model.Peer.Handle</h3>
+<ul>
+@foreach (var p in Model.Peer.GetType().GetProperties())
+{
+    <li>
+        <b>@p.Name</b>
+        <span>@(p.GetValue(Model.Peer)?.ToString() ?? "<empty>")</span>
+    </li>
+}
+</ul>
+<form asp-controller="Home" asp-action="AddPeer" asp-route-handle="@Model.Peer.Handle" method="POST">
+    <a href="@(Context.Request.Headers["Referrer"])">Cancel</a>
+    <button type="submit">Add</button>
+</form>

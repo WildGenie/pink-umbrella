@@ -15,5 +15,6 @@ namespace PinkUmbrella.Models
         HealthAndWellness = 9,
         SocialMedia = 10,
         FundsOrDonation = 11,
+        RecommendedSoftware = 12,
     }
 }
