@@ -1,0 +1,15 @@
+@model PinkUmbrella.ViewModels.Admin.UsersViewModel
+@{
+    ViewData["Title"] = "Users";
+}
+<partial name="_Header" />
+<div>
+    @if (Model.MostRecentlyCreatedUsers.Pagination.start == 0)
+    {
+        <span>@Model.MostRecentlyCreatedUsers.Total total users</span>
+    }
+    @foreach (var u in Model.MostRecentlyCreatedUsers.Items) {
+        <hr />
+        <partial name="SearchResult/ProfileSearchResult" model="u" />
+    }
+</div>

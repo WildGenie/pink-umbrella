@@ -4,24 +4,13 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using PinkUmbrella.Models;
 
 namespace PinkUmbrella.Repositories
 {
     public class StringRepository
     {
-        public class InstanceStrings
-        {
-            public InstanceStrings(IConfigurationSection configuration)
-            {
-                ConfigurationBinder.Bind(configuration, this);
-            }
-
-            public string HostDisplayName { get; set; }
-        }
-
-        public readonly InstanceStrings Instance;
-
         public string GitHubUrl => "https://github.com/pink-umbrella/pink-umbrella";
         public string WikiUrl => "https://github.com/pink-umbrella/pink-umbrella/wiki";
         public string ReportBugUrl => "https://github.com/pink-umbrella/pink-umbrella/issues/new";
@@ -30,6 +19,8 @@ namespace PinkUmbrella.Repositories
 
         public string RoleDeveloper => "dev";
 
+        public string RoleAdmin => "admin";
+
 
         public string BetaMsg => "This is the beta version.";
 
@@ -37,8 +28,18 @@ namespace PinkUmbrella.Repositories
 
         public string PasswordPlaceholder => "***************";
 
+        public string UrlPlaceholder => "https://example.com";
+
+        public string IPPlaceholder => "123.255.123.255";
+
+        public string PortPlaceholder => "80 (Default is 443, https)";
+
         public static string AllowedUserNameChars => "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-        public string SiteName => "Pink Umbrella";
+        
+        public string SoftwareName => "Pink Umbrella";
+
+        private readonly string[] Positives = { "yes", "on", "true", "ok", "accept" };
+        private readonly string[] Negatives = { "no", "off", "false", "deny" };
 
         public Regex ExtractMentionsRegex { get; } = new Regex(@"@([a-zA-Z0-9_]+)");
 
@@ -46,14 +47,14 @@ namespace PinkUmbrella.Repositories
 
         public Regex ValidHandleRegex { get; } = new Regex(@"[a-zA-Z0-9_]+");
 
+        public Regex ValidIPRegex { get; } = new Regex(@"((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*$)|(^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$))");
+
+        public Regex OpenPGPKeyRegex { get; } = new Regex(@"(?:-+BEGIN PGP PUBLIC KEY BLOCK-+\n[a-zA-Z0-9._!@#$%^&*()+=\[\]{}:; -]+\n+)(?<base64>[a-zA-Z0-9/+\n=]+)(?:-+END PGP PUBLIC KEY BLOCK.*)");
+        public Regex RSAKeyRegex { get; } = new Regex(@"(?:ssh-rsa|ssh-ed25519|ecdsa-sha2-nistp256|ecdsa-sha2-nistp384|ecdsa-sha2-nistp521)(?:\s+)(?<base64>[a-zA-Z0-9/+]+)(?:.*)");
+
         public bool ValidEmail(string email) => EmailValidator.IsValid(email);
 
         private readonly EmailAddressAttribute EmailValidator = new EmailAddressAttribute();
-
-        public StringRepository(IConfigurationSection configurationSection)
-        {
-            Instance = new InstanceStrings(configurationSection);
-        }
 
         public string StatusCodeMessage(string code)
         {
@@ -625,6 +626,22 @@ namespace PinkUmbrella.Repositories
                 case "png": return "image/png";
             }
             return "application/octet-stream";
+        }
+
+        public bool IsPositive(string value)
+        {
+            if (Array.IndexOf(Positives, value) >= 0)
+            {
+                return true;
+            }
+            else if (Array.IndexOf(Negatives, value) >= 0)
+            {
+                return false;
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException(nameof(value));
+            }
         }
     }
 }

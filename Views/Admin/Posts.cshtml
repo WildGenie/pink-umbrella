@@ -1,0 +1,36 @@
+@model PinkUmbrella.ViewModels.Admin.PostsViewModel
+@{
+    ViewData["Title"] = "Posts";
+}
+<partial name="_Header" />
+<div>
+    <h1>Most Reported Posts</h1>
+    @if (Model.MostReportedPosts.Pagination.start == 0)
+    {
+        <span>@Model.MostReportedPosts.Total total reported posts</span>
+    }
+    @foreach (var p in Model.MostReportedPosts.Items) {
+        <hr />
+        <partial name="SearchResult/PostSearchResult" model="p" />
+    }
+
+    <h1>Most Blocked Posts</h1>
+    @if (Model.MostBlockedPosts.Pagination.start == 0)
+    {
+        <span>@Model.MostBlockedPosts.Total total blocked posts</span>
+    }
+    @foreach (var p in Model.MostBlockedPosts.Items) {
+        <hr />
+        <partial name="SearchResult/PostSearchResult" model="p" />
+    }
+
+    <h1>Most Disliked Posts</h1>
+    @if (Model.MostDislikedPosts.Pagination.start == 0)
+    {
+        <span>@Model.MostDislikedPosts.Total total disliked posts</span>
+    }
+    @foreach (var p in Model.MostDislikedPosts.Items) {
+        <hr />
+        <partial name="SearchResult/PostSearchResult" model="p" />
+    }
+</div>

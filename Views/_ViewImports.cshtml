@@ -4,5 +4,7 @@
 @using PinkUmbrella.Services
 @using PinkUmbrella.Util
 @using PinkUmbrella.ViewModels.Shared
+@using static PinkUmbrella.Models.Settings.FeatureFlags
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @inject StringRepository _strings
+@inject ISettingsService _settings

@@ -8,22 +8,22 @@ namespace PinkUmbrella.Models.Auth
     {
         AuthType Type { get; }
         
-        bool HandshakeMethodSupported();
+        bool HandshakeMethodSupported(HandshakeMethod method);
         
         HashSet<HandshakeMethod> HandshakeMethodsSupported { get; }
 
-        Task<AuthKey> GenerateKey(HandshakeMethod method);
+        Task<KeyPair> GenerateKey(AuthKeyFormat format, HandshakeMethod method);
 
-        Task EncryptStreamAsync(Stream inputStream, Stream outputStream, AuthKey auth);
+        Task EncryptStreamAsync(Stream inputStream, Stream outputStream, PublicKey auth);
 
-        Task SignStreamAsync(Stream inputStream, Stream outputStream, AuthKey auth);
+        Task SignStreamAsync(Stream inputStream, Stream outputStream, PrivateKey auth);
 
-        Task EncryptStreamAndSignAsync(Stream inputStream, Stream outputStream, AuthKey auth);
+        Task EncryptStreamAndSignAsync(Stream inputStream, Stream outputStream, PrivateKey privateKey, PublicKey publicKey);
         
-        Task DecryptAndVerifyStreamAsync(Stream inputStream, Stream outputStream, AuthKey auth);
+        Task DecryptAndVerifyStreamAsync(Stream inputStream, Stream outputStream, PrivateKey privateKey, PublicKey publicKey);
 
-        Task DecryptStreamAsync(Stream inputStream, Stream outputStream, AuthKey auth);
+        Task DecryptStreamAsync(Stream inputStream, Stream outputStream, PrivateKey privateKey);
 
-        Task<bool> VerifyStreamAsync(Stream inputStream, Stream outputStream, AuthKey auth);
+        Task<bool> VerifyStreamAsync(Stream inputStream, Stream outputStream, PublicKey publicKey);
     }
 }

@@ -17,9 +17,12 @@ using Microsoft.AspNetCore.Authorization;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using PinkUmbrella.ViewModels;
+using Microsoft.FeatureManagement.Mvc;
+using PinkUmbrella.Models.Settings;
 
 namespace PinkUmbrella.Controllers
 {
+    [FeatureGate(FeatureFlags.ControllerArchive)]
     public class ArchiveController : BaseController
     {
         private readonly ILogger<ArchiveController> _logger;
@@ -28,8 +31,9 @@ namespace PinkUmbrella.Controllers
 
         public ArchiveController(IWebHostEnvironment environment, ILogger<ArchiveController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IArchiveService archive,
-            IReactionService reactions, StringRepository strings, ITagService tags, INotificationService notifications):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications)
+            IReactionService reactions, StringRepository strings, ITagService tags, INotificationService notifications, IPeerService peers,
+            IAuthService auth, ISettingsService settings):
+            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications, peers, auth, settings)
         {
             _logger = logger;
             _archive = archive;

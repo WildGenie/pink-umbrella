@@ -2,6 +2,8 @@
 @{
     ViewData["Title"] = "Register";
 }
+@if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserRegister)))
+{
 <div class="row">
     <div class="col-md-6" style="margin: 0 auto">
         <h1>@ViewData["Title"]</h1>
@@ -54,7 +56,11 @@
         </form>
     </div>
 </div>
-
+}
+else
+{
+    <p>Registering has been turned off.</p>
+}
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

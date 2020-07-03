@@ -1,0 +1,24 @@
+﻿@model PinkUmbrella.ViewModels.Admin.IndexViewModel
+@{
+    ViewData["Title"] = "Access Codes";
+}
+
+<partial name="_Header" />
+<h3>Unused & Unexpired Group Access Codes</h3>
+@if (Model.UnusedUnexpiredAccessCodes.Count() > 0)
+{
+<ol>
+    @foreach (var code in Model.UnusedUnexpiredAccessCodes)
+    {
+    <li>@code</li>
+    }
+</ol>
+}
+else
+{
+    <p>There are none. What a relief.</p>
+}
+<h3>Unused & Unexpired Site Access Codes</h3>
+
+<hr />
+<partial name="_SendNotificationForm" />

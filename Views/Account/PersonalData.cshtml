@@ -1,20 +1,32 @@
 ﻿@{
     ViewData["Title"] = "Personal Data";
 }
-
 <partial name="_Header" />
-
 <div class="paragraph">
     <p>
-        Your data is stored online and can be explored in our <a asp-action="Privacy" asp-controller="Home">Privacy Policy</a>. This page allows you to download or delete that data.
+        Your data is stored online. This page allows you to download or delete that data. <br />
         <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
     </p>
-    <form id="download-data" asp-action="DownloadPersonalData" method="post" class="form-group">
-        <button class="btn btn-success" type="submit">Download</button>
-    </form>
-    <p>
-        <a id="delete" asp-action="Delete" class="btn btn-danger">Delete</a>
-    </p>
+    @if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserDownloadPersonalData)))
+    {
+        <form id="download-data" asp-action="DownloadPersonalData" method="post" class="form-group">
+            <button class="btn btn-success" type="submit">Download</button>
+        </form>
+    }
+    else
+    {
+        <p>Downloading personal data has been turned off. Please contact the site admins to download your data.</p>
+    }
+    @if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserDelete)))
+    {
+        <p>
+            <a id="delete" asp-action="Delete" class="btn btn-danger">Delete</a>
+        </p>
+    }
+    else
+    {
+        <p>Deleting your account has been turned off. Please contact the site admins to delete your account.</p>
+    }
 </div>
 
 @section Scripts {

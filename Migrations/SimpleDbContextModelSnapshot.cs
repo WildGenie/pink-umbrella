@@ -744,6 +744,9 @@ namespace PinkUmbrella.Migrations
                     b.Property<int>("WhenLastOnlineVisibility")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime>("WhenLastUpdated")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Handle")

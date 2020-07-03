@@ -1,0 +1,16 @@
+@using PinkUmbrella.Models.Auth
+@using PinkUmbrella.Services;
+@model PinkUmbrella.ViewModels.Account.GenKeyViewModel
+<form asp-controller="Account" asp-action="GenAuthKey" method="POST">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="AuthKey.Type"></label>
+        <small>@Model.AuthKey.GetPropertyDescription(nameof(Model.AuthKey.Type))</small>
+        <select asp-for="AuthKey.Type" class="form-control">
+            <option value="@AuthType.OpenPGP">OpenPGP</option>
+            <option value="@AuthType.RSA">RSA</option>
+        </select>
+        <span asp-validation-for="AuthKey.Type" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-success">Generate Key</button>
+</form>

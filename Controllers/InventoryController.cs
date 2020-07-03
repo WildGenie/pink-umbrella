@@ -11,9 +11,12 @@ using Microsoft.Extensions.Logging;
 using PinkUmbrella.Models;
 using PinkUmbrella.Services;
 using PinkUmbrella.ViewModels.Inventory;
+using Microsoft.FeatureManagement.Mvc;
+using PinkUmbrella.Models.Settings;
 
 namespace PinkUmbrella.Controllers
 {
+    [FeatureGate(FeatureFlags.ControllerInventory)]
     public class InventoryController : BaseController
     {
         private readonly ILogger<InventoryController> _logger;
@@ -24,8 +27,9 @@ namespace PinkUmbrella.Controllers
             SignInManager<UserProfileModel> signInManager, UserManager<UserProfileModel> userManager,
             IPostService posts, IUserProfileService userProfiles, ISimpleResourceService resourceService,
             ISimpleInventoryService inventories, IReactionService reactions, ITagService tags,
-            INotificationService notifications):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications)
+            INotificationService notifications, IPeerService peers, IAuthService auth,
+            ISettingsService settings):
+            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications, peers, auth, settings)
         {
             _logger = logger;
             _resources = resourceService;
@@ -42,7 +46,7 @@ namespace PinkUmbrella.Controllers
                 MyProfile = user,
                 Resources = await _resources.QueryUser(user.Id, user.Id, null, new PaginationModel() { start = 0, count = 10 }),
                 Inventories = await _inventories.GetForUser(user.Id, user.Id),
-                AddResourceEnabled = true,
+                AddResourceEnabled = await _settings.FeatureManager.IsEnabledAsync(nameof(FeatureFlags.FunctionInventoryNewResource)),
             };
             model.NewResource.AvailableBrands = await _resources.GetBrands();
             model.NewResource.AvailableCategories = await _resources.GetCategories();
@@ -95,7 +99,7 @@ namespace PinkUmbrella.Controllers
                 Resources = await _resources.QueryInventory(id, currentUser?.Id, queryText, new PaginationModel() { start = 0, count = 10 }),
                 Inventories = inventories,
                 Inventory = inventory,
-                AddResourceEnabled = currentUser?.Id == inventory.OwnerUserId,
+                AddResourceEnabled = await _settings.FeatureManager.IsEnabledAsync(nameof(FeatureFlags.FunctionInventoryNewResource)) && currentUser?.Id == inventory.OwnerUserId,
             };
             model.NewResource.Resource.InventoryId = id;
             return View("Inventory", model);

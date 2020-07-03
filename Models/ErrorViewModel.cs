@@ -1,8 +1,9 @@
 using System;
+using PinkUmbrella.ViewModels;
 
 namespace PinkUmbrella.Models
 {
-    public class ErrorViewModel
+    public class ErrorViewModel: BaseViewModel
     {
         public string ErrorCode { get; set; }
 

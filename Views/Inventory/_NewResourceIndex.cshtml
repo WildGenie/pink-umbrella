@@ -2,6 +2,8 @@
 @model IndexViewModel
 
 <hr />
+@if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionInventoryNewResource)))
+{
 <form asp-action="NewResourceIndex" asp-controller="Inventory" method="POST">
     <div asp-validation-summary="All" class="text-danger"></div>
     <div class="form-group">
@@ -16,3 +18,8 @@
     </div>
     <partial name="_NewResourceFields" model="Model.NewResource" />
 </form>
+}
+else
+{
+    <p>Creating new resources has been turned off by site admin.</p>
+}

@@ -1,0 +1,72 @@
+@using Microsoft.Extensions.Configuration
+@using PinkUmbrella.Models.Settings
+@model PinkUmbrella.ViewModels.Admin.FeatureFlagsViewModel
+@{
+    ViewData["Title"] = "Flags";
+}
+<partial name="_Header" />
+<input type="text" class="form-control simple-table-filter-input" placeholder="Search toggles" data-el-selector=".feature-flags-table" />
+<table class="table feature-flags-table">
+    <thead>
+        <tr>
+            <th></th>
+            <th></th>
+            <th>@Html.DisplayNameFor(m => m.FeatureFlags.FirstOrDefault().Title)</th>
+            <th>@Html.DisplayNameFor(m => m.FeatureFlags.FirstOrDefault().Description)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var config in Model.FeatureFlags)
+        {
+            var checkedHtml = config.Enabled ? "checked=\"checked\"" : "";
+            <tr>
+                <td>
+                    @if (config.Enabled)
+                    {
+                        <i class="fa fa-check-circle text-success"></i>
+                    }
+                    else
+                    {
+                        <i class="fa fa-times-circle text-danger"></i>
+                    }
+                </td>
+                <td title="@config.FeatureFlagType">
+                    @switch (config.FeatureFlagType)
+                    {
+                        case FeatureFlagType.Controller:
+                            <i class="fa fa-sitemap"></i>
+                            break;
+                        case FeatureFlagType.Function:
+                            <i class="fa fa-terminal"></i>
+                            break;
+                        case FeatureFlagType.Service:
+                            <i class="fa fa-cloud"></i>
+                            break;
+                        case FeatureFlagType.UnderConstruction:
+                            <i class="fa fa-hard-hat"></i>
+                            break;
+                        case FeatureFlagType.Global:
+                            <i class="fa fa-globe"></i>
+                            break;
+                        case FeatureFlagType.View:
+                            <i class="fa fa-eye"></i>
+                            break;
+                    }
+                </td>
+                <td>
+                    @config.Title
+                </td>
+                <td>
+                    @config.Description
+                </td>
+                <td>
+                    <form class="change-post position-relative" method="post" asp-action="UpdateToggle" style="display: block">
+                        <input type="hidden" name="Key" value="@config.Value" />
+                        <input @Html.Raw(checkedHtml) type="checkbox" name="Value" class="input-auto-post w-100" />
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

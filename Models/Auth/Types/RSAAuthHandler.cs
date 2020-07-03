@@ -14,17 +14,17 @@ namespace PinkUmbrella.Models.Auth.Types
 
         public HashSet<HandshakeMethod> HandshakeMethodsSupported => throw new System.NotImplementedException();
 
-        public Task DecryptAndVerifyStreamAsync(Stream inputStream, Stream outputStream, AuthKey auth)
+        public Task DecryptAndVerifyStreamAsync(Stream inputStream, Stream outputStream, PrivateKey privateKey, PublicKey publicKey)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public Task DecryptStreamAsync(Stream inputStream, Stream outputStream, AuthKey auth)
+        public Task DecryptStreamAsync(Stream inputStream, Stream outputStream, PrivateKey privateKey)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public Task EncryptStreamAndSignAsync(Stream inputStream, Stream outputStream, AuthKey auth)
+        public Task EncryptStreamAndSignAsync(Stream inputStream, Stream outputStream, PublicKey publicKey, PrivateKey privateKey)
         {
             return Task.CompletedTask;
         // [JsonPropertyName("peerPublicKey")]
@@ -54,34 +54,45 @@ namespace PinkUmbrella.Models.Auth.Types
         // public string PrivateAccessKey => Convert.ToBase64String(_rsa.ExportPkcs8PrivateKey());
         }
 
-        public Task EncryptStreamAsync(Stream inputStream, Stream outputStream, AuthKey auth)
+        public Task EncryptStreamAndSignAsync(Stream inputStream, Stream outputStream, PrivateKey privateKey, PublicKey publicKey)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public Task<AuthKey> GenerateKey(HandshakeMethod method)
+        public Task EncryptStreamAsync(Stream inputStream, Stream outputStream, PublicKey auth)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<KeyPair> GenerateKey(AuthKeyFormat format, HandshakeMethod method)
         {
             var rsaKeyInfo = _rsa.ExportParameters(true);
-            return Task.FromResult(new AuthKey()
+            return Task.FromResult(new KeyPair()
             {
-                Format = AuthKeyFormat.Raw,
-                PublicKey = Convert.ToBase64String(_rsa.ExportSubjectPublicKeyInfo()) 
+                Public = new PublicKey()
+                {
+                    Value = Convert.ToBase64String(_rsa.ExportSubjectPublicKeyInfo()) 
+                },
+                Private = new PrivateKey()
+                {
+                    Value = Convert.ToBase64String(_rsa.ExportRSAPrivateKey()) 
+                },
             });
         }
 
-        public bool HandshakeMethodSupported()
+        public bool HandshakeMethodSupported(HandshakeMethod method)
         {
-            throw new System.NotImplementedException();
+            return false;
         }
 
-        public Task SignStreamAsync(Stream inputStream, Stream outputStream, AuthKey auth)
+        public Task SignStreamAsync(Stream inputStream, Stream outputStream, PrivateKey auth)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public Task<bool> VerifyStreamAsync(Stream inputStream, Stream outputStream, AuthKey auth)
+        public Task<bool> VerifyStreamAsync(Stream inputStream, Stream outputStream, PublicKey publicKey)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

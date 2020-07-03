@@ -12,9 +12,12 @@ using PinkUmbrella.Models;
 using PinkUmbrella.Services;
 using PinkUmbrella.ViewModels.Post;
 using PinkUmbrella.ViewModels.Home;
+using PinkUmbrella.Models.Settings;
+using Microsoft.FeatureManagement.Mvc;
 
 namespace PinkUmbrella.Controllers
 {
+    [FeatureGate(FeatureFlags.ControllerPost)]
     [AllowAnonymous]
     public class PostController : BaseController
     {
@@ -22,8 +25,9 @@ namespace PinkUmbrella.Controllers
 
         public PostController(IWebHostEnvironment environment, ILogger<PostController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles,
-            IReactionService reactions, ITagService tags, INotificationService notifications):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications)
+            IReactionService reactions, ITagService tags, INotificationService notifications, IPeerService peers, IAuthService auth,
+            ISettingsService settings):
+            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications, peers, auth, settings)
         {
             _logger = logger;
         }

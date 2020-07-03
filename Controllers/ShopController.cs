@@ -14,9 +14,12 @@ using PinkUmbrella.ViewModels;
 using PinkUmbrella.ViewModels.Shop;
 using PinkUmbrella.ViewModels.Shared;
 using System.IO;
+using PinkUmbrella.Models.Settings;
+using Microsoft.FeatureManagement.Mvc;
 
 namespace PinkUmbrella.Controllers
 {
+    [FeatureGate(FeatureFlags.ControllerShop)]
     public class ShopController : BaseController
     {
         private readonly ILogger<ShopController> _logger;
@@ -24,8 +27,9 @@ namespace PinkUmbrella.Controllers
         
         public ShopController(IWebHostEnvironment environment, ILogger<ShopController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IShopService shops, 
-            IReactionService reactions, ITagService tags, INotificationService notifications):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications)
+            IReactionService reactions, ITagService tags, INotificationService notifications, IPeerService peers, IAuthService auth,
+            ISettingsService settings):
+            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications, peers, auth, settings)
         {
             _logger = logger;
             _shops = shops;

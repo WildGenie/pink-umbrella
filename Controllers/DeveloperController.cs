@@ -12,9 +12,13 @@ using PinkUmbrella.Models;
 using PinkUmbrella.Services;
 using PinkUmbrella.ViewModels.Developer;
 using PinkUmbrella.Models.AhPushIt;
+using PinkUmbrella.Models.Settings;
+using Microsoft.FeatureManagement.Mvc;
+using PinkUmbrella.Util;
 
 namespace PinkUmbrella.Controllers
 {
+    [FeatureGate(FeatureFlags.ControllerDeveloper), AllowAnonymous, IsDevOrDebuggingOrElse404Filter]
     public class DeveloperController : BaseController
     {
         private readonly ILogger<DeveloperController> _logger;
@@ -23,8 +27,9 @@ namespace PinkUmbrella.Controllers
 
         public DeveloperController(IWebHostEnvironment environment, ILogger<DeveloperController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IDebugService debugService,
-            RoleManager<UserGroupModel> roleManager, IReactionService reactions, ITagService tags, INotificationService notifications):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications)
+            RoleManager<UserGroupModel> roleManager, IReactionService reactions, ITagService tags, INotificationService notifications, IPeerService peers,
+            IAuthService auth, ISettingsService settings):
+            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications, peers, auth, settings)
         {
             _logger = logger;
             _debugService = debugService;
@@ -34,185 +39,92 @@ namespace PinkUmbrella.Controllers
         public async Task<IActionResult> Index()
         {
             var user = await GetCurrentUserAsync();
-            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "dev"))
-            {
-                ViewData["Controller"] = "Developer";
-                ViewData["Action"] = nameof(Index);
-                return View(new IndexViewModel() {
-                    MyProfile = user,
-                    UnusedUnexpiredAccessCodes = await _userProfiles.GetUnusedUnexpiredAccessCodes(),
-                });
-            }
-            else
-            {
-                return Redirect("/Error/404");
-            }
+            ViewData["Controller"] = "Developer";
+            ViewData["Action"] = nameof(Index);
+            return View(new IndexViewModel() {
+                MyProfile = user,
+                UnusedUnexpiredAccessCodes = await _userProfiles.GetUnusedUnexpiredAccessCodes(),
+            });
         }
 
         public async Task<IActionResult> Users()
         {
             var user = await GetCurrentUserAsync();
-            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "dev"))
-            {
-                ViewData["Controller"] = "Developer";
-                ViewData["Action"] = nameof(Users);
-                return View(new UsersViewModel() {
-                    MyProfile = user,
-                    MostRecentlyCreatedUsers = await _userProfiles.GetMostRecentlyCreatedUsers(),
-                });
-            }
-            else
-            {
-                return Redirect("/Error/404");
-            }
+            ViewData["Controller"] = "Developer";
+            ViewData["Action"] = nameof(Users);
+            return View(new UsersViewModel() {
+                MyProfile = user,
+                MostRecentlyCreatedUsers = await _userProfiles.GetMostRecentlyCreatedUsers(),
+            });
         }
 
         public async Task<IActionResult> Exceptions(PaginationModel pagination)
         {
             var user = await GetCurrentUserAsync();
-            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "dev"))
-            {
-                ViewData["Controller"] = "Developer";
-                ViewData["Action"] = nameof(Exceptions);
-                return View(new ExceptionsViewModel() {
-                    MyProfile = user,
-                    Exceptions = await _debugService.Get(pagination)
-                });
-            }
-            else
-            {
-                return Redirect("/Error/404");
-            }
+            ViewData["Controller"] = "Developer";
+            ViewData["Action"] = nameof(Exceptions);
+            return View(new ExceptionsViewModel() {
+                MyProfile = user,
+                Exceptions = await _debugService.Get(pagination)
+            });
         }
 
         public async Task<IActionResult> ThrowException()
         {
-            var user = await GetCurrentUserAsync();
-            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "dev"))
-            {
-                throw new Exception("You threw this exception");
-            }
-            else
-            {
-                return Redirect("/Error/404");
-            }
+            throw new Exception("You threw this exception");
         }
 
         public async Task<IActionResult> Posts()
         {
             var user = await GetCurrentUserAsync();
-            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "dev"))
-            {
-                ViewData["Controller"] = "Developer";
-                ViewData["Action"] = nameof(Posts);
-                return View(new PostsViewModel() {
-                    MyProfile = user,
-                    MostReportedPosts = await _posts.GetMostReportedPosts(),
-                    MostBlockedPosts = await _posts.GetMostBlockedPosts(),
-                    MostDislikedPosts = await _posts.GetMostDislikedPosts(),
-                });
-            }
-            else
-            {
-                return Redirect("/Error/404");
-            }
-        }
-
-        public async Task<IActionResult> Community()
-        {
-            var user = await GetCurrentUserAsync();
-            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "dev"))
-            {
-                ViewData["Controller"] = "Developer";
-                ViewData["Action"] = nameof(Community);
-                return View();
-            }
-            else
-            {
-                return Redirect("/Error/404");
-            }
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GiveAccessToGroup()
-        {
-            var user = await GetCurrentUserAsync();
-            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "dev"))
-            {
-                return View();
-            }
-            else
-            {
-                return Redirect("/Error/404");
-            }
-            
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> GiveAccessToGroup(int toUserId, string group)
-        {
-            var user = await GetCurrentUserAsync();
-            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "dev"))
-            {
-                if (await _roleManager.RoleExistsAsync(group))
-                {
-                    var code = await _userProfiles.NewGroupAccessCode(user.Id, toUserId, group);
-                    return Content($"You have given {toUserId} access to {group}. The link is\n<a href=\"/AddMeToGroup/{code.Code}\">{code.Code}</a>");
-                }
-            }
-            
-            return Redirect("/Error/404");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> SendNotification(int postId, string group)
-        {
-            var user = await GetCurrentUserAsync();
-            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "dev"))
-            {
-                int[] recipients = null;
-                if (group == "*")
-                {
-                    recipients = _userManager.Users.Select(u => u.Id).ToArray();
-                }
-                else if (await _roleManager.RoleExistsAsync(group))
-                {
-                    recipients = (await _userManager.GetUsersInRoleAsync(group)).Select(u => u.Id).ToArray();
-                }
-
-                await _notifications.Publish(new Notification() {
-                    FromUserId = user.Id,
-                    Priority = NotificationPriority.Normal,
-                    Type = NotificationType.DIRECT_NOTIFICATION,
-                    Subject = ReactionSubject.Post,
-                    SubjectId = postId,
-                }, recipients);
-                return Content($"You have sent {postId} to {group} ({recipients.Length} recipients). ");
-            }
-            
-            return Redirect("/Error/404");
+            ViewData["Controller"] = "Developer";
+            ViewData["Action"] = nameof(Posts);
+            return View(new PostsViewModel() {
+                MyProfile = user,
+                MostReportedPosts = await _posts.GetMostReportedPosts(),
+                MostBlockedPosts = await _posts.GetMostBlockedPosts(),
+                MostDislikedPosts = await _posts.GetMostDislikedPosts(),
+            });
         }
 
         [HttpGet]
         public async Task<IActionResult> NotificationsForUser(int userId, int? sinceId = null, bool includeViewed = true, bool includeDismissed = false, PaginationModel pagination = null)
         {
             var user = await GetCurrentUserAsync();
-            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "dev"))
-            {
-                ViewData["Controller"] = "Account";
-                ViewData["Action"] = nameof(NotificationsForUser);
+            ViewData["Controller"] = "Account";
+            ViewData["Action"] = nameof(NotificationsForUser);
 
-                return View(new NotificationsViewModel()
+            return View(new NotificationsViewModel()
+            {
+                MyProfile = user,
+                Items = await _notifications.GetNotifications(userId, sinceId, includeViewed, includeDismissed, pagination ?? new PaginationModel()),
+                SinceId = sinceId,
+                IncludeViewed = includeViewed,
+                IncludeDismissed = includeDismissed,
+            });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> MakeMeDevAndAdmin()
+        {
+            var user = await GetCurrentUserAsync();
+            foreach (var g in new GroupType [] { GroupType.Dev, GroupType.Admin })
+            {
+                var gname = g.ToString().ToLower();
+                if (!await _roleManager.RoleExistsAsync(gname))
                 {
-                    MyProfile = user,
-                    Items = await _notifications.GetNotifications(userId, sinceId, includeViewed, includeDismissed, pagination ?? new PaginationModel()),
-                    SinceId = sinceId,
-                    IncludeViewed = includeViewed,
-                    IncludeDismissed = includeDismissed,
-                });
+                    var result = await _roleManager.CreateAsync(new UserGroupModel() { Name = gname, OwnerId = -1, GroupType = g });
+                    if (!result.Succeeded)
+                    {
+                        throw new Exception($"Cannot create {gname} group");
+                    }
+                }
+                if (!await _userManager.IsInRoleAsync(user, gname))
+                {
+                    await _userManager.AddToRoleAsync(user, gname);
+                }
             }
-            
-            return Redirect("/Error/404");
+            return RedirectToAction(nameof(Index));
         }
     }
 }

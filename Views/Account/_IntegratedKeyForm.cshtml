@@ -1,0 +1,51 @@
+@using PinkUmbrella.Services;
+<form id="integrated-credentials">
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <label class="input-group-text" for="attestationType">Attestation Type</label>
+        </div>
+        <select class="custom-selectform-control" name="attestationType">
+            <option selected="" value="none">None</option>
+            <option value="Indirect">Indirect</option>
+            <option value="Direct">Direct</option>
+        </select>
+    </div>
+
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <label class="input-group-text" for="authenticatorAttachment">Authenticator Type</label>
+        </div>
+        <select class="custom-select form-control" name="authenticatorAttachment">
+            <option selected="" value="">Unspecified</option>
+            <option value="CrossPlatform">Cross platform</option>
+            <option value="Platform">Platform (TPM)</option>
+        </select>
+    </div>
+
+    <div class="input-group">
+        <h3>Advanced Settings</h3> 
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="userVerification">User Verification</label>
+            </div>
+            <select class="custom-select form-control" name="userVerification">
+                <option selected="" value="discouraged">Discouraged</option>
+                <option value="preferred">Preferred</option>
+                <option value="required">Required</option>
+            </select>
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="requireResidentKey">Register with Resident Key</label>
+            </div>
+            <select class="custom-select form-control" name="requireResidentKey">
+                <option selected="" value="false">Not Required</option>
+                <option value="true">Required</option>
+            </select>
+        </div>                                
+    </div>
+
+    <a asp-action="GetCredentialOptions" asp-controller="Account" id="makeCredentialOptions"></a>
+    <a asp-action="MakeCredential" asp-controller="Account" id="makeCredentials"></a>
+    <button onclick="registerNewCredential()" type="button" class="btn btn-primary">Add Integrated Credential</button>
+</form>

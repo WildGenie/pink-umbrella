@@ -19,9 +19,12 @@
                 <li class="nav-item @videosLiClass">
                     <a class="nav-link text-dark" asp-controller="Archive" asp-action="Videos"><u>Videos</u></a>
                 </li>
+                @if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionArchiveUpload)))
+                {
                 <li class="nav-item @uploadLiClass">
                     <a class="nav-link text-dark" asp-controller="Archive" asp-action="Upload"><u>Upload</u></a>
                 </li>
+                }
             </ul>
         </div>
     </div>

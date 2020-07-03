@@ -8,13 +8,16 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Models;
+using PinkUmbrella.Models.Settings;
 using PinkUmbrella.Services;
 using PinkUmbrella.ViewModels.Home;
 using PinkUmbrella.ViewModels.Shared;
 
 namespace PinkUmbrella.Controllers
 {
+    [FeatureGate(FeatureFlags.ControllerReaction)]
     [Authorize]
     public class ReactionController: BaseController
     {
@@ -22,8 +25,8 @@ namespace PinkUmbrella.Controllers
 
         public ReactionController(IWebHostEnvironment environment, ILogger<ReactionController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles,IReactionService reactions, ITagService tags,
-            INotificationService notifications):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications)
+            INotificationService notifications, IPeerService peers, IAuthService auth, ISettingsService settings):
+            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications, peers, auth, settings)
         {
             _logger = logger;
         }

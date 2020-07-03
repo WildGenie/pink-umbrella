@@ -1,0 +1,41 @@
+﻿@using PinkUmbrella.Services;
+@model PinkUmbrella.ViewModels.Account.AuthKeysViewModel
+@{
+    ViewData["Title"] = "Auth Keys";
+}
+<partial name="_Header" />
+
+<div>
+@if (Model.Keys.Count > 0)
+{
+    foreach (var key in Model.Keys)
+    {
+        <p>@key</p>
+    }
+}
+else
+{
+    <p>No keys.</p>
+}
+</div>
+@if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserLoginFIDO)))
+{
+<partial name="_IntegratedKeyForm" />
+}
+<div style="display: grid; grid-template-columns: 1fr 1fr; grid-gap: 1rem;">
+    <div>
+        <partial name="_AddKeyForm" model="Model.NewKey" />
+    </div>
+    <div>
+        <partial name="_GenKeyForm" model="Model.GenNewKey" />
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserLoginFIDO)))
+    {
+    <script src="~/js/fido.js" asp-append-version="true"></script>
+    }
+}

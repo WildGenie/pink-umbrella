@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using PinkUmbrella.Models.Auth;
 
 namespace PinkUmbrella.Util
 {

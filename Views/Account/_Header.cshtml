@@ -1,6 +1,7 @@
 ﻿@{
     var actionName = (string) ViewData["Action"];
     var detailsLiClass = actionName == "Index" ? "selected" : "";
+    var keysLiClass = actionName == "AuthKeys" ? "selected" : "";
     var personalDataLiClass = (actionName == "PersonalData" || actionName == "Delete") ? "selected" : "";
     var changePassLiClass = actionName == "ChangePassword" ? "selected" : "";
     var notificationSettingsLiClass = actionName == "NotificationSettings" ? "selected" : "";
@@ -16,9 +17,15 @@
                 <li class="nav-item @personalDataLiClass">
                     <a class="nav-link text-dark" asp-controller="Account" asp-action="PersonalData"><u>Personal Data</u></a>
                 </li>
+                <li class="nav-item @keysLiClass">
+                    <a class="nav-link text-dark" asp-controller="Account" asp-action="AuthKeys"><u>Keys</u></a>
+                </li>
+                @if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserChangePassword)))
+                {
                 <li class="nav-item @changePassLiClass">
                     <a class="nav-link text-dark" asp-controller="Account" asp-action="ChangePassword"><u>Change Password</u></a>
                 </li>
+                }
                 <li class="nav-item @notificationSettingsLiClass">
                     <a class="nav-link text-dark" asp-controller="Account" asp-action="NotificationSettings"><u>Notification Settings</u></a>
                 </li>

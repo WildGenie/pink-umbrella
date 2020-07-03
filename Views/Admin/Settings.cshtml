@@ -1,0 +1,47 @@
+@using Microsoft.Extensions.Configuration
+@using PinkUmbrella.Models.Settings
+@model PinkUmbrella.ViewModels.Admin.SettingsViewModel
+@{
+    ViewData["Title"] = "Settings";
+}
+<partial name="_Header" />
+<input type="text" class="form-control simple-table-filter-input" placeholder="Search settings" data-el-selector=".settings-table" />
+<table class="table settings-table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var p in Model.Settings.GetType().GetProperties())
+        {
+            var value = p.GetValue(Model.Settings);
+            <tr>
+                <td>
+                    @Model.Settings.GetPropertyDisplayName(p.Name)
+                </td>
+                <td>
+                    @Model.Settings.GetPropertyDescription(p.Name)
+                </td>
+                <td>
+                    <form class="change-post position-relative" method="post" asp-action="UpdateSetting" asp-controller="Admin" style="display: block">
+                        <input type="hidden" name="Key" value="@p.Name" />
+                        @if (p.Name.EndsWith("Color"))
+                        {
+                            <input type="color" value="@value" name="Value" class="input-auto-post w-100" />
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(_ => value, new {
+                                @class = "input-auto-post w-100",
+                                name = "Value"
+                            })
+                        }
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

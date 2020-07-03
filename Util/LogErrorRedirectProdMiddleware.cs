@@ -13,11 +13,11 @@ using PinkUmbrella.Models;
 
 namespace PinkUmbrella.Util
 {
-    public class LogErrorRedirectProd
+    public class LogErrorRedirectProdMiddleware
     {
         private readonly RequestDelegate _next;
 
-        public LogErrorRedirectProd(RequestDelegate next)
+        public LogErrorRedirectProdMiddleware(RequestDelegate next)
         {
             _next = next;
         }

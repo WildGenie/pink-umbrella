@@ -1,0 +1,61 @@
+﻿@model PinkUmbrella.ViewModels.Admin.PeersViewModel
+@{
+    ViewData["Title"] = "Peers";
+}
+<partial name="_Header" />
+@if (Model.Peers.Count > 0)
+{
+    @foreach (var peer in Model.Peers)
+    {
+        <div class="float-right" style="display: grid; grid-gap: 1rem">
+            <a asp-controller="Admin" asp-action="UntrustPeer" asp-route-address="@peer.Peer.Address" asp-route-port="@peer.Peer.AddressPort" class="btn btn-danger">Untrust</a>
+            <a asp-controller="Admin" asp-action="ResetPeerKeys" asp-route-address="@peer.Peer.Address" asp-route-port="@peer.Peer.AddressPort" class="btn btn-primary">Reset Keys</a>
+            <a asp-controller="Admin" asp-action="SyncPeer" asp-route-address="@peer.Peer.Address" asp-route-port="@peer.Peer.AddressPort" class="btn btn-success">Sync</a>
+        </div>
+        <div style="display: grid; grid-template-columns: min-content 1fr auto; align-items: center;">
+            <a class="text-nowrap m-0" asp-action="Peer" asp-asp-controller="Admin" asp-route-address="@peer.Peer.Address" asp-route-port="@peer.Peer.AddressPort"><b>@peer.Peer.DisplayName</b></a>
+            <small>@(peer.Peer.Address):@(peer.Peer.AddressPort == 443 ? null : peer.Peer.AddressPort.ToString())</small>
+            <p style="grid-row: 2; grid-column: span 3;">@peer.Peer.ToString()</p>
+        </div>
+        @if (peer.Stats != null)
+        {
+            <ul>
+            @foreach (var p in peer.Stats.GetType().GetProperties())
+            {
+                <li>
+                    <b>@p.Name</b>
+                    <span>@(p.GetValue(peer.Stats)?.ToString() ?? "<empty>")</span>
+                </li>
+            }
+            </ul>
+        }
+        else
+        {
+            <p>Could not get stats</p>
+        }
+    }
+}
+else
+{
+    <p>No peers. Why not add one?</p>
+}
+<hr />
+<h3>Preview / Trust Peer</h3>
+<form asp-action="PreviewPeer" asp-controller="Admin" method="GET">
+    <div style="display: grid; grid-template-columns: 1fr auto 1fr; grid-gap: 10%">
+        <div style="display: grid">
+            <label>URL</label>
+            <input name="url" type="url" placeholder="@_strings.UrlPlaceholder"/>
+        </div>
+        <span>OR</span>
+        <div style="display: grid">
+            <label>Address</label>
+            <input name="address" type="text" pattern="@_strings.ValidIPRegex" placeholder="@_strings.IPPlaceholder" />
+        </div>
+    </div>
+    <div style="text-align: center;">
+        <label>Port</label>
+        <input name="port" type="number" min="0" max="@Int16.MaxValue" placeholder="@_strings.PortPlaceholder" />
+        <button type="submit" class="btn btn-primary">Preview</button>
+    </div>
+</form>

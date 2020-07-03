@@ -63,6 +63,7 @@ namespace PinkUmbrella.Services.Sql
                     Handle = input.Handle,
                     DisplayName = input.DisplayName,
                     WhenCreated = DateTime.UtcNow,
+                    WhenLastUpdated = DateTime.UtcNow,
                     Bio = "Hey, I'm " + input.DisplayName,
                     Visibility = Visibility.VISIBLE_TO_WORLD,
                     BioVisibility = Visibility.VISIBLE_TO_WORLD,
@@ -253,17 +254,21 @@ namespace PinkUmbrella.Services.Sql
         {
             if (_userManager.Users.Count() == 1)
             {
-                if (!await _roleManager.RoleExistsAsync("dev"))
+                foreach (var g in new GroupType [] { GroupType.Dev, GroupType.Admin })
                 {
-                    var result = await _roleManager.CreateAsync(new UserGroupModel() { Name = "dev", OwnerId = -1, GroupType = GroupType.Dev });
-                    if (!result.Succeeded)
+                    var gname = g.ToString().ToLower();
+                    if (!await _roleManager.RoleExistsAsync(gname))
                     {
-                        throw new Exception("Cannot create dev group");
+                        var result = await _roleManager.CreateAsync(new UserGroupModel() { Name = gname, OwnerId = -1, GroupType = g });
+                        if (!result.Succeeded)
+                        {
+                            throw new Exception($"Cannot create {gname} group");
+                        }
                     }
-                }
-                if (!await _userManager.IsInRoleAsync(user, "dev"))
-                {
-                    await _userManager.AddToRoleAsync(user, "dev");
+                    if (!await _userManager.IsInRoleAsync(user, gname))
+                    {
+                        await _userManager.AddToRoleAsync(user, gname);
+                    }
                 }
             }
         }
@@ -278,6 +283,16 @@ namespace PinkUmbrella.Services.Sql
         {
             var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Handle.ToLower() == handle);
             return user != null;
+        }
+
+        public Task<List<UserProfileModel>> GetAll(DateTime? sinceLastUpdated)
+        {
+            var query = _dbContext.Users.Where(u => u.Visibility != Visibility.HIDDEN && !u.WhenDeleted.HasValue);
+            if (sinceLastUpdated.HasValue)
+            {
+                query = query.Where(u => u.WhenLastUpdated > sinceLastUpdated.Value);
+            }
+            return query.ToListAsync();
         }
     }
 }

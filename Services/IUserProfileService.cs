@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -41,5 +42,7 @@ namespace PinkUmbrella.Services
         Task<List<GroupAccessCodeModel>> GetUnusedUnexpiredAccessCodes();
 
         Task<bool> HandleExists(string handle);
+        
+        Task<List<UserProfileModel>> GetAll(DateTime? sinceLastUpdated);
     }
 }

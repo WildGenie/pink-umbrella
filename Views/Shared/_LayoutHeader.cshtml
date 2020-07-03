@@ -23,52 +23,73 @@
     var unviewedNotificationsCount = Model?.MyProfile != null ? await _notifications.GetUnviewedNotificationsCount(Model.MyProfile.Id) : 0;
 }
 <header>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3 text-nowrap">
         <div class="container">
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index"><i class="fa fa-umbrella accent-color"></i> @_strings.SiteName @if (!_environment.IsProduction()) { <i class="fas fa-robot" title="@_strings.BetaMsg"></i> }</a>
+            <a class="navbar-brand text-nowrap" asp-area="" asp-controller="Home" asp-action="Index"><i class="fa fa-umbrella accent-color"></i> @_settings.Site.HostDisplayName @if (!_environment.IsProduction()) { <i class="fas fa-robot" title="@_strings.BetaMsg"></i> }</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                 <ul class="navbar-nav flex-grow-1 highlight-selected">
+                    @if (await _settings.FeatureManager.IsEnabledAsync(nameof(ViewSearch)))
+                    {
                     <li class="nav-item @searchLiClass">
                         <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Search">
                             <i class="fa fa-search"></i> Search
                         </a>
                     </li>
+                    }
                     @if (SignInManager.IsSignedIn(User)) 
                     {
+                        if (await _settings.FeatureManager.IsEnabledAsync(nameof(ControllerAccount)))
+                        {
                         <li class="nav-item @accountLiClass">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Index" >
                                 <i class="fa fa-cogs"></i> Account
                             </a>
                         </li>
+                        }
+                        if (await _settings.FeatureManager.IsEnabledAsync(nameof(ControllerProfile)))
+                        {
                         <li class="nav-item @profileLiClass">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Profile" asp-action="Index" asp-route-id="@null" >
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Profile" asp-action="Index" asp-route-id="@Model.MyProfile.Id" >
                                 <i class="far fa-user-circle"></i> Profile
                             </a>
                         </li>
+                        }
+                        if (await _settings.FeatureManager.IsEnabledAsync(nameof(ControllerArchive)))
+                        {
                         <li class="nav-item @archiveLiClass">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Archive" asp-action="Index" >
                                 <i class="fas fa-photo-video"></i> Media Archive
                             </a>
                         </li>
+                        }
+                        if (await _settings.FeatureManager.IsEnabledAsync(nameof(ControllerInventory)))
+                        {
                         <li class="nav-item @inventoryLiClass">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Inventory" asp-action="Index" >
                                 <i class="fa fa-boxes"></i> Inventory
                             </a>
                         </li>
+                        }
+                        if (await _settings.FeatureManager.IsEnabledAsync(nameof(ControllerCivicDuty)))
+                        {
                         <li class="nav-item @civicDutyLiClass">
                             <a class="nav-link text-dark" asp-area="" asp-controller="CivicDuty" asp-action="Index" >
                                 <i class="far fa-handshake"></i> Civic Duty
                             </a>
                         </li>
+                        }
+                        if (await _settings.FeatureManager.IsEnabledAsync(nameof(ControllerShop)))
+                        {
                         <li class="nav-item @shopLiClass">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Shop" asp-action="Index" asp-route-handle="@null">
                                 <i class="fas fa-store"></i> Shop
                             </a>
                         </li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout" >
                                 <i class="fa fa-sign-out-alt"></i> Logout
@@ -87,11 +108,14 @@
                                 <i class="fas fa-sign-in-alt"></i> Register or Login
                             </a>
                         </li>
+                        if (await _settings.FeatureManager.IsEnabledAsync(nameof(ControllerShop)) && await _settings.FeatureManager.IsEnabledAsync(nameof(ViewSearch)))
+                        {
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Search" asp-route-t="@SearchResultType.Shop">
                                 <i class="fas fa-store"></i> Shop
                             </a>
                         </li>
+                        }
                     }
                 </ul>
             </div>

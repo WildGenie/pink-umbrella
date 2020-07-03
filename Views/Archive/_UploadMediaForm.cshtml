@@ -4,6 +4,8 @@
     var visibilities = new EnumViewModel() { Type = typeof(Visibility), Selected = Visibility.VISIBLE_TO_REGISTERED };
 }
 <h4>Upload media</h4>
+@if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionArchiveUpload)))
+{
 <form asp-action="Upload" asp-controller="Archive" enctype="multipart/form-data" method="POST">
     <div asp-validation-summary="All" class="text-danger"></div>
     <dl>
@@ -46,3 +48,8 @@
     </dl>
     <button type="submit" class="btn btn-primary"><i class="fas fa-upload"></i> Upload</button>
 </form>
+}
+else
+{
+    <p>Uploading media has been turned off by site admin.</p>
+}

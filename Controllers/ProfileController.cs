@@ -11,9 +11,12 @@ using Microsoft.Extensions.Logging;
 using PinkUmbrella.Models;
 using PinkUmbrella.Services;
 using PinkUmbrella.ViewModels.Profile;
+using PinkUmbrella.Models.Settings;
+using Microsoft.FeatureManagement.Mvc;
 
 namespace PinkUmbrella.Controllers
 {
+    [FeatureGate(FeatureFlags.ControllerProfile)]
     [AllowAnonymous]
     public class ProfileController: BaseController
     {
@@ -23,8 +26,9 @@ namespace PinkUmbrella.Controllers
 
         public ProfileController(IWebHostEnvironment environment, ILogger<ProfileController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IReactionService reactions,
-            IArchiveService archive, ITagService tags, IShopService shops, INotificationService notifications):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications)
+            IArchiveService archive, ITagService tags, IShopService shops, INotificationService notifications, IPeerService peers, IAuthService auth,
+            ISettingsService settings):
+            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications, peers, auth, settings)
         {
             _logger = logger;
             _archive = archive;

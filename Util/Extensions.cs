@@ -83,6 +83,27 @@ namespace PinkUmbrella.Util
             return propertyName;
         }
 
+        public static string GetPropertyDisplayName<T>(this T root, string propertyName)
+        {
+            Type type = typeof(T);
+
+            //Tries to find a DisplayNameAttribute for a potential friendly name
+            //for the enum
+            MemberInfo[] memberInfo = type?.GetMember(propertyName);
+            if (memberInfo != null && memberInfo.Length > 0)
+            {
+                object[] attrs = memberInfo[0].GetCustomAttributes(typeof(DisplayNameAttribute), false);
+
+                if (attrs != null && attrs.Length > 0)
+                {
+                    //Pull out the display name value
+                    return ((DisplayNameAttribute)attrs[0]).DisplayName;
+                }
+            }
+            //If we have no description attribute, just return the ToString of the enum
+            return propertyName;
+        }
+
         public static string GetPropertyPlaceHolder<T>(this T root, string propertyName)
         {
             Type type = typeof(T);

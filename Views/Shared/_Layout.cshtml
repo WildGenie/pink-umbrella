@@ -11,13 +11,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     @if (_environment.IsProduction())
     {
-    <title>@ViewData["Title"] - @_strings.SiteName</title>
+    <title>@ViewData["Title"] - @_settings.Site.HostDisplayName - @_strings.SoftwareName</title>
     }
     else
     {
-    <title>@ViewData["Title"] - @_strings.SiteName - Beta</title>
+    <title>@ViewData["Title"] - @_settings.Site.HostDisplayName - Beta @_strings.SoftwareName</title>
     }
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        :root {
+            --accent-color: @_settings.Site.AccentColor;
+        }
+    </style>
     <link rel="stylesheet" href="~/css/site.css" />
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous" />
@@ -34,7 +39,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            2020 <i class="fa fa-umbrella accent-color" style="transform: ScaleX(-1)"></i> @_strings.SiteName for @_strings.Instance.HostDisplayName
+            2020 <i class="fa fa-umbrella accent-color" style="transform: ScaleX(-1)"></i> @_strings.SoftwareName for @_settings.Site.HostDisplayName
             &bull; <a href="@_strings.GitHubUrl" target="_blank"><i class="fab fa-github"></i> GitHub</a>
             &bull; <a asp-area="" asp-controller="Home" asp-action="Privacy"><i class="fas fa-user-secret"></i> Privacy</a>
             &bull; <a asp-area="" asp-controller="Home" asp-action="About"><i class="fas fa-question-circle"></i> About Us</a>
@@ -42,6 +47,10 @@
             @if (User.IsInRole(_strings.RoleDeveloper) || System.Diagnostics.Debugger.IsAttached)
             {
                 <span> &bull; </span><a asp-area="" asp-controller="Developer" asp-action="Index"><i class="fas fa-robot"></i> Debug</a>
+            }
+            @if (User.IsInRole(_strings.RoleAdmin) || System.Diagnostics.Debugger.IsAttached)
+            {
+                <span> &bull; </span><a asp-area="" asp-controller="Admin" asp-action="Index"><i class="fas fa-balance-scale"></i> Admin</a>
             }
             &bull; <a asp-area="" asp-controller="Home" asp-action="Links"><i class="fas fa-link"></i> Links</a>
             &bull; <a href="@_strings.ReportBugUrl" target="_blank"><i class="fas fa-bug"></i> Report Issue</a>

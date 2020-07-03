@@ -10,17 +10,20 @@ using Microsoft.Extensions.Logging;
 using PinkUmbrella.Models;
 using PinkUmbrella.Services;
 using PinkUmbrella.ViewModels;
+using PinkUmbrella.Models.Settings;
+using Microsoft.FeatureManagement.Mvc;
 
 namespace PinkUmbrella.Controllers
 {
+    [FeatureGate(FeatureFlags.ControllerCivicDuty)]
     public class CivicDutyController : BaseController
     {
         private readonly ILogger<CivicDutyController> _logger;
 
         public CivicDutyController(IWebHostEnvironment environment, ILogger<CivicDutyController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IReactionService reactions, ITagService tags,
-            INotificationService notifications):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications)
+            INotificationService notifications, IPeerService peers, IAuthService auth, ISettingsService settings):
+            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications, peers, auth, settings)
         {
             _logger = logger;
         }

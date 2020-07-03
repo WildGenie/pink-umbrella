@@ -1,10 +1,6 @@
 ﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
 for details on configuring this project to bundle and minify static web assets. */
 
-:root {
-  --accent-color: #ff97dd;
-}
-
 .accent-color {
   color: var(--accent-color);
 }
@@ -215,3 +211,55 @@ ul.highlight-selected > li.selected {
 .js-new-post-form input#Content {
   grid-column: span 3;
 }
+
+.change-post {
+  position: relative;
+}
+
+.validate-success + .badge, .validate-danger + .badge, .validate-warning + .badge, .validate-thinking + .badge {
+  position: absolute;
+  right: -24px;
+  top: 0px;
+  transform: translateX(-50%) translateY(-50%);
+  border-radius: 100%;
+  width: 24px;
+  height: 24px;
+  border: 1px solid white;
+  content: '&check;';
+  background-color: green;
+  color: white;
+  font-size: .7em;
+  background: green;
+  color: white;
+  text-align: center;
+  line-height: 18px;
+  box-shadow: 0 0 1px #333;
+}
+
+.validation-badge > span {
+  display: none;
+}
+
+.validate-success + .badge {
+  background-color: green;
+  color: white;
+}
+
+.validate-danger + .badge {
+  background-color: red;
+  color: white;
+}
+
+.validate-warning + .badge {
+  background-color: yellow;
+  color: black;
+}
+
+.validate-thinking + .badge {
+  background-color: grey;
+  color: white;
+}
+
+  .validate-success + .badge > .success, .validate-danger + .badge > .danger, .validate-warning + .badge > .warning, .validate-thinking + .badge > .thinking {
+      display: inline-block;
+  }

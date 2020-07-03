@@ -1,0 +1,21 @@
+﻿@*model PinkUmbrella.ViewModels.Peer.IndexViewModel*@
+@{
+    ViewData["Title"] = "Peer";
+}
+
+<partial name="_Header" />
+<h3>Unused & Unexpired Group Access Codes</h3>
+@if (Model.UnusedUnexpiredAccessCodes.Count() > 0)
+{
+<ol>
+    @foreach (var code in Model.UnusedUnexpiredAccessCodes)
+    {
+    <li>@code</li>
+    }
+</ol>
+}
+else
+{
+    <p>There are none. What a relief.</p>
+}
+<partial name="_SendNotificationForm" />

@@ -9,6 +9,13 @@
     ViewData["Title"] = "Login";
 }
 <br />
+@if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserLogin)))
+{
+    if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserLoginFIDO)))
+    {
+        <a asp-controller="Account" asp-action="AssertionOptions" id="assertionOptions"></a>
+        <a asp-controller="Account" asp-action="MakeAssertion" id="makeAssertion"></a>
+    }
 <div class="container">
     <div class="row">
         <div class="col-md-6 col-lg-offset-3">
@@ -19,6 +26,10 @@
                     <span asp-validation-for="EmailAddress" class="text-danger"></span>
                 </div>
                 <div class="form-group">
+                    if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserLoginFIDO)))
+                    {
+                    <button type="button" onclick="loginViaIntegratedCredentials(this)" class="btn btn-link" style="float: right"><i class="fa fa-fingerprint"></i> Integrated Credentials</button>
+                    }
                     <label asp-for="Password"></label>
                     <input asp-for="Password" class="form-control" />
                     <span asp-validation-for="Password" class="text-danger"></span>
@@ -38,3 +49,15 @@
         </div>
     </div>
 </div>
+}
+else
+{
+    <p>Login has been turned off.</p>
+}
+
+@section Scripts {
+    if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserLoginFIDO)))
+    {
+        <script src="~/js/fido.js" asp-append-version="true"></script>
+    }
+}

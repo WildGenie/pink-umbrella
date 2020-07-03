@@ -17,31 +17,37 @@ using PinkUmbrella.ViewModels.Home;
 using PinkUmbrella.Services.Sql.Search;
 using PinkUmbrella.ViewModels;
 using PinkUmbrella.ViewModels.Peer;
+using PinkUmbrella.Models.Auth;
+using PinkUmbrella.Util;
+using PinkUmbrella.ViewModels.Shared;
+using PinkUmbrella.Models.Settings;
+using Microsoft.FeatureManagement.Mvc;
 
 namespace PinkUmbrella.Controllers
 {
+    [FeatureGate(FeatureFlags.ControllerHome)]
     [AllowAnonymous]
     public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ISearchService _searchService;
         private readonly IFeedService _feedService;
-        private readonly IPeerService _peers;
 
         public HomeController(IWebHostEnvironment environment, ILogger<HomeController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService postService, IUserProfileService userProfiles, ISearchService searchService,
-            IReactionService reactions, IFeedService feedService, ITagService tags, INotificationService notifications, IPeerService peers):
-            base(environment, signInManager, userManager, postService, userProfiles, reactions, tags, notifications)
+            IReactionService reactions, IFeedService feedService, ITagService tags, INotificationService notifications, IPeerService peers,
+            IAuthService auth, ISettingsService settings):
+            base(environment, signInManager, userManager, postService, userProfiles, reactions, tags, notifications, peers, auth, settings)
         {
             _logger = logger;
             _searchService = searchService;
             _feedService = feedService;
-            _peers = peers;
         }
 
-        public async Task<IActionResult> Index()
+        [Route("/"), Route("/{address}-{port}")]
+        public async Task<IActionResult> Index(string address = null, int? port = null)
         {
-            ViewData["Controller"] = "Home";
+            ViewData["Controller"] = $"Home ({address}-{port})";
             ViewData["Action"] = nameof(Index);
             var user = await GetCurrentUserAsync();
             var model = new IndexViewModel() {
@@ -49,20 +55,37 @@ namespace PinkUmbrella.Controllers
                 MyProfile = user,
             };
 
-            if (user != null)
+            if (address == null)
             {
-                model.MyFeed = await _feedService.GetFeedForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 });
-                return View(model);
+                if (user != null)
+                {
+                    model.MyFeed = await _feedService.GetFeedForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 });
+                    return View(model);
+                }
+                else
+                {
+                    if (_signInManager.IsSignedIn(User)) {
+                        await _signInManager.SignOutAsync();
+                        return RedirectToAction(nameof(Index));
+                    }
+                    return View("Welcome", model);
+                }
             }
             else
             {
-                if (_signInManager.IsSignedIn(User)) {
-                    await _signInManager.SignOutAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                return View("Welcome", model);
+                var ip = await _auth.GetOrRememberIP(IPAddress.Parse(address));
+                var client = await _peers.Open(ip, port);
+                ViewData["Peer"] = await _peers.GetPeer(ip, port);
+                var bodycontent = await client.QueryHtml("");
+                bodycontent = bodycontent.HtmlExtractBody();
+                bodycontent = bodycontent.HtmlExtractMain();
+                return View("Proxy/_BodyContent", new BodyContentViewModel() {
+                    MyProfile = user,
+                    Html = bodycontent,
+                });
             }
         }
+
 
         [Route("/Welcome")]
         public async Task<IActionResult> Welcome()
@@ -176,29 +199,8 @@ namespace PinkUmbrella.Controllers
             return View(new BaseViewModel() { MyProfile = await GetCurrentUserAsync() });
         }
 
-        [Route("/Peers")]
-        public async Task<IActionResult> Peers()
-        {
-            ViewData["Controller"] = "Home";
-            ViewData["Action"] = nameof(Peers);
-            return View(new PeersViewModel() {
-                 MyProfile = await GetCurrentUserAsync(),
-                 Peers = await _peers.GetPeers(),
-            });
-        }
-
-        public async Task<IActionResult> PreviewPeer(string handle)
-        {
-            ViewData["Controller"] = "Home";
-            ViewData["Action"] = nameof(PreviewPeer);
-            return View(new PeerViewModel() {
-                 MyProfile = await GetCurrentUserAsync(),
-                 Peer = await (await _peers.Open(handle)).Query(),
-            });
-        }
-
         [Route("/Error/{code}")]
-        public IActionResult Error(string code)
+        public async Task<IActionResult> Error(string code)
         {
             string originalUrl = null;
             #region snippet_StatusCodeReExecute
@@ -212,7 +214,10 @@ namespace PinkUmbrella.Controllers
             }
             #endregion
 
-            return View(new ErrorViewModel() {
+            var user = await GetCurrentUserAsync();
+            return View(new ErrorViewModel()
+            {
+                MyProfile = user,
                 ErrorCode = code,
                 RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
                 OriginalURL = originalUrl,

@@ -5,6 +5,6 @@ namespace PinkUmbrella.Models.Auth
         None = 0,
         RSA = 1,
         OpenPGP = 2,
-        Circular = 3, // Maybe?
+        // Circular = 3, // Maybe?
     }
 }

@@ -21,6 +21,9 @@ namespace PinkUmbrella.Models
         [PersonalData, DisplayName("Deleted"), DefaultValue(null), Description("When your profile was deleted.")]
         public DateTime? WhenDeleted { get; set; }
 
+        [PersonalData, DisplayName("WhenLastUpdated"), DefaultValue(0), Description("When your profile was last updated.")]
+        public DateTime WhenLastUpdated { get; set; }
+
         [PersonalData, DisplayName("Deleted By"), DefaultValue(null), Description("Who your profile was deleted by.")]
         public int? DeletedByUserId { get; set; }
 

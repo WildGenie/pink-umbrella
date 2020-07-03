@@ -11,9 +11,12 @@ using Microsoft.Extensions.Logging;
 using PinkUmbrella.Models;
 using PinkUmbrella.Services;
 using PinkUmbrella.ViewModels.Shop;
+using Microsoft.FeatureManagement.Mvc;
+using PinkUmbrella.Models.Settings;
 
 namespace PinkUmbrella.Controllers
 {
+    [FeatureGate(FeatureFlags.ControllerNotification)]
     public class NotificationController : BaseController
     {
         private readonly ILogger<ShopController> _logger;
@@ -21,8 +24,9 @@ namespace PinkUmbrella.Controllers
 
         public NotificationController(IWebHostEnvironment environment, ILogger<ShopController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IShopService shops,
-            IReactionService reactions, ITagService tags, INotificationService notifications):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications)
+            IReactionService reactions, ITagService tags, INotificationService notifications, IPeerService peers, IAuthService auth,
+            ISettingsService settings):
+            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications, peers, auth, settings)
         {
             _logger = logger;
             _shops = shops;

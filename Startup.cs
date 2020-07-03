@@ -1,24 +1,24 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using Hangfire;
+using Hangfire.Server;
+using Hangfire.Storage.SQLite;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
-using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.FeatureManagement;
 using PinkUmbrella.Models;
+using PinkUmbrella.Models.Auth;
+using PinkUmbrella.Models.Auth.Types;
 using PinkUmbrella.Repositories;
 using PinkUmbrella.Services;
+using PinkUmbrella.Services.Jobs;
 using PinkUmbrella.Services.NoSql;
 using PinkUmbrella.Services.Peer;
 using PinkUmbrella.Services.Sql;
@@ -39,6 +39,9 @@ namespace PinkUmbrella
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddFeatureManagement();
+            services.AddDistributedMemoryCache();
+            
             services.AddDbContext<SimpleDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("MainConnection")));
             services.AddDbContext<LogDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("LogConnection")));
             services.AddDbContext<AhPushItDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("NotificationConnection")));
@@ -51,7 +54,16 @@ namespace PinkUmbrella
                 .AddEntityFrameworkStores<AuthDbContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddSingleton<StringRepository>((_) => new StringRepository(Configuration.GetSection("Strings")));
+            services.AddSingleton<IConfiguration>(_ => Configuration);
+
+            services.AddHangfire(configuration => configuration
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseSQLiteStorage()
+                //.UseHeartbeatPage(checkInterval: TimeSpan.FromSeconds(30))
+                );// .UseJobsLogger()
+
+            services.AddSingleton<StringRepository>();
             services.AddSingleton<CategorizedLinksRepository>();
             services.AddSingleton<ExternalDbOptions>((_) => new ExternalDbOptions() {
                 ExtractDbHandle = ExternalDbOptions.ExtractDomain,
@@ -62,6 +74,14 @@ namespace PinkUmbrella
                     return Task.FromResult<DbContext>(new SimpleDbContext(options.Options));
                 }
             });
+
+            services.AddSingleton<IAuthTypeHandler, RSAAuthHandler>();
+            services.AddSingleton<IAuthTypeHandler, OpenPGPAuthHandler>();
+            services.AddSingleton<IElasticService, ElasticService>();
+
+            services.AddSingleton<IPeerConnectionType, RESTPeerClientType>();
+
+            services.AddSingleton<ISettingsService, SettingsService>();
 
             services.AddScoped<IExternalDbContext, ExternalDbContext>();
             services.AddScoped<IPeerConnectionTypeResolver, PeerConnectionTypeResolver>();
@@ -124,12 +144,34 @@ namespace PinkUmbrella
                 options.SlidingExpiration = true;
             });
 
+            services.AddFido2(options =>
+            {
+                options.ServerDomain = Configuration["fido2:serverDomain"];
+                options.ServerName = "FIDO2 Test";
+                options.Origin = Configuration["fido2:origin"];
+                options.TimestampDriftTolerance = Configuration.GetValue<int>("fido2:timestampDriftTolerance");
+                options.MDSAccessKey = Configuration["fido2:MDSAccessKey"];
+                options.MDSCacheDirPath = Configuration["fido2:MDSCacheDirPath"];
+            })
+            .AddCachedMetadataService(config =>
+            {
+                //They'll be used in a "first match wins" way in the order registered
+                config.AddStaticMetadataRepository();
+                if (!string.IsNullOrWhiteSpace(Configuration["fido2:MDSAccessKey"]))
+                {
+                    config.AddFidoMetadataRepository(Configuration["fido2:MDSAccessKey"]);
+                }
+            });
+
+            services.AddScoped<IsDevOrDebuggingOrElse404FilterAttribute>();
+            services.AddScoped<IsAdminOrDebuggingOrElse404FilterAttribute>();
+
             services.AddControllersWithViews(options => {
                 var policy = new AuthorizationPolicyBuilder()
                     .RequireAuthenticatedUser()
                     .Build();
                 options.Filters.Add(new AuthorizeFilter(policy));
-            }).AddRazorRuntimeCompilation();//.AddNewtonsoftJson().SetCompatibilityVersion(CompatibilityVersion.Version_3_1);
+            }).AddRazorRuntimeCompilation();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -151,19 +193,29 @@ namespace PinkUmbrella
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseMiddleware<LogErrorRedirectProd>();
+            app.UseMiddleware<IsAdminOrDevOrDebuggingOrElse404Middleware>();
+            app.UseMiddleware<LogErrorRedirectProdMiddleware>();
             app.UseMiddleware<ExternalDbMiddleware>();
+
+            app.UseHangfireServer();
+            app.UseHangfireDashboard("/Admin/Hangfire");
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
-                    name: "api",
-                    pattern: "api/{controller=System}/{action=Index}/{id?}"
-                );
-                endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            ElasticJobs.Services = app.ApplicationServices;
+
+            RecurringJob.AddOrUpdate(() => ElasticJobs.SyncProfiles(null), Cron.Hourly);
+            RecurringJob.AddOrUpdate(() => ElasticJobs.SyncPosts(null), Cron.Hourly);
+            RecurringJob.AddOrUpdate(() => ElasticJobs.SyncMedia(null), Cron.Hourly);
+            RecurringJob.AddOrUpdate(() => ElasticJobs.SyncShops(null), Cron.Hourly);
+            RecurringJob.AddOrUpdate(() => ElasticJobs.SyncReactions(null), Cron.Hourly);
+            RecurringJob.AddOrUpdate(() => ElasticJobs.SyncMentions(null), Cron.Hourly);
+            RecurringJob.AddOrUpdate(() => ElasticJobs.SyncPeers(null), Cron.Hourly);
         }
     }
 }

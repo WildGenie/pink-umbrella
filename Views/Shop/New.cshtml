@@ -11,6 +11,8 @@
     };
 }
 <partial name="_Header" />
+@if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionShopNew)))
+{
 <form asp-action="New" asp-controller="Shop" method="POST">
     <div asp-validation-summary="All" class="text-danger"></div>
     <div class="form-group">
@@ -78,3 +80,8 @@
     <button type="submit" class="btn btn-primary">Publish Store</button>
     <partial name="Button/DebugValuesButton" />
 </form>
+}
+else
+{
+    <p>Listing businesses has been turned off by site admin.</p>
+}

@@ -2,8 +2,8 @@
 @{
     ViewData["Title"] = "Preview Peer";
 }
-<h1>@ViewData["Title"]</h1>
-<h3>@Model.Peer.Handle</h3>
+<partial name="_Header" />
+<h3>@Model.Peer.DisplayName</h3>
 <ul>
 @foreach (var p in Model.Peer.GetType().GetProperties())
 {
@@ -13,7 +13,7 @@
     </li>
 }
 </ul>
-<form asp-controller="Home" asp-action="AddPeer" asp-route-handle="@Model.Peer.Handle" method="POST">
+<form asp-controller="Admin" asp-action="TrustPeer" asp-route-address="@Model.Peer.Address" asp-route-port="@Model.Peer.AddressPort" method="POST">
     <a href="@(Context.Request.Headers["Referrer"])">Cancel</a>
     <button type="submit">Add</button>
 </form>

@@ -11,13 +11,26 @@
 <partial name="_Header" />
 <div class="row">
     <div class="col-md-6">
+        @if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserUpdateAccount)))
+        {
         <partial name="_AccountForm" />
+        }
+        else
+        {
+            <p>Updating account has been turned off.</p>
+        }
     </div>
     <div class="col-md-6">
+        @if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserUpdateProfile)))
+        {
         <partial name="_ProfileForm" />
+        }
+        else
+        {
+            <p>Updating profile has been turned off.</p>
+        }
     </div>
 </div>
-<hr>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

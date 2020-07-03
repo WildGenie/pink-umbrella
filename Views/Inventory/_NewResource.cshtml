@@ -3,7 +3,14 @@
 
 <hr />
 <h3>Create New Resource</h3>
+@if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionInventoryNewResource)))
+{
 <form asp-action="NewResource" asp-controller="Inventory" method="POST">
     <input type="hidden" value="@Model.Resource.InventoryId" name="Resource.InventoryId" />
     <partial name="_NewResourceFields" />
 </form>
+}
+else
+{
+    <p>Creating new resources has been turned off by site admin.</p>
+}

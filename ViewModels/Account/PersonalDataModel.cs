@@ -1,6 +1,6 @@
 namespace PinkUmbrella.ViewModels.Account
 {
-    public class PersonalDataModel
+    public class PersonalDataModel: BaseViewModel
     {
         
     }

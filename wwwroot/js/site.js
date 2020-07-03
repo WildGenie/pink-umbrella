@@ -1,10 +1,4 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
-
-// Write your JavaScript code.
-
-
-$(() => {
+﻿$(() => {
     $(document).on('click', '.contains-goto', (ev) => {
         let href = $(ev.target).closest('.contains-goto').find('a.goto').attr('href');
         window.location.assign(href);
@@ -104,6 +98,158 @@ $(() => {
     $(document).on('notification-dismiss', '.js-notification-container', (ev, r, $ajax) => {
         let $container = $ajax.closest('.js-notification-container');
         $container.remove();
+    });
+    
+    $(".simple-table-filter-input").on("keyup", function () {
+        var $this = $(this);
+        var value = $this.val().toLowerCase();
+        var tableSelector = $this.attr('data-el-selector');
+        $(tableSelector + ' tbody tr').filter(function () {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
+    $(document).on('change', '.instant-dropdown-post select', function () {
+        let $form = $(this).closest('form');
+        $form.submit();
+    });
+
+    $(document).on('change', '.instant-input-post input', function () {
+        let $form = $(this).closest('form');
+        $form.submit();
+    });
+
+    let inputTimeouts = [];
+    $(document).on('change keyup paste', '.input-auto-post', function () {
+        let $input = $(this);
+        let timeoutId = $input.attr('data-timeout-id') || '';
+        if (timeoutId.length > 0) {
+            timeoutId = parseInt(timeoutId);
+        
+            if (inputTimeouts[timeoutId]) {
+                clearTimeout(inputTimeouts[timeoutId]);
+            }
+        } else {
+            timeoutId = inputTimeouts.length;
+            $input.attr('data-timeout-id', timeoutId);
+            inputTimeouts.push(null);
+        }
+
+        if (!$input.next().is('.badge')) {
+            $input.after('<span class="badge validation-badge"><span class="success"><i class="fa fa-check"></i></span><span class="danger"><i class="fa fa-times"></i></span><span class="warning"><i class="fa fa-exclamation"></i></span><span class="thinking"><i class="fa fa-sync"></i></span></span>');
+        }
+
+        $input.removeClass('validate-success validate-danger validate-warning validate-thinking');
+        $input.addClass('validate-thinking');
+
+        let $form = $input.closest('form');
+        inputTimeouts[timeoutId] = setTimeout(() => {
+            inputTimeouts[timeoutId] = null;
+            let data = $form.serialize();
+            let dfd = null;
+            if ($form.attr('method') == 'post') {
+                dfd = $.post($form.attr('action'), data);
+            } else {
+                dfd = $.get($form.attr('action'), data);
+            }
+
+            dfd.then((response) => {
+                $input.removeClass('validate-success validate-danger validate-warning validate-thinking');
+                $input.addClass('validate-success');
+            }, () => {
+                console.error('could not post');
+                $input.removeClass('validate-success validate-danger validate-warning validate-thinking');
+                $input.addClass('validate-danger');
+            });
+        }, 1000);
+    });
+
+    $(document).on('focusout, change, keydown, keyup', '.ensure-ready-input input', function () {
+        let $ensureReadyInput = $(this).closest('.ensure-ready-input');
+        let $inputs = $('input', $ensureReadyInput);
+        let $lastInput = $inputs.last();
+        if ($lastInput.val().trim() !== '') {
+            let $newInput = $($lastInput[0].outerHTML);
+            $newInput.val('');
+            $lastInput.after($newInput);
+        } else {
+            for (var i = 0; i < $inputs.length - 1; i++) {
+                if ($($inputs[i]).val().trim() === '') {
+                    $inputs[i].remove();
+                }
+            }
+        }
+    });
+
+    $(document).on('click', '.ensure-ready-input button.btn-upload', function () {
+        let $ensureReadyInput = $(this).closest('.ensure-ready-input');
+        let $inputs = $('input', $ensureReadyInput);
+        let $lastInput = $inputs.last();
+
+        let $file = $('<input type="file" />');
+        $file.css('display', 'none');
+        $('body').append($file);
+
+        $file.on('change', function () {
+            $file[0].files[0].text().then(csvString => {
+                $file.remove();
+                let labels = csvString.split('\n');
+                let newInputTemplate = $lastInput[0].outerHTML;
+                for (var label of labels) {
+                    let $newInput = $(newInputTemplate);
+                    $newInput.val(label);
+                    $lastInput.after($newInput);
+                    $lastInput = $newInput;
+                }
+            });
+        });
+        $file.on('cancel', function () {
+            $file.remove();
+        });
+        $file.click();
+    });
+
+    $(document).on('click', '.ensure-ready-input button.btn-clear', function () {
+        let $ensureReadyInput = $(this).closest('.ensure-ready-input');
+        let $inputs = $('input', $ensureReadyInput);
+        for (var i = 0; i < $inputs.length - 1; i++) {
+            $inputs[i].remove();
+        }
+        $inputs.last().val('');
+    });
+
+
+    //$(document).on('click', 'nav.accordion,nav.accordion .accordion', function () {
+    //    let $this = $(this);
+    //});
+
+    $(document).on('click', '.click2edit', function (ev) {
+        let $this = $(this);
+        if (!$this.hasClass('editing')) {
+            $this.toggleClass('editing');
+            let $input = $('input', $this);
+            $input.focus();
+            setTimeout(() => $input[0].selectionStart = $input[0].selectionEnd = 9999, 0);
+            $input.attr('data-click2edit-initial-val', $input.val());
+        }
+    });
+
+    $(document).on('focusout', '.click2edit input', function (ev) {
+        let $this = $(this);
+        let $click2edit = $this.closest('.click2edit');
+        if ($click2edit.hasClass('editing')) {
+            $this.val($this.attr('data-click2edit-initial-val'));
+            $click2edit.toggleClass('editing');
+        }
+    });
+
+    $(document).on('dom-changed', '.has-on-empty-message', function (ev) {
+        let $this = $(this);
+        let isEmpty = $this.children(':not(.on-empty)').length === 0;
+        if (isEmpty) {
+            $this.addClass('is-empty');
+        } else {
+            $this.removeClass('is-empty');
+        }
     });
 
     let $tagEditor = $('.js-tag-editor');

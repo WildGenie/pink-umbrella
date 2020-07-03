@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using PgpCore;
 
@@ -9,84 +11,86 @@ namespace PinkUmbrella.Models.Auth.Types
     {
         public AuthType Type { get; } = AuthType.OpenPGP;
 
-        public HashSet<HandshakeMethod> HandshakeMethodsSupported => throw new System.NotImplementedException();
+        public HashSet<HandshakeMethod> HandshakeMethodsSupported { get; } = new HashSet<HandshakeMethod>();
 
-        public async Task DecryptAndVerifyStreamAsync(Stream inputStream, Stream outputStream, AuthKey auth)
+        public async Task DecryptAndVerifyStreamAsync(Stream inputStream, Stream outputStream, PrivateKey privateKey, PublicKey publicKey)
         {
             using var pgp = new PGP();
-	        // Decrypt stream and verify
-            using var inputFileStream = new FileStream(@"C:\TEMP\Content\encryptedAndSigned.pgp", FileMode.Open);
-            using var outputFileStream = File.Create(@"C:\TEMP\Content\decryptedAndVerified.txt");
-            using var publicKeyStream = new FileStream(@"C:\TEMP\Keys\public.asc", FileMode.Open);
-            using var privateKeyStream = new FileStream(@"C:\TEMP\Keys\private.asc", FileMode.Open);
-            await pgp.DecryptStreamAndVerifyAsync(inputFileStream, outputFileStream, publicKeyStream, privateKeyStream, "password");
+            using var publicKeyStream = GetPublicKey(publicKey);
+            using var privateKeyStream = GetPrivateKey(privateKey);
+            await pgp.DecryptStreamAndVerifyAsync(inputStream, outputStream, publicKeyStream, privateKeyStream, null);
         }
 
-        public async Task DecryptStreamAsync(Stream inputStream, Stream outputStream, AuthKey auth)
+        public async Task DecryptStreamAsync(Stream inputStream, Stream outputStream, PrivateKey privateKey)
         {
             using var pgp = new PGP();
-            // Decrypt stream
-            using var inputFileStream = new FileStream(@"C:\TEMP\Content\encrypted.pgp", FileMode.Open);
-            using var outputFileStream = File.Create(@"C:\TEMP\Content\decrypted.txt");
-            using var privateKeyStream = new FileStream(@"C:\TEMP\Keys\private.asc", FileMode.Open);
-		    await pgp.DecryptStreamAsync(inputFileStream, outputFileStream, privateKeyStream, "password");
+            using var privateKeyStream = GetPrivateKey(privateKey);
+		    await pgp.DecryptStreamAsync(inputStream, outputStream, privateKeyStream, null);
         }
 
-        public async Task EncryptStreamAndSignAsync(Stream inputStream, Stream outputStream, AuthKey auth)
+        public async Task EncryptStreamAndSignAsync(Stream inputStream, Stream outputStream, PrivateKey privateKey, PublicKey publicKey)
         {
             using var pgp = new PGP();
-            // Encrypt and sign stream
-            using var inputFileStream = new FileStream(@"C:\TEMP\Content\content.txt", FileMode.Open);
-            using var outputFileStream = File.Create(@"C:\TEMP\Content\encryptedAndSigned.pgp");
-            using var publicKeyStream = new FileStream(@"C:\TEMP\Keys\public.asc", FileMode.Open);
-            using var privateKeyStream = new FileStream(@"C:\TEMP\Keys\private.asc", FileMode.Open);
-            await pgp.EncryptStreamAndSignAsync(inputFileStream, outputFileStream, publicKeyStream, privateKeyStream, "password", true, true);
+            using var publicKeyStream = GetPublicKey(publicKey);
+            using var privateKeyStream = GetPrivateKey(privateKey);
+            await pgp.EncryptStreamAndSignAsync(inputStream, outputStream, publicKeyStream, privateKeyStream, null, true, true);
         }
 
-        public async Task EncryptStreamAsync(Stream inputStream, Stream outputStream, AuthKey auth)
+        public async Task EncryptStreamAsync(Stream inputStream, Stream outputStream, PublicKey publicKey)
         {
             using var pgp = new PGP();
-	        // Encrypt stream
-            using var inputFileStream = new FileStream(@"C:\TEMP\Content\content.txt", FileMode.Open);
-            using var outputFileStream = File.Create(@"C:\TEMP\Content\encrypted.pgp");
-            using var publicKeyStream = new FileStream(@"C:\TEMP\Keys\public.asc", FileMode.Open);
-		    await pgp.EncryptStreamAsync(inputFileStream, outputFileStream, publicKeyStream, true, true);
+            using var publicKeyStream = GetPublicKey(publicKey);
+		    await pgp.EncryptStreamAsync(inputStream, outputStream, publicKeyStream, true, true);
         }
 
-        public async Task<AuthKey> GenerateKey(HandshakeMethod method)
+        public async Task SignStreamAsync(Stream inputStream, Stream outputStream, PrivateKey privateKey)
         {
             using var pgp = new PGP();
-            await pgp.GenerateKeyAsync(@"C:\TEMP\Keys\public.asc", @"C:\TEMP\Keys\private.asc", "email@email.com", "password");
-            return new AuthKey()
+            using var privateKeyStream = GetPrivateKey(privateKey);
+		    await pgp.SignStreamAsync(inputStream, outputStream, privateKeyStream, null, true, true);
+        }
+
+        public async Task<bool> VerifyStreamAsync(Stream inputStream, Stream outputStream, PublicKey publicKey)
+        {
+            using var pgp = new PGP();
+            using var publicKeyStream = GetPublicKey(publicKey);
+            return await pgp.VerifyStreamAsync(inputStream, publicKeyStream);
+        }
+
+        public async Task<KeyPair> GenerateKey(AuthKeyFormat format, HandshakeMethod method)
+        {
+            var tmpFilePublic = System.IO.Path.GetTempFileName();
+            var tmpFilePrivate = System.IO.Path.GetTempFileName();
+            using var pgp = new PGP();
+            await pgp.GenerateKeyAsync(tmpFilePublic, tmpFilePrivate);
+            var publicKey = await File.ReadAllTextAsync(tmpFilePublic);
+            var privateKey = await File.ReadAllTextAsync(tmpFilePrivate);
+            return new KeyPair()
             {
-                Format = AuthKeyFormat.Raw,
-                Type = Type,
-                Value = "",
+                Private = new PrivateKey()
+                {
+                    Format = AuthKeyFormat.Raw,
+                    Type = Type,
+                    Value = privateKey,
+                    WhenAdded = DateTime.UtcNow,
+                },
+                Public = new PublicKey()
+                {
+                    Format = AuthKeyFormat.Raw,
+                    Type = Type,
+                    Value = publicKey.Trim(),
+                    WhenAdded = DateTime.UtcNow,
+                },
             };
         }
 
-        public bool HandshakeMethodSupported()
+        public bool HandshakeMethodSupported(HandshakeMethod mehod)
         {
             return false;
         }
 
-        public async Task SignStreamAsync(Stream inputStream, Stream outputStream, AuthKey auth)
-        {
-            using var pgp = new PGP();
-            // Sign stream
-            using var inputFileStream = new FileStream(@"C:\TEMP\Content\content.txt", FileMode.Open);
-            using var outputFileStream = File.Create(@"C:\TEMP\Content\signed.pgp");
-            using var privateKeyStream = new FileStream(@"C:\TEMP\Keys\private.asc", FileMode.Open);
-		    await pgp.SignStreamAsync(inputFileStream, outputFileStream, privateKeyStream, "password", true, true);
-        }
+        private Stream GetPublicKey(PublicKey auth) => new MemoryStream(Encoding.UTF8.GetBytes(auth.Value));
 
-        public async Task<bool> VerifyStreamAsync(Stream inputStream, Stream outputStream, AuthKey auth)
-        {
-            using var pgp = new PGP();
-            // Verify stream
-            using var inputFileStream = new FileStream(@"C:\TEMP\Content\content.txt", FileMode.Open);
-            using var publicKeyStream = new FileStream(@"C:\TEMP\Keys\private.asc", FileMode.Open);
-            return await pgp.VerifyStreamAsync(inputFileStream, publicKeyStream);
-        }
+        private Stream GetPrivateKey(PrivateKey auth) => new MemoryStream(Encoding.UTF8.GetBytes(auth.Value.Split("\n\n")[0]));
     }
 }
