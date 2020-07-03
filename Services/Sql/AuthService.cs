@@ -338,5 +338,10 @@ namespace PinkUmbrella.Services.Sql
             cred.SignatureCounter = counter;
             await _db.SaveChangesAsync();
         }
+
+        public Task<StoredCredential> GetCredentialById(byte[] id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
