@@ -56,7 +56,7 @@ else
 }
 
 @section Scripts {
-    if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserLoginFIDO)))
+    @if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserLoginFIDO)))
     {
         <script src="~/js/fido.js" asp-append-version="true"></script>
     }
