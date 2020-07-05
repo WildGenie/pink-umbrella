@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using PinkUmbrella.Models;
 using PinkUmbrella.Services;
 using Microsoft.FeatureManagement;
+using PinkUmbrella.ViewModels.Shared;
 
 namespace PinkUmbrella.Controllers
 {
@@ -62,6 +63,18 @@ namespace PinkUmbrella.Controllers
             else
             {
                 return Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+            }
+        }
+
+        protected void ShowStatus(string statusMessage, string statusType)
+        {
+            if (!string.IsNullOrWhiteSpace(statusMessage) && !string.IsNullOrWhiteSpace(statusType))
+            {
+                ViewData["StatusBar"] = new StatusViewModel()
+                {
+                    Message = statusMessage,
+                    AlertType = statusType,
+                };
             }
         }
     }

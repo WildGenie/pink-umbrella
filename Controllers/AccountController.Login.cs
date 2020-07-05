@@ -21,8 +21,7 @@ namespace PinkUmbrella.Controllers
     {
 
         [HttpGet, AllowAnonymous, RedirectIfNotAnonymous]
-        public IActionResult Login() => 
-            _signInManager.IsSignedIn(HttpContext.User) ? (IActionResult) Redirect("/") : View();
+        public IActionResult Login() => View();
 
         [HttpPost, AllowAnonymous, RedirectIfNotAnonymous]
         public async Task<IActionResult> Login([Bind] LoginViewModel login, string returnUrl)

@@ -50,10 +50,12 @@ namespace PinkUmbrella.Controllers
         }
 
         [Authorize]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string statusMessage, string statusType)
         {
             ViewData["Controller"] = "Account";
             ViewData["Action"] = nameof(Index);
+            ShowStatus(statusMessage, statusType);
+
             var user = await GetCurrentUserAsync();
             
             // RecurringJob.AddOrUpdate(() => Console.WriteLine("Transparent!"), Cron.Minutely());
@@ -296,7 +298,7 @@ namespace PinkUmbrella.Controllers
                 //await _userManager.SendEmailAsync(user.Id, subject: "Email confirmation", body: htmlContent);
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { statusMessage = "Successfully updated account", statusType = "success" });
         }
 
         [HttpPost, Authorize]
@@ -315,7 +317,7 @@ namespace PinkUmbrella.Controllers
             user.BioVisibility = MyProfile.BioVisibility.Min(user.Visibility);
             user.WhenLastUpdated = DateTime.UtcNow;
             await _userManager.UpdateAsync(user);
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { statusMessage = "Successfully updated profile", statusType = "success" });
         }
 
         [Authorize, Route("/AddMeToGroup/{code}")]
@@ -418,6 +420,8 @@ namespace PinkUmbrella.Controllers
                     await _notifications.UpdateMethodSettingsSetAll(user.Id, (NotificationMethod) method);
                 }
             }
+
+            ShowStatus("Successfully saved notification settings", "success");
 
             return View(new NotificationSettingsViewModel()
             {

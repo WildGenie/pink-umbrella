@@ -21,6 +21,11 @@
     var aboutLiClass = controllerName == "Home" && actionName == "About" ? "selected" : "";
 
     var unviewedNotificationsCount = Model?.MyProfile != null ? await _notifications.GetUnviewedNotificationsCount(Model.MyProfile.Id) : 0;
+
+    if (ViewData.TryGetValue(_strings.ViewKeys.StatusBar, out object statusBarModel))
+    {
+        <partial name="_StatusBar" model="statusBarModel" />
+    }
 }
 <header>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3 text-nowrap">

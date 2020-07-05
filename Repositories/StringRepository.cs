@@ -11,6 +11,13 @@ namespace PinkUmbrella.Repositories
 {
     public class StringRepository
     {
+        public class ViewKeyStrings 
+        {
+            public string StatusBar => "StatusBar";
+        }
+
+        public ViewKeyStrings ViewKeys { get; } = new ViewKeyStrings();
+
         public string GitHubUrl => "https://github.com/pink-umbrella/pink-umbrella";
         public string WikiUrl => "https://github.com/pink-umbrella/pink-umbrella/wiki";
         public string ReportBugUrl => "https://github.com/pink-umbrella/pink-umbrella/issues/new";

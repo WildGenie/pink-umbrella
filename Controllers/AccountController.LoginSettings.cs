@@ -14,10 +14,11 @@ namespace PinkUmbrella.Controllers
     {
 
         [HttpGet]
-        public async Task<IActionResult> LoginSettings()
+        public async Task<IActionResult> LoginSettings(string statusMessage, string statusType)
         {
             ViewData["Controller"] = "Account";
             ViewData["Action"] = nameof(LoginSettings);
+            ShowStatus(statusMessage, statusType);
 
             var user = await GetCurrentUserAsync();
 
@@ -64,29 +65,34 @@ namespace PinkUmbrella.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangePassword([Bind] ChangePasswordViewModel changePassword)
         {
-            // TODO: data download history
+            changePassword.MyProfile = await _userManager.GetUserAsync(User);
+
             if (!ModelState.IsValid)
             {
                 return View(changePassword);
             }
 
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            if (changePassword.MyProfile == null)
             {
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            var RequirePassword = await _userManager.HasPasswordAsync(user);
+            var RequirePassword = await _userManager.HasPasswordAsync(changePassword.MyProfile);
             if (RequirePassword)
             {
-                if (changePassword.CurrentPassword == changePassword.ConfirmPassword || !await _userManager.CheckPasswordAsync(user, changePassword.CurrentPassword))
+                if (changePassword.CurrentPassword == changePassword.ConfirmPassword)
                 {
-                    ModelState.AddModelError(string.Empty, "Password not correct.");
+                    ModelState.AddModelError(string.Empty, "Password already set to that.");
+                    return View(changePassword);
+                }
+                else if (!await _userManager.CheckPasswordAsync(changePassword.MyProfile, changePassword.CurrentPassword))
+                {
+                    ModelState.AddModelError(nameof(changePassword.CurrentPassword), "Password is invalid.");
                     return View(changePassword);
                 }
             }
 
-            var changePasswordResult = await _userManager.ChangePasswordAsync(user, changePassword.CurrentPassword, changePassword.NewPassword);
+            var changePasswordResult = await _userManager.ChangePasswordAsync(changePassword.MyProfile, changePassword.CurrentPassword, changePassword.NewPassword);
             if (!changePasswordResult.Succeeded)
             {
                 foreach (var error in changePasswordResult.Errors)
@@ -96,9 +102,9 @@ namespace PinkUmbrella.Controllers
                 return View(changePassword);
             }
 
-            await _signInManager.RefreshSignInAsync(user);
+            await _signInManager.RefreshSignInAsync(changePassword.MyProfile);
 
-            return Redirect("/Account");
+            return RedirectToAction(nameof(LoginSettings), new { statusMessage = "Successfully changed password", statusType = "success" });
         }
 
         public ActionResult ResetPassword(string userId, string code)
