@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -15,9 +16,13 @@ namespace PinkUmbrella.Services
 
         Task ForgetIPs();
 
+        IAuthTypeHandler GetHandler(AuthType type);
+
         Task<AuthKeyResult> GenKey(AuthKeyOptions options, HandshakeMethod method);
         
         Task<AuthKeyResult> TryAddUserKey(PublicKey authKey, UserProfileModel user);
+        
+        Task<int?> GetUserByKey(PublicKey authKey);
 
         Task<PublicKey> GetOrAdd(PublicKey key);
 
@@ -28,7 +33,7 @@ namespace PinkUmbrella.Services
         Task Untrust(PublicKey key);
 
         Task<bool> IsTrusted(IPAddress address, PublicKey key);
-        
+
         Task<PublicKey> GetCurrent();
         
         Task<List<PublicKey>> GetForUser(int id);
@@ -42,5 +47,23 @@ namespace PinkUmbrella.Services
         Task<StoredCredential> GetCredentialById(byte[] id);
 
         Task UpdateCredential(int credentialId, uint counter);
+
+        Task<bool> LoginMethodAllowed(int userId, UserLoginMethod method, bool defaultValue);
+
+        Task<UpdateLoginMethodResult> UpdateLoginMethodAllowed(int userId, UserLoginMethod method, bool value, bool defaultValue);
+
+        Task<List<UserLoginMethodModel>> GetOverriddenLoginMethodsForUser(int userId);
+
+        bool GetMethodDefault(UserLoginMethod method);
+        
+        Task<PublicKey> GetPublicKey(string key, AuthType type);
+        
+        Task<PrivateKey> GetPrivateKey(long publicKeyId, AuthType type);
+        
+        Task<byte[]> GenChallenge(PublicKey pubkey, DateTime? expires);
+        
+        Task<byte[]> GetChallenge(PublicKey pubkey);
+        
+        AuthType ResolveType(string key);
     }
 }

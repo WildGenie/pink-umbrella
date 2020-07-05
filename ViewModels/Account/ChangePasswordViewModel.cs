@@ -7,7 +7,7 @@ using PinkUmbrella.Models;
 
 namespace PinkUmbrella.ViewModels.Account
 {
-    public class ChangePasswordViewModel: BaseViewModel
+    public class ChangePasswordViewModel
     {
         [Required]
         [DataType(DataType.Password)]

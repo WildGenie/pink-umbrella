@@ -3,7 +3,7 @@
     var detailsLiClass = actionName == "Index" ? "selected" : "";
     var keysLiClass = actionName == "AuthKeys" ? "selected" : "";
     var personalDataLiClass = (actionName == "PersonalData" || actionName == "Delete") ? "selected" : "";
-    var changePassLiClass = actionName == "ChangePassword" ? "selected" : "";
+    var loginSettingsLiClass = (actionName == "LoginSettings" || actionName == "UpdateLoginMethod" || actionName == "SetupLoginMethod") ? "selected" : "";
     var notificationSettingsLiClass = actionName == "NotificationSettings" ? "selected" : "";
 }
 <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
@@ -17,13 +17,16 @@
                 <li class="nav-item @personalDataLiClass">
                     <a class="nav-link text-dark" asp-controller="Account" asp-action="PersonalData"><u>Personal Data</u></a>
                 </li>
+                @if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserManageKeys)))
+                {
                 <li class="nav-item @keysLiClass">
                     <a class="nav-link text-dark" asp-controller="Account" asp-action="AuthKeys"><u>Keys</u></a>
                 </li>
+                }
                 @if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserChangePassword)))
                 {
-                <li class="nav-item @changePassLiClass">
-                    <a class="nav-link text-dark" asp-controller="Account" asp-action="ChangePassword"><u>Change Password</u></a>
+                <li class="nav-item @loginSettingsLiClass">
+                    <a class="nav-link text-dark" asp-controller="Account" asp-action="LoginSettings"><u>Login Settings</u></a>
                 </li>
                 }
                 <li class="nav-item @notificationSettingsLiClass">

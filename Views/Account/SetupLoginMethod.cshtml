@@ -1,0 +1,26 @@
+﻿@using PinkUmbrella.Services;
+@model PinkUmbrella.ViewModels.Account.SetupLoginMethodViewModel
+@{
+    var nameToLower = Model.Method.GetDisplayName().ToLower();
+    ViewData["Title"] = $"Setup {nameToLower}";
+}
+<partial name="_Header" />
+<form asp-action="UpdateLoginMethod" asp-controller="Account" method="POST">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input type="hidden" name="method" value="@Model.Method" />
+    <input type="hidden" name="ReturnUrl" value="@Model.ReturnUrl" />
+    @if (Model.Allowed)
+    {
+        <p>Login via @nameToLower is currently allowed for this account.</p>
+        <button class="btn btn-danger" type="submit" name="enabled" value="false"><i class="fas fa-ban"></i> Remove login via @nameToLower</button>
+    }
+    else
+    {
+        <p>Login via @nameToLower is currently not allowed for this account.</p>
+        <button class="btn btn-warning" type="submit" name="enabled" value="true"><i class="fas fa-unlock-alt"></i> Allow login via @nameToLower</button>
+    }
+    @if (!string.IsNullOrWhiteSpace(Model.ReturnUrl))
+    {
+    <a class="btn btn-secondary" href="@Model.ReturnUrl">Cancel</a>
+    }
+</form>

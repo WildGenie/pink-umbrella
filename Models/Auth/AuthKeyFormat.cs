@@ -5,5 +5,7 @@ namespace PinkUmbrella.Models.Auth
         Raw,
         Xml,
         Json,
+        PEM,
+        DER,
     }
 }

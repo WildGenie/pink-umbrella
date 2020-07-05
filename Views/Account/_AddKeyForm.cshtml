@@ -1,20 +1,22 @@
 @using PinkUmbrella.Models.Auth
 @using PinkUmbrella.Services;
 @model PinkUmbrella.ViewModels.Account.AddKeyViewModel
+@if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserAddAuthKey)))
+{
 <form asp-controller="Account" asp-action="AddAuthKey" method="POST">
     <div asp-validation-summary="All" class="text-danger"></div>
     <div class="form-group">
-        <label asp-for="PublicKey.Value">PublicKey</label>
+        <label asp-for="PublicKey.Value" for="value">PublicKey</label>
         <div class="input-group">
-            <input asp-for="PublicKey.Value" class="form-control" />
+            <input asp-for="PublicKey.Value" name="value" class="form-control" />
             <span class="input-group-addon" aria-hidden="true"><span class="glyphicon glyphicon-ok text-success"></span></span>
         </div>
         <span asp-validation-for="PublicKey.Value" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="AuthKey.Type"></label>
+        <label asp-for="AuthKey.Type" for="type"></label>
         <small>@Model.AuthKey.GetPropertyDescription(nameof(Model.AuthKey.Type))</small>
-        <select asp-for="AuthKey.Type" class="form-control">
+        <select asp-for="AuthKey.Type" name="type" class="form-control">
             <option value="@AuthType.OpenPGP">OpenPGP</option>
             <option value="@AuthType.RSA">RSA</option>
         </select>
@@ -22,3 +24,8 @@
     </div>
     <button type="submit" class="btn btn-success">Add Key</button>
 </form>
+}
+else
+{
+<p>Adding authentication keys has been turned off by site admin.</p>
+}

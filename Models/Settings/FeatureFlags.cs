@@ -5,6 +5,9 @@ namespace PinkUmbrella.Models.Settings
         [FeatureFlagInfo("System API Controller", "API for site system information", FeatureFlagType.Controller)]
         ApiControllerSystem,
 
+        [FeatureFlagInfo("Profile API Controller", "API for user profile information", FeatureFlagType.Controller)]
+        ApiControllerProfile,
+
 
 
 
@@ -86,6 +89,12 @@ namespace PinkUmbrella.Models.Settings
         [FeatureFlagInfo("User Log In via FIDO U2F", "Allow users to log in via FIDO, a security key exchange system", FeatureFlagType.Function)]
         FunctionUserLoginFIDO,
 
+        [FeatureFlagInfo("User Log In via Public / Private Key", "Allow users to log in via public and private keys using RSA or PGP", FeatureFlagType.Function)]
+        FunctionUserLoginPublicKey,
+
+        [FeatureFlagInfo("User Log In via Open Auth", "Allow users to log in via external login with an open authenticator", FeatureFlagType.Function)]
+        FunctionUserLoginOAuth,
+
         [FeatureFlagInfo("User Update Account", "Allow users to update their account", FeatureFlagType.Function)]
         FunctionUserUpdateAccount,
 
@@ -100,6 +109,15 @@ namespace PinkUmbrella.Models.Settings
 
         [FeatureFlagInfo("User Change Password", "Allow users to change their password", FeatureFlagType.Function)]
         FunctionUserChangePassword,
+
+        [FeatureFlagInfo("Function User Manage Auth Key", "Allow users to manage authentication keys", FeatureFlagType.Function)]
+        FunctionUserManageKeys,
+
+        [FeatureFlagInfo("Function User Add Auth Key", "Allow users to add authentication keys", FeatureFlagType.Function)]
+        FunctionUserAddAuthKey,
+
+        [FeatureFlagInfo("Function User Gen Auth Key", "Allow users to generate authentication keys", FeatureFlagType.Function)]
+        FunctionUserGenAuthKey,
 
 
 

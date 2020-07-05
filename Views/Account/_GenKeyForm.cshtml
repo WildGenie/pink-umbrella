@@ -1,6 +1,8 @@
 @using PinkUmbrella.Models.Auth
 @using PinkUmbrella.Services;
 @model PinkUmbrella.ViewModels.Account.GenKeyViewModel
+@if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserGenAuthKey)))
+{
 <form asp-controller="Account" asp-action="GenAuthKey" method="POST">
     <div asp-validation-summary="All" class="text-danger"></div>
     <div class="form-group">
@@ -14,3 +16,8 @@
     </div>
     <button type="submit" class="btn btn-success">Generate Key</button>
 </form>
+}
+else
+{
+<p>Generating authentication keys has been turned off by site admin.</p>
+}

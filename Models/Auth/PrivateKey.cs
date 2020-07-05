@@ -23,20 +23,6 @@ namespace PinkUmbrella.Models.Auth
 
         public PublicKey PublicKey { get; set; }
 
-        public void Copy(PrivateKey other)
-        {
-            // FingerPrint = other.FingerPrint;
-            // PublicKey = other.PublicKey;
-            Type = other.Type;
-            Format = other.Format;
-            Value = other.Value;
-            WhenAdded = other.WhenAdded;
-        }
-
-        // public override string ToString()
-        // {
-        //     var show = string.IsNullOrWhiteSpace(FingerPrint) ? PublicKey : FingerPrint;
-        //     return $"{Type} ({Format}): {show}";
-        // }
+        public override string ToString() => $"{Type} ({Format}): private";
     }
 }

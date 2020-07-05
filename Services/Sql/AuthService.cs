@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -342,6 +343,168 @@ namespace PinkUmbrella.Services.Sql
         public Task<StoredCredential> GetCredentialById(byte[] id)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<bool> LoginMethodAllowed(int userId, UserLoginMethod method, bool defaultValue)
+        {
+            var exists = await _db.UserLoginMethods.FirstOrDefaultAsync(ulm => ulm.Enabled && ulm.Method == method && ulm.UserId == userId);
+            return exists?.Enabled ?? defaultValue;
+        }
+
+        public async Task<UpdateLoginMethodResult> UpdateLoginMethodAllowed(int userId, UserLoginMethod method, bool value, bool defaultValue)
+        {
+            var result = new UpdateLoginMethodResult()
+            {
+                Result = UpdateLoginMethodResult.ResultType.NoError
+            };
+
+            var methods = await GetOverriddenLoginMethodsForUser(userId);
+            var methodsAllowed = methods.Where(m => m.Enabled).Select(m => m.Method).ToHashSet();
+            var methodsRemoved = methods.Where(m => !m.Enabled).Select(m => m.Method).ToHashSet();
+            var allowedMethodCountAfter = 0;
+            foreach (var m in Enum.GetValues(typeof(UserLoginMethod)).Cast<UserLoginMethod>())
+            {
+                if (m != method)
+                {
+                    if (methodsAllowed.Contains(m))
+                    {
+                        allowedMethodCountAfter++;
+                    }
+                    else if (methodsRemoved.Contains(m))
+                    {
+                        allowedMethodCountAfter--;
+                    }
+                    else if (GetMethodDefault(m))
+                    {
+                        allowedMethodCountAfter++;
+                    }
+                }
+                else if (value)
+                {
+                    allowedMethodCountAfter++;
+                }
+            }
+
+            if (allowedMethodCountAfter < 1)
+            {
+                result.Result = UpdateLoginMethodResult.ResultType.MinimumOneAllowedLoginMethod;
+                return result;
+            }
+
+            var exists = methods.FirstOrDefault(m => m.Method == method);
+            if (exists != null)
+            {
+                if (value == defaultValue)
+                {
+                    _db.UserLoginMethods.Remove(exists);
+                }
+                else if (exists.Enabled != value)
+                {
+                    exists.Enabled = value;
+                }
+                else
+                {
+                    return result;
+                }
+            }
+            else
+            {
+                if (value != defaultValue)
+                {
+                    _db.UserLoginMethods.Add(new UserLoginMethodModel()
+                    {
+                        Enabled = value,
+                        Method = method,
+                        UserId = userId,
+                        WhenCreated = DateTime.UtcNow,
+                    });
+                }
+                else
+                {
+                    return result;
+                }
+            }
+            await _db.SaveChangesAsync();
+            return result;
+        }
+
+        public async Task<List<UserLoginMethodModel>> GetOverriddenLoginMethodsForUser(int userId) => 
+                                    await _db.UserLoginMethods.Where(ulm => ulm.UserId == userId).ToListAsync();
+
+        public bool GetMethodDefault(UserLoginMethod method)
+        {
+            switch (method)
+            {
+                case UserLoginMethod.EmailPassword: return true;
+                default: return false;
+            }
+        }
+
+        public async Task<int?> GetUserByKey(PublicKey authKey)
+        {
+            return (await _db.UserAuthKeys.FirstOrDefaultAsync(k => k.PublicKeyId == authKey.Id))?.UserId;
+        }
+
+        public async Task<PublicKey> GetPublicKey(string key, AuthType type)
+        {
+            return await _db.PublicKeys.FirstOrDefaultAsync(k => k.Type == type && k.Value == key);
+        }
+
+        public IAuthTypeHandler GetHandler(AuthType type) => _typeHandlers[type];
+
+        public Task<PrivateKey> GetPrivateKey(long publicKeyId, AuthType type)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<byte[]> GenChallenge(PublicKey pubkey, DateTime? expires)
+        {
+            expires = expires ?? DateTime.UtcNow.AddDays(1);
+            var answer = new byte[32];
+            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
+            rng.GetBytes(answer);
+
+            byte[] challengeBytes;
+            using (var answerStream = new MemoryStream(answer))
+            {
+                using var challengeStream = new MemoryStream();
+                await GetHandler(pubkey.Type).EncryptStreamAsync(answerStream, challengeStream, pubkey);
+                challengeStream.Position = 0;
+                challengeBytes = challengeStream.ToArray();
+            }
+
+            var challenge = new KeyChallengeModel()
+            {
+                Challenge = challengeBytes,
+                Expires = expires.Value,
+                KeyId = pubkey.Id
+            };
+
+            await _db.KeyChallenges.AddAsync(challenge);
+            await _db.SaveChangesAsync();
+            return challenge.Challenge;
+        }
+
+        public async Task<byte[]> GetChallenge(PublicKey pubkey)
+        {
+            var now = DateTime.UtcNow;
+            return (await _db.KeyChallenges.FirstOrDefaultAsync(kc => kc.KeyId == pubkey.Id && kc.Expires > now))?.Challenge;
+        }
+
+        public AuthType ResolveType(string key)
+        {
+            if (_strings.OpenPGPKeyRegex.IsMatch(key))
+            {
+                return AuthType.OpenPGP;
+            }
+            else if (_strings.RSAKeyRegex.IsMatch(key))
+            {
+                return AuthType.RSA;
+            }
+            else
+            {
+                return AuthType.None;
+            }
         }
     }
 }

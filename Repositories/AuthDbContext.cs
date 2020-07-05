@@ -20,6 +20,10 @@ namespace PinkUmbrella.Repositories
         public DbSet<UserAuthKeyModel> UserAuthKeys { get; set; }
 
         public DbSet<FIDOCredential> FIDOCredentials { get; set; }
+
+        public DbSet<UserLoginMethodModel> UserLoginMethods { get; set; }
+
+        public DbSet<KeyChallengeModel> KeyChallenges { get; set; }
         
         public AuthDbContext(DbContextOptions<AuthDbContext> options): base(options) {
 

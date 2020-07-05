@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PinkUmbrella.Repositories;
 
 namespace PinkUmbrella.Migrations.AuthDb
 {
     [DbContext(typeof(AuthDbContext))]
-    partial class AuthDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200704003719_Add User Login Methods")]
+    partial class AddUserLoginMethods
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -114,26 +116,6 @@ namespace PinkUmbrella.Migrations.AuthDb
                     b.HasKey("Id");
 
                     b.ToTable("IPBlocks");
-                });
-
-            modelBuilder.Entity("PinkUmbrella.Models.Auth.KeyChallengeModel", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<byte[]>("Challenge")
-                        .HasColumnType("BLOB");
-
-                    b.Property<DateTime>("Expires")
-                        .HasColumnType("TEXT");
-
-                    b.Property<long>("KeyId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("KeyChallenges");
                 });
 
             modelBuilder.Entity("PinkUmbrella.Models.Auth.PrivateKey", b =>

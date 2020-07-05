@@ -26,7 +26,7 @@
                     <span asp-validation-for="EmailAddress" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserLoginFIDO)))
+                    @if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserLoginFIDO)))
                     {
                     <button type="button" onclick="loginViaIntegratedCredentials(this)" class="btn btn-link" style="float: right"><i class="fa fa-fingerprint"></i> Integrated Credentials</button>
                     }
@@ -43,6 +43,10 @@
 
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary" style="float: left">Login</button>
+                    @if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserLoginPublicKey)))
+                    {
+                    <a asp-action="LoginViaPublicKey" asp-controller="Account" class="btn btn-link">Login via Public Key</a>
+                    }
                     <a asp-action="Register" asp-controller="Account" class="btn btn-outline-primary" style="float: right">Register</a>
                 </div>
             </form>

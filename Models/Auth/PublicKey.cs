@@ -21,5 +21,11 @@ namespace PinkUmbrella.Models.Auth
 
         [JsonPropertyName("value")]
         public string Value { get; set; }
+
+        public override string ToString()
+        {
+            var show = string.IsNullOrWhiteSpace(FingerPrint) ? Value : FingerPrint;
+            return $"{Type} ({Format}): {show}";
+        }
     }
 }

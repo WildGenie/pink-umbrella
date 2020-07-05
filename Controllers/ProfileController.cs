@@ -17,8 +17,7 @@ using Microsoft.FeatureManagement.Mvc;
 namespace PinkUmbrella.Controllers
 {
     [FeatureGate(FeatureFlags.ControllerProfile)]
-    [AllowAnonymous]
-    public class ProfileController: BaseController
+    public partial class ProfileController: BaseController
     {
         private readonly ILogger<ProfileController> _logger;
         private readonly IArchiveService _archive;
@@ -35,10 +34,11 @@ namespace PinkUmbrella.Controllers
             _shops = shops;
         }
 
-        [Route("/Profile"), Authorize]
+        [Route("/Profile")]
         public async Task<IActionResult> Index() => RedirectToAction(nameof(Index), new { id = (await GetCurrentUserAsync()).Id });
 
         [Route("/Profile/{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> Index(int id)
         {
             ViewData["Controller"] = "Profile";
@@ -60,6 +60,7 @@ namespace PinkUmbrella.Controllers
         }
         
         [Route("/Profile/{id}/Replies")]
+        [AllowAnonymous]
         public async Task<IActionResult> Replies(int id)
         {
             ViewData["Controller"] = "Profile";
@@ -81,6 +82,7 @@ namespace PinkUmbrella.Controllers
         }
         
         [Route("/Profile/{id}/Mentions")]
+        [AllowAnonymous]
         public async Task<IActionResult> Mentions(int id)
         {
             ViewData["Controller"] = "Profile";
@@ -102,6 +104,7 @@ namespace PinkUmbrella.Controllers
         }
         
         [Route("/Profile/{id}/Photos")]
+        [AllowAnonymous]
         public async Task<IActionResult> Photos(int id)
         {
             ViewData["Controller"] = "Profile";
@@ -110,6 +113,7 @@ namespace PinkUmbrella.Controllers
         }
         
         [Route("/Profile/{id}/Videos")]
+        [AllowAnonymous]
         public async Task<IActionResult> Videos(int id)
         {
             ViewData["Controller"] = "Profile";
@@ -118,6 +122,7 @@ namespace PinkUmbrella.Controllers
         }
         
         [Route("/Profile/{id}/ArchivedMedia")]
+        [AllowAnonymous]
         public async Task<IActionResult> ArchivedMedia(int id)
         {
             ViewData["Controller"] = "Profile";
@@ -126,6 +131,7 @@ namespace PinkUmbrella.Controllers
         }
         
         [Route("/Profile/{id}/Shops")]
+        [AllowAnonymous]
         public async Task<IActionResult> Shops(int id)
         {
             ViewData["Controller"] = "Profile";
@@ -148,6 +154,7 @@ namespace PinkUmbrella.Controllers
         }
         
         [Route("/Profile/{id}/Following")]
+        [AllowAnonymous]
         public async Task<IActionResult> Following(int id)
         {
             ViewData["Controller"] = "Profile";
@@ -156,6 +163,7 @@ namespace PinkUmbrella.Controllers
         }
 
         [Route("/Profile/{id}/Followers")]
+        [AllowAnonymous]
         public async Task<IActionResult> Followers(int id)
         {
             ViewData["Controller"] = "Profile";

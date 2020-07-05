@@ -8,6 +8,11 @@ using PinkUmbrella.Models;
 using PinkUmbrella.Repositories;
 using PinkUmbrella.ViewModels.Account;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using PinkUmbrella.Models.Auth;
+using System.Text;
+using System.IO;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 
 namespace PinkUmbrella.Services.Sql
 {
@@ -293,6 +298,53 @@ namespace PinkUmbrella.Services.Sql
                 query = query.Where(u => u.WhenLastUpdated > sinceLastUpdated.Value);
             }
             return query.ToListAsync();
+        }
+
+        public async Task<LoginResult> LoginPublicKeyChallenge(int userId, PublicKey publicKey, PrivateKey privateKey, string challenge, string answer, IAuthTypeHandler authTypeHandler)
+        {
+            if (publicKey == null)
+            {
+                throw new ArgumentNullException(nameof(publicKey));
+            }
+            if (privateKey == null)
+            {
+                throw new ArgumentNullException(nameof(privateKey));
+            }
+
+            var user = await GetUser(userId, userId);
+            if (user != null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            var result = new LoginResult();
+
+            using var answerEncryptedStream = new MemoryStream(Convert.FromBase64String(answer));
+            using var answerDecryptedStream = new MemoryStream();
+            await authTypeHandler.DecryptAndVerifyStreamAsync(answerEncryptedStream, answerDecryptedStream, privateKey, publicKey);
+            var answerDecrypted = answerDecryptedStream.ToArray();
+            if (Convert.FromBase64String(challenge).SequenceEqual(answerDecrypted))
+            {
+                var claims = new Claim[] {
+                    new Claim("PublicKey", publicKey.Value),
+                    new Claim("PublicKeyType", publicKey.Type.ToString()),
+                    new Claim("PublicKeyId", publicKey.Id.ToString())
+                };
+                await _signInManager.SignInWithClaimsAsync(user, new AuthenticationProperties()
+                {
+                    AllowRefresh = false,
+                    ExpiresUtc = DateTime.UtcNow.AddDays(30),
+                    IsPersistent = true,
+                    IssuedUtc = DateTime.UtcNow,
+                    RedirectUri = "/Account/Login",
+                }, claims);
+            }
+            else
+            {
+                result.Error = new Exception("Answer does not match challenge");
+            }
+            
+            return result;
         }
     }
 }

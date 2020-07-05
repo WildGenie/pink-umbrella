@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PinkUmbrella.Models;
+using PinkUmbrella.Models.Auth;
 using PinkUmbrella.ViewModels.Account;
 
 namespace PinkUmbrella.Services
@@ -44,5 +45,7 @@ namespace PinkUmbrella.Services
         Task<bool> HandleExists(string handle);
         
         Task<List<UserProfileModel>> GetAll(DateTime? sinceLastUpdated);
+
+        Task<LoginResult> LoginPublicKeyChallenge(int userId, PublicKey publicKey, PrivateKey privateKey, string challenge, string answer, IAuthTypeHandler authTypeHandler);
     }
 }

@@ -32,13 +32,14 @@ namespace PinkUmbrella.Util
             {
                 var user = await users.GetUserAsync(context.User);
                 await debug.Log(e, context.TraceIdentifier, user?.Id);
+                context.Response.Redirect("/Error/500", permanent: false);
                 if (env.IsDevelopment())
                 {
                     throw;
                 }
                 else
                 {
-                    context.Response.Redirect($"/Error/500", permanent: false);
+                    context.Response.Redirect("/Error/500", permanent: false);
                 }
             }
         }
