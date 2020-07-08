@@ -1,0 +1,18 @@
+@using PinkUmbrella.Services;
+@model PinkUmbrella.ViewModels.Account.SendInviteViaMethodViewModel
+@{
+    ViewData["Title"] = "Send Invite";
+}
+<partial name="_Header" />
+@if (!string.IsNullOrWhiteSpace(Model.QRCodeImageAsBase64))
+{
+    <img class="w-100" src="data:image/bmp;base64,@Model.QRCodeImageAsBase64">
+}
+else if (!string.IsNullOrWhiteSpace(Model.Link))
+{
+    <a href="@Model.Link">Send Email</a>
+}
+else
+{
+    <p>@Model.RawString</p>
+}

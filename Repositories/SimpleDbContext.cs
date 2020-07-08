@@ -1,8 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using PinkUmbrella.Models;
-using System;
-using System.Threading.Tasks;
 
 namespace PinkUmbrella.Repositories
 {

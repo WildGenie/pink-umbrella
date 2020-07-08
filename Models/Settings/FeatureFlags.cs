@@ -82,6 +82,9 @@ namespace PinkUmbrella.Models.Settings
         
         [FeatureFlagInfo("User Register", "Allow users to register", FeatureFlagType.Function)]
         FunctionUserRegister,
+        
+        [FeatureFlagInfo("User Register Invitation Only", "Allow users to register only if they have a valid invitation", FeatureFlagType.Function)]
+        FunctionUserRegisterInvitationOnly,
 
         [FeatureFlagInfo("User Log In", "Allow users to log in", FeatureFlagType.Function)]
         FunctionUserLogin,
@@ -119,6 +122,8 @@ namespace PinkUmbrella.Models.Settings
         [FeatureFlagInfo("Function User Gen Auth Key", "Allow users to generate authentication keys", FeatureFlagType.Function)]
         FunctionUserGenAuthKey,
 
+        [FeatureFlagInfo("Function User Invite", "Allow users to generate invitations (like registration or following)", FeatureFlagType.Function)]
+        FunctionUserInvite,
 
 
 

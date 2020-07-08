@@ -1,8 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PinkUmbrella.ViewModels.Account
 {
@@ -12,5 +8,7 @@ namespace PinkUmbrella.ViewModels.Account
 
         [BindProperty]
         public RegisterInputModel Input { get; set; }
+        
+        public string Code { get; set; }
     }
 }

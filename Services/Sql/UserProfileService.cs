@@ -213,48 +213,6 @@ namespace PinkUmbrella.Services.Sql
             }
         }
 
-        public async Task<GroupAccessCodeModel> GetGroupAccessCodeAsync(string code, int userId)
-        {
-            var c = await _dbContext.GroupAccessCodes.SingleOrDefaultAsync(c => c.WhenConsumed == null && c.Code == code && c.ForUserId == userId);
-            if (c != null && c.WhenExpires >= DateTime.UtcNow)
-            {
-                return c;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        public async Task ConsumeGroupAccessCodeAsync(UserProfileModel user, GroupAccessCodeModel c)
-        {
-            if (c.WhenExpires >= DateTime.UtcNow)
-            {
-                await _userManager.AddToRoleAsync(user, c.GroupName);
-                c.WhenConsumed = DateTime.UtcNow;
-                await _dbContext.SaveChangesAsync();
-            }
-        }
-
-        public async Task<GroupAccessCodeModel> NewGroupAccessCode(GroupAccessCodeModel info)
-        {
-            info.Code = Guid.NewGuid().ToString();
-            info.WhenCreated = DateTime.UtcNow;
-            info.WhenExpires = DateTime.UtcNow.AddDays(1);
-            _dbContext.GroupAccessCodes.Add(info);
-            await _dbContext.SaveChangesAsync();
-            return info;
-        }
-
-        public Task<GroupAccessCodeModel> NewGroupAccessCode(int createdByUserId, int forUserId, string group)
-        {
-            return NewGroupAccessCode(new GroupAccessCodeModel() {
-                CreatedByUserId = createdByUserId,
-                ForUserId = forUserId,
-                GroupName = group,
-            });
-        }
-
         public async Task MakeFirstUserDev(UserProfileModel user)
         {
             if (_userManager.Users.Count() == 1)
@@ -276,12 +234,6 @@ namespace PinkUmbrella.Services.Sql
                     }
                 }
             }
-        }
-
-        public async Task<List<GroupAccessCodeModel>> GetUnusedUnexpiredAccessCodes()
-        {
-            var now = DateTime.UtcNow;
-            return await _dbContext.GroupAccessCodes.Where(c => c.WhenConsumed == null && c.WhenExpires < now).ToListAsync();
         }
 
         public async Task<bool> HandleExists(string handle)
@@ -345,6 +297,21 @@ namespace PinkUmbrella.Services.Sql
             }
             
             return result;
+        }
+
+        public async Task<List<UserProfileModel>> GetCompletionsFor(string prefix, int viewerId)
+        {
+            var ret = await _dbContext.Users.Where(u => u.Handle.ToLower().StartsWith(prefix) || u.DisplayName.ToLower().StartsWith(prefix)).ToListAsync();
+            var keepers = new List<UserProfileModel>();
+            foreach (var u in ret)
+            {
+                await BindReferences(u, viewerId);
+                if (CanView(u, viewerId))
+                {
+                    keepers.Add(u);
+                }
+            }
+            return keepers;
         }
     }
 }

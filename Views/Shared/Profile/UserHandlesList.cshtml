@@ -1,0 +1,7 @@
+@model List<UserProfileModel>
+<ul>
+    @foreach (var user in Model)
+    {
+        <li><a class="js-user-handle-display--item" asp-controller="Profile" asp-action="Index" asp-route-id="@user.Id">@user.DisplayName</a></li>
+    }
+</ul>

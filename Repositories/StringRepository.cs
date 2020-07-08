@@ -650,5 +650,16 @@ namespace PinkUmbrella.Repositories
                 throw new ArgumentOutOfRangeException(nameof(value));
             }
         }
+
+        public string GetInvitationMessagePlaceholder(InvitationType type)
+        {
+            switch (type)
+            {
+                case InvitationType.AddMeToGroup: return "For example, \"Here's an invitation to the group I talked to you about\"";
+                case InvitationType.Register: return "For example, \"Here's an invitation to sign up on the site I talked to you about\"";
+                case InvitationType.FollowMe: return "For example, \"Here's an invitation to follow my profile for posts and notifications\"";
+                default: return "";
+            }
+        }
     }
 }

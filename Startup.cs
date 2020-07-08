@@ -92,6 +92,7 @@ namespace PinkUmbrella
             services.AddScoped<ITagService, TagService>();
             services.AddScoped<IArchiveService, ArchiveService>();
             services.AddScoped<IGeoLocationService, GeoLocationService>();
+            services.AddScoped<IInvitationService, InvitationService>();
             services.AddScoped<IUserProfileService, UserProfileService>();
             services.AddScoped<ISimpleResourceService, SimpleResourceService>();
             services.AddScoped<ISimpleInventoryService, SimpleInventoryService>();
@@ -196,6 +197,8 @@ namespace PinkUmbrella
             app.UseMiddleware<IsAdminOrDevOrDebuggingOrElse404Middleware>();
             app.UseMiddleware<LogErrorRedirectProdMiddleware>();
             app.UseMiddleware<ExternalDbMiddleware>();
+
+            // UseMiddlewareForFeature
 
             app.UseHangfireServer();
             app.UseHangfireDashboard("/Admin/Hangfire");

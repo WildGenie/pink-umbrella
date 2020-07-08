@@ -239,6 +239,23 @@ namespace PinkUmbrella.Controllers
             }
         }
 
+        [Route("/Profile/Completions/{prefix}")]
+        public async Task<IActionResult> Completions(string prefix)
+        {
+            if (!string.IsNullOrWhiteSpace(prefix))
+            {
+                var user = await GetCurrentUserAsync();
+                var tags = await _userProfiles.GetCompletionsFor(prefix, user.Id);
+                return Json(new {
+                    items = tags.Select(t => new { value = t.Id.ToString(), label = t.Handle }).ToArray()
+                });
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
         // public async Task<IActionResult> ViewProfile(int id)
         // {
         //     var cuser = await GetCurrentUserAsync();

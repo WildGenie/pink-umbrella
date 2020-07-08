@@ -28,16 +28,18 @@ namespace PinkUmbrella.Controllers
         private readonly ILogger<AdminController> _logger;
         private readonly IDebugService _debugService;
         private readonly RoleManager<UserGroupModel> _roleManager;
+        private readonly IInvitationService _invitationService;
 
         public AdminController(IWebHostEnvironment environment, ILogger<AdminController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IDebugService debugService,
             RoleManager<UserGroupModel> roleManager, IReactionService reactions, ITagService tags, INotificationService notifications,
-            IPeerService peers, IAuthService auth, ISettingsService settings):
+            IPeerService peers, IAuthService auth, ISettingsService settings, IInvitationService invitationService):
             base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications, peers, auth, settings)
         {
             _logger = logger;
             _debugService = debugService;
             _roleManager = roleManager;
+            _invitationService = invitationService;
         }
 
         [HttpGet]
@@ -51,7 +53,7 @@ namespace PinkUmbrella.Controllers
                 return View(new IndexViewModel()
                 {
                     MyProfile = user,
-                    UnusedUnexpiredAccessCodes = await _userProfiles.GetUnusedUnexpiredAccessCodes(),
+                    UnusedUnexpiredAccessCodes = await _invitationService.GetUnusedUnexpiredAccessCodes(),
                 });
             }
             else
@@ -235,8 +237,8 @@ namespace PinkUmbrella.Controllers
             {
                 if (await _roleManager.RoleExistsAsync(group))
                 {
-                    var code = await _userProfiles.NewGroupAccessCode(user.Id, toUserId, group);
-                    return Content($"You have given {toUserId} access to {group}. The link is\n<a href=\"/AddMeToGroup/{code.Code}\">{code.Code}</a>");
+                    var code = await _invitationService.NewGroupAccessCode(user.Id, toUserId, group);
+                    return Content($"You have given {toUserId} access to {group}. The link is\n<a href=\"/AcceptInvite/{code.Code}\">{code.Code}</a>");
                 }
             }
             
