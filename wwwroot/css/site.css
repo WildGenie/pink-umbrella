@@ -74,13 +74,13 @@ body {
   /* Margin bottom by footer height */
   margin-bottom: 60px;
 }
-
 .footer {
   position: absolute;
   bottom: 0;
   width: 100%;
   white-space: nowrap;
   line-height: 45px; /*Vertically center the text there */
+  padding-top: .25rem;
 }
 
 .footer-container {
@@ -95,36 +95,14 @@ body {
     text-align: center;
 }
 
-.terms-title {
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
 
-.terms-list {
-    list-style: none;
-    counter-reset: terms-counter;
-}
-
-.terms-item {
-    display:inline;
-    counter-increment: terms-counter;
-}
-
-.terms-item::before {
-    content: counter(terms-counter) ". ";
-    font-size: xx-large;
-    float: left;
-}
-
-.terms-item h3 {
-    margin-bottom: 0.5rem;
-    line-height: 42px;
-}
 
 ul.highlight-selected > li.selected {
   background: var(--accent-color);
 }
+
+
+
 
 .contains-goto:not(.show), .contains-ajax:not(.show) {
   cursor: pointer;
@@ -188,45 +166,8 @@ ul.highlight-selected > li.selected {
   color: white !important;
 }
 
-.js-tag-editor {
-  padding: .5rem .25rem;
-  height: auto;
-}
 
-.js-tag-display {
-  padding: .25rem .125rem;
-  height: auto;
-}
 
-.js-tag-editor .js-search-field {
-  border: none;
-  min-width: 20rem;
-}
-
-.js-tag-editor .js-tag-editor--url {
-  position: absolute;
-}
-
-.js-tag-editor .js-search-field {
-  margin: .25rem;
-}
-
-.js-tag-editor .js-tag-editor--tag, .js-tag-display .js-tag-display--tag {
-  padding: .5rem;
-  margin: .25rem;
-  border-radius: 4px;
-  color: white;
-  background-color: var(--accent-color);
-}
-
-.js-tag-display .js-tag-display--tag {
-  padding: .25rem;
-  margin: .125rem;
-}
-
-.js-tag-editor .js-tag-editor--tag .js-tag-editor--delete-tag {
-  cursor: pointer;
-}
 
 .js-new-post-form {
   display: grid;

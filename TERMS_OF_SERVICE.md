@@ -1,6 +1,6 @@
 ﻿## 1. Terms
 
-By accessing this Website, accessible from pink-umbrella.ninja, you are agreeing to be bound by these Website Terms and Conditions of Use and agree that you are responsible for the agreement with any applicable local laws. If you disagree with any of these terms, you are prohibited from accessing this site. These Terms of Service have been created with the help of the [Terms of Service Generator](https://www.termsofservicegenerator.net) and the [Terms & Conditions Example](https://www.termsconditionsexample.com)".
+By accessing this Website, you are agreeing to be bound by these Website Terms and Conditions of Use and agree that you are responsible for the agreement with any applicable local laws. If you disagree with any of these terms, you are prohibited from accessing this site. These Terms of Service have been created with the help of the [Terms of Service Generator](https://www.termsofservicegenerator.net) and the [Terms & Conditions Example](https://www.termsconditionsexample.com).
 
 ## 2. Disclaimer
 
