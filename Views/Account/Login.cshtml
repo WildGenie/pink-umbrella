@@ -47,7 +47,10 @@
                     {
                     <a asp-action="LoginViaPublicKey" asp-controller="Account" class="btn btn-link">Login via Public Key</a>
                     }
+                    @if (!await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserRegisterInvitationOnly)))
+                    {
                     <a asp-action="Register" asp-controller="Account" class="btn btn-outline-primary" style="float: right">Register</a>
+                    }
                 </div>
             </form>
         </div>

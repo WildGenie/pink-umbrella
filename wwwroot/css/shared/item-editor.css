@@ -1,0 +1,87 @@
+﻿.js-tag-editor {
+  padding: .5rem .25rem;
+  height: auto;
+}
+
+.js-tag-display {
+  padding: .25rem .125rem;
+  height: auto;
+}
+
+.js-tag-editor .js-search-field {
+  border: none;
+  min-width: 20rem;
+}
+
+.js-tag-editor .js-tag-editor--url {
+  position: absolute;
+}
+
+.js-tag-editor .js-search-field {
+  margin: .25rem;
+}
+
+.js-tag-editor .js-tag-editor--tag, .js-tag-display .js-tag-display--tag {
+  padding: .5rem;
+  margin: .25rem;
+  border-radius: 4px;
+  color: white;
+  background-color: var(--accent-color);
+}
+
+.js-tag-display .js-tag-display--tag {
+  padding: .25rem;
+  margin: .125rem;
+}
+
+.js-tag-editor .js-tag-editor--tag .js-tag-editor--delete-tag {
+  cursor: pointer;
+}
+
+
+
+
+
+
+
+
+
+.js-user-handle-editor {
+  padding: .5rem .25rem;
+  height: auto;
+}
+
+.js-user-handle-display {
+  padding: .25rem .125rem;
+  height: auto;
+}
+
+.js-user-handle-editor .js-search-field {
+  border: none;
+  min-width: 20rem;
+}
+
+.js-user-handle-editor .js-user-handle-editor--url {
+  position: absolute;
+}
+
+.js-user-handle-editor .js-search-field {
+  margin: .25rem;
+}
+
+.js-user-handle-editor .js-user-handle-editor--item, .js-user-handle-display .js-user-handle-display--item {
+  padding: .5rem;
+  margin: .25rem;
+  border-radius: 4px;
+  color: white;
+  background-color: var(--accent-color);
+}
+
+.js-user-handle-display .js-user-handle-display--item {
+  padding: .25rem;
+  margin: .125rem;
+}
+
+.js-user-handle-editor .js-user-handle-editor--item .js-user-handle-editor--delete {
+  cursor: pointer;
+}

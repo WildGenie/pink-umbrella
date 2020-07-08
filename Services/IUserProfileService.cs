@@ -32,20 +32,14 @@ namespace PinkUmbrella.Services
 
         bool CanView(UserProfileModel user, int? viewerId);
 
-        Task<GroupAccessCodeModel> NewGroupAccessCode(int createdByUserId, int forUserId, string group);
-
-        Task<GroupAccessCodeModel> GetGroupAccessCodeAsync(string code, int userId);
-        
-        Task ConsumeGroupAccessCodeAsync(UserProfileModel user, GroupAccessCodeModel code);
-
         Task MakeFirstUserDev(UserProfileModel user);
-
-        Task<List<GroupAccessCodeModel>> GetUnusedUnexpiredAccessCodes();
 
         Task<bool> HandleExists(string handle);
         
         Task<List<UserProfileModel>> GetAll(DateTime? sinceLastUpdated);
 
         Task<LoginResult> LoginPublicKeyChallenge(int userId, PublicKey publicKey, PrivateKey privateKey, string challenge, string answer, IAuthTypeHandler authTypeHandler);
+        
+        Task<List<UserProfileModel>> GetCompletionsFor(string prefix, int viewerId);
     }
 }

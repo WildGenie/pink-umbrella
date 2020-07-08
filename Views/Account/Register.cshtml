@@ -8,6 +8,10 @@
     <div class="col-md-6" style="margin: 0 auto">
         <h1>@ViewData["Title"]</h1>
         <form asp-route-returnUrl="@Model.ReturnUrl" method="POST" asp-controller="Account" asp-action="Register">
+            @if (!string.IsNullOrWhiteSpace(Model.Code))
+            {
+                <input type="hidden" name="code" value="@Model.Code" />
+            }
             <div asp-validation-summary="All" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Input.DisplayName"></label>

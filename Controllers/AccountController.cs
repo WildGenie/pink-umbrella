@@ -17,9 +17,11 @@ using PinkUmbrella.Util;
 using PinkUmbrella.Models.AhPushIt;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Models.Settings;
-using PinkUmbrella.Models.Auth;
 using Fido2NetLib;
 using Microsoft.AspNetCore.Http;
+using QRCoder;
+using PinkUmbrella.Models.Auth;
+using static QRCoder.PayloadGenerator.Mail;
 
 namespace PinkUmbrella.Controllers
 {
@@ -29,6 +31,8 @@ namespace PinkUmbrella.Controllers
         private readonly ILogger<AccountController> _logger;
 
         private readonly IFido2 _fido2;
+
+        private readonly IInvitationService _invitationService;
 
         public AccountController(
                 ILogger<AccountController> logger,
@@ -41,15 +45,17 @@ namespace PinkUmbrella.Controllers
                 IPeerService peers,
                 IAuthService auth,
                 ISettingsService settings,
-                IFido2 fido2
+                IFido2 fido2,
+                IInvitationService invitationService
                 ) :
             base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications, peers, auth, settings)
         {
             _logger = logger;
             _fido2 = fido2;
+            _invitationService = invitationService;
         }
 
-        [Authorize]
+        [HttpGet]
         public async Task<IActionResult> Index(string statusMessage, string statusType)
         {
             ViewData["Controller"] = "Account";
@@ -125,7 +131,7 @@ namespace PinkUmbrella.Controllers
             return View();
         }
 
-        [HttpGet, Authorize]
+        [HttpGet]
         public async Task<IActionResult> PersonalData()
         {
             ViewData["Controller"] = "Account";
@@ -136,85 +142,134 @@ namespace PinkUmbrella.Controllers
             });
         }
 
-        [HttpGet, Authorize]
-        public async Task<IActionResult> AuthKeys()
+        [HttpGet]
+        public async Task<IActionResult> Invites(string selected) // string statusMessage, string statusType
         {
             ViewData["Controller"] = "Account";
-            ViewData["Action"] = nameof(AuthKeys);
+            ViewData["Action"] = nameof(Invites);
 
+            //ShowStatus(statusMessage, statusType);
             var user = await GetCurrentUserAsync();
-            return View(new AuthKeysViewModel()
+            
+            return View(new InvitesViewModel()
             {
                 MyProfile = user,
-                Keys = await _auth.GetForUser(user.Id),
+                InvitesToMe = await _invitationService.GetInvitesToUser(user.Id),
+                InvitesFromMe = await _invitationService.GetInvitesFromUser(user.Id),
+                Selected = selected,
             });
         }
 
-        [HttpPost, Authorize, FeatureGate(FeatureFlags.FunctionUserAddAuthKey)]
-        public async Task<IActionResult> AddAuthKey(string value, AuthType type)
+        [HttpGet]
+        public async Task<IActionResult> Invite()
         {
             ViewData["Controller"] = "Account";
-            ViewData["Action"] = nameof(AddAuthKey);
+            ViewData["Action"] = nameof(Invite);
+
             var user = await GetCurrentUserAsync();
-
-            var key = new PublicKey()
-            {
-                Value = value,
-                Type = type,
-            };
-            var result = await _auth.TryAddUserKey(key, user);
-            switch (result.Error)
-            {
-                case AuthKeyError.None: return RedirectToAction(nameof(AuthKeys));
-                case AuthKeyError.InvalidFormat:
-                ModelState.AddModelError("PublicKey", "Invalid format");
-                break;
-            }
-
-            return View(nameof(AuthKeys), new AuthKeysViewModel()
+            
+            return View(new InviteViewModel()
             {
                 MyProfile = user,
-                NewKey = new AddKeyViewModel() {
-                    PublicKey = key
-                },
             });
         }
 
-        [HttpPost, Authorize, FeatureGate(FeatureFlags.FunctionUserGenAuthKey)]
-        public async Task<IActionResult> GenAuthKey(AuthKeyOptions AuthKey)
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Invite([Bind] InviteFormViewModel values)
         {
-            ViewData["Controller"] = "Account";
-            ViewData["Action"] = nameof(GenAuthKey);
             var user = await GetCurrentUserAsync();
-
-            AuthKey.Format = AuthKeyFormat.Raw;
-            var result = await _auth.GenKey(AuthKey, HandshakeMethod.Default);
-            switch (result.Error)
+            if (ModelState.IsValid)
             {
-                case AuthKeyError.None:
+                if (values.DaysValidFor <= 0)
                 {
-                    result = await _auth.TryAddUserKey(result.Keys.Public, user);
-                    switch (result.Error)
+                    ModelState.AddModelError(nameof(values.DaysValidFor), "Invalid number of days");
+                }
+                else if (string.IsNullOrWhiteSpace(values.Message))
+                {
+                    ModelState.AddModelError(nameof(values.Message), "Message is required");
+                }
+                else if (values.Type == InvitationType.Register && !User.IsInRole("admin"))
+                {
+                    ModelState.AddModelError(string.Empty, "Must be an admin to create group invitations");
+                }
+                else
+                {
+                    var code = await _invitationService.NewInvitation(user.Id, values.Type, values.UserIdTo, values.Message, values.DaysValidFor);
+                    if (code != null)
                     {
-                        case AuthKeyError.None: return RedirectToAction(nameof(AuthKeys));
-                        case AuthKeyError.InvalidFormat:
-                        ModelState.AddModelError("PublicKey", "Invalid format");
-                        break;
+                        return RedirectToAction(nameof(Invites), new { selected = code.Code });
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "Error creating invitation");
                     }
                 }
-                break;
-                case AuthKeyError.InvalidFormat:
-                ModelState.AddModelError("PublicKey", "Invalid format");
-                break;
             }
-
-            return View(nameof(AuthKeys), new AuthKeysViewModel()
+            return View(new InviteViewModel()
             {
                 MyProfile = user,
-                NewKey = new AddKeyViewModel() {
-                    AuthKey = AuthKey
-                },
+                Values = values
             });
+        }
+
+        public async Task<IActionResult> SendInviteViaMethod(HandshakeMethod method, int id)
+        {
+            var code = await _invitationService.GetAccessCodeAsync(id);
+            var model = new SendInviteViaMethodViewModel()
+            {
+                MyProfile = await GetCurrentUserAsync(),
+            };
+            switch (method)
+            {
+                case HandshakeMethod.Email:
+                {
+                    var subject = string.Empty;
+                    var action = "join";
+                    switch (code.Type)
+                    {
+                        case InvitationType.Register:
+                        subject = _settings.Site.HostDisplayName;
+                        break;
+                        case InvitationType.FollowMe:
+                        {
+                            var user = model.MyProfile.Id == code.CreatedByUserId ? model.MyProfile : await _userManager.FindByIdAsync(code.CreatedByUserId.ToString());
+                            subject = $"{user.DisplayName} @{user.Handle}";
+                        } break;
+                        case InvitationType.AddMeToGroup:
+                        subject = code.GroupName;
+                        break;
+                    }
+                    subject = Uri.EscapeDataString($"Invitation to {action} {subject}");
+                    var body = Uri.EscapeDataString(code.GroupName);
+                    model.Link = $"mailto:recipient@email.com?body={body}&subject={subject}";
+                } break;
+                case HandshakeMethod.Link:
+                    model.Link = $"/Account/AcceptInvite/{code.Code}";
+                break;
+                case HandshakeMethod.ManualCodeMachine:
+                    model.RawString = code.Code;
+                break;
+                case HandshakeMethod.ManualCodeHuman:
+                    if (Guid.TryParse(code.Code, out var asGuid))
+                    {
+                        model.RawString = string.Join(' ', _auth.ToBiometric(asGuid.ToByteArray()));
+                    }
+                    else
+                    {
+                        model.RawString = code.Code;
+                    }
+                break;
+                case HandshakeMethod.QRCode:
+                {
+                    QRCodeGenerator qrGenerator = new QRCodeGenerator();
+                    QRCodeData qrCodeData = qrGenerator.CreateQrCode("The text which should be encoded.", QRCodeGenerator.ECCLevel.Q);
+                    Base64QRCode qrCode = new Base64QRCode(qrCodeData);
+                    model.QRCodeImageAsBase64 = qrCode.GetGraphic(20);
+                } break;
+                default:
+                throw new Exception($"Invalid method {method}");
+            }
+            return View(model);
         }
 
         public async Task<IActionResult> DownloadPersonalData()
@@ -257,7 +312,7 @@ namespace PinkUmbrella.Controllers
             return View();
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public async Task<IActionResult> UpdateAccount([Bind] UserProfileModel MyProfile)
         {
             var user = await GetCurrentUserAsync();
@@ -301,7 +356,7 @@ namespace PinkUmbrella.Controllers
             return RedirectToAction(nameof(Index), new { statusMessage = "Successfully updated account", statusType = "success" });
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public async Task<IActionResult> UpdateProfile([Bind] UserProfileModel MyProfile)
         {
             var user = await GetCurrentUserAsync();
@@ -320,25 +375,42 @@ namespace PinkUmbrella.Controllers
             return RedirectToAction(nameof(Index), new { statusMessage = "Successfully updated profile", statusType = "success" });
         }
 
-        [Authorize, Route("/AddMeToGroup/{code}")]
-        public async Task<IActionResult> AddMeToGroup(string code)
+        [HttpGet, AllowAnonymous, Route("/Account/AcceptInvite/{code}")]
+        public async Task<IActionResult> AcceptInvite(string code)
         {
             if (!string.IsNullOrWhiteSpace(code))
             {
                 var user = await GetCurrentUserAsync();
-                var groupAccess = await _userProfiles.GetGroupAccessCodeAsync(code, user.Id);
-                if (groupAccess != null)
+                var accessCode = await _invitationService.GetAccessCodeAsync(code, user?.Id, null);
+                if (accessCode != null)
                 {
-                    if (!await _userManager.IsInRoleAsync(user, groupAccess.GroupName))
+                    var statusMessage = "Accepted invitation";
+                    var statusType = "success";
+                    switch (accessCode.Type)
                     {
-                        _logger.LogInformation($"Adding {user.Id} ({user.Email}) to {groupAccess.GroupName} role");
-                        await _userProfiles.ConsumeGroupAccessCodeAsync(user, groupAccess);
-                        return Content("You are now a part of " + groupAccess.GroupName);
+                        case InvitationType.AddMeToGroup:
+                        {
+                            if (!await _userManager.IsInRoleAsync(user, accessCode.GroupName))
+                            {
+                                _logger.LogInformation($"Adding {user.Id} ({user.Email}) to {accessCode.GroupName} role");
+                                statusMessage = "You are now a part of " + accessCode.GroupName;
+                            }
+                            else
+                            {
+                                _logger.LogInformation($"{user.Id} ({user.Email}) was already a part of {accessCode.GroupName} role");
+                                statusMessage = "You were already a part of " + accessCode.GroupName;
+                            }
+                        } break;
+                        case InvitationType.FollowMe:
+                        {
+                            await _reactions.React(user.Id, accessCode.CreatedByUserId, ReactionType.Follow, ReactionSubject.Profile);
+                            statusMessage = "You are now following " + accessCode.CreatedByUserId;
+                        } break;
+                        case InvitationType.Register: return RedirectToAction(nameof(Register), new { code });
                     }
-                    else
-                    {
-                        return Content("You were already a part of " + groupAccess.GroupName);
-                    }
+                    // TODO: send notification that the invite was consumed
+                    await _invitationService.ConsumeAccessCodeAsync(user, accessCode);
+                    return RedirectToAction(nameof(Index), new { statusMessage, statusType });
                 }
             }
             
@@ -367,7 +439,7 @@ namespace PinkUmbrella.Controllers
             }
         }
 
-        [Authorize, HttpGet]
+        [HttpGet]
         public async Task<IActionResult> NotificationSettings()
         {
             ViewData["Controller"] = "Account";
@@ -381,7 +453,7 @@ namespace PinkUmbrella.Controllers
             });
         }
 
-        [Authorize, HttpPost, ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> NotificationSettings(string[] enabledTypeMethods, string submit)
         {
             ViewData["Controller"] = "Account";

@@ -1,0 +1,69 @@
+﻿@using PinkUmbrella.ViewModels.Account
+@model InviteFormViewModel
+@{
+    var handlesEditor = new PinkUmbrella.ViewModels.Profile.UserListEditorViewModel() {
+        HtmlClasses = "form-control",
+        InputName = "UserTo",
+        MaxCount = 1,
+        Items = new List<UserProfileModel>(),
+    };
+    var types = Enum.GetValues(typeof(InvitationType)).Cast<InvitationType>();
+    if (!User.IsInRole("admin"))
+    {
+        types = types.Where(t => t != InvitationType.AddMeToGroup);
+    }
+    var typeIndex = 0;
+}
+<ul class="nav nav-tabs" id="invitationTab" role="tablist">
+    @foreach (var type in types)
+    {
+        var containerClass = Model.Type == type ? "active" : "";
+    <li class="nav-item">
+        <a class="nav-link @containerClass" id="invitation-tab-@type" data-toggle="tab" href="#invitation-tab-content-@type" role="tab" aria-controls="invitationTab@type" aria-selected="true">@type.GetDisplayName()</a>
+    </li>
+    typeIndex++;
+    }
+</ul>
+<div class="tab-content" id="invitationContent">
+@{typeIndex=-1;}
+@foreach (var type in types)
+    {
+        typeIndex++;
+        var containerClass = Model.Type == type ? "active" : "";
+        var canSendToUser = type == InvitationType.FollowMe || type == InvitationType.AddMeToGroup;
+        var msgPlaceholder = _strings.GetInvitationMessagePlaceholder(type);
+        <div class="tab-pane fade show @containerClass" id="invitation-tab-content-@type" role="tabpanel" aria-labelledby="invitation-tab-@type">
+            <br />
+            <p>@type.GetDescription()</p>
+            <form asp-controller="Account" asp-action="Invite" method="POST">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                @if (canSendToUser)
+                {
+                    <div class="form-group">
+                        <label for="UserTo">User</label>
+                        <small>@Model.GetPropertyDescription(nameof(Model.UserIdTo))</small>
+                        <partial name="Profile/UserHandlesEditor" model="handlesEditor" />
+                        <span asp-validation-for="UserIdTo" class="text-danger"></span>
+                    </div>
+                }
+                else
+                {
+                    <input type="hidden" name="UserIdTo" value="0" />
+                }
+                <div class="form-group">
+                    <label asp-for="Message"></label>
+                    <small>@Model.GetPropertyDescription(nameof(Model.Message))</small>
+                    <input asp-for="Message" class="form-control" placeholder="@msgPlaceholder" />
+                    <span asp-validation-for="Message" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="DaysValidFor"></label>
+                    <small>@Model.GetPropertyDescription(nameof(Model.DaysValidFor))</small>
+                    <input asp-for="DaysValidFor" class="form-control" />
+                    <span asp-validation-for="DaysValidFor" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-success" value="@type" name="type">Create @type.GetDisplayName()</button>
+            </form>
+        </div>
+    }
+</div>

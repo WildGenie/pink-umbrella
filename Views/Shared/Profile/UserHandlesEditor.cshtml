@@ -1,0 +1,14 @@
+@using PinkUmbrella.ViewModels.Profile
+@model UserListEditorViewModel
+@{
+    string tagJson = null;
+    if (Model != null && Model.Items.Count > 0)
+    {
+        tagJson = $"[{string.Join(',', Model.Items.Select(t => new { value = t.Id, label = t.DisplayName }).Select(t => System.Text.Json.JsonSerializer.Serialize(t)))}]";
+    }
+}
+<div class="js-user-handle-editor @Model.HtmlClasses" data-item-editor-id="-1" id="@Model.HtmlId" data-max-count="@Model.MaxCount" >
+    <a class="js-user-handle-editor--url" asp-action="Completions" asp-controller="Profile"></a>
+    <input class="js-user-handles" name="@Model.InputName" type="hidden" value="@tagJson" />
+    <input class="js-search-field" placeholder="@Model.Placeholder" />
+</div>

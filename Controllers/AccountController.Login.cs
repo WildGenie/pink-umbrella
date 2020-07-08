@@ -14,6 +14,7 @@ using Fido2NetLib;
 using System.Linq;
 using Fido2NetLib.Development;
 using PinkUmbrella.Util;
+using PinkUmbrella.Models;
 
 namespace PinkUmbrella.Controllers
 {
@@ -175,13 +176,36 @@ namespace PinkUmbrella.Controllers
         }
 
         [HttpGet, AllowAnonymous, RedirectIfNotAnonymous]
-        public IActionResult Register(string returnUrl)
+        public async Task<IActionResult> Register(string returnUrl, string code)
         {
             ViewData["Controller"] = "Account";
             ViewData["Action"] = nameof(Register);
+
+            var invitationOnly = await _featureManager.IsEnabledAsync(nameof(FeatureFlags.FunctionUserRegisterInvitationOnly));
+            if (!string.IsNullOrWhiteSpace(code))
+            {
+                var codeIsValid = await _invitationService.GetAccessCodeAsync(code, null, InvitationType.Register);
+                if (codeIsValid == null)
+                {
+                    if (invitationOnly)
+                    {
+                        return Redirect("/Error/404");
+                    }
+                    else
+                    {
+                        code = null;
+                    }
+                }
+            }
+            else if (invitationOnly)
+            {
+                return Redirect("/Error/404");
+            }
+
             return View(new RegisterViewModel()
             {
-                ReturnUrl = returnUrl
+                ReturnUrl = returnUrl,
+                Code = code,
             });
         }
 
@@ -189,8 +213,23 @@ namespace PinkUmbrella.Controllers
         public IActionResult Lockout() => View();
 
         [HttpPost, AllowAnonymous, RedirectIfNotAnonymous]
-        public async Task<IActionResult> Register(string returnUrl, [Bind] RegisterInputModel input)
+        public async Task<IActionResult> Register(string returnUrl, string code, [Bind] RegisterInputModel input)
         {
+            GroupAccessCodeModel accessCode = null;
+            var isInvitationOnly = await _featureManager.IsEnabledAsync(nameof(FeatureFlags.FunctionUserRegisterInvitationOnly));
+            if (!string.IsNullOrWhiteSpace(code))
+            {
+                accessCode = await _invitationService.GetAccessCodeAsync(code, null, InvitationType.Register);
+                if (accessCode == null && isInvitationOnly)
+                {
+                    return Redirect("/Error/404");
+                }
+            }
+            else if (isInvitationOnly)
+            {
+                return Redirect("/Error/404");
+            }
+
             returnUrl = returnUrl ?? Url.Content("~/");
             if (ModelState.IsValid)
             {
@@ -201,15 +240,20 @@ namespace PinkUmbrella.Controllers
                     if (result.Succeeded)
                     {
                         await _userProfiles.MakeFirstUserDev(user);
+                        if (accessCode != null)
+                        {
+                            // TODO: send notification that the invite was claimed
+                            await _invitationService.ConsumeAccessCodeAsync(user, accessCode);
+                        }
 
                         // await eventLog.Log(user.Id, EventNames.Account.Register.Success, null);
-                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                        var emailCode = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                         if (_environment.IsProduction())
                         {
                             var callbackUrl = Url.Page(
                                 "/Account/ConfirmEmail",
                                 pageHandler: null,
-                                values: new { userId = user.Id, code = code },
+                                values: new { userId = user.Id, code = emailCode },
                                 protocol: Request.Scheme);
 
                             // TODO: replace with View() of email
@@ -218,7 +262,7 @@ namespace PinkUmbrella.Controllers
                         }
                         else
                         {
-                            var result2 = await _userManager.ConfirmEmailAsync(user, code);
+                            var result2 = await _userManager.ConfirmEmailAsync(user, emailCode);
                             if (!result2.Succeeded)
                             {
                                 //AddErrors(result2);
@@ -244,6 +288,7 @@ namespace PinkUmbrella.Controllers
             return View(new RegisterViewModel() {
                 ReturnUrl = returnUrl,
                 Input = input,
+                Code = code,
             });
         }
 

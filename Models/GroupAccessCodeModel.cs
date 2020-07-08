@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PinkUmbrella.Models
 {
@@ -13,7 +14,7 @@ namespace PinkUmbrella.Models
         [DisplayName("When Expires"), Description("When the access code expires")]
         public DateTime WhenExpires { get; set; }
 
-        [DefaultValue(null), DisplayName("When Deleted"), Description("When the post was deleted")]
+        [DefaultValue(null), DisplayName("When Consumed"), Description("When the access code was claimed")]
         public DateTime? WhenConsumed { get; set; }
 
         [Description("The access code to grant access to the group")]
@@ -28,11 +29,16 @@ namespace PinkUmbrella.Models
         [DisplayName("Group Name"), Description("Which group the access code is for")]
         public string GroupName { get; set; }
 
+        [DisplayName("Invitation Type"), Description("What the access code is used for")]
+        public InvitationType Type { get; set; }
+
+
+        public UserProfileModel ForUser { get; set; }
 
 
         public override string ToString()
         {
-            return $"{CreatedByUserId} created \"{Code} for {ForUserId} to access {GroupName} at {WhenCreated}. Expires {WhenExpires}, consumed {(WhenConsumed?.ToString() ?? "never")}\"";
+            return $"{CreatedByUserId} created \"{Code} for {ForUserId} to access {Type} {GroupName} at {WhenCreated}. Expires {WhenExpires}, consumed {(WhenConsumed?.ToString() ?? "never")}\"";
         }
     }
 }

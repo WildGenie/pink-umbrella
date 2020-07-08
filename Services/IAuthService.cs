@@ -65,5 +65,7 @@ namespace PinkUmbrella.Services
         Task<byte[]> GetChallenge(PublicKey pubkey);
         
         AuthType ResolveType(string key);
+        
+        List<string> ToBiometric(byte[] vs);
     }
 }

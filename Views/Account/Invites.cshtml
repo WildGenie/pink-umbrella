@@ -1,0 +1,23 @@
+﻿@using PinkUmbrella.Services;
+@model PinkUmbrella.ViewModels.Account.InvitesViewModel
+@{
+    ViewData["Title"] = "Invites";
+    ViewData["InviteSelected"] = Model.Selected;
+}
+<partial name="_Header" />
+<ul class="nav nav-pills mb-3" id="invites-tab" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link active" id="invites-sent-tab" data-toggle="pill" href="#invites-sent" role="tab" aria-controls="invites-sent" aria-selected="true">Sent</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="invites-received-tab" data-toggle="pill" href="#invites-received" role="tab" aria-controls="invites-received" aria-selected="false">Received</a>
+  </li>
+</ul>
+<div class="tab-content" id="invites-tabContent">
+  <div class="tab-pane fade show active" id="invites-sent" role="tabpanel" aria-labelledby="invites-sent-tab">
+      <partial name="_InviteList" model="Model.InvitesFromMe" />
+  </div>
+  <div class="tab-pane fade" id="invites-received" role="tabpanel" aria-labelledby="invites-received-tab">
+      <partial name="_InviteList" model="Model.InvitesToMe" />
+  </div>
+</div>

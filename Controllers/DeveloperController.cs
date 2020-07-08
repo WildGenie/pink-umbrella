@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using PinkUmbrella.Models;
 using PinkUmbrella.Services;
 using PinkUmbrella.ViewModels.Developer;
-using PinkUmbrella.Models.AhPushIt;
 using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Util;
@@ -43,7 +39,6 @@ namespace PinkUmbrella.Controllers
             ViewData["Action"] = nameof(Index);
             return View(new IndexViewModel() {
                 MyProfile = user,
-                UnusedUnexpiredAccessCodes = await _userProfiles.GetUnusedUnexpiredAccessCodes(),
             });
         }
 

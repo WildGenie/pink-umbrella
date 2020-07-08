@@ -1,0 +1,24 @@
+﻿@using PinkUmbrella.Services;
+@model PinkUmbrella.ViewModels.Account.InviteViewModel
+@{
+    ViewData["Title"] = "Create Invite";
+}
+<partial name="_Header" />
+@if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserInvite)))
+{
+    @if (Model.MyProfile.EmailConfirmed)
+    {
+        <partial name="_InviteForm" model="Model.Values" />
+    }
+    else
+    {
+        <p>Invitations can only be sent from a confirmed account.</p>
+    }
+}
+else
+{
+    <p>Sending invites has been turned off.</p>
+}
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

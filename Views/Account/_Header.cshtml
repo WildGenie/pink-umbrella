@@ -5,6 +5,8 @@
     var personalDataLiClass = (actionName == "PersonalData" || actionName == "Delete") ? "selected" : "";
     var loginSettingsLiClass = (actionName == "LoginSettings" || actionName == "UpdateLoginMethod" || actionName == "SetupLoginMethod") ? "selected" : "";
     var notificationSettingsLiClass = actionName == "NotificationSettings" ? "selected" : "";
+    var inviteLiClass = actionName == "Invite" ? "selected" : "";
+    var invitesLiClass = actionName == "Invites" ? "selected" : "";
 }
 <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
     <div class="container">
@@ -32,6 +34,15 @@
                 <li class="nav-item @notificationSettingsLiClass">
                     <a class="nav-link text-dark" asp-controller="Account" asp-action="NotificationSettings"><u>Notification Settings</u></a>
                 </li>
+                @if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserInvite)))
+                {
+                <li class="nav-item @inviteLiClass">
+                    <a class="nav-link text-dark" asp-controller="Account" asp-action="Invite"><u>Create Invite</u></a>
+                </li>
+                <li class="nav-item @invitesLiClass">
+                    <a class="nav-link text-dark" asp-controller="Account" asp-action="Invites"><u>Invites</u></a>
+                </li>
+                }
             </ul>
         </div>
     </div>
