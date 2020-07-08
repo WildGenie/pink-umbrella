@@ -28,7 +28,7 @@ namespace PinkUmbrella.Services.Sql.Search
             if (!string.IsNullOrWhiteSpace(text))
             {
                 var textToLower = text.ToLower();
-                query = query.Where(p => p.DisplayName.Contains(textToLower) || p.Description.Contains(textToLower));
+                query = query.Where(p => p.DisplayName.Contains(textToLower) || p.Description.Contains(textToLower) || p.Attribution.Contains(textToLower));
             }
             
             switch (order) {

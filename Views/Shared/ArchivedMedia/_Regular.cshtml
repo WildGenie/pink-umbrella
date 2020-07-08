@@ -65,6 +65,10 @@
         <span>unknown type @ext</span>
         break;
     }
+    @if (!string.IsNullOrWhiteSpace(Model.Attribution))
+    {
+        <p>Attribution: @Model.Attribution</p>
+    }
     
     <partial name="Button/ReactButtonList" model="reactions" /></li>
 </div>

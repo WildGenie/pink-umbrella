@@ -11,6 +11,8 @@ namespace PinkUmbrella.ViewModels.Archive
         public string Description { get; set; }
         
         public string Title { get; set; }
+
+        public string Attribution { get; set; }
         
         public Visibility Visibility { get; set; }
     }

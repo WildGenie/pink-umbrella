@@ -18,6 +18,9 @@ namespace PinkUmbrella.Models
 
         [DefaultValue(null), MaxLength(1000)]
         public string Description { get; set; }
+
+        [DefaultValue(null), MaxLength(100)]
+        public string Attribution { get; set; }
         
         public int SizeBytes { get; set; }
 

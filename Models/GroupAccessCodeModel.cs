@@ -32,7 +32,7 @@ namespace PinkUmbrella.Models
         [DisplayName("Invitation Type"), Description("What the access code is used for")]
         public InvitationType Type { get; set; }
 
-
+        [NotMapped]
         public UserProfileModel ForUser { get; set; }
 
 

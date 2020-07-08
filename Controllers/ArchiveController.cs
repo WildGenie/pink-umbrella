@@ -142,7 +142,7 @@ namespace PinkUmbrella.Controllers
         }
 
         [HttpPost, Authorize]
-        public async Task<IActionResult> Upload(List<IFormFile> Files, string Description, string Title, int? RelatedPostId, Visibility Visibility)
+        public async Task<IActionResult> Upload(List<IFormFile> Files, string Description, string Title, string Attribution, int? RelatedPostId, Visibility Visibility)
         {
             const int MaxFileSize = 4000000;
             const int MaxPayloadSize = 4000000 * 5;
@@ -178,6 +178,7 @@ namespace PinkUmbrella.Controllers
                             return new ArchivedMediaModel() {
                                 Path = Path.ChangeExtension(System.IO.Path.GetTempFileName(), Path.GetExtension(f.FileName)),
                                 Description = string.IsNullOrEmpty(Description) ? f.FileName : Description,
+                                Attribution = Attribution,
                                 OriginalName = f.FileName,
                                 SizeBytes = f.Length < Int32.MaxValue ? (int) f.Length : -1,
                                 DisplayName = string.IsNullOrWhiteSpace(Title) ? f.FileName : Title,
