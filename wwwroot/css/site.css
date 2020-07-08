@@ -79,7 +79,20 @@ body {
   bottom: 0;
   width: 100%;
   white-space: nowrap;
-  line-height: 60px; /* Vertically center the text there */
+  line-height: 45px; /*Vertically center the text there */
+  padding-top: .25rem;
+}
+
+.footer-container {
+    list-style-type: none;
+    line-height: 30px;
+    display: grid;
+    align-items: center;
+    justify-content: center;
+}
+
+.footer-container li {
+    text-align: center;
 }
 
 
@@ -152,7 +165,6 @@ ul.highlight-selected > li.selected {
   border-color: var(--accent-color)  !important;
   color: white !important;
 }
-
 
 
 

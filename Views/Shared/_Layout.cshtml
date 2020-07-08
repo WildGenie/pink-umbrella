@@ -39,23 +39,28 @@
     </div>
 
     <footer class="border-top footer text-muted">
-        <div class="container">
-            2020 <i class="fa fa-umbrella accent-color" style="transform: ScaleX(-1)"></i> @_strings.SoftwareName for @_settings.Site.HostDisplayName
-            &bull; <a href="@_strings.GitHubUrl" target="_blank"><i class="fab fa-github"></i> GitHub</a>
-            &bull; <a asp-area="" asp-controller="Home" asp-action="Privacy"><i class="fas fa-user-secret"></i> Privacy</a>
-            &bull; <a asp-area="" asp-controller="Home" asp-action="About"><i class="fas fa-question-circle"></i> About Us</a>
-            &bull; <a href="@_strings.WikiUrl" target="_blank"><i class="fas fa-info-circle"></i> Wiki</a>
-            @if (User.IsInRole(_strings.RoleDeveloper) || System.Diagnostics.Debugger.IsAttached)
-            {
-                <span> &bull; </span><a asp-area="" asp-controller="Developer" asp-action="Index"><i class="fas fa-robot"></i> Debug</a>
-            }
-            @if (User.IsInRole(_strings.RoleAdmin) || System.Diagnostics.Debugger.IsAttached)
-            {
-                <span> &bull; </span><a asp-area="" asp-controller="Admin" asp-action="Index"><i class="fas fa-balance-scale"></i> Admin</a>
-            }
-            &bull; <a asp-area="" asp-controller="Home" asp-action="Links"><i class="fas fa-link"></i> Links</a>
-            &bull; <a href="@_strings.ReportBugUrl" target="_blank"><i class="fas fa-bug"></i> Report Issue</a>
-        </div>
+        <ul class="footer-container">
+            <li>
+                2020 <i class="fa fa-umbrella accent-color" style="transform: ScaleX(-1)"></i> @_strings.SoftwareName for @_settings.Site.HostDisplayName
+            </li>
+            <li>
+                <a href="@_strings.GitHubUrl" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+                &bull; <a asp-area="" asp-controller="Home" asp-action="Privacy"><i class="fas fa-user-secret"></i> Privacy</a>
+                &bull; <a asp-area="" asp-controller="Home" asp-action="Terms"><i class="fas fa-file"></i> Terms</a>
+                &bull; <a asp-area="" asp-controller="Home" asp-action="About"><i class="fas fa-question-circle"></i> About Us</a>
+                &bull; <a href="@_strings.WikiUrl" target="_blank"><i class="fas fa-info-circle"></i> Wiki</a>
+                @if (User.IsInRole(_strings.RoleDeveloper) || System.Diagnostics.Debugger.IsAttached)
+                {
+                    <span> &bull; </span><a asp-area="" asp-controller="Developer" asp-action="Index"><i class="fas fa-robot"></i> Debug</a>
+                }
+                @if (User.IsInRole(_strings.RoleAdmin) || System.Diagnostics.Debugger.IsAttached)
+                {
+                    <span> &bull; </span><a asp-area="" asp-controller="Admin" asp-action="Index"><i class="fas fa-balance-scale"></i> Admin</a>
+                }
+                &bull; <a asp-area="" asp-controller="Home" asp-action="Links"><i class="fas fa-link"></i> Links</a>
+                &bull; <a href="@_strings.ReportBugUrl" target="_blank"><i class="fas fa-bug"></i> Report Issue</a>
+            </li>
+        </ul>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

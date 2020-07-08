@@ -1,0 +1,6 @@
+﻿@{
+    ViewData["Title"] = "Terms And Conditions";
+    var tosMD = await System.IO.File.ReadAllTextAsync("TERMS_OF_SERVICE.md");
+}
+<h1 class="terms-title">@ViewData["Title"]</h1>
+@Html.Raw(Markdig.Markdown.ToHtml(tosMD))

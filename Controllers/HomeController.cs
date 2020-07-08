@@ -199,6 +199,14 @@ namespace PinkUmbrella.Controllers
             return View(new BaseViewModel() { MyProfile = await GetCurrentUserAsync() });
         }
 
+        [Route("/Terms")]
+        public async Task<IActionResult> Terms()
+        {
+            ViewData["Controller"] = "Home";
+            ViewData["Action"] = nameof(Terms);
+            return View(new BaseViewModel() { MyProfile = await GetCurrentUserAsync() });
+        }
+
         [Route("/Error/{code}")]
         public async Task<IActionResult> Error(string code)
         {
