@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace PinkUmbrella.Models
+namespace PinkUmbrella.Models.Search
 {
     public class SearchResultsModel
     {

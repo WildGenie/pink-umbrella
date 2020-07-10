@@ -1,6 +1,4 @@
-using PinkUmbrella.Models;
-
-namespace PinkUmbrella.Models
+namespace PinkUmbrella.Models.Search
 {
     public class SearchResultModel
     {

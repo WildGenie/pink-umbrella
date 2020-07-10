@@ -64,10 +64,7 @@ namespace PinkUmbrella.Controllers
             });
         }
 
-        public async Task<IActionResult> ThrowException()
-        {
-            throw new Exception("You threw this exception");
-        }
+        public IActionResult ThrowException() => throw new Exception("You threw this exception");
 
         public async Task<IActionResult> Posts()
         {

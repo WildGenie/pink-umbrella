@@ -1,7 +1,4 @@
-using System;
-using PinkUmbrella.ViewModels;
-
-namespace PinkUmbrella.Models
+namespace PinkUmbrella.ViewModels.Home
 {
     public class ErrorViewModel: BaseViewModel
     {

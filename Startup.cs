@@ -21,6 +21,7 @@ using PinkUmbrella.Services;
 using PinkUmbrella.Services.Jobs;
 using PinkUmbrella.Services.NoSql;
 using PinkUmbrella.Services.Peer;
+using PinkUmbrella.Services.Search;
 using PinkUmbrella.Services.Sql;
 using PinkUmbrella.Services.Sql.React;
 using PinkUmbrella.Services.Sql.Search;

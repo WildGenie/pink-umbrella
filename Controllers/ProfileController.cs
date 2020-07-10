@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -13,6 +11,7 @@ using PinkUmbrella.Services;
 using PinkUmbrella.ViewModels.Profile;
 using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
+using PinkUmbrella.Models.Community;
 
 namespace PinkUmbrella.Controllers
 {

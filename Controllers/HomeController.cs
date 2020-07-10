@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -14,14 +11,12 @@ using Microsoft.Extensions.Logging;
 using PinkUmbrella.Models;
 using PinkUmbrella.Services;
 using PinkUmbrella.ViewModels.Home;
-using PinkUmbrella.Services.Sql.Search;
 using PinkUmbrella.ViewModels;
-using PinkUmbrella.ViewModels.Peer;
-using PinkUmbrella.Models.Auth;
 using PinkUmbrella.Util;
 using PinkUmbrella.ViewModels.Shared;
 using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
+using PinkUmbrella.Models.Search;
 
 namespace PinkUmbrella.Controllers
 {

@@ -8,14 +8,12 @@ using PinkUmbrella.ViewModels.Account;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Models.Settings;
 using PinkUmbrella.Models.Auth;
-using Microsoft.AspNetCore.Http;
 using Fido2NetLib.Objects;
 using Fido2NetLib;
 using System.Linq;
 using Fido2NetLib.Development;
 using PinkUmbrella.Util;
 using PinkUmbrella.Models;
-using OtpNet;
 
 namespace PinkUmbrella.Controllers
 {
@@ -111,7 +109,7 @@ namespace PinkUmbrella.Controllers
         }
 
         [HttpGet, AllowAnonymous, RedirectIfNotAnonymous]
-        public async Task<IActionResult> LoginViaPublicKey()
+        public IActionResult LoginViaPublicKey()
         {
             ViewData["Controller"] = "Account";
             ViewData["Action"] = nameof(LoginViaPublicKey);

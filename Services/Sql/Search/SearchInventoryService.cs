@@ -3,6 +3,8 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using PinkUmbrella.Models;
 using PinkUmbrella.Repositories;
+using PinkUmbrella.Models.Search;
+using PinkUmbrella.Services.Search;
 
 namespace PinkUmbrella.Services.Sql.Search
 {

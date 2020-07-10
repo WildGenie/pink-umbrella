@@ -21,7 +21,6 @@ using Fido2NetLib;
 using Microsoft.AspNetCore.Http;
 using QRCoder;
 using PinkUmbrella.Models.Auth;
-using static QRCoder.PayloadGenerator.Mail;
 
 namespace PinkUmbrella.Controllers
 {

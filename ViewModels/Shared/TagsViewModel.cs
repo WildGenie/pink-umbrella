@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using PinkUmbrella.Models;
+using PinkUmbrella.Models.Search;
 
 namespace PinkUmbrella.ViewModels.Shared
 {

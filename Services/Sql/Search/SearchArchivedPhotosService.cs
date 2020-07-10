@@ -1,6 +1,8 @@
 using System.Threading.Tasks;
 using PinkUmbrella.Models;
 using PinkUmbrella.Repositories;
+using PinkUmbrella.Models.Search;
+
 
 namespace PinkUmbrella.Services.Sql.Search
 {

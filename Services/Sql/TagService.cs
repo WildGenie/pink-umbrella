@@ -34,6 +34,15 @@ namespace PinkUmbrella.Services.Sql
             {
                 default: tag.Topic = "This is an interesting topic!"; break;
             }
+            if (tag.Id > 0)
+            {
+                var counts = await Task.WhenAll(
+                    _dbContext.PostTags.CountAsync(t => t.TagId == tag.Id),
+                    _dbContext.ArchivedMediaTags.CountAsync(t => t.TagId == tag.Id),
+                    _dbContext.ProfileTags.CountAsync(t => t.TagId == tag.Id),
+                    _dbContext.ShopTags.CountAsync(t => t.TagId == tag.Id));
+                tag.UseCount = counts.Sum();
+            }
         }
 
         public bool CanView(TaggedModel tag, int? viewerId)

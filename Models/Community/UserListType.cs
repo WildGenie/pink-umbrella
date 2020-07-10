@@ -1,4 +1,4 @@
-namespace PinkUmbrella.Models
+namespace PinkUmbrella.Models.Community
 {
     public enum UserListType
     {

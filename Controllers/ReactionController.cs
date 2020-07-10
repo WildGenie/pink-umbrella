@@ -12,7 +12,6 @@ using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Models;
 using PinkUmbrella.Models.Settings;
 using PinkUmbrella.Services;
-using PinkUmbrella.ViewModels.Home;
 using PinkUmbrella.ViewModels.Shared;
 
 namespace PinkUmbrella.Controllers

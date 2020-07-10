@@ -16,6 +16,7 @@ using PinkUmbrella.ViewModels.Shared;
 using System.IO;
 using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
+using PinkUmbrella.Models.Search;
 
 namespace PinkUmbrella.Controllers
 {

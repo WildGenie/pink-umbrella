@@ -1,4 +1,4 @@
-namespace PinkUmbrella.Models
+namespace PinkUmbrella.Models.Search
 {
     public enum SearchResultType
     {

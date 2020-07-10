@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using PinkUmbrella.Models;
 using PinkUmbrella.Repositories;
 using System.Collections.Generic;
+using PinkUmbrella.Services.Search;
+using PinkUmbrella.Models.Search;
 
 namespace PinkUmbrella.Services.Sql.Search
 {

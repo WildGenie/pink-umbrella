@@ -39,5 +39,8 @@ namespace PinkUmbrella.Models
         
         [NotMapped]
         public bool HasBlocked { get; set; }
+
+        [NotMapped]
+        public long UseCount { get; set; }
     }
 }

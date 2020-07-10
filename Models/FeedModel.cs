@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace PinkUmbrella.Models
 {
     public class FeedModel: PaginatedModel<PostModel>

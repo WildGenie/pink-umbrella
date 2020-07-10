@@ -1,7 +1,8 @@
 using System.Threading.Tasks;
 using PinkUmbrella.Models;
+using PinkUmbrella.Models.Search;
 
-namespace PinkUmbrella.Services
+namespace PinkUmbrella.Services.Search
 {
     public interface ISearchableService
     {
