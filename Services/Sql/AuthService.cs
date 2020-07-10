@@ -525,5 +525,68 @@ namespace PinkUmbrella.Services.Sql
                 return pgpOddWords[b];
             }
         }
+
+        public async Task<List<RecoveryKeyModel>> GetRecoveryKeys(int userId) => await _db.RecoveryKeys.Where(key => key.UserId == userId).ToListAsync();
+
+        public async Task<List<RecoveryKeyModel>> CreateRecoveryKeys(int userId, string label, int length, int count)
+        {
+            if (length <= 0)
+            {
+                throw new ArgumentException("length is less than or equal to 0", nameof(length));
+            }
+            else if (length < 6)
+            {
+                throw new ArgumentException("length too small, should be 6 or more", nameof(length));
+            }
+            else if (length > 99)
+            {
+                throw new ArgumentException("length too large, should be 99 or smaller", nameof(length));
+            }
+            else if (length == 1)
+            {
+                label += " ({0})";
+            }
+
+            var ret = new List<RecoveryKeyModel>();
+            for (int i = 0; i < count; i++)
+            {
+                var code = new StringBuilder();
+                var buf = new byte[1];
+                using (var rng = new RNGCryptoServiceProvider())
+                {
+                    for (int c = 0; c < length; c++)
+                    {
+                        while (true)
+                        {
+                            rng.GetNonZeroBytes(buf);
+                            var ch = (char)buf[0];
+                            if (_strings.RecoveryCodeChars.Contains(ch))
+                            {
+                                code.Append(ch);
+                                break;
+                            }
+                        }
+                    }
+                }
+                ret.Add(new RecoveryKeyModel()
+                {
+                    UserId = userId,
+                    Code = code.ToString(),
+                    WhenCreated = DateTime.UtcNow,
+                    Label = length == 1 ? label : string.Format(label, i + 1),
+                });
+            }
+            await _db.RecoveryKeys.AddRangeAsync(ret);
+            await _db.SaveChangesAsync();
+            return ret;
+        }
+
+        public async Task SaveAsync() => await _db.SaveChangesAsync();
+
+        public async Task DeleteRecoveryKey(RecoveryKeyModel key)
+        {
+            _db.RecoveryKeys.Remove(key);
+            await _db.SaveChangesAsync();
+        }
     }
 }

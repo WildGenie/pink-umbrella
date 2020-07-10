@@ -7,28 +7,29 @@ using Microsoft.AspNetCore.Http;
 using System.Linq;
 using PinkUmbrella.Models.Auth;
 using PinkUmbrella.Util;
+using PinkUmbrella.ViewModels.Account.SetupLoginMethod;
 
 namespace PinkUmbrella.Controllers
 {
     public partial class AccountController: BaseController
     {
 
-        [HttpGet]
-        public async Task<IActionResult> LoginSettings(string statusMessage, string statusType)
-        {
-            ViewData["Controller"] = "Account";
-            ViewData["Action"] = nameof(LoginSettings);
-            ShowStatus(statusMessage, statusType);
+        // [HttpGet]
+        // public async Task<IActionResult> LoginSettings(string statusMessage, string statusType)
+        // {
+        //     ViewData["Controller"] = "Account";
+        //     ViewData["Action"] = nameof(LoginSettings);
+        //     ShowStatus(statusMessage, statusType);
 
-            var user = await GetCurrentUserAsync();
+        //     var user = await GetCurrentUserAsync();
 
-            return View(new LoginSettingsViewModel()
-            {
-                MyProfile = user,
-                MethodOverrides = (await _auth.GetOverriddenLoginMethodsForUser(user.Id)).ToDictionary(k => k.Method, v => v),
-                GetMethodDefault = _auth.GetMethodDefault,
-            });
-        }
+        //     return View(new LoginSettingsViewModel()
+        //     {
+        //         MyProfile = user,
+        //         MethodOverrides = (await _auth.GetOverriddenLoginMethodsForUser(user.Id)).ToDictionary(k => k.Method, v => v),
+        //         GetMethodDefault = _auth.GetMethodDefault,
+        //     });
+        // }
 
         [AllowAnonymous]
         public async Task<IActionResult> ForgotPassword(string email = null)
@@ -59,7 +60,7 @@ namespace PinkUmbrella.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet, AllowAnonymous]
         public IActionResult ForgotPasswordEmailSent() => View();
 
         [HttpPost]
@@ -104,7 +105,7 @@ namespace PinkUmbrella.Controllers
 
             await _signInManager.RefreshSignInAsync(changePassword.MyProfile);
 
-            return RedirectToAction(nameof(LoginSettings), new { statusMessage = "Successfully changed password", statusType = "success" });
+            return RedirectToAction(nameof(Index), new { statusMessage = "Successfully changed password", statusType = "success" });
         }
 
         public ActionResult ResetPassword(string userId, string code)
@@ -149,15 +150,37 @@ namespace PinkUmbrella.Controllers
             ViewData["Action"] = nameof(SetupLoginMethod);
 
             var user = await GetCurrentUserAsync();
-
-            return View(new SetupLoginMethodViewModel()
+            var allowed = await _auth.LoginMethodAllowed(user.Id, method, _auth.GetMethodDefault(method));
+            var model = new SetupLoginMethodViewModel()
             {
                 MyProfile = user,
-                Allowed = await _auth.LoginMethodAllowed(user.Id, method, _auth.GetMethodDefault(method)),
+                Allowed = allowed,
                 AllowedByDefault = _auth.GetMethodDefault(method),
                 Method = method,
                 ReturnUrl = ReturnUrl,
-            });
+            };
+
+            if (allowed)
+            {
+                switch (method)
+                {
+                    case UserLoginMethod.EmailPassword:
+                    model.LoginModel = new ChangePasswordViewModel();
+                    break;
+                    case UserLoginMethod.RecoveryKey:
+                    model.LoginModel = new SetupRecoveryViewModel()
+                    {
+                        RecoveryKeys = await _auth.GetRecoveryKeys(user.Id)
+                    };
+                    break;
+                    default: return Redirect("/Error/404");
+                }
+            }
+            // var secretKey = new byte[] {  };
+            // var hotp = new Hotp(secretKey, mode: OtpHashMode.Sha512);
+            // hotp.VerifyHotp();
+
+            return View(model);
         }
 
         [HttpPost]
@@ -172,7 +195,14 @@ namespace PinkUmbrella.Controllers
             switch (result.Result)
             {
                 case UpdateLoginMethodResult.ResultType.NoError:
-                return RedirectToAction(nameof(LoginSettings));
+                if (enabled)
+                {
+                    return RedirectToAction(nameof(SetupLoginMethod), new { method });
+                }
+                else
+                {
+                    return RedirectToAction(nameof(Index));
+                }
                 case UpdateLoginMethodResult.ResultType.NotAllowed:
                 ModelState.AddModelError(nameof(enabled), $"{method.GetDisplayName()} cannot be changed");
                 break;
@@ -181,14 +211,67 @@ namespace PinkUmbrella.Controllers
                 break;
             }
 
-            return View(nameof(SetupLoginMethod), new SetupLoginMethodViewModel()
+            if (string.IsNullOrWhiteSpace(ReturnUrl))
             {
-                MyProfile = user,
-                Allowed = await _auth.LoginMethodAllowed(user.Id, method, _auth.GetMethodDefault(method)),
-                AllowedByDefault = _auth.GetMethodDefault(method),
-                Method = method,
-                ReturnUrl = ReturnUrl,
-            });
+                return RedirectToAction(nameof(SetupLoginMethod), new { method });
+            }
+            else
+            {
+                return Redirect(ReturnUrl);
+            }
+            // return View(nameof(SetupLoginMethod), new SetupLoginMethodViewModel()
+            // {
+            //     MyProfile = user,
+            //     Allowed = await _auth.LoginMethodAllowed(user.Id, method, _auth.GetMethodDefault(method)),
+            //     AllowedByDefault = _auth.GetMethodDefault(method),
+            //     Method = method,
+            //     ReturnUrl = ReturnUrl,
+            // });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ShowRecoveryKey(long id, string ReturnUrl)
+        {
+            ViewData["Controller"] = "Account";
+            ViewData["Action"] = nameof(ShowRecoveryKey);
+
+            var user = await GetCurrentUserAsync();
+            var codes = await _auth.GetRecoveryKeys(user.Id);
+            var code = codes.SingleOrDefault(c => c.Id == id);
+            if (code != null && code.WhenShown == null)
+            {
+                code.WhenShown = DateTime.UtcNow;
+                await _auth.SaveAsync();
+            }
+            return RedirectToAction(nameof(SetupLoginMethod), new { method = UserLoginMethod.RecoveryKey });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddRecoveryKey(string label, int? count, int? length, string ReturnUrl)
+        {
+            if (!string.IsNullOrWhiteSpace(label) && label.Length < 100)
+            {
+                var user = await GetCurrentUserAsync();
+                var code = await _auth.CreateRecoveryKeys(user.Id, label, length ?? 6, count ?? 1);
+                return RedirectToAction(nameof(SetupLoginMethod), new { method = UserLoginMethod.RecoveryKey });
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteRecoveryKey(long id)
+        {
+            var user = await GetCurrentUserAsync();
+            var codes = await _auth.GetRecoveryKeys(user.Id);
+            var code = codes.FirstOrDefault(c => c.Id == id);
+            if (code != null)
+            {
+                await _auth.DeleteRecoveryKey(code);
+            }
+            return RedirectToAction(nameof(SetupLoginMethod), new { method = UserLoginMethod.RecoveryKey });
         }
     }
 }

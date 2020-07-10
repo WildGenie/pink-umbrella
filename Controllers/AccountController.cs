@@ -68,7 +68,9 @@ namespace PinkUmbrella.Controllers
 
             return View(new IndexViewModel()
             {
-                MyProfile = user
+                MyProfile = user,
+                MethodOverrides = (await _auth.GetOverriddenLoginMethodsForUser(user.Id)).ToDictionary(k => k.Method, v => v),
+                GetMethodDefault = _auth.GetMethodDefault,
             });
         }
 

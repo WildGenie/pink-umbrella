@@ -24,6 +24,8 @@ namespace PinkUmbrella.Repositories
         public DbSet<UserLoginMethodModel> UserLoginMethods { get; set; }
 
         public DbSet<KeyChallengeModel> KeyChallenges { get; set; }
+
+        public DbSet<RecoveryKeyModel> RecoveryKeys { get; set; }
         
         public AuthDbContext(DbContextOptions<AuthDbContext> options): base(options) {
 

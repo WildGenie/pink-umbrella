@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using PinkUmbrella.Models;
 
-namespace PinkUmbrella.ViewModels.Account
+namespace PinkUmbrella.ViewModels.Account.SetupLoginMethod
 {
     public class ChangePasswordViewModel: BaseViewModel
     {

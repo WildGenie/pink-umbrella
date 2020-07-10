@@ -42,6 +42,9 @@ namespace PinkUmbrella.Repositories
         public string PortPlaceholder => "80 (Default is 443, https)";
 
         public static string AllowedUserNameChars => "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+
+
+        public string RecoveryCodeChars => "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         
         public string SoftwareName => "Pink Umbrella";
 

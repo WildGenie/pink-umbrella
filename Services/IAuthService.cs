@@ -67,5 +67,13 @@ namespace PinkUmbrella.Services
         AuthType ResolveType(string key);
         
         List<string> ToBiometric(byte[] vs);
+        
+        Task<List<RecoveryKeyModel>> GetRecoveryKeys(int userId);
+        
+        Task<List<RecoveryKeyModel>> CreateRecoveryKeys(int userId, string label, int length, int count);
+        
+        Task DeleteRecoveryKey(RecoveryKeyModel key);
+        
+        Task SaveAsync();
     }
 }

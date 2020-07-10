@@ -1,0 +1,52 @@
+@model PinkUmbrella.ViewModels.Account.SetupLoginMethod.SetupRecoveryViewModel
+@if (Model.RecoveryKeys.Count > 0)
+{
+    <ol>
+    @foreach (var key in Model.RecoveryKeys)
+    {
+        <li>
+            <form method="post" asp-action="DeleteRecoveryKey" asp-controller="Account" class="float-right">
+                <input type="hidden" value="@key.Id" name="id" />
+                <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Delete</button>
+            </form>
+            <b>@key.Label: </b>
+            @if (!key.WhenShown.HasValue)
+            {
+            <form method="post" asp-action="ShowRecoveryKey" asp-controller="Account">
+                <input type="hidden" value="@key.Id" name="id" />
+                <p>Show this recovery key? It can only be shown once, after which it will forever be hidden.</p>
+                <button type="submit" class="btn btn-primary">Show</button>
+            </form>
+            }
+            else if (key.ShowCode)
+            {
+                <p>@key.Code</p>
+            }
+            else if (key.WhenUsed.HasValue)
+            {
+                <p class="bg-warning">Used <partial name="_Timestamp" model="@key.WhenUsed.Value" /></p>
+            }
+            else
+            {
+                <p>Shown <partial name="_Timestamp" model="@key.WhenShown" /></p>
+            }
+        </li>
+    }
+    </ol>
+}
+else
+{
+    <p>No recovery keys for this account.</p>
+}
+<form asp-action="AddRecoveryKey" asp-controller="Account" method="post" style="display: grid; grid-template-columns: 1fr 1fr 1fr max-content; grid-template-rows: max-content max-content; grid-auto-flow: column; grid-gap: 0 1rem;">
+    <label for="label">Label</label>
+    <input name="label" type="text" maxlength="100" required/>
+
+    <label for="length">Length of Key</label>
+    <input name="length" type="number" min="6" max="99" value="10" required />
+
+    <label for="count">Number of Keys</label>
+    <input name="count" type="count" min="1" max="99" value="1" required />
+
+    <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add Recovery Key</button>
+</form>

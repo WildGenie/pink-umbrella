@@ -98,6 +98,9 @@ namespace PinkUmbrella.Models.Settings
         [FeatureFlagInfo("User Log In via Open Auth", "Allow users to log in via external login with an open authenticator", FeatureFlagType.Function)]
         FunctionUserLoginOAuth,
 
+        [FeatureFlagInfo("User Log In via Recovery Key", "Allow users to log in using a recovery key", FeatureFlagType.Function)]
+        FunctionUserLoginRecoveryKey,
+
         [FeatureFlagInfo("User Update Account", "Allow users to update their account", FeatureFlagType.Function)]
         FunctionUserUpdateAccount,
 

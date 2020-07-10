@@ -1,7 +1,8 @@
 @using PinkUmbrella.Models.Auth
-@model PinkUmbrella.ViewModels.Account.LoginSettingsViewModel
+@model PinkUmbrella.ViewModels.Account.IndexViewModel
 <h3>Login Methods</h3>
-<form method="post" asp-action="ChangePassword" asp-controller="Account">
+<div>
+    @* method="post" asp-action="ChangePassword" asp-controller="Account" *@
     @foreach (var method in Enum.GetValues(typeof(UserLoginMethod)).Cast<UserLoginMethod>())
     {
         switch (method)
@@ -11,6 +12,8 @@
             case UserLoginMethod.PublicPrivateKey when !await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserLoginPublicKey)):
             continue;
             case UserLoginMethod.OAuth when !await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserLoginOAuth)):
+            continue;
+            case UserLoginMethod.RecoveryKey when !await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserLoginRecoveryKey)):
             continue;
         }
         UserLoginMethodModel overridden = null;
@@ -23,10 +26,11 @@
         {
             isChecked = Model.GetMethodDefault(method);
         }
+        
         <div class="form-group">
             <input disabled type="checkbox" class="form-check float-right" checked="@isChecked" />
             <a asp-action="SetupLoginMethod" asp-route-method="@method" asp-route-ReturnUrl="@Context.Request.Path" class="control-label">@method.GetDisplayName():</a>
             <small>@method.GetDescription()</small>
         </div>
     }
-</form>
+</div>

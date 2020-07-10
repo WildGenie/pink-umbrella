@@ -18,6 +18,11 @@
         {
             <p>Updating account has been turned off.</p>
         }
+        @if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserChangePassword)))
+        {
+        <hr />
+        <partial name="_LoginMethodOverrides" />
+        }
     </div>
     <div class="col-md-6">
         @if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserUpdateProfile)))
@@ -30,7 +35,6 @@
         }
     </div>
 </div>
-
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

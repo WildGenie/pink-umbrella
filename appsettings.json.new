@@ -55,7 +55,7 @@
     "ControllerReaction": true,
     "ControllerTag": true,
     "FunctionUserRegister": true,
-    "FunctionUserRegisterInvitationOnly": true,
+    "FunctionUserRegisterInvitationOnly": false,
     "FunctionUserLogin": true,
     "FunctionUserLoginFIDO": false,
     "FunctionUserLoginPublicKey": false,
@@ -71,6 +71,7 @@
     "FunctionInventoryNewResource": true,
     "FunctionShopNew": true,
     "ViewSearch": true,
-    "ApiControllerProfile": true
+    "ApiControllerProfile": true,
+    "FunctionUserLoginRecoveryKey": true
   }
 }

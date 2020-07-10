@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using PinkUmbrella.Models.Auth;
 
 namespace PinkUmbrella.ViewModels.Account
@@ -14,5 +15,7 @@ namespace PinkUmbrella.ViewModels.Account
         public bool AllowedByDefault { get; set; }
 
         public string ReturnUrl { get; set; }
+        
+        public object LoginModel { get; set; }
     }
 }

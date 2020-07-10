@@ -1,26 +1,39 @@
-﻿@using PinkUmbrella.Services;
+﻿@using PinkUmbrella.Models.Auth
 @model PinkUmbrella.ViewModels.Account.SetupLoginMethodViewModel
 @{
     var nameToLower = Model.Method.GetDisplayName().ToLower();
-    ViewData["Title"] = $"Setup {nameToLower}";
+    switch (Model.Method)
+    {
+        case UserLoginMethod.EmailPassword:
+        ViewData["Title"] = $"Change password";
+        break;
+        default:
+        ViewData["Title"] = $"Setup {nameToLower}";
+        break;
+    }
 }
 <partial name="_Header" />
 <form asp-action="UpdateLoginMethod" asp-controller="Account" method="POST">
     <div asp-validation-summary="All" class="text-danger"></div>
     <input type="hidden" name="method" value="@Model.Method" />
     <input type="hidden" name="ReturnUrl" value="@Model.ReturnUrl" />
+    @if (!string.IsNullOrWhiteSpace(Model.ReturnUrl))
+    {
+    <a class="btn btn-secondary float-right" href="@Model.ReturnUrl">Cancel</a>
+    }
     @if (Model.Allowed)
     {
+        <button class="btn btn-danger float-right" type="submit" name="enabled" value="false"><i class="fas fa-ban"></i> Remove login via @nameToLower</button>
         <p>Login via @nameToLower is currently allowed for this account.</p>
-        <button class="btn btn-danger" type="submit" name="enabled" value="false"><i class="fas fa-ban"></i> Remove login via @nameToLower</button>
+        <hr />
     }
     else
     {
         <p>Login via @nameToLower is currently not allowed for this account.</p>
         <button class="btn btn-warning" type="submit" name="enabled" value="true"><i class="fas fa-unlock-alt"></i> Allow login via @nameToLower</button>
     }
-    @if (!string.IsNullOrWhiteSpace(Model.ReturnUrl))
-    {
-    <a class="btn btn-secondary" href="@Model.ReturnUrl">Cancel</a>
-    }
 </form>
+@if (Model.Allowed)
+{
+    <partial name="SetupLoginMethod/@Model.Method" model="Model.LoginModel"/>
+}

@@ -15,6 +15,7 @@ using System.Linq;
 using Fido2NetLib.Development;
 using PinkUmbrella.Util;
 using PinkUmbrella.Models;
+using OtpNet;
 
 namespace PinkUmbrella.Controllers
 {
@@ -81,6 +82,32 @@ namespace PinkUmbrella.Controllers
                     return View(login);
                 }
             }
+        }
+
+        [AllowAnonymous, HttpPost, FeatureGate(nameof(FeatureFlags.FunctionUserLoginRecoveryKey))]
+        public async Task<IActionResult> LoginViaRecoveryKey(string email, string code)
+        {
+            var user = (await GetCurrentUserAsync()) ?? (email != null ? await _userManager.FindByEmailAsync(email) : null);
+            if (user != null)
+            {
+                var allowed = await _auth.LoginMethodAllowed(user.Id, UserLoginMethod.RecoveryKey, _auth.GetMethodDefault(UserLoginMethod.RecoveryKey));
+                if (allowed)
+                {
+                    var codes = await _auth.GetRecoveryKeys(user.Id);
+                    var key = codes.FirstOrDefault(c => c.Code == code);
+                    
+                    if (code != null)
+                    {
+                        key.WhenUsed = DateTime.UtcNow;
+                        await _auth.SaveAsync();
+
+                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        return Redirect("~/");
+                    }
+                }
+            }
+
+            return RedirectToAction(nameof(ForgotPassword));
         }
 
         [HttpGet, AllowAnonymous, RedirectIfNotAnonymous]

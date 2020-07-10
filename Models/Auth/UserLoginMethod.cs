@@ -15,5 +15,8 @@ namespace PinkUmbrella.Models.Auth
 
         [Name("OpenAuth")]
         OAuth = 3,
+
+        [Name("Recovery key")]
+        RecoveryKey = 4,
     }
 }
