@@ -11,6 +11,7 @@ using PinkUmbrella.ViewModels.Developer;
 using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Util;
+using PinkUmbrella.Services.Local;
 
 namespace PinkUmbrella.Controllers
 {
@@ -22,10 +23,10 @@ namespace PinkUmbrella.Controllers
         private readonly RoleManager<UserGroupModel> _roleManager;
 
         public DeveloperController(IWebHostEnvironment environment, ILogger<DeveloperController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IDebugService debugService,
+            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles, IDebugService debugService,
             RoleManager<UserGroupModel> roleManager, IReactionService reactions, ITagService tags, INotificationService notifications, IPeerService peers,
             IAuthService auth, ISettingsService settings):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications, peers, auth, settings)
+            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings)
         {
             _logger = logger;
             _debugService = debugService;
@@ -49,7 +50,7 @@ namespace PinkUmbrella.Controllers
             ViewData["Action"] = nameof(Users);
             return View(new UsersViewModel() {
                 MyProfile = user,
-                MostRecentlyCreatedUsers = await _userProfiles.GetMostRecentlyCreatedUsers(),
+                MostRecentlyCreatedUsers = await _localProfiles.GetMostRecentlyCreatedUsers(),
             });
         }
 
@@ -99,7 +100,7 @@ namespace PinkUmbrella.Controllers
         [HttpGet]
         public async Task<IActionResult> MakeMeDevAndAdmin()
         {
-            var user = await GetCurrentUserAsync();
+            var user = await GetCurrentLocalUserAsync();
             foreach (var g in new GroupType [] { GroupType.Dev, GroupType.Admin })
             {
                 var gname = g.ToString().ToLower();

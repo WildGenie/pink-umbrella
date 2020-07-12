@@ -18,6 +18,8 @@ using PinkUmbrella.Models.Peer;
 using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Util;
+using PinkUmbrella.Services.Local;
+using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.Controllers
 {
@@ -31,10 +33,10 @@ namespace PinkUmbrella.Controllers
         private readonly IInvitationService _invitationService;
 
         public AdminController(IWebHostEnvironment environment, ILogger<AdminController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IDebugService debugService,
+            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles, IDebugService debugService,
             RoleManager<UserGroupModel> roleManager, IReactionService reactions, ITagService tags, INotificationService notifications,
             IPeerService peers, IAuthService auth, ISettingsService settings, IInvitationService invitationService):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications, peers, auth, settings)
+            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings)
         {
             _logger = logger;
             _debugService = debugService;
@@ -42,47 +44,33 @@ namespace PinkUmbrella.Controllers
             _invitationService = invitationService;
         }
 
-        [HttpGet]
+        [HttpGet, IsAdminOrDebuggingOrElse404Filter]
         public async Task<IActionResult> Index()
         {
             var user = await GetCurrentUserAsync();
-            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "admin"))
+            ViewData["Controller"] = "Admin";
+            ViewData["Action"] = nameof(Index);
+            return View(new IndexViewModel()
             {
-                ViewData["Controller"] = "Admin";
-                ViewData["Action"] = nameof(Index);
-                return View(new IndexViewModel()
-                {
-                    MyProfile = user,
-                    UnusedUnexpiredAccessCodes = await _invitationService.GetUnusedUnexpiredAccessCodes(),
-                });
-            }
-            else
-            {
-                return Redirect("/Error/404");
-            }
+                MyProfile = user,
+                UnusedUnexpiredAccessCodes = await _invitationService.GetUnusedUnexpiredAccessCodes(),
+            });
         }
 
-        [HttpGet]
+        [HttpGet, IsAdminOrDebuggingOrElse404Filter]
         public async Task<IActionResult> Users()
         {
             var user = await GetCurrentUserAsync();
-            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "admin"))
+            ViewData["Controller"] = "Admin";
+            ViewData["Action"] = nameof(Users);
+            return View(new UsersViewModel()
             {
-                ViewData["Controller"] = "Admin";
-                ViewData["Action"] = nameof(Users);
-                return View(new UsersViewModel()
-                {
-                    MyProfile = user,
-                    MostRecentlyCreatedUsers = await _userProfiles.GetMostRecentlyCreatedUsers(),
-                });
-            }
-            else
-            {
-                return Redirect("/Error/404");
-            }
+                MyProfile = user,
+                MostRecentlyCreatedUsers = await _localProfiles.GetMostRecentlyCreatedUsers(),
+            });
         }
 
-        [HttpGet]
+        [HttpGet, IsAdminOrDebuggingOrElse404Filter]
         public async Task<IActionResult> Peers(PaginationModel pagination)
         {
             var user = await GetCurrentUserAsync();
@@ -107,7 +95,7 @@ namespace PinkUmbrella.Controllers
             });
         }
 
-        [HttpGet]
+        [HttpGet, IsAdminOrDebuggingOrElse404Filter]
         public async Task<IActionResult> PreviewPeer(string url, IPAddressModel Addr, int? port)
         {
             if (!string.IsNullOrWhiteSpace(url))
@@ -126,7 +114,7 @@ namespace PinkUmbrella.Controllers
             return await ViewPeer(peer);
         }
 
-        [HttpGet]
+        [HttpGet, IsAdminOrDebuggingOrElse404Filter]
         public async Task<IActionResult> Peer(string address, int port = 443, string route = "")
         {
             var ip = await _auth.GetOrRememberIP(IPAddress.Parse(address));
@@ -137,7 +125,7 @@ namespace PinkUmbrella.Controllers
             // return await ViewPeer(peer, vm);
         }
 
-        [HttpGet]
+        [HttpGet, IsAdminOrDebuggingOrElse404Filter]
         private async Task<IActionResult> ViewPeer(PeerModel peer, object proxiedViewModel = null)
         {
             ViewData["Controller"] = "Admin";
@@ -151,7 +139,7 @@ namespace PinkUmbrella.Controllers
             });
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken, IsAdminOrDebuggingOrElse404Filter]
         public async Task<IActionResult> TrustPeer(IPAddressModel Addr, int? port)
         {
             ViewData["Controller"] = "Admin";
@@ -174,65 +162,40 @@ namespace PinkUmbrella.Controllers
             });
         }
 
-        [HttpGet]
-        public async Task<IActionResult> ThrowException()
-        {
-            var user = await GetCurrentUserAsync();
-            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "admin"))
-            {
-                throw new Exception("You threw this exception");
-            }
-            else
-            {
-                return Redirect("/Error/404");
-            }
-        }
+        [HttpGet, IsAdminOrDebuggingOrElse404Filter]
+        public IActionResult ThrowException() => throw new Exception("You threw this exception");
 
-        [HttpGet]
+        [HttpGet, IsAdminOrDebuggingOrElse404Filter]
         public async Task<IActionResult> Posts()
         {
             var user = await GetCurrentUserAsync();
-            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "admin"))
+            ViewData["Controller"] = "Admin";
+            ViewData["Action"] = nameof(Posts);
+            return View(new PostsViewModel()
             {
-                ViewData["Controller"] = "Admin";
-                ViewData["Action"] = nameof(Posts);
-                return View(new PostsViewModel()
-                {
-                    MyProfile = user,
-                    MostReportedPosts = await _posts.GetMostReportedPosts(),
-                    MostBlockedPosts = await _posts.GetMostBlockedPosts(),
-                    MostDislikedPosts = await _posts.GetMostDislikedPosts(),
-                });
-            }
-            else
-            {
-                return Redirect("/Error/404");
-            }
+                MyProfile = user,
+                MostReportedPosts = await _posts.GetMostReportedPosts(),
+                MostBlockedPosts = await _posts.GetMostBlockedPosts(),
+                MostDislikedPosts = await _posts.GetMostDislikedPosts(),
+            });
         }
 
-        [HttpGet]
+        [HttpGet, IsAdminOrDebuggingOrElse404Filter]
         public async Task<IActionResult> Community()
         {
             var user = await GetCurrentUserAsync();
-            if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "admin"))
+            ViewData["Controller"] = "Admin";
+            ViewData["Action"] = nameof(Community);
+            return View(new CommunityViewModel()
             {
-                ViewData["Controller"] = "Admin";
-                ViewData["Action"] = nameof(Community);
-                return View(new CommunityViewModel()
-                {
-                    MyProfile = user
-                });
-            }
-            else
-            {
-                return Redirect("/Error/404");
-            }
+                MyProfile = user
+            });
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken, IsAdminOrDebuggingOrElse404Filter]
         public async Task<IActionResult> GiveAccessToGroup(int toUserId, string group)
         {
-            var user = await GetCurrentUserAsync();
+            var user = await GetCurrentLocalUserAsync();
             if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "admin"))
             {
                 if (await _roleManager.RoleExistsAsync(group))
@@ -245,20 +208,20 @@ namespace PinkUmbrella.Controllers
             return Redirect("/Error/404");
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken, IsAdminOrDebuggingOrElse404Filter]
         public async Task<IActionResult> SendNotification(int postId, string group)
         {
-            var user = await GetCurrentUserAsync();
+            var user = await GetCurrentLocalUserAsync();
             if (Debugger.IsAttached || await _userManager.IsInRoleAsync(user, "admin"))
             {
-                int[] recipients = null;
+                PublicId[] recipients = null;
                 if (group == "*")
                 {
-                    recipients = _userManager.Users.Select(u => u.Id).ToArray();
+                    recipients = _userManager.Users.Select(u => u.PublicId).ToArray();
                 }
                 else if (await _roleManager.RoleExistsAsync(group))
                 {
-                    recipients = (await _userManager.GetUsersInRoleAsync(group)).Select(u => u.Id).ToArray();
+                    recipients = (await _userManager.GetUsersInRoleAsync(group)).Select(u => u.PublicId).ToArray();
                 }
 
                 await _notifications.Publish(new Notification() {
@@ -274,7 +237,7 @@ namespace PinkUmbrella.Controllers
             return Redirect("/Error/404");
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken, IsAdminOrDebuggingOrElse404Filter]
         public async Task<IActionResult> UntrustPeer(string address, int port)
         {
             ViewData["Controller"] = "Admin";
@@ -297,7 +260,7 @@ namespace PinkUmbrella.Controllers
             });
         }
 
-        [HttpGet]
+        [HttpGet, IsAdminOrDebuggingOrElse404Filter]
         public async Task<IActionResult> Settings()
         {
             ViewData["Controller"] = "Admin";
@@ -309,7 +272,7 @@ namespace PinkUmbrella.Controllers
             });
         }
 
-        [HttpGet]
+        [HttpGet, IsAdminOrDebuggingOrElse404Filter]
         public async Task<IActionResult> Toggles()
         {
             ViewData["Controller"] = "Admin";
@@ -321,14 +284,14 @@ namespace PinkUmbrella.Controllers
             });
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken, IsAdminOrDebuggingOrElse404Filter]
         public async Task<IActionResult> UpdateSetting(string Key, string Value)
         {
             await _settings.Update(Key, Value);
             return NoContent();
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken, IsAdminOrDebuggingOrElse404Filter]
         public async Task<IActionResult> UpdateToggle(string Key, string Value)
         {
             await _settings.UpdateToggle(Key, Value);

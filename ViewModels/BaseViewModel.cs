@@ -1,9 +1,9 @@
-using PinkUmbrella.Models;
+using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.ViewModels
 {
     public class BaseViewModel
     {
-        public UserProfileModel MyProfile { get; set; }
+        public PublicProfileModel MyProfile { get; set; }
     }
 }

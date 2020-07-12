@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using PinkUmbrella.Models;
+using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.Services
 {
@@ -9,9 +10,10 @@ namespace PinkUmbrella.Services
         string ControllerName { get; }
         ReactionSubject Subject { get; }
 
-        Task<int> GetCount(int toId, ReactionType type);
+        Task<int> GetCount(PublicId id, ReactionType type);
 
-        Task RefreshStats(int id);
+        Task RefreshStats(PublicId id);
+        
         Task<List<int>> GetIds();
     }
 }

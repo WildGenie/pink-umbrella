@@ -3,7 +3,7 @@
     var reactLike = new ReactViewModel() {
         Type = ReactionType.Like,
         Subject = ReactionSubject.Post,
-        ToId = Model.Id,
+        ToId = Model.PublicId,
         HasReacted = Model.HasLiked,
         Count = Model.LikeCount,
         ViewerId = Model.ViewerId,
@@ -12,7 +12,7 @@
     var reactDislike = new ReactViewModel() {
         Type = ReactionType.Dislike,
         Subject = ReactionSubject.Post,
-        ToId = Model.Id,
+        ToId = Model.PublicId,
         HasReacted = Model.HasDisliked,
         Count = Model.DislikeCount,
         ViewerId = Model.ViewerId,
@@ -21,23 +21,23 @@
     var reactBlock = new ReactViewModel() {
         Type = ReactionType.Block,
         Subject = ReactionSubject.Post,
-        ToId = Model.Id,
+        ToId = Model.PublicId,
         HasReacted = false,
         Count = Model.BlockCount,
         ViewerId = Model.ViewerId,
         Enabled = !Model.ViewerIsPoster,
-        ManualReactionUrl = "/Post/Block/" + Model.Id,
+        ManualReactionUrl = "/Post/Block/" + Model.PublicId,
         ResponseHandler = "post-replacewith",
     };
     var reactReport = new ReactViewModel() {
         Type = ReactionType.Report,
         Subject = ReactionSubject.Post,
-        ToId = Model.Id,
+        ToId = Model.PublicId,
         HasReacted = false,
         Count = Model.ReportCount,
         ViewerId = Model.ViewerId,
         Enabled = !Model.ViewerIsPoster,
-        ManualReactionUrl = "/Post/Report/" + Model.Id,
+        ManualReactionUrl = "/Post/Report/" + Model.PublicId,
         ResponseHandler = "post-replacewith",
     };
 
@@ -48,7 +48,7 @@
     var tags = new TagEditorViewModel() { Tags = Model.Tags };
 }
 <div class="contains-goto post">
-    <a class="goto" asp-controller="Post" asp-action="Index" asp-route-id="@Model.Id">goto</a>
+    <a class="goto" asp-controller="Post" asp-action="Index" asp-route-id="@Model.PublicId">goto</a>
     <p>
         <partial name="Profile/Goto" model="Model.User" />
         &bull; <partial name="_Timestamp" model="Model.WhenCreated" />
@@ -68,7 +68,7 @@
         <span>Mentions:</span>
         <ul>
             @foreach (var mention in Model.Mentions) {
-                <li class="contains-goto">@mention.MentionedUser.DisplayName<a class="goto" asp-controller="Profile" asp-action="Index" asp-route-id="@mention.MentionedUserId">goto</a></li>
+                <li class="contains-goto">@mention.MentionedPublicUser.DisplayName<a class="goto" asp-controller="Profile" asp-action="Index" asp-route-id="@(new PublicId(mention.MentionedUserId, mention.MentionedUserPeerId))">goto</a></li>
             }
         </ul>
     }

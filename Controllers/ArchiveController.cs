@@ -19,6 +19,8 @@ using SixLabors.ImageSharp.Processing;
 using PinkUmbrella.ViewModels;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Models.Settings;
+using PinkUmbrella.Services.Local;
+using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.Controllers
 {
@@ -30,10 +32,10 @@ namespace PinkUmbrella.Controllers
         private readonly StringRepository _strings;
 
         public ArchiveController(IWebHostEnvironment environment, ILogger<ArchiveController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IArchiveService archive,
+            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles, IArchiveService archive,
             IReactionService reactions, StringRepository strings, ITagService tags, INotificationService notifications, IPeerService peers,
             IAuthService auth, ISettingsService settings):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications, peers, auth, settings)
+            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings)
         {
             _logger = logger;
             _archive = archive;
@@ -49,7 +51,7 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentUserAsync();
             var model = new IndexViewModel() {
                 MyProfile = user,
-                Items = await _archive.GetMediaForUser(user.Id, user.Id, null, pagination)
+                Items = await _archive.GetMediaForUser(user.PublicId, user.UserId, null, pagination)
             };
 
             return View(model);
@@ -63,7 +65,7 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentUserAsync();
             var model = new IndexViewModel() {
                 MyProfile = user,
-                Items = await _archive.GetMediaForUser(user.Id, user.Id, ArchivedMediaType.Photo, pagination)
+                Items = await _archive.GetMediaForUser(user.PublicId, user.UserId, ArchivedMediaType.Photo, pagination)
             };
 
             return View("Index", model);
@@ -77,7 +79,7 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentUserAsync();
             var model = new IndexViewModel() {
                 MyProfile = user,
-                Items = await _archive.GetMediaForUser(user.Id, user.Id, ArchivedMediaType.Video, pagination)
+                Items = await _archive.GetMediaForUser(user.PublicId, user.UserId, ArchivedMediaType.Video, pagination)
             };
 
             return View("Index", model);
@@ -92,10 +94,10 @@ namespace PinkUmbrella.Controllers
                 var pathSplit = path.Split('.');
                 if (pathSplit.Length == 2)
                 {
-                    var media = await _archive.GetMedia(pathSplit[0], user?.Id);
+                    var media = await _archive.GetMedia(pathSplit[0], user?.UserId);
                     if (media != null)
                     {
-                        var stream = await _archive.GetStream(media, user?.Id);
+                        var stream = await _archive.GetStream(media, user?.UserId);
                         var contentType = _strings.GetContentType(pathSplit[1]);
                         return new FileStreamResult(stream, contentType)
                         {
@@ -108,14 +110,14 @@ namespace PinkUmbrella.Controllers
         }
 
         [Route("/Archive/{id}")]
-        public async Task<IActionResult> Media(int? id)
+        public async Task<IActionResult> Media(string id)
         {
             ViewData["Controller"] = "Post";
             ViewData["Action"] = nameof(Media);
             var user = await GetCurrentUserAsync();
             if (id != null)
             {
-                var media = await _archive.GetMedia(id.Value, user?.Id ?? -1);
+                var media = await _archive.GetMedia(new PublicId(id), user?.UserId ?? -1);
                 if (media != null)
                 {
                     return View(new MediaViewModel() {
@@ -183,7 +185,7 @@ namespace PinkUmbrella.Controllers
                                 SizeBytes = f.Length < Int32.MaxValue ? (int) f.Length : -1,
                                 DisplayName = string.IsNullOrWhiteSpace(Title) ? f.FileName : Title,
                                 RelatedPostId = RelatedPostId,
-                                UserId = user.Id,
+                                UserId = user.UserId,
                                 Visibility = Visibility,
                                 MediaType = mediaType.Value,
                             };

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using PinkUmbrella.Models;
 using PinkUmbrella.Repositories;
+using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.Services.Sql.React
 {
@@ -25,16 +26,16 @@ namespace PinkUmbrella.Services.Sql.React
             return _dbContext.Shops.Select(p => p.Id).ToListAsync();
         }
 
-        public async Task RefreshStats(int id)
+        public async Task RefreshStats(PublicId id)
         {
             var shop = await _dbContext.Shops.FindAsync(id);
-            shop.LikeCount = _dbContext.ShopReactions.Where(r => r.Type == ReactionType.Like && r.ToId == id).Count();
-            shop.DislikeCount = _dbContext.ShopReactions.Where(r => r.Type == ReactionType.Dislike && r.ToId == id).Count();
-            shop.ReportCount = _dbContext.ShopReactions.Where(r => r.Type == ReactionType.Report && r.ToId == id).Count();
+            shop.LikeCount = _dbContext.ShopReactions.Where(r => r.Type == ReactionType.Like && r.ToId == id.Id && r.ToPeerId == id.PeerId).Count();
+            shop.DislikeCount = _dbContext.ShopReactions.Where(r => r.Type == ReactionType.Dislike && r.ToId == id.Id && r.ToPeerId == id.PeerId).Count();
+            shop.ReportCount = _dbContext.ShopReactions.Where(r => r.Type == ReactionType.Report && r.ToId == id.Id && r.ToPeerId == id.PeerId).Count();
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<int> GetCount(int id, ReactionType type)
+        public async Task<int> GetCount(PublicId id, ReactionType type)
         {
             var shop = await _dbContext.Shops.FindAsync(id);
             switch (type)

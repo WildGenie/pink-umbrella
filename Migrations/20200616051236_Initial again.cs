@@ -318,12 +318,6 @@ namespace PinkUmbrella.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Posts", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Posts_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -453,11 +447,6 @@ namespace PinkUmbrella.Migrations
                 name: "IX_Mentions_PostId",
                 table: "Mentions",
                 column: "PostId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Posts_UserId",
-                table: "Posts",
-                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

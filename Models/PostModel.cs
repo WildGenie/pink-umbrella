@@ -3,14 +3,19 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.AspNetCore.Authorization;
+using System.Linq;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
+using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.Models
 {
     [DisplayName("Post"), Description("A post a user types or uploads.")]
-    public class PostModel
+    public class PostModel: IHazPublicId
     {
+        [NotMapped]
+        public long PeerId { get; set; }
+
         public int Id { get; set; }
         public int UserId { get; set; }
 
@@ -54,42 +59,58 @@ namespace PinkUmbrella.Models
         public int NextInChain { get; set; }
 
 
-        //[ForeignKey("UserId")]
-        public UserProfileModel User { get; set; }
+        [NotMapped, Nest.Ignore]
+        public PublicProfileModel User { get; set; }
 
-        [NotMapped]
+        [NotMapped, Nest.Ignore]
         public List<MentionModel> Mentions { get; set; } = new List<MentionModel>();
 
-        [NotMapped]
+        [NotMapped, Nest.Ignore]
         public List<TagModel> Tags { get; set; } = new List<TagModel>();
 
+        [NotMapped, JsonPropertyName("tags"), Nest.PropertyName("tags")]
+        public string[] TagStrings
+        {
+            get
+            {
+                return Tags.Select(t => t.Tag).ToArray();
+            }
+            set
+            {
+                Tags = value.Select(t => new TagModel() { Tag = t }).ToList();
+            }
+        }
 
-        [NotMapped]
+
+        [NotMapped, Nest.Ignore]
         public bool HasLiked { get; set; }
         
-        [NotMapped]
+        [NotMapped, Nest.Ignore]
         public bool HasDisliked { get; set; }
         
-        [NotMapped]
+        [NotMapped, Nest.Ignore]
         public bool HasBlocked { get; set; }
 
-        [NotMapped]
+        [NotMapped, Nest.Ignore]
         public bool HasReported { get; set; }
 
 
-        [NotMapped]
+        [NotMapped, Nest.Ignore]
         public int? ViewerId { get; set; }
 
-        [NotMapped]
+        [NotMapped, Nest.Ignore]
         public bool HasBeenBlockedOrReported { get; set; }
         
-        [NotMapped]
+        [NotMapped, Nest.Ignore]
         public List<ReactionModel> Reactions { get; set; } = new List<ReactionModel>();
 
-        [NotMapped]
+        [NotMapped, Nest.Ignore]
         public bool ViewerIsFollowing { get; set; }
 
-        [NotMapped]
+        [NotMapped, Nest.Ignore]
         public bool ViewerIsPoster => ViewerId.HasValue && UserId == ViewerId.Value;
+
+        [NotMapped, Nest.Ignore]
+        public PublicId PublicId => new PublicId(Id, PeerId);
     }
 }

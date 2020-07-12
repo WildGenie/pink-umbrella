@@ -21,6 +21,8 @@ using Fido2NetLib;
 using Microsoft.AspNetCore.Http;
 using QRCoder;
 using PinkUmbrella.Models.Auth;
+using PinkUmbrella.Services.Local;
+using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.Controllers
 {
@@ -38,7 +40,7 @@ namespace PinkUmbrella.Controllers
                 IWebHostEnvironment environment,
                 UserManager<UserProfileModel> userManager,
                 SignInManager<UserProfileModel> signInManager,
-                IPostService posts, IUserProfileService userProfiles,
+                IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles,
                 IReactionService reactions, ITagService tags,
                 INotificationService notifications,
                 IPeerService peers,
@@ -47,7 +49,7 @@ namespace PinkUmbrella.Controllers
                 IFido2 fido2,
                 IInvitationService invitationService
                 ) :
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications, peers, auth, settings)
+            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings)
         {
             _logger = logger;
             _fido2 = fido2;
@@ -68,7 +70,7 @@ namespace PinkUmbrella.Controllers
             return View(new IndexViewModel()
             {
                 MyProfile = user,
-                MethodOverrides = (await _auth.GetOverriddenLoginMethodsForUser(user.Id)).ToDictionary(k => k.Method, v => v),
+                MethodOverrides = (await _auth.GetOverriddenLoginMethodsForUser(user.UserId)).ToDictionary(k => k.Method, v => v),
                 GetMethodDefault = _auth.GetMethodDefault,
             });
         }
@@ -81,7 +83,7 @@ namespace PinkUmbrella.Controllers
         [Authorize]
         public async Task<IActionResult> Delete([Bind] DeleteAccountViewModel password)
         {
-            var user = await GetCurrentUserAsync();
+            var user = await GetCurrentLocalUserAsync();
 
             if (HttpContext.Request.Method == "GET")
             {
@@ -155,8 +157,8 @@ namespace PinkUmbrella.Controllers
             return View(new InvitesViewModel()
             {
                 MyProfile = user,
-                InvitesToMe = await _invitationService.GetInvitesToUser(user.Id),
-                InvitesFromMe = await _invitationService.GetInvitesFromUser(user.Id),
+                InvitesToMe = await _invitationService.GetInvitesToUser(user.UserId),
+                InvitesFromMe = await _invitationService.GetInvitesFromUser(user.UserId),
                 Selected = selected,
             });
         }
@@ -195,7 +197,7 @@ namespace PinkUmbrella.Controllers
                 }
                 else
                 {
-                    var code = await _invitationService.NewInvitation(user.Id, values.Type, values.UserIdTo, values.Message, values.DaysValidFor);
+                    var code = await _invitationService.NewInvitation(user.UserId, values.Type, values.UserIdTo, values.Message, values.DaysValidFor);
                     if (code != null)
                     {
                         return RedirectToAction(nameof(Invites), new { selected = code.Code });
@@ -233,7 +235,7 @@ namespace PinkUmbrella.Controllers
                         break;
                         case InvitationType.FollowMe:
                         {
-                            var user = model.MyProfile.Id == code.CreatedByUserId ? model.MyProfile : await _userManager.FindByIdAsync(code.CreatedByUserId.ToString());
+                            var user = model.MyProfile.UserId == code.CreatedByUserId ? model.MyProfile.Local : await _localProfiles.GetUser(code.CreatedByUserId, model.MyProfile.UserId);
                             subject = $"{user.DisplayName} @{user.Handle}";
                         } break;
                         case InvitationType.AddMeToGroup:
@@ -316,7 +318,7 @@ namespace PinkUmbrella.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateAccount([Bind] UserProfileModel MyProfile)
         {
-            var user = await GetCurrentUserAsync();
+            var user = await GetCurrentLocalUserAsync();
             var emailChanged = user.Email != MyProfile.Email;
             var usernameChanged = user.UserName != MyProfile.UserName && MyProfile.UserName != null;
             var visibilityChanged = user.Visibility != MyProfile.Visibility;
@@ -360,8 +362,8 @@ namespace PinkUmbrella.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateProfile([Bind] UserProfileModel MyProfile)
         {
-            var user = await GetCurrentUserAsync();
-            if (MyProfile.Handle != user.Handle && await _userProfiles.HandleExists(MyProfile.Handle))
+            var user = await GetCurrentLocalUserAsync();
+            if (MyProfile.Handle != user.Handle && await _localProfiles.HandleExists(MyProfile.Handle))
             {
                 return BadRequest("Handle already in use");
             }
@@ -381,7 +383,7 @@ namespace PinkUmbrella.Controllers
         {
             if (!string.IsNullOrWhiteSpace(code))
             {
-                var user = await GetCurrentUserAsync();
+                var user = await GetCurrentLocalUserAsync();
                 var accessCode = await _invitationService.GetAccessCodeAsync(code, user?.Id, null);
                 if (accessCode != null)
                 {
@@ -404,7 +406,8 @@ namespace PinkUmbrella.Controllers
                         } break;
                         case InvitationType.FollowMe:
                         {
-                            await _reactions.React(user.Id, accessCode.CreatedByUserId, ReactionType.Follow, ReactionSubject.Profile);
+                            // TODO: fix this for cross peer invitations
+                            await _reactions.React(user.Id, new PublicId(accessCode.CreatedByUserId, 0), ReactionType.Follow, ReactionSubject.Profile);
                             statusMessage = "You are now following " + accessCode.CreatedByUserId;
                         } break;
                         case InvitationType.Register: return RedirectToAction(nameof(Register), new { code });
@@ -431,7 +434,7 @@ namespace PinkUmbrella.Controllers
                 }
                 else
                 {
-                    return Json(!await _userProfiles.HandleExists(handle));
+                    return Json(!await _localProfiles.HandleExists(handle));
                 }
             }
             else
@@ -450,7 +453,7 @@ namespace PinkUmbrella.Controllers
             return View(new NotificationSettingsViewModel()
             {
                 MyProfile = user,
-                Settings = await _notifications.GetMethodSettings(user.Id)
+                Settings = await _notifications.GetMethodSettings(user.UserId)
             });
         }
 
@@ -484,13 +487,13 @@ namespace PinkUmbrella.Controllers
                     }
                 }
 
-                await _notifications.UpdateMethodSettings(user.Id, typeMethods);
+                await _notifications.UpdateMethodSettings(user.UserId, typeMethods);
             }
             else
             {
                 if (Enum.TryParse(typeof(NotificationMethod), submit, true, out var method))
                 {
-                    await _notifications.UpdateMethodSettingsSetAll(user.Id, (NotificationMethod) method);
+                    await _notifications.UpdateMethodSettingsSetAll(user.UserId, (NotificationMethod) method);
                 }
             }
 
@@ -499,7 +502,7 @@ namespace PinkUmbrella.Controllers
             return View(new NotificationSettingsViewModel()
             {
                 MyProfile = user,
-                Settings = await _notifications.GetMethodSettings(user.Id)
+                Settings = await _notifications.GetMethodSettings(user.UserId)
             });
         }
     }

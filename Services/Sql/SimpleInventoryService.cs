@@ -29,6 +29,11 @@ namespace PinkUmbrella.Services.Sql
             return await _dbContext.Inventories.FindAsync(id);
         }
 
+        public Task<List<SimpleInventoryModel>> GetAllLocal()
+        {
+            return _dbContext.Inventories.ToListAsync();
+        }
+
         public Task<List<SimpleInventoryModel>> GetForUser(int userId, int? viewerId)
         {
             return _dbContext.Inventories.Where(i => i.OwnerUserId == userId).ToListAsync();

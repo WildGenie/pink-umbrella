@@ -4,10 +4,10 @@
     var reactBlock = new ReactViewModel() {
         Type = ReactionType.Block,
         Subject = ReactionSubject.Profile,
-        ToId = Model.Profile.Id,
+        ToId = Model.Profile.PublicId,
         HasReacted = Model.Profile.HasBlocked,
-        Count = Model.Profile.BlockCount,
-        ViewerId = Model.MyProfile?.Id,
+        Count = Model.Profile.Local?.BlockCount ?? -1,
+        ViewerId = Model.MyProfile?.UserId,
         Enabled = true,
         ResponseHandler = "page-reload",
     };

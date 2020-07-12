@@ -32,7 +32,7 @@ namespace PinkUmbrella.Controllers
             if (result.Succeeded)
             {
                 var user = await _userManager.FindByEmailAsync(login.EmailAddress);
-                await _userProfiles.LogIn(user.Id, Request.Host.Value);
+                await _localProfiles.LogIn(user.Id, Request.Host.Value);
                 return LocalRedirect(returnUrl);
             }
             if (result.RequiresTwoFactor)
@@ -85,7 +85,7 @@ namespace PinkUmbrella.Controllers
         [AllowAnonymous, HttpPost, FeatureGate(nameof(FeatureFlags.FunctionUserLoginRecoveryKey))]
         public async Task<IActionResult> LoginViaRecoveryKey(string email, string code)
         {
-            var user = (await GetCurrentUserAsync()) ?? (email != null ? await _userManager.FindByEmailAsync(email) : null);
+            var user = (await GetCurrentLocalUserAsync()) ?? (email != null ? await _userManager.FindByEmailAsync(email) : null);
             if (user != null)
             {
                 var allowed = await _auth.LoginMethodAllowed(user.Id, UserLoginMethod.RecoveryKey, _auth.GetMethodDefault(UserLoginMethod.RecoveryKey));
@@ -161,7 +161,7 @@ namespace PinkUmbrella.Controllers
                         var userId = await _auth.GetUserByKey(pubkey);
                         if (userId.HasValue)
                         {
-                            var loginResult = await _userProfiles.LoginPublicKeyChallenge(userId.Value, pubkey, privateKey, challenge, answer, _auth.GetHandler(type));
+                            var loginResult = await _localProfiles.LoginPublicKeyChallenge(userId.Value, pubkey, privateKey, challenge, answer, _auth.GetHandler(type));
                             if (loginResult.Error == null)
                             {        
                                 return Redirect("~/");
@@ -258,13 +258,13 @@ namespace PinkUmbrella.Controllers
             returnUrl = returnUrl ?? Url.Content("~/");
             if (ModelState.IsValid)
             {
-                var user = await _userProfiles.CreateUser(input, ModelState);
+                var user = await _localProfiles.CreateUser(input, ModelState);
                 if (ModelState.IsValid)
                 {
                     var result = await _userManager.CreateAsync(user, input.Password);
                     if (result.Succeeded)
                     {
-                        await _userProfiles.MakeFirstUserDev(user);
+                        await _localProfiles.MakeFirstUserDev(user);
                         if (accessCode != null)
                         {
                             // TODO: send notification that the invite was claimed
@@ -324,7 +324,7 @@ namespace PinkUmbrella.Controllers
             ViewData["Controller"] = "Account";
             ViewData["Action"] = nameof(ChangePassword);
 
-            var user = await GetCurrentUserAsync();
+            var user = await GetCurrentLocalUserAsync();
 
             // 2. Get user existing keys by username
             var existingKeys = await _auth.GetCredentialsForUser(user.Id);
@@ -388,7 +388,7 @@ namespace PinkUmbrella.Controllers
         [HttpPost, Authorize(Roles = "dev"), FeatureGate(FeatureFlags.FunctionUserLoginFIDO)]
         public async Task<JsonResult> MakeCredential([FromBody] AuthenticatorAttestationRawResponse attestationResponse, [FromQuery] CredentialCreateOptions options)
         {
-            var user = await GetCurrentUserAsync();
+            var user = await GetCurrentLocalUserAsync();
             try
             {
                 // 2. Create callback so that lib can verify credential id is unique to this user

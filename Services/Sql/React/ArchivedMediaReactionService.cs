@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using PinkUmbrella.Models;
 using PinkUmbrella.Repositories;
+using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.Services.Sql.React
 {
@@ -25,16 +26,16 @@ namespace PinkUmbrella.Services.Sql.React
             return _dbContext.ArchivedMedia.Select(p => p.Id).ToListAsync();
         }
 
-        public async Task RefreshStats(int id)
+        public async Task RefreshStats(PublicId id)
         {
             var ArchivedMedia = await _dbContext.ArchivedMedia.FindAsync(id);
-            ArchivedMedia.LikeCount = _dbContext.ArchivedMediaReactions.Where(r => r.Type == ReactionType.Like && r.ToId == id).Count();
-            ArchivedMedia.DislikeCount = _dbContext.ArchivedMediaReactions.Where(r => r.Type == ReactionType.Dislike && r.ToId == id).Count();
-            ArchivedMedia.ReportCount = _dbContext.ArchivedMediaReactions.Where(r => r.Type == ReactionType.Report && r.ToId == id).Count();
+            ArchivedMedia.LikeCount = _dbContext.ArchivedMediaReactions.Where(r => r.Type == ReactionType.Like && r.ToId == id.Id && r.ToPeerId == id.PeerId).Count();
+            ArchivedMedia.DislikeCount = _dbContext.ArchivedMediaReactions.Where(r => r.Type == ReactionType.Dislike && r.ToId == id.Id && r.ToPeerId == id.PeerId).Count();
+            ArchivedMedia.ReportCount = _dbContext.ArchivedMediaReactions.Where(r => r.Type == ReactionType.Report && r.ToId == id.Id && r.ToPeerId == id.PeerId).Count();
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<int> GetCount(int id, ReactionType type)
+        public async Task<int> GetCount(PublicId id, ReactionType type)
         {
             var ArchivedMedia = await _dbContext.ArchivedMedia.FindAsync(id);
             switch (type)

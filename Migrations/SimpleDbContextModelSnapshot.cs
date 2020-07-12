@@ -201,8 +201,8 @@ namespace PinkUmbrella.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("TagId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Tag")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("UserId")
                         .HasColumnType("INTEGER");
@@ -254,6 +254,9 @@ namespace PinkUmbrella.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("MentionedUserId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("MentionedUserPeerId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("PostId")
@@ -331,8 +334,6 @@ namespace PinkUmbrella.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("Posts");
                 });
 
@@ -342,7 +343,13 @@ namespace PinkUmbrella.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("DeliverToPeerTryCount")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("ToId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("ToPeerId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Type")
@@ -350,6 +357,9 @@ namespace PinkUmbrella.Migrations
 
                     b.Property<int>("UserId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("WhenDeliveredToPeer")
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("WhenReacted")
                         .HasColumnType("TEXT");
@@ -844,15 +854,6 @@ namespace PinkUmbrella.Migrations
                     b.HasOne("PinkUmbrella.Models.PostModel", "Post")
                         .WithMany()
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("PinkUmbrella.Models.PostModel", b =>
-                {
-                    b.HasOne("PinkUmbrella.Models.UserProfileModel", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

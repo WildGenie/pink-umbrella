@@ -1,7 +1,7 @@
-﻿@model UserProfileModel
+﻿@model PublicProfileModel
 <div class="contains-goto">
     <i class="fas fa-user-circle"></i>
-    <a class="goto" asp-controller="Profile" asp-action="Index" asp-route-id="@Model.Id">goto</a>
+    <a class="goto" asp-controller="Profile" asp-action="Index" asp-route-id="@Model.PublicId">goto</a>
     <b>@Model.DisplayName</b>
     <i>@@@Model.Handle</i>
     <span>&bull; @Model.Bio</span>

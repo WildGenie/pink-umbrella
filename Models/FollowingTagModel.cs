@@ -4,6 +4,6 @@ namespace PinkUmbrella.Models
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public int TagId { get; set; }
+        public string Tag { get; set; }
     }
 }

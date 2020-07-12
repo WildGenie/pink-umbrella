@@ -20,7 +20,7 @@ namespace PinkUmbrella.Controllers
             return View(new AuthKeysViewModel()
             {
                 MyProfile = user,
-                Keys = await _auth.GetForUser(user.Id),
+                Keys = await _auth.GetForUser(user.UserId),
             });
         }
 
@@ -29,7 +29,7 @@ namespace PinkUmbrella.Controllers
         {
             ViewData["Controller"] = "Account";
             ViewData["Action"] = nameof(AddAuthKey);
-            var user = await GetCurrentUserAsync();
+            var user = await GetCurrentLocalUserAsync();
 
             var key = new PublicKey()
             {
@@ -47,7 +47,7 @@ namespace PinkUmbrella.Controllers
 
             return View(nameof(AuthKeys), new AuthKeysViewModel()
             {
-                MyProfile = user,
+                MyProfile = await _publicProfiles.Transform(user, 0, user.Id),
                 NewKey = new AddKeyViewModel() {
                     PublicKey = key
                 },
@@ -59,7 +59,7 @@ namespace PinkUmbrella.Controllers
         {
             ViewData["Controller"] = "Account";
             ViewData["Action"] = nameof(GenAuthKey);
-            var user = await GetCurrentUserAsync();
+            var user = await GetCurrentLocalUserAsync();
 
             AuthKey.Format = AuthKeyFormat.Raw;
             var result = await _auth.GenKey(AuthKey, HandshakeMethod.Default);
@@ -84,7 +84,7 @@ namespace PinkUmbrella.Controllers
 
             return View(nameof(AuthKeys), new AuthKeysViewModel()
             {
-                MyProfile = user,
+                MyProfile = await _publicProfiles.Transform(user, 0, user.Id),
                 NewKey = new AddKeyViewModel() {
                     AuthKey = AuthKey
                 },

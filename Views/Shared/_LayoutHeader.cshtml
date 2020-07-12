@@ -21,7 +21,7 @@
     var privacyLiClass = controllerName == "Home" && actionName == "Privacy" ? "selected" : "";
     var aboutLiClass = controllerName == "Home" && actionName == "About" ? "selected" : "";
 
-    var unviewedNotificationsCount = Model?.MyProfile != null ? await _notifications.GetUnviewedNotificationsCount(Model.MyProfile.Id) : 0;
+    var unviewedNotificationsCount = Model?.MyProfile != null ? await _notifications.GetUnviewedNotificationsCount(Model.MyProfile.UserId) : 0;
 
     if (ViewData.TryGetValue(_strings.ViewKeys.StatusBar, out object statusBarModel))
     {
@@ -59,7 +59,7 @@
                         if (await _settings.FeatureManager.IsEnabledAsync(nameof(ControllerProfile)))
                         {
                         <li class="nav-item @profileLiClass">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Profile" asp-action="Index" asp-route-id="@Model.MyProfile.Id" >
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Profile" asp-action="Index" asp-route-id="@Model.MyProfile.UserId" >
                                 <i class="far fa-user-circle"></i> Profile
                             </a>
                         </li>

@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using PinkUmbrella.Models;
 using PinkUmbrella.Repositories;
+using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.Services.Sql.React
 {
@@ -25,17 +26,17 @@ namespace PinkUmbrella.Services.Sql.React
             return _dbContext.Posts.Select(p => p.Id).ToListAsync();
         }
 
-        public async Task RefreshStats(int id)
+        public async Task RefreshStats(PublicId id)
         {
             var post = await _dbContext.Posts.FindAsync(id);
-            post.LikeCount = _dbContext.PostReactions.Where(r => r.Type == ReactionType.Like && r.ToId == id).Count();
-            post.DislikeCount = _dbContext.PostReactions.Where(r => r.Type == ReactionType.Dislike && r.ToId == id).Count();
-            post.ReportCount = _dbContext.PostReactions.Where(r => r.Type == ReactionType.Report && r.ToId == id).Count();
-            post.BlockCount = _dbContext.PostReactions.Where(r => r.Type == ReactionType.Block && r.ToId == id).Count();
+            post.LikeCount = _dbContext.PostReactions.Where(r => r.Type == ReactionType.Like && r.ToId == id.Id && r.ToPeerId == id.PeerId).Count();
+            post.DislikeCount = _dbContext.PostReactions.Where(r => r.Type == ReactionType.Dislike && r.ToId == id.Id && r.ToPeerId == id.PeerId).Count();
+            post.ReportCount = _dbContext.PostReactions.Where(r => r.Type == ReactionType.Report && r.ToId == id.Id && r.ToPeerId == id.PeerId).Count();
+            post.BlockCount = _dbContext.PostReactions.Where(r => r.Type == ReactionType.Block && r.ToId == id.Id && r.ToPeerId == id.PeerId).Count();
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<int> GetCount(int id, ReactionType type)
+        public async Task<int> GetCount(PublicId id, ReactionType type)
         {
             var post = await _dbContext.Posts.FindAsync(id);
             switch (type)

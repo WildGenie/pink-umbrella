@@ -6,7 +6,7 @@
 <partial name="_Header" />
 @if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionUserInvite)))
 {
-    @if (Model.MyProfile.EmailConfirmed)
+    @if (Model.MyProfile.Local.EmailConfirmed)
     {
         <partial name="_InviteForm" model="Model.Values" />
     }

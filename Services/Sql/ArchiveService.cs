@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using PinkUmbrella.Models;
+using PinkUmbrella.Models.Public;
 using PinkUmbrella.Repositories;
 using PinkUmbrella.Services;
+using PinkUmbrella.Services.Local;
 
 namespace PinkUmbrella.Services.Sql
 {
@@ -36,7 +38,8 @@ namespace PinkUmbrella.Services.Sql
         {
             if (media.RelatedPost == null && media.RelatedPostId.HasValue)
             {
-               media.RelatedPost = await _posts.GetPost(media.RelatedPostId.Value, viewerId); 
+                // TODO: give media peer ids
+                media.RelatedPost = await _posts.GetPost(new PublicId(media.RelatedPostId.Value, 0), viewerId); 
             }
 
             if (media.User == null)
@@ -105,45 +108,54 @@ namespace PinkUmbrella.Services.Sql
             throw new System.NotImplementedException();
         }
 
-        public async Task<ArchivedMediaModel> GetMedia(int id, int? viewerId)
+        public async Task<ArchivedMediaModel> GetMedia(PublicId id, int? viewerId)
         {
-            var ret = await _dbContext.ArchivedMedia.FindAsync(id);
-            if (ret != null)
+            if (id.PeerId == 0)
             {
-                await BindReferences(ret, viewerId);
-                if (CanView(ret, viewerId))
+                var ret = await _dbContext.ArchivedMedia.FindAsync(id.Id);
+                if (ret != null)
                 {
-                    return ret;
+                    await BindReferences(ret, viewerId);
+                    if (CanView(ret, viewerId))
+                    {
+                        return ret;
+                    }
                 }
             }
-            
             return null;
         }
 
-        public Task<ArchivedMediaModel> GetMedia(string path, int? viewerId) => GetMedia(BitConverter.ToInt32(Convert.FromBase64String(path), 0), viewerId);
+        public Task<ArchivedMediaModel> GetMedia(string path, int? viewerId) => GetMedia(new PublicId(BitConverter.ToInt32(Convert.FromBase64String(path), 0), 0), viewerId);
 
-        public async Task<PaginatedModel<ArchivedMediaModel>> GetMediaForUser(int userId, int? viewerId, ArchivedMediaType? type, PaginationModel pagination)
+        public async Task<PaginatedModel<ArchivedMediaModel>> GetMediaForUser(PublicId userId, int? viewerId, ArchivedMediaType? type, PaginationModel pagination)
         {
-            var query = _dbContext.ArchivedMedia.Where(p => p.UserId == userId);
-            if (type.HasValue)
+            if (userId.PeerId == 0)
             {
-                query = query.Where(m => m.MediaType == type.Value);
-            }
-            var paginated = await query.OrderByDescending(p => p.WhenCreated).ToListAsync();
-
-            var keepers = new List<ArchivedMediaModel>();
-            foreach (var p in paginated) {
-                await BindReferences(p, viewerId);
-                if (CanView(p, viewerId))
+                var query = _dbContext.ArchivedMedia.Where(p => p.UserId == userId.Id);
+                if (type.HasValue)
                 {
-                    keepers.Add(p);
+                    query = query.Where(m => m.MediaType == type.Value);
                 }
+                var paginated = await query.OrderByDescending(p => p.WhenCreated).ToListAsync();
+
+                var keepers = new List<ArchivedMediaModel>();
+                foreach (var p in paginated) {
+                    await BindReferences(p, viewerId);
+                    if (CanView(p, viewerId))
+                    {
+                        keepers.Add(p);
+                    }
+                }
+                return new PaginatedModel<ArchivedMediaModel>() {
+                    Items = keepers.Skip(pagination.start).Take(pagination.count).ToList(),
+                    Pagination = pagination,
+                    Total = keepers.Count()
+                };
             }
-            return new PaginatedModel<ArchivedMediaModel>() {
-                Items = keepers.Skip(pagination.start).Take(pagination.count).ToList(),
-                Pagination = pagination,
-                Total = keepers.Count()
-            };
+            else
+            {
+                return new PaginatedModel<ArchivedMediaModel>();
+            }
         }
 
         public async Task<PaginatedModel<ArchivedMediaModel>> GetMostBlockedMedia()
@@ -272,11 +284,24 @@ namespace PinkUmbrella.Services.Sql
             }
         }
 
-        public async Task UpdateShadowBanStatus(int id, bool status)
+        public async Task UpdateShadowBanStatus(PublicId id, bool status)
         {
-            var media = await _dbContext.ArchivedMedia.FindAsync(id);
-            media.ShadowBanned = status;
-            await _dbContext.SaveChangesAsync();
+            if (id.PeerId == 0)
+            {
+                var media = await _dbContext.ArchivedMedia.FindAsync(id);
+                media.ShadowBanned = status;
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
+        public async Task<List<ArchivedMediaModel>> GetAllLocal()
+        {
+            var all = await _dbContext.ArchivedMedia.ToListAsync();
+            foreach (var item in all)
+            {
+                await BindReferences(item, null);
+            }
+            return all;
         }
     }
 }

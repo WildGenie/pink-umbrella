@@ -18,9 +18,12 @@ using PinkUmbrella.Models.Auth;
 using PinkUmbrella.Models.Auth.Types;
 using PinkUmbrella.Repositories;
 using PinkUmbrella.Services;
+using PinkUmbrella.Services.Elastic.Search;
 using PinkUmbrella.Services.Jobs;
+using PinkUmbrella.Services.Local;
 using PinkUmbrella.Services.NoSql;
 using PinkUmbrella.Services.Peer;
+using PinkUmbrella.Services.Public;
 using PinkUmbrella.Services.Search;
 using PinkUmbrella.Services.Sql;
 using PinkUmbrella.Services.Sql.React;
@@ -163,6 +166,7 @@ namespace PinkUmbrella
             services.AddScoped<IGeoLocationService, GeoLocationService>();
             services.AddScoped<IInvitationService, InvitationService>();
             services.AddScoped<IUserProfileService, UserProfileService>();
+            services.AddScoped<IPublicProfileService, PublicUserService>();
             services.AddScoped<ISimpleResourceService, SimpleResourceService>();
             services.AddScoped<ISimpleInventoryService, SimpleInventoryService>();
             services.AddScoped<IPostService, PostService>();
@@ -170,12 +174,20 @@ namespace PinkUmbrella
             services.AddScoped<IFeedService, FeedService>();
             services.AddScoped<IDebugService, DebugService>();
             
-            services.AddScoped<ISearchableService, SearchPostsService>();
-            services.AddScoped<ISearchableService, SearchProfilesService>();
-            services.AddScoped<ISearchableService, SearchShopsService>();
-            services.AddScoped<ISearchableService, SearchArchivedPhotosService>();
-            services.AddScoped<ISearchableService, SearchArchivedVideosService>();
-            services.AddScoped<ISearchableService, SearchInventoryService>();
+            services.AddScoped<ISearchableService, SqlSearchPostsService>();
+            services.AddScoped<ISearchableService, SqlSearchProfilesService>();
+            services.AddScoped<ISearchableService, SqlSearchShopsService>();
+            services.AddScoped<ISearchableService, SqlSearchArchivedPhotosService>();
+            services.AddScoped<ISearchableService, SqlSearchArchivedVideosService>();
+            services.AddScoped<ISearchableService, SqlSearchInventoryService>();
+
+            services.AddScoped<ISearchableService, ElasticSearchPostsService>();
+            services.AddScoped<ISearchableService, ElasticSearchProfilesService>();
+            services.AddScoped<ISearchableService, ElasticSearchShopsService>();
+            services.AddScoped<ISearchableService, ElasticSearchArchivedPhotosService>();
+            services.AddScoped<ISearchableService, ElasticSearchArchivedVideosService>();
+            services.AddScoped<ISearchableService, ElasticSearchInventoryService>();
+
             services.AddScoped<ISearchService, SearchService>();
 
             services.AddScoped<IReactableService, PostReactionService>();
@@ -293,6 +305,7 @@ namespace PinkUmbrella
             RecurringJob.AddOrUpdate(() => ElasticJobs.SyncReactions(null), Cron.Hourly);
             RecurringJob.AddOrUpdate(() => ElasticJobs.SyncMentions(null), Cron.Hourly);
             RecurringJob.AddOrUpdate(() => ElasticJobs.SyncPeers(null), Cron.Hourly);
+            RecurringJob.AddOrUpdate(() => ElasticJobs.SyncInventories(null), Cron.Hourly);
         }
     }
 }

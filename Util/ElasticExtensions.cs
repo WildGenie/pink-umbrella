@@ -1,13 +1,13 @@
 using PinkUmbrella.Models;
-using PinkUmbrella.Models.Elastic;
+using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.Util
 {
     public static class ElasticExtensions
     {
-        public static ElasticProfileModel ToElastic(this UserProfileModel u)
+        public static PublicProfileModel ToElastic(this UserProfileModel u)
         {
-            return new ElasticProfileModel {
+            return new PublicProfileModel {
                 UserId = u.Id,
                 DisplayName = u.DisplayName,
                 Bio = u.Bio,

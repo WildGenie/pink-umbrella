@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PinkUmbrella.Models;
 using PinkUmbrella.Models.AhPushIt;
+using PinkUmbrella.Models.Public;
 using PinkUmbrella.Repositories;
+using PinkUmbrella.Services.Local;
 
 namespace PinkUmbrella.Services.Sql
 {
@@ -14,11 +16,11 @@ namespace PinkUmbrella.Services.Sql
     {
         private readonly SimpleDbContext _dbContext;
         private readonly StringRepository _strings;
-        private readonly IUserProfileService _users;
+        private readonly IPublicProfileService _users;
         private readonly ITagService _tags;
         private readonly INotificationService _notifications;
 
-        public PostService(SimpleDbContext dbContext, StringRepository strings, IUserProfileService users, ITagService tags, INotificationService notifications)
+        public PostService(SimpleDbContext dbContext, StringRepository strings, IPublicProfileService users, ITagService tags, INotificationService notifications)
         {
             _dbContext = dbContext;
             _strings = strings;
@@ -99,8 +101,8 @@ namespace PinkUmbrella.Services.Sql
 
         private async Task SendOutNotificationsToTagFollowers(PostModel post)
         {
-            var tagIds = post.Tags.Select(t => t.Id).ToArray();
-            var tagFollowers = await _dbContext.FollowingPostTags.Where(f => tagIds.Contains(f.TagId)).Select(u => u.UserId).Distinct().ToArrayAsync();
+            var tagIds = post.Tags.Select(t => t.Tag).ToArray();
+            var tagFollowers = await _dbContext.FollowingPostTags.Where(f => tagIds.Contains(f.Tag)).Select(u => u.UserId).Distinct().ToArrayAsync();
             if (tagFollowers.Length > 0)
             {
                 await _notifications.Publish(new Models.AhPushIt.Notification() {
@@ -109,14 +111,14 @@ namespace PinkUmbrella.Services.Sql
                     Priority = NotificationPriority.Normal,
                     Subject = ReactionSubject.Post,
                     Type = NotificationType.TEXT_POST_FOLLOWED_TAG,
-                }, tagFollowers);
+                }, tagFollowers.Select(id => new PublicId(id, 0)).ToArray());
             }
         }
 
         private async Task SendOutNotificationsToPosterFollowers(PostModel post)
         {
-            var followers = await _users.GetFollowers(post.UserId, post.UserId);
-            if (followers.Count > 0)
+            var followers = await _users.GetFollowers(new PublicId(post.UserId, post.PeerId), post.UserId);
+            if (followers.Length > 0)
             {
                 await _notifications.Publish(new Models.AhPushIt.Notification() {
                     FromUserId = post.UserId,
@@ -124,7 +126,7 @@ namespace PinkUmbrella.Services.Sql
                     Priority = NotificationPriority.Normal,
                     Subject = ReactionSubject.Post,
                     Type = NotificationType.TEXT_POST_FOLLOWED_USER,
-                }, followers.Select(u => u.Id).ToArray());
+                }, followers.Select(u => u.PublicId).ToArray());
             }
         }
 
@@ -138,7 +140,7 @@ namespace PinkUmbrella.Services.Sql
                     Priority = NotificationPriority.Normal,
                     Subject = ReactionSubject.Post,
                     Type = NotificationType.TEXT_POST_MENTION,
-                }, post.Mentions.Select(u => u.MentionedUserId).ToArray());
+                }, post.Mentions.Select(u => new PublicId(u.MentionedUserId, u.MentionedUserPeerId)).ToArray());
             }
         }
 
@@ -158,9 +160,9 @@ namespace PinkUmbrella.Services.Sql
             throw new System.NotImplementedException();
         }
 
-        public async Task<PostModel> GetPost(int id, int? viewerId)
+        public async Task<PostModel> GetPost(PublicId id, int? viewerId)
         {
-            var p = await _dbContext.Posts.FindAsync(id);
+            var p = id.PeerId == 0 ? await _dbContext.Posts.FindAsync(id.Id) : null;
             await BindReferences(p, viewerId);
             if (CanView(p, viewerId))
             {
@@ -174,6 +176,11 @@ namespace PinkUmbrella.Services.Sql
 
         public bool CanView(PostModel p, int? viewerId)
         {
+            if (p == null)
+            {
+                return false;
+            }
+            
             if (p.ViewerIsPoster)
             {
                 return true;
@@ -205,18 +212,23 @@ namespace PinkUmbrella.Services.Sql
 
         public async Task BindReferences(PostModel p, int? viewerId)
         {
+            if (p == null)
+            {
+                return;
+            }
+
             if (p.User == null)
             {
-                p.User = await _users.GetUser(p.UserId, viewerId);
+                p.User = await _users.GetUser(new PublicId(p.UserId, p.PeerId), viewerId);
             }
 
             p.ViewerId = viewerId;
             var mentions = await _dbContext.Mentions.Where(m => m.PostId == p.Id).ToListAsync();
             foreach (var m in mentions)
             {
-                m.MentionedUser = await _users.GetUser(m.MentionedUserId, viewerId);
+                m.MentionedPublicUser = await _users.GetUser(new PublicId(m.MentionedUserId, m.MentionedUserPeerId), viewerId);
             }
-            p.Mentions = mentions.Where(m => m.MentionedUser != null).ToList();
+            p.Mentions = mentions.Where(m => m.MentionedPublicUser != null).ToList();
 
             if (viewerId.HasValue)
             {
@@ -246,21 +258,24 @@ namespace PinkUmbrella.Services.Sql
             }
             else if (p.Tags.Count == 0)
             {
-                p.Tags = await _tags.GetTagsFor(p.Id, ReactionSubject.Shop, viewerId);
+                p.Tags = await _tags.GetTagsFor(p.Id, ReactionSubject.Post, viewerId);
             }
         }
 
-        public async Task UpdateShadowBanStatus(int id, bool status)
+        public async Task UpdateShadowBanStatus(PublicId id, bool status)
         {
-            var p = await _dbContext.Posts.FindAsync(id);
-            p.ShadowBanned = status;
-            await _dbContext.SaveChangesAsync();
+            if (id.PeerId == 0)
+            {
+                var p = await _dbContext.Posts.FindAsync(id.Id);
+                p.ShadowBanned = status;
+                await _dbContext.SaveChangesAsync();
+            }
         }
 
         private async Task ExtractMentions(PostModel p)
         {
             var handles = _strings.ExtractMentionsRegex.Matches(p.Content).Cast<Match>().Select(m => m.Value.Substring(1)).ToList();
-            var mentionedUserIds = new List<int>();
+            var mentionedUserIds = new List<string>();
 
             foreach (var handle in handles) {
                 var user = await _users.GetUser(handle, p.UserId);
@@ -271,9 +286,11 @@ namespace PinkUmbrella.Services.Sql
                         p.Mentions.Add(new MentionModel() {
                             WhenMentioned = DateTime.UtcNow,
                             PostId = p.Id,
+                            PostPeerId = p.PeerId,
                             Post = p,
-                            MentionedUserId = user.Id,
-                            MentionedUser = user
+                            MentionedUserId = user.UserId,
+                            MentionedUserPeerId = user.PeerId,
+                            MentionedPublicUser = user
                         });
                     }
                 }
@@ -296,13 +313,13 @@ namespace PinkUmbrella.Services.Sql
             }
         }
 
-        public async Task<FeedModel> GetMentionsForUser(int userId, int? viewerId, bool includeReplies, PaginationModel pagination)
+        public async Task<FeedModel> GetMentionsForUser(PublicId userId, int? viewerId, bool includeReplies, PaginationModel pagination)
         {
-            var mentions =  _dbContext.Mentions.Where(m => m.MentionedUserId == userId && m.Post.IsReply == includeReplies);
+            var mentions =  _dbContext.Mentions.Where(m => m.MentionedUserId == userId.Id && m.MentionedUserPeerId == userId.PeerId && m.Post.IsReply == includeReplies);
             var paginated = await mentions.OrderByDescending(p => p.WhenMentioned).ToListAsync();
             var posts = new List<PostModel>();
             foreach (var p in mentions) {
-                var post = await GetPost(p.PostId, viewerId);
+                var post = await GetPost(new PublicId(p.PostId, 0), viewerId);
                 if (post != null)
                 {
                     posts.Add(post);
@@ -318,18 +335,26 @@ namespace PinkUmbrella.Services.Sql
             };
         }
 
-        public async Task<FeedModel> GetPostsForUser(int userId, int? viewerId, bool includeReplies, PaginationModel pagination)
+        public async Task<FeedModel> GetPostsForUser(PublicId userId, int? viewerId, bool includeReplies, PaginationModel pagination)
         {
-            var posts = _dbContext.Posts.Where(p => p.UserId == userId && p.IsReply == includeReplies);
-            var paginated = await posts.OrderByDescending(p => p.Id).ToListAsync();
             var keepers = new List<PostModel>();
-            foreach (var p in posts) {
-                await BindReferences(p, viewerId);
-                if (CanView(p, viewerId))
-                {
-                    keepers.Add(p);
+            if (userId.PeerId == 0)
+            {
+                var posts = _dbContext.Posts.Where(p => p.UserId == userId.Id && p.IsReply == includeReplies);
+                var paginated = await posts.OrderByDescending(p => p.Id).ToListAsync();
+                foreach (var p in posts) {
+                    await BindReferences(p, viewerId);
+                    if (CanView(p, viewerId))
+                    {
+                        keepers.Add(p);
+                    }
                 }
             }
+            else
+            {
+
+            }
+
             return new FeedModel() {
                 Items = keepers.Skip(pagination.start).Take(pagination.count).ToList(),
                 Pagination = pagination,
@@ -370,6 +395,16 @@ namespace PinkUmbrella.Services.Sql
                 Total = posts.Count(),
                 Pagination = new PaginationModel(),
             };
+        }
+
+        public async Task<List<PostModel>> GetAllLocal()
+        {
+            var all = await _dbContext.Posts.ToListAsync();
+            foreach (var item in all)
+            {
+                await BindReferences(item, null);
+            }
+            return all;
         }
     }
 }

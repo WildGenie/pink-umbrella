@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using PinkUmbrella.Models;
 using PinkUmbrella.Models.Community;
+using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.ViewModels.Profile
 {
@@ -12,7 +13,7 @@ namespace PinkUmbrella.ViewModels.Profile
 
         public List<ShopModel> Shops { get; set; }
         
-        public List<UserProfileModel> Users { get; set; }
+        public PublicProfileModel[] Users { get; set; }
         
         public UserListType UserListType { get; set; }
     }

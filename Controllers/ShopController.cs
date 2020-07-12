@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +15,7 @@ using System.IO;
 using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Models.Search;
+using PinkUmbrella.Services.Local;
 
 namespace PinkUmbrella.Controllers
 {
@@ -27,10 +26,10 @@ namespace PinkUmbrella.Controllers
         private readonly IShopService _shops;
         
         public ShopController(IWebHostEnvironment environment, ILogger<ShopController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IShopService shops, 
+            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles, IShopService shops, 
             IReactionService reactions, ITagService tags, INotificationService notifications, IPeerService peers, IAuthService auth,
             ISettingsService settings):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications, peers, auth, settings)
+            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings)
         {
             _logger = logger;
             _shops = shops;
@@ -47,7 +46,7 @@ namespace PinkUmbrella.Controllers
             {
                 var model = new ShopViewModel() {
                     MyProfile = user,
-                    Shop = await _shops.GetShopByHandle(handle, user?.Id)
+                    Shop = await _shops.GetShopByHandle(handle, user?.UserId)
                 };
                 return View("Shop", model);
             }
@@ -59,7 +58,7 @@ namespace PinkUmbrella.Controllers
                     var shopsByCategory = new Dictionary<int, List<ShopModel>>();
                     foreach (var category in topTags.Items)
                     {
-                        shopsByCategory[category.Tag.Id] = await _shops.GetShopsTaggedUnder(category.Tag, user?.Id);
+                        shopsByCategory[category.Tag.Id] = await _shops.GetShopsTaggedUnder(category.Tag, user?.UserId);
                     }
                     var model = new IndexViewModel() {
                         MyProfile = user,
@@ -70,7 +69,7 @@ namespace PinkUmbrella.Controllers
                 }
                 else
                 {
-                    var allShops = await _shops.GetAllShops(user?.Id);
+                    var allShops = await _shops.GetAllShops(user?.UserId);
                     if (allShops.Count > 0)
                     {
                         var model = new IndexViewModel() {
@@ -94,7 +93,7 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentUserAsync();
             return View(new TagsViewModel() {
                 MyProfile = user,
-                Tags = await _tags.GetTagsForSubject(ReactionSubject.Shop, user?.Id),
+                Tags = await _tags.GetTagsForSubject(ReactionSubject.Shop, user?.UserId),
                 Type = SearchResultType.Shop,
             });
         }
@@ -121,7 +120,7 @@ namespace PinkUmbrella.Controllers
         {
             var user = await GetCurrentUserAsync();
             var shop = model.Validate(this.ModelState);
-            shop.UserId = user.Id;
+            shop.UserId = user.UserId;
 
             using (var ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(tagsJson)))
             {
@@ -132,7 +131,7 @@ namespace PinkUmbrella.Controllers
                         Tag = tag.label,
                         Id = tag.value,
                     };
-                    var newTag = await _tags.TryGetOrCreateTag(tm, user.Id);
+                    var newTag = await _tags.TryGetOrCreateTag(tm, user.UserId);
                     if (newTag != null)
                     {
                         shop.Tags.Add(newTag);

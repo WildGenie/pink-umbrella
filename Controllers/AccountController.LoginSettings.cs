@@ -34,7 +34,7 @@ namespace PinkUmbrella.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> ForgotPassword(string email = null)
         {
-            var user = (await GetCurrentUserAsync()) ?? (email != null ? await _userManager.FindByEmailAsync(email) : null);
+            var user = (await GetCurrentLocalUserAsync()) ?? (email != null ? await _userManager.FindByEmailAsync(email) : null);
 
             if (user == null)
             {
@@ -66,7 +66,8 @@ namespace PinkUmbrella.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangePassword([Bind] ChangePasswordViewModel changePassword)
         {
-            changePassword.MyProfile = await _userManager.GetUserAsync(User);
+            var localUser = await GetCurrentLocalUserAsync();
+            changePassword.MyProfile = await GetCurrentUserAsync();
 
             if (!ModelState.IsValid)
             {
@@ -78,7 +79,7 @@ namespace PinkUmbrella.Controllers
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            var RequirePassword = await _userManager.HasPasswordAsync(changePassword.MyProfile);
+            var RequirePassword = await _userManager.HasPasswordAsync(localUser);
             if (RequirePassword)
             {
                 if (changePassword.CurrentPassword == changePassword.ConfirmPassword)
@@ -86,14 +87,14 @@ namespace PinkUmbrella.Controllers
                     ModelState.AddModelError(string.Empty, "Password already set to that.");
                     return View(changePassword);
                 }
-                else if (!await _userManager.CheckPasswordAsync(changePassword.MyProfile, changePassword.CurrentPassword))
+                else if (!await _userManager.CheckPasswordAsync(localUser, changePassword.CurrentPassword))
                 {
                     ModelState.AddModelError(nameof(changePassword.CurrentPassword), "Password is invalid.");
                     return View(changePassword);
                 }
             }
 
-            var changePasswordResult = await _userManager.ChangePasswordAsync(changePassword.MyProfile, changePassword.CurrentPassword, changePassword.NewPassword);
+            var changePasswordResult = await _userManager.ChangePasswordAsync(localUser, changePassword.CurrentPassword, changePassword.NewPassword);
             if (!changePasswordResult.Succeeded)
             {
                 foreach (var error in changePasswordResult.Errors)
@@ -103,7 +104,7 @@ namespace PinkUmbrella.Controllers
                 return View(changePassword);
             }
 
-            await _signInManager.RefreshSignInAsync(changePassword.MyProfile);
+            await _signInManager.RefreshSignInAsync(localUser);
 
             return RedirectToAction(nameof(Index), new { statusMessage = "Successfully changed password", statusType = "success" });
         }
@@ -150,7 +151,7 @@ namespace PinkUmbrella.Controllers
             ViewData["Action"] = nameof(SetupLoginMethod);
 
             var user = await GetCurrentUserAsync();
-            var allowed = await _auth.LoginMethodAllowed(user.Id, method, _auth.GetMethodDefault(method));
+            var allowed = await _auth.LoginMethodAllowed(user.UserId, method, _auth.GetMethodDefault(method));
             var model = new SetupLoginMethodViewModel()
             {
                 MyProfile = user,
@@ -170,7 +171,7 @@ namespace PinkUmbrella.Controllers
                     case UserLoginMethod.RecoveryKey:
                     model.LoginModel = new SetupRecoveryViewModel()
                     {
-                        RecoveryKeys = await _auth.GetRecoveryKeys(user.Id)
+                        RecoveryKeys = await _auth.GetRecoveryKeys(user.UserId)
                     };
                     break;
                     default: return Redirect("/Error/404");
@@ -191,7 +192,7 @@ namespace PinkUmbrella.Controllers
 
             var user = await GetCurrentUserAsync();
 
-            var result = await _auth.UpdateLoginMethodAllowed(user.Id, method, enabled, _auth.GetMethodDefault(method));
+            var result = await _auth.UpdateLoginMethodAllowed(user.UserId, method, enabled, _auth.GetMethodDefault(method));
             switch (result.Result)
             {
                 case UpdateLoginMethodResult.ResultType.NoError:
@@ -236,7 +237,7 @@ namespace PinkUmbrella.Controllers
             ViewData["Action"] = nameof(ShowRecoveryKey);
 
             var user = await GetCurrentUserAsync();
-            var codes = await _auth.GetRecoveryKeys(user.Id);
+            var codes = await _auth.GetRecoveryKeys(user.UserId);
             var code = codes.SingleOrDefault(c => c.Id == id);
             if (code != null && code.WhenShown == null)
             {
@@ -252,7 +253,7 @@ namespace PinkUmbrella.Controllers
             if (!string.IsNullOrWhiteSpace(label) && label.Length < 100)
             {
                 var user = await GetCurrentUserAsync();
-                var code = await _auth.CreateRecoveryKeys(user.Id, label, length ?? 6, count ?? 1);
+                var code = await _auth.CreateRecoveryKeys(user.UserId, label, length ?? 6, count ?? 1);
                 return RedirectToAction(nameof(SetupLoginMethod), new { method = UserLoginMethod.RecoveryKey });
             }
             else
@@ -265,7 +266,7 @@ namespace PinkUmbrella.Controllers
         public async Task<IActionResult> DeleteRecoveryKey(long id)
         {
             var user = await GetCurrentUserAsync();
-            var codes = await _auth.GetRecoveryKeys(user.Id);
+            var codes = await _auth.GetRecoveryKeys(user.UserId);
             var code = codes.FirstOrDefault(c => c.Id == id);
             if (code != null)
             {

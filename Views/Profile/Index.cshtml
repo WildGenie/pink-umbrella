@@ -26,34 +26,34 @@
         <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
             <ul class="navbar-nav flex-grow-1 highlight-selected">
                 <li class="nav-item @postsLiClass">
-                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="Index" asp-route-id="@Model.Profile.Id"><u>Posts</u></a>
+                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="Index" asp-route-id="@Model.Profile.PublicId"><u>Posts</u></a>
                 </li>
                 <li class="nav-item @repliesLiClass">
-                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="Replies" asp-route-id="@Model.Profile.Id"><u>Replies</u></a>
+                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="Replies" asp-route-id="@Model.Profile.PublicId"><u>Replies</u></a>
                 </li>
                 <li class="nav-item @mentionsLiClass">
-                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="Mentions" asp-route-id="@Model.Profile.Id"><u>Mentions</u></a>
+                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="Mentions" asp-route-id="@Model.Profile.PublicId"><u>Mentions</u></a>
                 </li>
                 <li class="nav-item my-2"><span class="px-1">&nbsp;&nbsp;</span><span class="border-left border-dark">&nbsp;</span><span class="px-1">&nbsp;</span></li>
                 <li class="nav-item @mediaLiClass">
-                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="ArchivedMedia" asp-route-id="@Model.Profile.Id"><u>Archived Media</u></a>
+                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="ArchivedMedia" asp-route-id="@Model.Profile.PublicId"><u>Archived Media</u></a>
                 </li>
                 <li class="nav-item @photosLiClass">
-                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="Photos" asp-route-id="@Model.Profile.Id"><u>Photos</u></a>
+                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="Photos" asp-route-id="@Model.Profile.PublicId"><u>Photos</u></a>
                 </li>
                 <li class="nav-item @videosLiClass">
-                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="Videos" asp-route-id="@Model.Profile.Id"><u>Videos</u></a>
+                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="Videos" asp-route-id="@Model.Profile.PublicId"><u>Videos</u></a>
                 </li>
                 <li class="nav-item my-2"><span class="px-1">&nbsp;&nbsp;</span><span class="border-left border-dark">&nbsp;</span><span class="px-1">&nbsp;</span></li>
                 <li class="nav-item @shopsLiClass">
-                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="Shops" asp-route-id="@Model.Profile.Id"><u>Shops</u></a>
+                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="Shops" asp-route-id="@Model.Profile.PublicId"><u>Shops</u></a>
                 </li>
                 <li class="nav-item my-2"><span class="px-1">&nbsp;&nbsp;</span><span class="border-left border-dark">&nbsp;</span><span class="px-1">&nbsp;</span></li>
                 <li class="nav-item @followersLiClass">
-                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="Followers" asp-route-id="@Model.Profile.Id"><u>Followers</u></a>
+                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="Followers" asp-route-id="@Model.Profile.PublicId"><u>Followers</u></a>
                 </li>
                 <li class="nav-item @followingLiClass">
-                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="Following" asp-route-id="@Model.Profile.Id"><u>Following</u></a>
+                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="Following" asp-route-id="@Model.Profile.PublicId"><u>Following</u></a>
                 </li>
             </ul>
         </div>
@@ -69,7 +69,7 @@ else if (Model.Media != null)
 }
 else if (Model.Users != null)
 {
-    if (Model.Users.Count > 0)
+    if (Model.Users.Length > 0)
     {
         <partial name="Profile/List" model="Model.Users" />
     }

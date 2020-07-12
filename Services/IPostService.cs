@@ -1,20 +1,21 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using PinkUmbrella.Models;
+using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.Services
 {
     public interface IPostService
     {
-        Task<PostModel> GetPost(int id, int? viewerId);
+        Task<PostModel> GetPost(PublicId id, int? viewerId);
         Task<NewPostResult> TryCreatePosts(List<PostModel> post_chain);
         Task<NewPostResult> TryCreateTextPosts(int userId, string[] post_chain, Visibility visibility);
         Task DeletePost(int id, int userId);
-        Task UpdateShadowBanStatus(int id, bool status);
+        Task UpdateShadowBanStatus(PublicId id, bool status);
 
-        Task<FeedModel> GetMentionsForUser(int userId, int? viewerId, bool includeReplies, PaginationModel pagination);
-        Task<FeedModel> GetPostsForUser(int userId, int? viewerId, bool includeReplies, PaginationModel pagination);
-
+        Task<FeedModel> GetMentionsForUser(PublicId userId, int? viewerId, bool includeReplies, PaginationModel pagination);
+        
+        Task<FeedModel> GetPostsForUser(PublicId userId, int? viewerId, bool includeReplies, PaginationModel pagination);
 
         Task BindReferences(PostModel post, int? viewerId);
 
@@ -25,5 +26,7 @@ namespace PinkUmbrella.Services
         Task<PaginatedModel<PostModel>> GetMostBlockedPosts();
 
         Task<PaginatedModel<PostModel>> GetMostDislikedPosts();
+        
+        Task<List<PostModel>> GetAllLocal();
     }
 }

@@ -4,9 +4,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PinkUmbrella.Models;
 using PinkUmbrella.Models.Auth;
+using PinkUmbrella.Models.Public;
 using PinkUmbrella.ViewModels.Account;
 
-namespace PinkUmbrella.Services
+namespace PinkUmbrella.Services.Local
 {
     public interface IUserProfileService
     {
@@ -27,10 +28,6 @@ namespace PinkUmbrella.Services
         Task<List<UserProfileModel>> GetFollowing(int userId, int? viewerId);
 
         Task<List<UserProfileModel>> GetBlocked(int userId, int? viewerId);
-
-        Task BindReferences(UserProfileModel user, int? viewerId);
-
-        bool CanView(UserProfileModel user, int? viewerId);
 
         Task MakeFirstUserDev(UserProfileModel user);
 

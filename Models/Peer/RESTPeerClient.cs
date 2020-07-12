@@ -8,7 +8,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using PinkUmbrella.Models.Elastic;
+using PinkUmbrella.Models.Public;
 using PinkUmbrella.Services.Peer;
 
 namespace PinkUmbrella.Models.Peer
@@ -128,10 +128,10 @@ namespace PinkUmbrella.Models.Peer
             }
         }
 
-        public async Task<List<ElasticProfileModel>> GetProfiles(DateTime? sinceLastUpdated)
+        public async Task<List<PublicProfileModel>> GetProfiles(DateTime? sinceLastUpdated)
         {
             var query = sinceLastUpdated.HasValue ? $"Api/Profile/All?sinceLastUpdated={sinceLastUpdated.Value.Ticks}" : "Api/Profile/All";
-            var ret = (await JsonQuery<ProfilesModel>(query))?.profiles;
+            var ret = (await JsonQuery<ListResultModel<PublicProfileModel>>(query))?.items;
             if (ret != null)
             {
                 foreach (var r in ret)
@@ -145,10 +145,85 @@ namespace PinkUmbrella.Models.Peer
             }
             return ret;
         }
+
+        public async Task<List<PostModel>> GetPosts(DateTime? sinceLastUpdated)
+        {
+            var query = sinceLastUpdated.HasValue ? $"Api/Post/All?sinceLastUpdated={sinceLastUpdated.Value.Ticks}" : "Api/Post/All";
+            var ret = (await JsonQuery<ListResultModel<PostModel>>(query))?.items;
+            if (ret != null)
+            {
+                foreach (var r in ret)
+                {
+                    if (this._peer.PublicKey == null)
+                    {
+                        r.PeerId = this._peer.PublicKey.Id;
+                    }
+                }
+            }
+            return ret;
+        }
+
+        public async Task<List<ShopModel>> GetShops(DateTime? sinceLastUpdated)
+        {
+            var query = sinceLastUpdated.HasValue ? $"Api/Shop/All?sinceLastUpdated={sinceLastUpdated.Value.Ticks}" : "Api/Shop/All";
+            var ret = (await JsonQuery<ListResultModel<ShopModel>>(query))?.items;
+            if (ret != null)
+            {
+                foreach (var r in ret)
+                {
+                    if (this._peer.PublicKey == null)
+                    {
+                        r.PeerId = this._peer.PublicKey.Id;
+                    }
+                }
+            }
+            return ret;
+        }
+
+        public async Task<List<ArchivedMediaModel>> GetArchivedMedia(DateTime? sinceLastUpdated)
+        {
+            var query = sinceLastUpdated.HasValue ? $"Api/Archive/All?sinceLastUpdated={sinceLastUpdated.Value.Ticks}" : "Api/Archive/All";
+            var ret = (await JsonQuery<ListResultModel<ArchivedMediaModel>>(query))?.items;
+            if (ret != null)
+            {
+                foreach (var r in ret)
+                {
+                    if (this._peer.PublicKey == null)
+                    {
+                        r.PeerId = this._peer.PublicKey.Id;
+                    }
+                }
+            }
+            return ret;
+        }
+
+        public async Task<List<SimpleInventoryModel>> GetInventories(DateTime? sinceLastUpdated)
+        {
+            var query = sinceLastUpdated.HasValue ? $"Api/Inventory/All?sinceLastUpdated={sinceLastUpdated.Value.Ticks}" : "Api/Inventory/All";
+            var ret = (await JsonQuery<ListResultModel<SimpleInventoryModel>>(query))?.items;
+            if (ret != null)
+            {
+                foreach (var r in ret)
+                {
+                    if (this._peer.PublicKey == null)
+                    {
+                        r.PeerId = this._peer.PublicKey.Id;
+                    }
+                }
+            }
+            return ret;
+        }
+
+        public async Task<List<PeerModel>> GetPeers(DateTime? sinceLastUpdated)
+        {
+            var query = sinceLastUpdated.HasValue ? $"Api/Peer/All?sinceLastUpdated={sinceLastUpdated.Value.Ticks}" : "Api/Peer/All";
+            var response = await JsonQuery<ListResultModel<PeerModel>>(query);
+            return response?.items;
+        }
     }
 
-    public class ProfilesModel
+    public class ListResultModel<T>
     {
-        public List<ElasticProfileModel> profiles { get; set; }
+        public List<T> items { get; set; }
     }
 }

@@ -17,6 +17,7 @@ using PinkUmbrella.ViewModels.Shared;
 using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Models.Search;
+using PinkUmbrella.Services.Local;
 
 namespace PinkUmbrella.Controllers
 {
@@ -29,10 +30,10 @@ namespace PinkUmbrella.Controllers
         private readonly IFeedService _feedService;
 
         public HomeController(IWebHostEnvironment environment, ILogger<HomeController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService postService, IUserProfileService userProfiles, ISearchService searchService,
+            UserManager<UserProfileModel> userManager, IPostService postService, IUserProfileService localProfiles, IPublicProfileService publicProfiles, ISearchService searchService,
             IReactionService reactions, IFeedService feedService, ITagService tags, INotificationService notifications, IPeerService peers,
             IAuthService auth, ISettingsService settings):
-            base(environment, signInManager, userManager, postService, userProfiles, reactions, tags, notifications, peers, auth, settings)
+            base(environment, signInManager, userManager, postService, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings)
         {
             _logger = logger;
             _searchService = searchService;
@@ -54,7 +55,7 @@ namespace PinkUmbrella.Controllers
             {
                 if (user != null)
                 {
-                    model.MyFeed = await _feedService.GetFeedForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 });
+                    model.MyFeed = await _feedService.GetFeedForUser(user.PublicId, user.UserId, false, new PaginationModel() { count = 10, start = 0 });
                     return View(model);
                 }
                 else
@@ -99,7 +100,7 @@ namespace PinkUmbrella.Controllers
             var model = new IndexViewModel() {
                 Source = FeedSource.Mentions,
                 MyProfile = user,
-                MyFeed = await _posts.GetMentionsForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 })
+                MyFeed = await _posts.GetMentionsForUser(user.PublicId, user.UserId, false, new PaginationModel() { count = 10, start = 0 })
             };
             return View(nameof(Index), model);
         }
@@ -113,7 +114,7 @@ namespace PinkUmbrella.Controllers
             var model = new IndexViewModel() {
                 Source = FeedSource.Myself,
                 MyProfile = user,
-                MyFeed = await _posts.GetPostsForUser(user.Id, user.Id, false, new PaginationModel() { count = 10, start = 0 })
+                MyFeed = await _posts.GetPostsForUser(user.PublicId, user.UserId, false, new PaginationModel() { count = 10, start = 0 })
             };
             return View(nameof(Index), model);
         }
@@ -127,9 +128,15 @@ namespace PinkUmbrella.Controllers
             ViewData["Action"] = nameof(Search);
             var pagination = new PaginationModel() { start = start, count = count };
             var user = await GetCurrentUserAsync();
-            SearchResultsModel results = await _searchService.Search(q, user?.Id, t, order, pagination);
+            var request = new SearchRequestModel() {
+                text = q, viewerId = user?.UserId,
+                type = t, order = order,
+                pagination = pagination, tags = tags
+            };
+            SearchResultsModel results = await _searchService.Search(request);
 
-            return View(new SearchViewModel() {
+            return View(new SearchViewModel()
+            {
                 SearchText = q,
                 Order = order,
                 Type = t,
@@ -144,7 +151,7 @@ namespace PinkUmbrella.Controllers
             ViewData["Controller"] = "Home";
             ViewData["Action"] = nameof(Notifications);
             var user = await GetCurrentUserAsync();
-            var notifs = await _notifications.GetNotifications(user.Id, sinceId, includeViewed, includeDismissed, pagination ?? new PaginationModel());
+            var notifs = await _notifications.GetNotifications(user.UserId, sinceId, includeViewed, includeDismissed, pagination ?? new PaginationModel());
 
             var fromUsers = new Dictionary<int, UserProfileModel>();
             foreach (var notif in notifs.Items)

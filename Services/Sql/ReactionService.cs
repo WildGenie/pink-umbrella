@@ -4,11 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PinkUmbrella.Models;
+using PinkUmbrella.Models.Public;
 using PinkUmbrella.Repositories;
+using PinkUmbrella.Services.Elastic;
 
 namespace PinkUmbrella.Services.Sql
 {
-    public class ReactionService : IReactionService
+    public class ReactionService : BaseElasticService, IReactionService
     {
         private readonly Dictionary<ReactionSubject, IReactableService> _reactables;
         private readonly SimpleDbContext _dbContext;
@@ -19,18 +21,48 @@ namespace PinkUmbrella.Services.Sql
             _dbContext = dbContext;
         }
 
-        public Task<int> GetCount(int toId, ReactionType type, ReactionSubject subject) => _reactables[subject].GetCount(toId, type);
-
-        public async Task<int> React(int userId, int toId, ReactionType type, ReactionSubject subject)
+        public Task<List<ReactionModel>> Get(ReactionSubject subject, PublicId id, int? viewerId)
         {
-            if (subject == ReactionSubject.Profile && userId == toId)
+            var reactions = GetReactionsList(subject);
+            return reactions.Where(r => r.ToId == id.Id && r.ToPeerId == id.PeerId && r.UserId == viewerId.Value).ToListAsync();
+        }
+
+        public Task<int> GetCount(PublicId toId, ReactionType type, ReactionSubject subject) => _reactables[subject].GetCount(toId, type);
+
+        public async Task<bool> HasBlockedViewer(ReactionSubject subject, PublicId id, int? viewerId)
+        {
+            if (0 == id.PeerId)
+            {
+                var reactions = GetReactionsList(subject);
+                return (await reactions.FirstOrDefaultAsync(r => r.ToId == viewerId.Value && r.ToPeerId == 0 && r.UserId == id.Id && (r.Type == ReactionType.Block || r.Type == ReactionType.Report))) != null;
+            }
+            else
+            {
+                var client = GetClient();
+                var response = await client.GetAsync<ReactionModel>(id.ToString());
+                if (response.IsValid)
+                {
+                    var r = response.Source;
+                    return r.ToId == viewerId.Value && r.ToPeerId == 0 && r.UserId == id.Id && (r.Type == ReactionType.Block || r.Type == ReactionType.Report);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        public async Task<int> React(int userId, PublicId toId, ReactionType type, ReactionSubject subject)
+        {
+            if (subject == ReactionSubject.Profile && userId == toId.Id)
             {
                 throw new Exception("Cannot react to own profile");
             }
 
             var reaction = new ReactionModel() {
                 UserId = userId,
-                ToId = toId,
+                ToId = toId.Id,
+                ToPeerId = toId.PeerId,
                 Type = type,
                 WhenReacted = DateTime.UtcNow,
             };
@@ -44,24 +76,10 @@ namespace PinkUmbrella.Services.Sql
             return reaction.Id;
         }
 
-        public async Task UnReact(int userId, int toId, ReactionType type, ReactionSubject subject)
+        public async Task UnReact(int userId, PublicId toId, ReactionType type, ReactionSubject subject)
         {
             var reactions = GetReactionsList(subject);
-            ReactionModel reaction = null;
-            switch (subject)
-            {
-                case ReactionSubject.Post:
-                reaction = await _dbContext.PostReactions.Where(r => r.UserId == userId && r.ToId == toId && r.Type == type).FirstOrDefaultAsync();;
-                break;
-                case ReactionSubject.Shop:
-                reaction = await _dbContext.ShopReactions.Where(r => r.UserId == userId && r.ToId == toId && r.Type == type).FirstOrDefaultAsync();;
-                break;
-                case ReactionSubject.Profile:
-                reaction = await _dbContext.ProfileReactions.Where(r => r.UserId == userId && r.ToId == toId && r.Type == type).FirstOrDefaultAsync();;
-                break;
-                default:
-                throw new Exception();
-            }
+            ReactionModel reaction = await reactions.Where(r => r.UserId == userId && r.ToId == toId.Id && r.ToPeerId == toId.PeerId && r.Type == type).FirstOrDefaultAsync();
             
             if (reaction != null)
             {

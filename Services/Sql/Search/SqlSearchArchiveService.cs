@@ -9,12 +9,12 @@ using System.Collections.Generic;
 
 namespace PinkUmbrella.Services.Sql.Search
 {
-    public abstract class SearchArchiveService : ISearchableService
+    public abstract class SqlSearchArchiveService : ISearchableService
     {
         private readonly SimpleDbContext _dbContext;
         private readonly IArchiveService _archive;
 
-        public SearchArchiveService(SimpleDbContext dbContext, IArchiveService archive)
+        public SqlSearchArchiveService(SimpleDbContext dbContext, IArchiveService archive)
         {
             _dbContext = dbContext;
             _archive = archive;
@@ -24,16 +24,24 @@ namespace PinkUmbrella.Services.Sql.Search
 
         public abstract SearchResultType ResultType { get; }
 
-        public async Task<SearchResultsModel> Search(string text, int? viewerId, ArchivedMediaType type, SearchResultOrder order, PaginationModel pagination)
+        public SearchSource Source => SearchSource.Sql;
+
+        public async Task<SearchResultsModel> Search(SearchRequestModel request, ArchivedMediaType mediaType)
         {
-            var query = _dbContext.ArchivedMedia.Where(m => m.MediaType == type);
-            if (!string.IsNullOrWhiteSpace(text))
+            var query = _dbContext.ArchivedMedia.Where(m => m.MediaType == mediaType);
+            if (!string.IsNullOrWhiteSpace(request.text))
             {
-                var textToLower = text.ToLower();
+                var textToLower = request.text.ToLower();
                 query = query.Where(p => p.DisplayName.Contains(textToLower) || p.Description.Contains(textToLower) || p.Attribution.Contains(textToLower));
             }
+
+            if (request.tags != null && request.tags.Length > 0)
+            {
+                var tags = await _dbContext.AllTags.Where(t => request.tags.Contains(t.Tag)).Select(t => t.Id).ToArrayAsync();
+                query = query.Where(p => _dbContext.ArchivedMediaTags.FirstOrDefault(t => t.ToId == p.Id && tags.Contains(t.TagId)) != null);
+            }
             
-            switch (order) {
+            switch (request.order) {
                 case SearchResultOrder.Top:
                 case SearchResultOrder.Hot:
                 query = query.OrderBy(q => q.LikeCount);
@@ -48,14 +56,14 @@ namespace PinkUmbrella.Services.Sql.Search
             var results = new List<ArchivedMediaModel>();
             foreach (var r in searchResults)
             {
-                await _archive.BindReferences(r, viewerId);
-                if (_archive.CanView(r, viewerId))
+                await _archive.BindReferences(r, request.viewerId);
+                if (_archive.CanView(r, request.viewerId))
                 {
                     results.Add(r);
                 }
             }
             return new SearchResultsModel() {
-                Results = results.Skip(pagination.start).Take(pagination.count).Select(p => new SearchResultModel() {
+                Results = results.Skip(request.pagination.start).Take(request.pagination.count).Select(p => new SearchResultModel() {
                     Type = ResultType,
                     Value = p,
                 }).ToList(),
@@ -63,6 +71,6 @@ namespace PinkUmbrella.Services.Sql.Search
             };
         }
 
-        public abstract Task<SearchResultsModel> Search(string text, int? viewerId, SearchResultOrder order, PaginationModel pagination);
+        public abstract Task<SearchResultsModel> Search(SearchRequestModel request);
     }
 }

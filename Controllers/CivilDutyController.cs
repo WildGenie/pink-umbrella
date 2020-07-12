@@ -12,6 +12,7 @@ using PinkUmbrella.Services;
 using PinkUmbrella.ViewModels;
 using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
+using PinkUmbrella.Services.Local;
 
 namespace PinkUmbrella.Controllers
 {
@@ -21,9 +22,9 @@ namespace PinkUmbrella.Controllers
         private readonly ILogger<CivicDutyController> _logger;
 
         public CivicDutyController(IWebHostEnvironment environment, ILogger<CivicDutyController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IReactionService reactions, ITagService tags,
+            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles, IReactionService reactions, ITagService tags,
             INotificationService notifications, IPeerService peers, IAuthService auth, ISettingsService settings):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications, peers, auth, settings)
+            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings)
         {
             _logger = logger;
         }

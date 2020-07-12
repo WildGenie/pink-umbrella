@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PinkUmbrella.Models;
 using PinkUmbrella.Models.AhPushIt;
+using PinkUmbrella.Models.Public;
 using PinkUmbrella.Repositories;
 
 namespace PinkUmbrella.Services.Sql
@@ -95,9 +96,9 @@ namespace PinkUmbrella.Services.Sql
             };
         }
 
-        public async Task Publish(Notification notification, int[] recipients)
+        public async Task Publish(Notification notification, PublicId[] recipients)
         {
-            recipients = recipients.Where(id => id > 0 && id != notification.FromUserId).ToArray();
+            recipients = recipients.Where(id => id.Id > 0 && (id.PeerId != 0 || id.Id != notification.FromUserId)).ToArray();
             if (recipients.Length > 0)
             {
                 notification.RecipientCount = recipients.Length;
@@ -105,18 +106,28 @@ namespace PinkUmbrella.Services.Sql
                 await _db.Notifications.AddAsync(notification);
                 await _db.SaveChangesAsync();
 
-                var whoToNotifyAndHow = await _db.MethodSettings.Where(ms => ms.Enabled && ms.Type == notification.Type && recipients.Contains(ms.UserId)).ToListAsync();
-                foreach (var defaultForRecipient in recipients.Except(whoToNotifyAndHow.Select(u => u.UserId)))
+                var localRecipients = recipients.Where(id => id.PeerId == 0).Select(id => id.Id).ToArray();
+                if (localRecipients.Length > 0)
                 {
-                    whoToNotifyAndHow.Add(new NotificationMethodSetting() {
-                        Method = NotificationMethod.Default,
-                        UserId = defaultForRecipient,
-                    });
+                    var whoToNotifyAndHow = await _db.MethodSettings.Where(ms => ms.Enabled && ms.Type == notification.Type && localRecipients.Contains(ms.UserId)).ToListAsync();
+                    foreach (var defaultForRecipient in localRecipients.Except(whoToNotifyAndHow.Select(u => u.UserId)))
+                    {
+                        whoToNotifyAndHow.Add(new NotificationMethodSetting() {
+                            Method = NotificationMethod.Default,
+                            UserId = defaultForRecipient,
+                        });
+                    }
+
+                    foreach (var notify in whoToNotifyAndHow)
+                    {
+                        await this.PublishViaMethod(notification, notify.Method, notify.UserId);
+                    }
                 }
 
-                foreach (var notify in whoToNotifyAndHow)
+                var externalRecipients = recipients.Where(id => id.PeerId == 0).Select(id => id.Id).ToArray();
+                if (externalRecipients.Length > 0)
                 {
-                    await this.PublishViaMethod(notification, notify.Method, notify.UserId);
+                    throw new NotSupportedException();
                 }
             }
         }

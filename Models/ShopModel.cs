@@ -3,16 +3,21 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using PinkUmbrella.Models.Public;
 using PinkUmbrella.Util;
 
 namespace PinkUmbrella.Models
 {
     [DisplayName("Business Page"), Description("A virtual storefront for local businesses.")]
-    public class ShopModel
+    public class ShopModel: IHazPublicId
     {
+        [NotMapped]
+        public long PeerId { get; set; }
+
         public int Id { get; set; }
         public int UserId { get; set; }
 
@@ -44,7 +49,7 @@ namespace PinkUmbrella.Models
         // Not currently used
         public int GeoLocationId { get; set; }
 
-        [NotMapped]
+        [NotMapped, Nest.Ignore]
         public GeoLocationModel GeoLocation { get; set; }
 
 
@@ -69,40 +74,56 @@ namespace PinkUmbrella.Models
         [PersonalData, DefaultValue("{}"), StringLength(1000), JsonIgnore, DisplayName("External Profiles"), Description("What other social medias your shop is on.")]
         public string ExternalUsernamesJson { get; set; }
 
-        [NotMapped]
+        [NotMapped, Nest.Ignore]
         public Dictionary<string, string> ExternalUsernames { get; set; }
 
 
 
 
 
-        [NotMapped]
-        public UserProfileModel OwnerUser { get; set; }
+        [NotMapped, Nest.Ignore]
+        public PublicProfileModel OwnerUser { get; set; }
 
 
-        [NotMapped]
+        [NotMapped, Nest.Ignore]
         public bool HasLiked { get; set; }
         
-        [NotMapped]
+        [NotMapped, Nest.Ignore]
         public bool HasDisliked { get; set; }
 
-        [NotMapped]
+        [NotMapped, Nest.Ignore]
         public bool HasReported { get; set; }
 
 
-        [NotMapped]
+        [NotMapped, Nest.Ignore]
         public int? ViewerId { get; set; }
 
-        [NotMapped]
+        [NotMapped, Nest.Ignore]
         public bool HasBeenBlockedOrReported { get; set; }
         
-        [NotMapped]
+        [NotMapped, Nest.Ignore]
         public List<ReactionModel> Reactions { get; set; } = new List<ReactionModel>();
 
-        [NotMapped, Description("Make your business easier for other users to find.")]
+        [NotMapped, Description("Make your business easier for other users to find."), Nest.Ignore]
         public List<TagModel> Tags { get; set; } = new List<TagModel>();
+        
+        [NotMapped, JsonPropertyName("tags"), Nest.PropertyName("tags")]
+        public string[] TagStrings
+        {
+            get
+            {
+                return Tags.Select(t => t.Tag).ToArray();
+            }
+            set
+            {
+                Tags = value.Select(t => new TagModel() { Tag = t }).ToList();
+            }
+        }
 
-        [NotMapped]
+        [NotMapped, Nest.Ignore]
         public bool ViewerIsOwner => ViewerId.HasValue && UserId == ViewerId.Value;
+
+        [NotMapped, Nest.Ignore]
+        public PublicId PublicId => new PublicId(Id, PeerId);
     }
 }

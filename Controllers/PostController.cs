@@ -14,6 +14,8 @@ using PinkUmbrella.ViewModels.Post;
 using PinkUmbrella.ViewModels.Home;
 using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
+using PinkUmbrella.Services.Local;
+using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.Controllers
 {
@@ -24,26 +26,34 @@ namespace PinkUmbrella.Controllers
         private readonly ILogger<PostController> _logger;
 
         public PostController(IWebHostEnvironment environment, ILogger<PostController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles,
+            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles,
             IReactionService reactions, ITagService tags, INotificationService notifications, IPeerService peers, IAuthService auth,
             ISettingsService settings):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications, peers, auth, settings)
+            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings)
         {
             _logger = logger;
         }
 
         [Route("/Post/{id}")]
-        public async Task<IActionResult> Index(int? id)
+        public async Task<IActionResult> Index(string id)
         {
             ViewData["Controller"] = "Post";
             ViewData["Action"] = nameof(Index);
             var user = await GetCurrentUserAsync();
             if (id != null)
             {
-                return View(new PostViewModel() {
-                    Post = await _posts.GetPost(id.Value, user?.Id ?? -1),
-                    MyProfile = user
-                });
+                var post = await _posts.GetPost(new PublicId(id), user?.UserId ?? -1);
+                if (post != null)
+                {
+                    return View(new PostViewModel() {
+                        Post = post,
+                        MyProfile = user
+                    });
+                }
+                else
+                {
+                    return Redirect("/Error/404");
+                }
             }
             else
             {
@@ -52,33 +62,38 @@ namespace PinkUmbrella.Controllers
         }
 
         [Authorize]
-        public async Task<IActionResult> Unblock(int id)
+        public async Task<IActionResult> Unblock(string id)
         {
+            var pid = new PublicId(id);
             var user = await GetCurrentUserAsync();
-            await _reactions.UnReact(user.Id, id, ReactionType.Block, ReactionSubject.Post);
-            return await ViewPost(id);
+            await _reactions.UnReact(user.UserId, pid, ReactionType.Block, ReactionSubject.Post);
+            return await ViewPost(pid);
         }
 
         [Authorize]
-        public async Task<IActionResult> Block(int id)
+        public async Task<IActionResult> Block(string id)
         {
+            var pid = new PublicId(id);
             var user = await GetCurrentUserAsync();
-            await _reactions.React(user.Id, id, ReactionType.Block, ReactionSubject.Post);
-            return await ViewPost(id);
+            await _reactions.React(user.UserId, pid, ReactionType.Block, ReactionSubject.Post);
+            return await ViewPost(pid);
         }
 
         [Authorize]
-        public async Task<IActionResult> Report(int id)
+        public async Task<IActionResult> Report(string id)
         {
+            var pid = new PublicId(id);
             var user = await GetCurrentUserAsync();
-            await _reactions.React(user.Id, id, ReactionType.Report, ReactionSubject.Post);
-            return await ViewPost(id);
+            await _reactions.React(user.UserId, pid, ReactionType.Report, ReactionSubject.Post);
+            return await ViewPost(pid);
         }
 
-        public async Task<IActionResult> ViewPost(int id)
+        public Task<IActionResult> ViewPost(string id) => ViewPost(new PublicId(id));
+
+        private async Task<IActionResult> ViewPost(PublicId id)
         {
             var user = await GetCurrentUserAsync();
-            var post = await _posts.GetPost(id, user?.Id);
+            var post = await _posts.GetPost(id, user?.UserId);
 
             ViewData["PartialName"] = "Post/_Container";
             return View("_NoLayout", post);
@@ -88,7 +103,7 @@ namespace PinkUmbrella.Controllers
         public async Task<IActionResult> NewPost(NewPostViewModel model)
         {
             var user = await GetCurrentUserAsync();
-            var result = await _posts.TryCreateTextPosts(user.Id, model.Content, model.Visibility);
+            var result = await _posts.TryCreateTextPosts(user.UserId, model.Content, model.Visibility);
             if (!result.Error)
             {
                 return RedirectToAction(nameof(Index), new { Id = result.Posts.First().Id });

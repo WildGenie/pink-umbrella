@@ -1,33 +1,33 @@
-﻿@model PinkUmbrella.ViewModels.Account.IndexViewModel
+﻿@model UserProfileModel
 <form asp-controller="Account" asp-action="UpdateAccount" method="POST">
     <div asp-validation-summary="All" class="text-danger"></div>
     <div class="form-group">
-        <label asp-for="MyProfile.UserName">Username</label>
-        <input asp-for="MyProfile.UserName" class="form-control" disabled />
+        <label asp-for="UserName">Username</label>
+        <input asp-for="UserName" class="form-control" disabled />
     </div>
     <div class="form-group">
-        <label asp-for="MyProfile.Email"></label>
-        @if (Model.MyProfile.EmailConfirmed)
+        <label asp-for="Email"></label>
+        @if (Model.EmailConfirmed)
         {
             <div class="input-group">
-                <input asp-for="MyProfile.Email" class="form-control" />
+                <input asp-for="Email" class="form-control" />
                 <span class="input-group-addon" aria-hidden="true"><span class="glyphicon glyphicon-ok text-success"></span></span>
             </div>
         }
         else
         {
-            <input asp-for="MyProfile.Email" class="form-control" />
+            <input asp-for="Email" class="form-control" />
             <button id="email-verification" type="submit" asp-page-handler="SendVerificationEmail" class="btn btn-link">Send verfication email</button>
         }
-        <span asp-validation-for="MyProfile.Email" class="text-danger"></span>
+        <span asp-validation-for="Email" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="MyProfile.Visibility"></label>
-        <small>@Model.MyProfile.GetPropertyDescription(nameof(Model.MyProfile.Visibility))</small>
-        <select asp-for="MyProfile.Visibility" class="form-control">
-            <partial name="_EnumOptions" model="new EnumViewModel() { Type = typeof(Visibility), Selected = Model.MyProfile.Visibility }" />
+        <label asp-for="Visibility"></label>
+        <small>@Model.GetPropertyDescription(nameof(Model.Visibility))</small>
+        <select asp-for="Visibility" class="form-control">
+            <partial name="_EnumOptions" model="new EnumViewModel() { Type = typeof(Visibility), Selected = Model.Visibility }" />
         </select>
-        <span asp-validation-for="MyProfile.Visibility" class="text-danger"></span>
+        <span asp-validation-for="Visibility" class="text-danger"></span>
     </div>
     <button type="submit" class="btn btn-success">Update Account</button>
 </form>

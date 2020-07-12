@@ -13,6 +13,7 @@ using PinkUmbrella.Services;
 using PinkUmbrella.ViewModels.Shop;
 using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
+using PinkUmbrella.Services.Local;
 
 namespace PinkUmbrella.Controllers
 {
@@ -24,10 +25,10 @@ namespace PinkUmbrella.Controllers
         private readonly IShopService _shops;
 
         public TagController(IWebHostEnvironment environment, ILogger<ShopController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService userProfiles, IShopService shops,
+            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles, IShopService shops,
             IReactionService reactions, ITagService tags, INotificationService notifications, IPeerService peers, IAuthService auth,
             ISettingsService settings):
-            base(environment, signInManager, userManager, posts, userProfiles, reactions, tags, notifications, peers, auth, settings)
+            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings)
         {
             _logger = logger;
             _shops = shops;
@@ -44,7 +45,7 @@ namespace PinkUmbrella.Controllers
             {
                 var model = new ShopViewModel() {
                     MyProfile = user,
-                    Shop = await _shops.GetShopByHandle(handle, user?.Id)
+                    Shop = await _shops.GetShopByHandle(handle, user?.UserId)
                 };
                 return View(model);
             }

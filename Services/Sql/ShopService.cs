@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PinkUmbrella.Models;
+using PinkUmbrella.Models.Public;
 using PinkUmbrella.Repositories;
 
 namespace PinkUmbrella.Services.Sql
@@ -12,10 +12,10 @@ namespace PinkUmbrella.Services.Sql
     public class ShopService : IShopService
     {
         private readonly SimpleDbContext _dbContext;
-        private readonly IUserProfileService _users;
+        private readonly IPublicProfileService _users;
         private readonly ITagService _tags;
 
-        public ShopService(SimpleDbContext dbContext, IUserProfileService users, ITagService tags)
+        public ShopService(SimpleDbContext dbContext, IPublicProfileService users, ITagService tags)
         {
             _dbContext = dbContext;
             _users = users;
@@ -26,14 +26,14 @@ namespace PinkUmbrella.Services.Sql
         {
             if (shop.OwnerUser == null)
             {
-                shop.OwnerUser = await _users.GetUser(shop.UserId, viewerId);
+                shop.OwnerUser = await _users.GetUser(new PublicId(shop.UserId, shop.PeerId), viewerId);
             }
             
             shop.ViewerId = viewerId;
 
             if (viewerId.HasValue)
             {
-                shop.Reactions = await _dbContext.ShopReactions.Where(r => r.UserId == viewerId.Value && r.ToId == shop.Id).ToListAsync();
+                shop.Reactions = await _dbContext.ShopReactions.Where(r => r.UserId == viewerId.Value && r.ToId == shop.Id && r.ToPeerId == shop.PeerId).ToListAsync();
                 if (!shop.ViewerIsOwner)
                 {
                     var reactions = shop.Reactions.Select(r => r.Type).ToHashSet();
@@ -41,7 +41,7 @@ namespace PinkUmbrella.Services.Sql
                     shop.HasDisliked = reactions.Contains(ReactionType.Dislike);
                     shop.HasReported = reactions.Contains(ReactionType.Report);
                 
-                    var blockOrReport = await _dbContext.ProfileReactions.FirstOrDefaultAsync(r => (((r.ToId == viewerId.Value && r.UserId == shop.UserId) || (r.ToId == shop.UserId && r.UserId == viewerId.Value)) && (r.Type == ReactionType.Block || r.Type == ReactionType.Report)));
+                    var blockOrReport = await _dbContext.ProfileReactions.FirstOrDefaultAsync(r => (((r.ToId == viewerId.Value && r.ToPeerId == 0 && r.UserId == shop.UserId && shop.PeerId == 0) || (r.ToId == shop.UserId && r.ToPeerId == shop.PeerId && r.UserId == viewerId.Value)) && (r.Type == ReactionType.Block || r.Type == ReactionType.Report)));
                     shop.HasBeenBlockedOrReported =  blockOrReport != null; // p.Reactions.Any(r => r.Type == ReactionType.Block || r.Type == ReactionType.Report)
                 }
             }
@@ -142,30 +142,36 @@ namespace PinkUmbrella.Services.Sql
             return null;
         }
 
-        public async Task<ShopModel> GetShopById(int id, int? viewerId)
+        public async Task<ShopModel> GetShopById(PublicId id, int? viewerId)
         {
-            var ret = await _dbContext.Shops.FindAsync(id);
-            if (ret != null)
+            if (id.PeerId == 0)
             {
-                await BindReferences(ret, viewerId);
-                if (CanView(ret, viewerId))
+                var ret = await _dbContext.Shops.FindAsync(id.Id);
+                if (ret != null)
                 {
-                    return ret;
+                    await BindReferences(ret, viewerId);
+                    if (CanView(ret, viewerId))
+                    {
+                        return ret;
+                    }
                 }
             }
             return null;
         }
 
-        public async Task<List<ShopModel>> GetShopsForUser(int userId, int? viewerId)
+        public async Task<List<ShopModel>> GetShopsForUser(PublicId userId, int? viewerId)
         {
-            var items = await _dbContext.Shops.Where(s => s.UserId == userId).ToListAsync();
             var keepers = new List<ShopModel>();
-            foreach (var ret in items)
+            if (userId.PeerId == 0)
             {
-                await BindReferences(ret, viewerId);
-                if (CanView(ret, viewerId))
+                var items = await _dbContext.Shops.Where(s => s.UserId == userId.Id).ToListAsync();
+                foreach (var ret in items)
                 {
-                    keepers.Add(ret);
+                    await BindReferences(ret, viewerId);
+                    if (CanView(ret, viewerId))
+                    {
+                        keepers.Add(ret);
+                    }
                 }
             }
             return keepers;
@@ -173,11 +179,12 @@ namespace PinkUmbrella.Services.Sql
 
         public async Task<List<ShopModel>> GetShopsTaggedUnder(TagModel tag, int? viewerId)
         {
+            // TODO: add support for external shops
             var tagged = await _dbContext.ShopTags.Where(t => t.TagId == tag.Id).ToListAsync();
             var shops = new List<ShopModel>();
             foreach (var t in tagged)
             {
-                var shop = await GetShopById(t.ToId, viewerId);
+                var shop = await GetShopById(new PublicId(t.ToId, 0), viewerId);
                 if (shop != null)
                 {
                     shops.Add(shop);
@@ -208,7 +215,7 @@ namespace PinkUmbrella.Services.Sql
 
             if (shop.Tags.Any())
             {
-                await _tags.Save(ReactionSubject.Post, shop.Tags, shop.UserId, shop.Id);
+                await _tags.Save(ReactionSubject.Shop, shop.Tags, shop.UserId, shop.Id);
                 postInsertChanges = true;
             }
 
@@ -223,6 +230,16 @@ namespace PinkUmbrella.Services.Sql
         {
             var shop = await _dbContext.Shops.FirstOrDefaultAsync(u => u.Handle.ToLower() == handle);
             return shop != null;
+        }
+
+        public async Task<List<ShopModel>> GetAllLocal()
+        {
+            var all = await _dbContext.Shops.ToListAsync();
+            foreach (var item in all)
+            {
+                await BindReferences(item, null);
+            }
+            return all;
         }
     }
 }

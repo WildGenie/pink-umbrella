@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using PinkUmbrella.Models;
+using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.Services
 {
@@ -9,11 +10,11 @@ namespace PinkUmbrella.Services
     {
         Task<NewMediaResult> TryUploadMedias(List<ArchivedMediaModel> medias);
 
-        Task<ArchivedMediaModel> GetMedia(int id, int? viewerId);
+        Task<ArchivedMediaModel> GetMedia(PublicId id, int? viewerId);
 
         Task<ArchivedMediaModel> GetMedia(string path, int? viewerId);
         
-        Task<PaginatedModel<ArchivedMediaModel>> GetMediaForUser(int userId, int? viewerId, ArchivedMediaType? type, PaginationModel pagination);
+        Task<PaginatedModel<ArchivedMediaModel>> GetMediaForUser(PublicId userId, int? viewerId, ArchivedMediaType? type, PaginationModel pagination);
 
         Task BindReferences(ArchivedMediaModel media, int? viewerId);
 
@@ -29,7 +30,7 @@ namespace PinkUmbrella.Services
 
         Task<Stream> GetStream(ArchivedMediaModel media, int? viewerId);
 
-        Task UpdateShadowBanStatus(int id, bool status);
+        Task UpdateShadowBanStatus(PublicId id, bool status);
 
         Task<PaginatedModel<ArchivedMediaModel>> GetMostReportedMedia();
         
@@ -38,5 +39,7 @@ namespace PinkUmbrella.Services
         Task<PaginatedModel<ArchivedMediaModel>> GetMostDislikedMedia();
 
         ArchivedMediaType? ResolveMediaType(string path);
+        
+        Task<List<ArchivedMediaModel>> GetAllLocal();
     }
 }

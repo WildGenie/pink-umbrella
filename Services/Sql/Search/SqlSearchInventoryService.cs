@@ -8,29 +8,31 @@ using PinkUmbrella.Services.Search;
 
 namespace PinkUmbrella.Services.Sql.Search
 {
-    public class SearchInventoryService : ISearchableService
+    public class SqlSearchInventoryService : ISearchableService
     {
         private readonly SimpleDbContext _dbContext;
 
-        public SearchInventoryService(SimpleDbContext dbContext)
+        public SqlSearchInventoryService(SimpleDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
         public SearchResultType ResultType => SearchResultType.Inventory;
 
+        public SearchSource Source => SearchSource.Sql;
+
         public string ControllerName => "Inventory";
 
-        public async Task<SearchResultsModel> Search(string text, int? viewerId, SearchResultOrder order, PaginationModel pagination)
+        public async Task<SearchResultsModel> Search(SearchRequestModel request)
         {
             IQueryable<SimpleInventoryModel> query = _dbContext.Inventories;
-            if (!string.IsNullOrWhiteSpace(text))
+            if (!string.IsNullOrWhiteSpace(request.text))
             {
-                var textToLower = text.ToLower();
+                var textToLower = request.text.ToLower();
                 query = query.Where(p => p.DisplayName.ToLower().Contains(textToLower) || p.Description.ToLower().Contains(textToLower));
             }
             
-            switch (order) {
+            switch (request.order) {
                 // case SearchResultOrder.Top:
                 // case SearchResultOrder.Hot:
                 // query = query.OrderBy(q => q.LikeCount);
@@ -42,7 +44,7 @@ namespace PinkUmbrella.Services.Sql.Search
             }
 
             var totalCount = query.Count();
-            var results = await query.Skip(pagination.start).Take(pagination.count).ToListAsync();
+            var results = await query.Skip(request.pagination.start).Take(request.pagination.count).ToListAsync();
             return new SearchResultsModel() {
                 Results = results.Select(p => new SearchResultModel() {
                     Type = ResultType,

@@ -203,9 +203,6 @@ namespace PinkUmbrella.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("TagId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("UserId")
                         .HasColumnType("INTEGER");
 

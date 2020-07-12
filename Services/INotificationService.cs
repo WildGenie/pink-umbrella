@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using PinkUmbrella.Models;
 using PinkUmbrella.Models.AhPushIt;
+using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.Services
 {
     public interface INotificationService
     {
-        Task Publish(Notification notification, int[] recipients);
+        Task Publish(Notification notification, PublicId[] recipients);
         
         Task<int> GetUnviewedNotificationsCount(int userId);
 

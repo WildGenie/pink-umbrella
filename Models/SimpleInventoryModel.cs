@@ -2,12 +2,16 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using PinkUmbrella.Models.Public;
 using PinkUmbrella.Util;
 
 namespace PinkUmbrella.Models
 {
-    public class SimpleInventoryModel
+    public class SimpleInventoryModel: IHazPublicId
     {
+        [NotMapped]
+        public long PeerId { get; set; }
+
         public int Id { get; set; }
         public int OwnerUserId { get; set; }
         public double Latitude { get; set; }
@@ -21,7 +25,10 @@ namespace PinkUmbrella.Models
 
         public DateTime WhenCreated { get; set; }
         
-        [NotMapped]
+        [NotMapped, Nest.Ignore]
         public GeoLocationModel GeoLocation { get; set; }
+
+        [NotMapped, Nest.Ignore]
+        public PublicId PublicId => new PublicId(Id, PeerId);
     }
 }

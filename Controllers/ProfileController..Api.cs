@@ -35,7 +35,7 @@ namespace PinkUmbrella.Controllers
         [Route("/Api/Profile/All")]
         public async Task<ActionResult> All(DateTime? sinceLastUpdated = null)
         {
-            var users = await _userProfiles.GetAll(sinceLastUpdated);
+            var users = await _localProfiles.GetAll(sinceLastUpdated);
             return Json(new {
                 profiles = users.Select(u => u.ToElastic()).ToArray()
             });

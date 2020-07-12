@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PinkUmbrella.Models;
+using PinkUmbrella.Models.Public;
 using PinkUmbrella.Repositories;
 
 namespace PinkUmbrella.Services.Sql
@@ -20,9 +21,9 @@ namespace PinkUmbrella.Services.Sql
 
 
         // TODO: Fix bugs regarding CanView and user
-        public async Task<FeedModel> GetFeedForUser(int userId, int? viewerId, bool includeReplies, PaginationModel pagination)
+        public async Task<FeedModel> GetFeedForUser(PublicId userId, int? viewerId, bool includeReplies, PaginationModel pagination)
         {
-            var followerIds = await _dbContext.ProfileReactions.Where(r => r.UserId == userId && r.Type == ReactionType.Follow).Select(r => r.ToId).ToListAsync();
+            var followerIds = await _dbContext.ProfileReactions.Where(r => r.UserId == userId.Id && r.ToPeerId == userId.PeerId && r.Type == ReactionType.Follow).Select(r => r.ToId).ToListAsync();
             var posts = await _dbContext.Posts.Where(p => p.IsReply == includeReplies && followerIds.Contains(p.UserId)).OrderByDescending(p => p.WhenCreated).ToListAsync();
             var keepers = new List<PostModel>();
             foreach (var p in posts) {

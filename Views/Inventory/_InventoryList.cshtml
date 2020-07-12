@@ -2,7 +2,7 @@
 @model IndexViewModel
 @{
     var everythingLiClass = !Model.InventoryId.HasValue ? "selected" : "";
-    var allId = Model.MyProfile != null ? (Model.MyProfile.Id == Model.Inventory?.OwnerUserId ? null : Model.Inventory?.OwnerUserId) : Model.Inventory?.OwnerUserId;
+    var allId = Model.MyProfile != null ? (Model.MyProfile.UserId == Model.Inventory?.OwnerUserId ? null : Model.Inventory?.OwnerUserId) : Model.Inventory?.OwnerUserId;
 }
 <h1>Inventories</h1>
 <ul class="highlight-selected">

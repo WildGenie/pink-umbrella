@@ -3,7 +3,7 @@
     var reactLike = new ReactViewModel() {
         Type = ReactionType.Like,
         Subject = ReactionSubject.ArchivedMedia,
-        ToId = Model.Id,
+        ToId = Model.PublicId,
         HasReacted = Model.HasLiked,
         Count = Model.LikeCount,
         ViewerId = Model.ViewerId,
@@ -12,7 +12,7 @@
     var reactDislike = new ReactViewModel() {
         Type = ReactionType.Dislike,
         Subject = ReactionSubject.ArchivedMedia,
-        ToId = Model.Id,
+        ToId = Model.PublicId,
         HasReacted = Model.HasDisliked,
         Count = Model.DislikeCount,
         ViewerId = Model.ViewerId,
@@ -21,23 +21,23 @@
     var reactBlock = new ReactViewModel() {
         Type = ReactionType.Block,
         Subject = ReactionSubject.ArchivedMedia,
-        ToId = Model.Id,
+        ToId = Model.PublicId,
         HasReacted = false,
         Count = Model.BlockCount,
         ViewerId = Model.ViewerId,
         Enabled = !Model.ViewerIsPoster,
-        ManualReactionUrl = "/Media/Block/" + Model.Id,
+        ManualReactionUrl = "/Media/Block/" + Model.PublicId,
         ResponseHandler = "archived-media-replacewith",
     };
     var reactReport = new ReactViewModel() {
         Type = ReactionType.Report,
         Subject = ReactionSubject.ArchivedMedia,
-        ToId = Model.Id,
+        ToId = Model.PublicId,
         HasReacted = false,
         Count = Model.ReportCount,
         ViewerId = Model.ViewerId,
         Enabled = !Model.ViewerIsPoster,
-        ManualReactionUrl = "/Media/Report/" + Model.Id,
+        ManualReactionUrl = "/Media/Report/" + Model.PublicId,
         ResponseHandler = "archived-media-replacewith",
     };
 
@@ -48,12 +48,12 @@
     var ext  = System.IO.Path.GetExtension(Model.Path);
 }
 <div class="contains-goto archived-media">
-    <a class="goto" asp-controller="Archive" asp-action="Media" asp-route-id="@Model.Id">goto</a>
+    <a class="goto" asp-controller="Archive" asp-action="Media" asp-route-id="@Model.PublicId">goto</a>
     <p>
         <span>@Model.DisplayName</span><i> by </i>
         <partial name="Profile/Goto" model="Model.User" />
         &bull; <partial name="_Timestamp" model="Model.WhenCreated" /></li>
-        <partial name="_VisibilityStatus" />
+        <partial name="_VisibilityStatus" model="Model" />
     </p>
     <p class="text-center">@Model.Description</p>
     @switch (ext)

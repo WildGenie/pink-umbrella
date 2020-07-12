@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using PinkUmbrella.Models;
+using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.Services
 {
@@ -13,13 +14,13 @@ namespace PinkUmbrella.Services
 
         Task<ShopModel> GetShopByHandle(string handle, int? viewerId);
         
-        Task<ShopModel> GetShopById(int id, int? viewerId);
+        Task<ShopModel> GetShopById(PublicId id, int? viewerId);
 
         Task<PaginatedModel<ShopModel>> GetMostReportedShops();
 
         Task<PaginatedModel<ShopModel>> GetMostDislikedShops();
 
-        Task<List<ShopModel>> GetShopsForUser(int userId, int? viewerId);
+        Task<List<ShopModel>> GetShopsForUser(PublicId userId, int? viewerId);
 
         Task<List<ShopModel>> GetAllShops(int? viewerId);
 
@@ -30,5 +31,7 @@ namespace PinkUmbrella.Services
         Task<List<ShopModel>> GetShopsTaggedUnder(TagModel tag, int? viewerId);
 
         Task<bool> HandleExists(string handle);
+        
+        Task<List<ShopModel>> GetAllLocal();
     }
 }

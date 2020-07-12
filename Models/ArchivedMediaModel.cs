@@ -3,11 +3,16 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.Models
 {
-    public class ArchivedMediaModel
+    public class ArchivedMediaModel: IHazPublicId
     {
+        [NotMapped]
+        public long PeerId { get; set; }
+
+
         public int Id { get; set; }
 
         [DefaultValue(null), MaxLength(100)]
@@ -99,5 +104,8 @@ namespace PinkUmbrella.Models
 
         [NotMapped]
         public bool ViewerIsPoster => ViewerId.HasValue && UserId == ViewerId.Value;
+
+        [NotMapped]
+        public PublicId PublicId => new PublicId(Id, 0);
     }
 }

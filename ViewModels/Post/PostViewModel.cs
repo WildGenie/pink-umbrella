@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using PinkUmbrella.Models;
+using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.ViewModels.Post
 {

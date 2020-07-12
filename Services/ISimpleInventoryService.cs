@@ -9,5 +9,7 @@ namespace PinkUmbrella.Services
         Task<List<SimpleInventoryModel>> GetForUser(int userId, int? viewerId);
         Task<SimpleInventoryModel> Get(int id, int? viewerId);
         Task<SimpleInventoryModel> CreateInventory(SimpleInventoryModel initial);
+        
+        Task<List<SimpleInventoryModel>> GetAllLocal();
     }
 }

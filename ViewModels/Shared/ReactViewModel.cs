@@ -1,4 +1,5 @@
 using PinkUmbrella.Models;
+using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.ViewModels.Shared
 {
@@ -7,7 +8,7 @@ namespace PinkUmbrella.ViewModels.Shared
         public int? ViewerId { get; set; }
         public ReactionType Type { get; set; }
         public ReactionSubject Subject { get; set; }
-        public int ToId { get; set; }
+        public PublicId ToId { get; set; }
 
         public bool HasReacted { get; set; }
         public int Count { get; set; }

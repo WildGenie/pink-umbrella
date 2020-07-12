@@ -9,10 +9,10 @@ using PinkUmbrella.Repositories;
 using PinkUmbrella.ViewModels.Account;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PinkUmbrella.Models.Auth;
-using System.Text;
 using System.IO;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using PinkUmbrella.Services.Local;
 
 namespace PinkUmbrella.Services.Sql
 {
@@ -96,65 +96,9 @@ namespace PinkUmbrella.Services.Sql
             };
         }
 
-        public async Task<UserProfileModel> GetUser(int id, int? viewerId)
-        {   
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user != null)
-            {
-                await BindReferences(user, viewerId);
-                if (CanView(user, viewerId))
-                {
-                    return user;
-                }
-            }
-            
-            return null;
-        }
+        public async Task<UserProfileModel> GetUser(int id, int? viewerId) => await _userManager.FindByIdAsync(id.ToString());
 
-        public bool CanView(UserProfileModel user, int? viewerId)
-        {
-            if (viewerId.HasValue && user.Id == viewerId.Value)
-            {
-                return true;
-            }
-            else if (user.HasBeenBlockedOrReported)
-            {
-                return false;
-            }
-
-            switch (user.Visibility)
-            {
-                case Visibility.HIDDEN: return false;
-                case Visibility.VISIBLE_TO_FOLLOWERS:
-                if (!user.Reactions.Any(r => r.Type == ReactionType.Follow))
-                {
-                    return false;
-                }
-                break;
-                case Visibility.VISIBLE_TO_REGISTERED:
-                if (!viewerId.HasValue)
-                {
-                    return false;
-                }
-                break;
-            }
-            return true;
-        }
-
-        public async Task<UserProfileModel> GetUser(string handle, int? viewerId)
-        {
-            var user =  await _userManager.Users.SingleOrDefaultAsync(u => u.Handle == handle);
-            if (user != null)
-            {
-                await BindReferences(user, viewerId);
-                if (CanView(user, viewerId))
-                {
-                    return user;
-                }
-            }
-            
-            return null;
-        }
+        public async Task<UserProfileModel> GetUser(string handle, int? viewerId) => await _userManager.Users.SingleOrDefaultAsync(u => u.Handle == handle);
 
         public async Task LogIn(int id, string from)
         {
@@ -194,23 +138,6 @@ namespace PinkUmbrella.Services.Sql
                 }
             }
             return ret;
-        }
-
-        public async Task BindReferences(UserProfileModel user, int? viewerId)
-        {
-            if (viewerId.HasValue)
-            {
-                user.Reactions = await _dbContext.ProfileReactions.Where(r => r.ToId == user.Id && r.UserId == viewerId.Value).ToListAsync();
-                var reactionTypes = user.Reactions.Select(r => r.Type).ToHashSet();
-                user.HasLiked = reactionTypes.Contains(ReactionType.Like);
-                user.HasDisliked = reactionTypes.Contains(ReactionType.Dislike);
-                user.HasFollowed = reactionTypes.Contains(ReactionType.Follow);
-                user.HasBlocked = reactionTypes.Contains(ReactionType.Block);
-                user.HasReported = reactionTypes.Contains(ReactionType.Report);
-
-                var blockOrReport = await _dbContext.ProfileReactions.FirstOrDefaultAsync(r => r.ToId == viewerId.Value && r.UserId == user.Id && (r.Type == ReactionType.Block || r.Type == ReactionType.Report));
-                user.HasBeenBlockedOrReported = blockOrReport != null;
-            }
         }
 
         public async Task MakeFirstUserDev(UserProfileModel user)
@@ -301,17 +228,7 @@ namespace PinkUmbrella.Services.Sql
 
         public async Task<List<UserProfileModel>> GetCompletionsFor(string prefix, int viewerId)
         {
-            var ret = await _dbContext.Users.Where(u => u.Handle.ToLower().StartsWith(prefix) || u.DisplayName.ToLower().StartsWith(prefix)).ToListAsync();
-            var keepers = new List<UserProfileModel>();
-            foreach (var u in ret)
-            {
-                await BindReferences(u, viewerId);
-                if (CanView(u, viewerId))
-                {
-                    keepers.Add(u);
-                }
-            }
-            return keepers;
+            return await _dbContext.Users.Where(u => u.Handle.ToLower().StartsWith(prefix) || u.DisplayName.ToLower().StartsWith(prefix)).ToListAsync();
         }
     }
 }

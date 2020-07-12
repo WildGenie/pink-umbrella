@@ -2,6 +2,6 @@
 <div class="contains-ajax show center-xy">
     <p>
         <span>You have blocked this post.</span>
-        <a class="ajax" asp-action="Unblock" asp-controller="Post" asp-route-id="@Model.Id" data-response-type="html" data-response-handler="replacewith">Unblock Post</a>
+        <a class="ajax" asp-action="Unblock" asp-controller="Post" asp-route-id="@Model.PublicId" data-response-type="html" data-response-handler="replacewith">Unblock Post</a>
     </p>
 </div>

@@ -6,11 +6,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.Models
 {
     [DisplayName("User Profile"), Description("Profile data for each user.")]
-    public class UserProfileModel : IdentityUser<int>
+    public class UserProfileModel : IdentityUser<int>, IHazPublicId
     {
         [PersonalData, DefaultValue(Visibility.VISIBLE_TO_WORLD), Description("Visibility of your profile to other users.")]
         public Visibility Visibility { get; set; }
@@ -91,30 +92,7 @@ namespace PinkUmbrella.Models
         [DefaultValue(0), DisplayName("Follow Count"), Description("How many times your profile was followed by other users.")]
         public int FollowCount { get; set; }
 
-        
         [NotMapped]
-        public List<ReactionModel> Reactions { get; set; } = new List<ReactionModel>();
-
-        [NotMapped]
-        public List<int> FollowerIds { get; set; }
-
-
-        [NotMapped]
-        public bool HasLiked { get; set; }
-        
-        [NotMapped]
-        public bool HasDisliked { get; set; }
-
-        [NotMapped]
-        public bool HasFollowed { get; set; }
-        
-        [NotMapped]
-        public bool HasBlocked { get; set; }
-
-        [NotMapped]
-        public bool HasReported { get; set; }
-
-        [NotMapped]
-        public bool HasBeenBlockedOrReported { get; set; }
+        public PublicId PublicId => new PublicId(Id, 0);
     }
 }
