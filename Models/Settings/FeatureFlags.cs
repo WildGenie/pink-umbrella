@@ -130,6 +130,17 @@ namespace PinkUmbrella.Models.Settings
 
 
 
+        [FeatureFlagInfo("Function Notify User via Email", "Allow users to receive notifications via email", FeatureFlagType.Function)]
+        FunctionNotifyUserViaEmail,
+        
+        [FeatureFlagInfo("Function Notify User via SMS Text", "Allow users to receive notifications via SMS text messages", FeatureFlagType.Function)]
+        FunctionNotifyUserViaSMS,
+        
+        [FeatureFlagInfo("Function Notify User via Default Method", "Allow users to receive notifications via the default method", FeatureFlagType.Function)]
+        FunctionNotifyUserViaDefault,
+
+
+
         [FeatureFlagInfo("Post Message", "Allow users to post content", FeatureFlagType.Function)]
         FunctionPostMessage,
 

@@ -7,23 +7,41 @@
     var methods = Enum.GetValues(typeof(NotificationMethod)).Cast<NotificationMethod>();
     var types = Enum.GetValues(typeof(NotificationType)).Cast<NotificationType>();
     var settingsGroupedByType = Model.Settings.Where(s => s.Enabled).GroupBy(g => g.Type).ToDictionary(k => k.Key, v => v.Select(m => m.Method).ToHashSet());
+
+    var enabledMethods = new Dictionary<NotificationMethod, bool>()
+    {
+        { NotificationMethod.Default, await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionNotifyUserViaDefault)) },
+        { NotificationMethod.Email, await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionNotifyUserViaEmail)) },
+        { NotificationMethod.SMS, await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionNotifyUserViaSMS)) }
+    };
+    var enabledMethodsCount = enabledMethods.Values.Where(v => v).Count();
 }
 <partial name="_Header" />
 @using (Html.BeginForm("NotificationSettings", "Account", null, FormMethod.Post, true, null))
 {
     <div class="float-right" style="display: grid; grid-template-columns: max-content; grid-gap: .5rem;">
         <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
-        @foreach (var method in methods)
+        @foreach (var enabledMethod in enabledMethods)
         {
+            if (!enabledMethod.Value)
+            {
+                continue;
+            }
+            var method = enabledMethod.Key;
             <button type="submit" name="submit" value="@method" class="btn btn-warning"><i class="fas fa-undo"></i> All @method</button>
         }
     </div>
-    <div style="display: grid; grid-template-columns: 3fr repeat(4, 1fr);  grid-gap: .5rem; justify-items: center">
+    <div style="display: grid; grid-template-columns: 3fr repeat(@enabledMethodsCount, 1fr);  grid-gap: .5rem; justify-items: center">
     @foreach (var setting in types)
     {
         <b>@setting.GetDisplayName()</b>
-        @foreach (var method in methods)
+        @foreach (var enabledMethod in enabledMethods)
         {
+            if (!enabledMethod.Value)
+            {
+                continue;
+            }
+            var method = enabledMethod.Key;
             var name = $"{setting}-{method}";
             var id = $"cb_{method}_{setting}";
             <div class="form-check form-check-inline">
