@@ -1,12 +1,9 @@
 using System.ComponentModel.DataAnnotations;
-using PinkUmbrella.Models;
 
 namespace PinkUmbrella.ViewModels.Account
 {
-    public class LoginViewModel
+    public class LoginViewModel: BaseViewModel
     {
-        public UserProfileModel User { get; set; }
-
         [Required]
         [EmailAddress]
         [Display(Name = "Email")]

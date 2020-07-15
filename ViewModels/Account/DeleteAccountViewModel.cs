@@ -1,16 +1,10 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using PinkUmbrella.Models;
+using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.ViewModels.Account
 {
-    public class DeleteAccountViewModel
+    public class DeleteAccountViewModel: BaseViewModel
     {
-        public UserProfileModel User { get; set; }
-
         [Required]
         [DataType(DataType.Password)]
         [Display(Name = "Current Password")]

@@ -1,3 +1,5 @@
+using PinkUmbrella.Models.Public;
+
 namespace PinkUmbrella.Models.AhPushIt
 {
     public class UserNotification
@@ -12,6 +14,6 @@ namespace PinkUmbrella.Models.AhPushIt
 
         public Notification Notif { get; set; }
         
-        public UserProfileModel FromUser { get; set; }
+        public PublicProfileModel FromUser { get; set; }
     }
 }

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using PinkUmbrella.Models;
 
 namespace PinkUmbrella.ViewModels.Admin

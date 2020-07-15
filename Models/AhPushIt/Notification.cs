@@ -11,6 +11,8 @@ namespace PinkUmbrella.Models.AhPushIt
         public NotificationPriority Priority { get; set; }
 
         public int FromUserId { get; set; }
+
+        public long FromPeerId { get; set; }
         
         public ReactionSubject Subject { get; set; }
 

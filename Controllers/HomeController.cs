@@ -18,6 +18,7 @@ using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Models.Search;
 using PinkUmbrella.Services.Local;
+using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.Controllers
 {
@@ -153,17 +154,18 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentUserAsync();
             var notifs = await _notifications.GetNotifications(user.UserId, sinceId, includeViewed, includeDismissed, pagination ?? new PaginationModel());
 
-            var fromUsers = new Dictionary<int, UserProfileModel>();
+            var fromUsers = new Dictionary<string, PublicProfileModel>();
             foreach (var notif in notifs.Items)
             {
-                if (fromUsers.TryGetValue(notif.Notif.FromUserId, out var userProfile))
+                var id = new PublicId(notif.Notif.FromUserId, notif.Notif.FromPeerId);
+                if (fromUsers.TryGetValue(id.ToString(), out var userProfile))
                 {
                     notif.FromUser = userProfile;
                 }
                 else
                 {
-                    notif.FromUser = await _userManager.FindByIdAsync(notif.Notif.FromUserId.ToString());
-                    fromUsers.Add(notif.Notif.FromUserId, notif.FromUser);
+                    notif.FromUser = await _publicProfiles.GetUser(id, user.UserId);
+                    fromUsers.Add(id.ToString(), notif.FromUser);
                 }
             }
 
