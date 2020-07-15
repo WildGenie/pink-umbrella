@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
@@ -16,7 +17,8 @@ namespace PinkUmbrella.Models.Auth
         [JsonPropertyName("address")]
         public string Address { get; set; }
 
-        public long PublicKeyId { get; set; }
+        [DefaultValue(null)]
+        public long? PublicKeyId { get; set; }
 
         public PublicKey PublicKey { get; set; }
 

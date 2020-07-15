@@ -247,6 +247,7 @@ namespace PinkUmbrella
 
             services.AddScoped<IsDevOrDebuggingOrElse404FilterAttribute>();
             services.AddScoped<IsAdminOrDebuggingOrElse404FilterAttribute>();
+            services.AddScoped<ApiCallFilterAttribute>();
 
             services.AddControllersWithViews(options => {
                 var policy = new AuthorizationPolicyBuilder()

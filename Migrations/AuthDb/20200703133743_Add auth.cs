@@ -83,7 +83,7 @@ namespace PinkUmbrella.Migrations.AuthDb
                         .Annotation("Sqlite:Autoincrement", true),
                     Type = table.Column<int>(nullable: false),
                     Address = table.Column<string>(nullable: true),
-                    PublicKeyId = table.Column<long>(nullable: false)
+                    PublicKeyId = table.Column<long>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -106,7 +106,7 @@ namespace PinkUmbrella.Migrations.AuthDb
                     Format = table.Column<int>(nullable: false),
                     Value = table.Column<string>(nullable: true),
                     WhenAdded = table.Column<DateTime>(nullable: false),
-                    PublicKeyId = table.Column<long>(nullable: false)
+                    PublicKeyId = table.Column<long>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -126,7 +126,7 @@ namespace PinkUmbrella.Migrations.AuthDb
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     UserId = table.Column<int>(nullable: false),
-                    PublicKeyId = table.Column<long>(nullable: false)
+                    PublicKeyId = table.Column<long>(nullable: true)
                 },
                 constraints: table =>
                 {

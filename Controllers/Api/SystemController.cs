@@ -13,11 +13,14 @@ using PinkUmbrella.Models.Peer;
 using PinkUmbrella.Models.Settings;
 using PinkUmbrella.Repositories;
 using PinkUmbrella.Services;
+using PinkUmbrella.Util;
 
 namespace PinkUmbrella.Controllers.Api
 {
     [FeatureGate(FeatureFlags.ApiControllerSystem)]
+    [ServiceFilter(typeof(ApiCallFilterAttribute))]
     [Route("api/[controller]/[action]"), ApiController]
+    [AllowAnonymous]
     public class SystemController: Controller
     {
         private readonly IAuthService _auth;
@@ -34,14 +37,16 @@ namespace PinkUmbrella.Controllers.Api
         [AllowAnonymous]
         public async Task<ActionResult> Index()
         {
-            return Json(new PeerModel() {
-                DisplayName = "Hello World",
-                Address = new IPAddressModel()
-                {
-                    Name = HttpContext.Request.Host.Host,
-                },
-                AddressPort = HttpContext.Request.Host.Port ?? 443,
-                PublicKey = await _auth.GetCurrent(),
+            return Json(new {
+                Model = new PeerModel() {
+                    DisplayName = "Hello World",
+                    Address = new IPAddressModel()
+                    {
+                        Name = HttpContext.Request.Host.Host,
+                    },
+                    AddressPort = HttpContext.Request.Host.Port ?? 443,
+                    //PublicKey = await _auth.GetCurrent(),
+                }
             });
         }
 

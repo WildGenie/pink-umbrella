@@ -19,7 +19,7 @@ namespace PinkUmbrella.Models.Auth
         [JsonPropertyName("whenAdded")]
         public DateTime WhenAdded { get; set; }
 
-        public long PublicKeyId { get; set; }
+        public long? PublicKeyId { get; set; }
 
         public PublicKey PublicKey { get; set; }
 

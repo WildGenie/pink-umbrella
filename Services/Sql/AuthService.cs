@@ -49,7 +49,14 @@ namespace PinkUmbrella.Services.Sql
                 throw new ArgumentNullException(nameof(key));
             }
 
-            var original = key.Id > 0 ? await _db.PublicKeys.FindAsync(key.Id) : !string.IsNullOrWhiteSpace(key.Value) ? await _db.PublicKeys.FirstOrDefaultAsync(k => k.Type == key.Type && k.Format == key.Format && k.Value == key.Value) : null;
+            var hasValue = false;
+            if (!string.IsNullOrWhiteSpace(key.Value))
+            {
+                key.Value = key.Value.Replace("\r", "");
+                hasValue = true;
+            }
+
+            var original = key.Id > 0 ? await _db.PublicKeys.FindAsync(key.Id) : hasValue ? await _db.PublicKeys.FirstOrDefaultAsync(k => k.Type == key.Type && k.Format == key.Format && k.Value == key.Value) : null;
             if (original == null)
             {
                 key.FingerPrint = ComputeFingerPrint(key, FingerPrintType.MD5);
@@ -77,7 +84,7 @@ namespace PinkUmbrella.Services.Sql
             var original = key.Id > 0 ? await _db.PrivateKeys.FindAsync(key.Id) : !string.IsNullOrWhiteSpace(key.Value) ? await _db.PrivateKeys.FirstOrDefaultAsync(k => k.Type == key.Type && k.Format == key.Format && k.Value == key.Value) : null;
             if (original == null)
             {
-                if (key.PublicKeyId == 0)
+                if (!key.PublicKeyId.HasValue || key.PublicKeyId.Value == 0)
                 {
                     throw new ArgumentOutOfRangeException();
                 }
@@ -94,7 +101,7 @@ namespace PinkUmbrella.Services.Sql
         {
             using (var hash = GetHashAlgorithm(type))
             {
-                string raw = key.Value;
+                string raw = key.Value ?? throw new ArgumentNullException("value");
                 switch (key.Type)
                 {
                     case AuthType.OpenPGP: raw = _strings.OpenPGPKeyRegex.Match(raw).Groups["base64"].Value; break;
@@ -175,7 +182,7 @@ namespace PinkUmbrella.Services.Sql
             {
                 foreach (var ip in ips)
                 {
-                    ip.PublicKeyId = 0;
+                    ip.PublicKeyId = null;
                 }
             }
             await _db.SaveChangesAsync();
@@ -230,7 +237,7 @@ namespace PinkUmbrella.Services.Sql
         public async Task<AuthKeyResult> GenKey(AuthKeyOptions options, HandshakeMethod method)
         {
             var ret = await _typeHandlers[options.Type].GenerateKey(options.Format, method);
-            await _db.PrivateKeys.AddAsync(ret.Private);
+            await _db.PublicKeys.AddAsync(ret.Public);
             await _db.SaveChangesAsync();
             ret.Private.PublicKeyId = ret.Public.Id;
             await _db.PrivateKeys.AddAsync(ret.Private);
@@ -240,6 +247,22 @@ namespace PinkUmbrella.Services.Sql
                 Keys = ret,
                 Error = AuthKeyError.None,
             };
+        }
+
+        public async Task<AuthKeyResult> GenApiKey(PublicKey clientKey, HandshakeMethod method)
+        {
+            if (clientKey == null || clientKey.Id <= 0 || string.IsNullOrWhiteSpace(clientKey.Value))
+            {
+                throw new ArgumentNullException(nameof(clientKey));
+            }
+
+            var key = await GenKey(new AuthKeyOptions() { Format = clientKey.Format, Type = clientKey.Type }, method);
+            if (key.Error == AuthKeyError.None)
+            {
+                await _db.ApiAuthKeys.AddAsync(new ApiAuthKeyModel() { ServerPrivateKeyId = key.Keys.Private.Id, ServerPublicKeyId = key.Keys.Public.Id, ClientPublicKeyId = clientKey.Id });
+                await _db.SaveChangesAsync();
+            }
+            return key;
         }
 
         public async Task<List<PublicKey>> GetForUser(int id)
@@ -454,7 +477,7 @@ namespace PinkUmbrella.Services.Sql
 
         public Task<PrivateKey> GetPrivateKey(long publicKeyId, AuthType type)
         {
-            throw new NotImplementedException();
+            return _db.PrivateKeys.FirstOrDefaultAsync(k => k.PublicKeyId == publicKeyId && k.Type == type);
         }
 
         public async Task<byte[]> GenChallenge(PublicKey pubkey, DateTime? expires)
@@ -587,6 +610,39 @@ namespace PinkUmbrella.Services.Sql
         {
             _db.RecoveryKeys.Remove(key);
             await _db.SaveChangesAsync();
+        }
+
+        public async Task<List<ApiAuthKeyModel>> GetApiKeys()
+        {
+            var ret = await _db.ApiAuthKeys.ToListAsync();
+            foreach (var apiKey in ret)
+            {
+                await BindReferences(apiKey);
+            }
+            return ret;
+        }
+
+        private async Task BindReferences(ApiAuthKeyModel apiKey)
+        {
+            if (apiKey.ClientPublicKey == null)
+            {
+                apiKey.ClientPublicKey = await _db.PublicKeys.FindAsync(apiKey.ClientPublicKeyId);
+            }
+            if (apiKey.ServerPublicKey == null)
+            {
+                apiKey.ServerPublicKey = await _db.PublicKeys.FindAsync(apiKey.ServerPublicKeyId);
+            }
+            if (apiKey.ServerPrivateKey == null)
+            {
+                apiKey.ServerPrivateKey = await _db.PrivateKeys.FindAsync(apiKey.ServerPrivateKeyId);
+            }
+        }
+
+        public async Task<ApiAuthKeyModel> GetApiKey(PublicKey key)
+        {
+            var ret = await _db.ApiAuthKeys.FirstOrDefaultAsync(k => k.ClientPublicKeyId == key.Id);
+            await BindReferences(ret);
+            return ret;
         }
     }
 }

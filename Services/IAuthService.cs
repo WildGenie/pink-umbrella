@@ -19,6 +19,8 @@ namespace PinkUmbrella.Services
         IAuthTypeHandler GetHandler(AuthType type);
 
         Task<AuthKeyResult> GenKey(AuthKeyOptions options, HandshakeMethod method);
+
+        Task<AuthKeyResult> GenApiKey(PublicKey clientKey, HandshakeMethod method);
         
         Task<AuthKeyResult> TryAddUserKey(PublicKey authKey, UserProfileModel user);
         
@@ -27,6 +29,10 @@ namespace PinkUmbrella.Services
         Task<PublicKey> GetOrAdd(PublicKey key);
 
         Task<PrivateKey> GetOrAdd(PrivateKey key);
+
+        Task<List<ApiAuthKeyModel>> GetApiKeys();
+
+        Task<ApiAuthKeyModel> GetApiKey(PublicKey key);
 
         Task Trust(IPAddress address, PublicKey key);
 

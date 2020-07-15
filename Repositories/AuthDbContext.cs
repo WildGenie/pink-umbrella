@@ -17,6 +17,8 @@ namespace PinkUmbrella.Repositories
 
         public DbSet<IPBlockModel> IPBlocks { get; set; }
 
+        public DbSet<ApiAuthKeyModel> ApiAuthKeys { get; set; }
+
         public DbSet<UserAuthKeyModel> UserAuthKeys { get; set; }
 
         public DbSet<FIDOCredential> FIDOCredentials { get; set; }

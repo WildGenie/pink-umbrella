@@ -15,7 +15,7 @@ namespace PinkUmbrella.Models.Public
 
         public PublicId(string id)
         {
-            var split = id.Split('-');
+            var split = (id ?? throw new ArgumentNullException(nameof(id))).Split('-');
             if (split.Length == 2)
             {
                 PeerId = long.Parse(split[0]);

@@ -12,6 +12,8 @@ using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Util;
 using PinkUmbrella.Services.Local;
+using PinkUmbrella.Models.Auth;
+using System.ComponentModel.DataAnnotations;
 
 namespace PinkUmbrella.Controllers
 {
@@ -95,6 +97,39 @@ namespace PinkUmbrella.Controllers
                 IncludeViewed = includeViewed,
                 IncludeDismissed = includeDismissed,
             });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Integrations()
+        {
+            var user = await GetCurrentUserAsync();
+            ViewData["Controller"] = "Account";
+            ViewData["Action"] = nameof(Integrations);
+
+            return View(new IntegrationsViewModel()
+            {
+                MyProfile = user,
+                Items = await _auth.GetApiKeys(),
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddApiKey([Required] string clientPublicKey, AuthType authType)
+        {
+            if (string.IsNullOrWhiteSpace(clientPublicKey))
+            {
+                ModelState.AddModelError(nameof(clientPublicKey), "Required");
+            }
+            if (ModelState.IsValid)
+            {
+                var pub = await _auth.GetOrAdd(new PublicKey() { Value = clientPublicKey, Type = authType, Format = AuthKeyFormat.Raw });
+                var existing = await _auth.GetApiKey(pub);
+                if (existing == null)
+                {
+                    var apiKey = await _auth.GenApiKey(pub, HandshakeMethod.Default);
+                }
+            }
+            return RedirectToAction(nameof(Integrations));
         }
 
         [HttpGet]

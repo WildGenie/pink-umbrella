@@ -4,6 +4,7 @@
     var exceptionsLiClass = actionName == "Exceptions" ? "selected" : "";
     var usersLiClass = actionName == "Users" ? "selected" : "";
     var postsLiClass = actionName == "Posts" ? "selected" : "";
+    var integrationsLiClass = actionName == "Integrations" ? "selected" : "";
 }
 <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
     <div class="container">
@@ -19,8 +20,8 @@
                 <li class="nav-item @usersLiClass">
                     <a class="nav-link text-dark" asp-controller="Developer" asp-action="Users"><u>Users</u></a>
                 </li>
-                <li class="nav-item @postsLiClass">
-                    <a class="nav-link text-dark" asp-controller="Developer" asp-action="Posts"><u>Posts</u></a>
+                <li class="nav-item @integrationsLiClass">
+                    <a class="nav-link text-dark" asp-controller="Developer" asp-action="Integrations"><u>Integrations</u></a>
                 </li>
             </ul>
         </div>

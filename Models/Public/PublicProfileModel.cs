@@ -147,10 +147,10 @@ namespace PinkUmbrella.Models.Public
 
         
         
-        [NotMapped, Nest.Ignore]
+        [NotMapped, JsonIgnore, Nest.Ignore]
         public List<ReactionModel> Reactions { get; set; } = new List<ReactionModel>();
 
-        [NotMapped, Nest.Ignore]
+        [NotMapped, JsonIgnore, Nest.Ignore]
         public List<TagModel> Tags { get; set; } = new List<TagModel>();
 
         [NotMapped, JsonPropertyName("tags"), Nest.PropertyName("tags")]

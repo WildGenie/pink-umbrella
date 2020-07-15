@@ -1,0 +1,40 @@
+@using PinkUmbrella.Models.Auth
+@using PinkUmbrella.Services;
+@model PinkUmbrella.ViewModels.Developer.IntegrationsViewModel
+@{
+    ViewData["Title"] = "Integrations";
+}
+<partial name="_Header" />
+@if (Model.Items.Count > 0)
+{
+    foreach (var integration in Model.Items)
+    {
+        <p>client pub id: @integration.ClientPublicKeyId, server pub id: @integration.ServerPublicKeyId, server private id: @integration.ServerPublicKey?.ToString()</p>
+    }
+}
+else
+{
+    <p>No integrations</p>
+}
+@* <partial name="_IntegrationForm" /> *@
+@using (Html.BeginForm("AddApiKey", "Developer", null, FormMethod.Post, true, null))
+{    
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="clientPublicKey" for="clientPublicKey">Client Public Key</label>
+        <div class="input-group">
+            <input asp-for="clientPublicKey" class="form-control" />
+            <span class="input-group-addon" aria-hidden="true"><span class="glyphicon glyphicon-ok text-success"></span></span>
+        </div>
+        <span asp-validation-for="clientPublicKey" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="authType" for="authType"></label>
+        <select asp-for="authType" class="form-control">
+            <option value="@AuthType.OpenPGP">OpenPGP</option>
+            <option value="@AuthType.RSA">RSA</option>
+        </select>
+        <span asp-validation-for="authType" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-success">Add Key</button>
+}
