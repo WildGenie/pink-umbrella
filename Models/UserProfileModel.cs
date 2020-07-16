@@ -7,10 +7,11 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PinkUmbrella.Models.Public;
+using PinkUmbrella.Util;
 
 namespace PinkUmbrella.Models
 {
-    [DisplayName("User Profile"), Description("Profile data for each user.")]
+    [DisplayName("User Profile"), Description("Profile data for each user."), IsDocumented]
     public class UserProfileModel : IdentityUser<int>, IHazPublicId
     {
         [PersonalData, DefaultValue(Visibility.VISIBLE_TO_WORLD), Description("Visibility of your profile to other users.")]

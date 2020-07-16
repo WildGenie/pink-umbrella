@@ -1,0 +1,96 @@
+@using Microsoft.AspNetCore.Mvc.ApiExplorer;
+@inject IApiDescriptionGroupCollectionProvider _apiExplorer
+@{
+    ViewData["Title"] = "Api";
+    var methodColors = new Dictionary<string, string>
+    {
+        { "GET", "success" },
+        { "PUT", "warning" },
+        { "DELETE", "danger" },
+    };
+}
+<partial name="_Header" />
+<h3>API version @_apiExplorer.ApiDescriptionGroups.Version</h3>
+@foreach (var group in _apiExplorer.ApiDescriptionGroups.Items)
+{
+<h4>@group.GroupName</h4>
+<div>
+    @foreach (var api in group.Items)
+    {
+        var color = methodColors[api.HttpMethod];
+        <div class="card border-@color mb-3">
+            <div class="card-header" style="cursor: pointer" data-toggle="collapse" data-target="#collapse-@api.GetHashCode()" aria-expanded="false" aria-controls="collapse-@api.GetHashCode()"><h5><span class="badge badge-@color">@api.HttpMethod</span> @api.RelativePath</h5></div>
+            <div class="card-body collapse" id="collapse-@api.GetHashCode()">
+                @if (api.ParameterDescriptions.Count > 0)
+                {
+                    <table class="table">
+                        <tr><th>Name</th><th>Type</th><th>Source</th><th>Description</th><th>Constraints</th><th>Default</th></tr>
+                        <tbody>
+                            @foreach (var parameter in api.ParameterDescriptions)
+                            {
+                                <tr>
+                                <td>@parameter.Name @parameter.RouteInfo?.IsOptional</td>
+                                <td>
+                                    @if (Attribute.IsDefined(parameter.Type, typeof(IsDocumentedAttribute)))
+                                    {
+                                        <a asp-controller="Doc" asp-action="Data" asp-route-selected="@parameter.Type.AssemblyQualifiedName">@parameter.Type?.FullName</a>
+                                    }
+                                    else
+                                    {
+                                        @parameter.Type?.FullName
+                                    }
+                                </td>
+                                <td>@parameter.Source.Id</td>
+                                @if (parameter.RouteInfo != null)
+                                {
+                                    @* <dd>@string.Join(",", parameter.RouteInfo.Constraints?.Select(c => c.GetType().Name).ToArray())</dd> *@
+                                    <td>parameter.RouteInfo.DefaultValue</td>
+                                }
+                                else
+                                {
+                                    <td></td>
+                                }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <i>No parameters</i>
+                }
+                <h6>Response</h6>
+                <table class="table">
+                    <tr><th>Code</th><th>Type</th><th>Format</th></tr>
+                    <tbody>
+                        @foreach (var response in api.SupportedResponseTypes)
+                        {
+                            <tr>
+                                <td>@response.StatusCode</td>
+                                <td>
+                                    @if (Attribute.IsDefined(response.Type, typeof(IsDocumentedAttribute)))
+                                    {
+                                        <a asp-controller="Doc" asp-action="Data" asp-route-selected="@response.Type.AssemblyQualifiedName">@response.Type?.FullName</a>
+                                    }
+                                    else
+                                    {
+                                        @response.Type?.FullName
+                                    }
+                                </td>
+                                <td>
+                                    <ul>
+                                        @foreach (var responseFormat in response.ApiResponseFormats)
+                                        {
+                                            <li>@responseFormat.MediaType : @responseFormat.Formatter?.GetType().FullName</li>
+                                        }
+                                    </ul>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+}

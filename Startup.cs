@@ -249,6 +249,10 @@ namespace PinkUmbrella
             services.AddScoped<IsAdminOrDebuggingOrElse404FilterAttribute>();
             services.AddScoped<ApiCallFilterAttribute>();
 
+            
+            services.AddApiVersioning();
+            services.AddVersionedApiExplorer();
+
             services.AddControllersWithViews(options => {
                 var policy = new AuthorizationPolicyBuilder()
                     .RequireAuthenticatedUser()
@@ -289,6 +293,8 @@ namespace PinkUmbrella
 
             app.UseHangfireServer();
             app.UseHangfireDashboard("/Admin/Hangfire");
+
+            app.UseApiVersioning();
 
             app.UseEndpoints(endpoints =>
             {

@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using PinkUmbrella.Util;
 
 namespace PinkUmbrella.Models
 {
+    [IsDocumented]
     public class NewPostResult
     {
         public bool Error { get; set; }

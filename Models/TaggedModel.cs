@@ -1,8 +1,10 @@
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using PinkUmbrella.Util;
 
 namespace PinkUmbrella.Models
 {
+    [IsDocumented]
     public class TaggedModel
     {
         public int Id { get; set; }

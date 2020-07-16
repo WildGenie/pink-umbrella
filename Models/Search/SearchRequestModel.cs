@@ -1,5 +1,8 @@
+using PinkUmbrella.Util;
+
 namespace PinkUmbrella.Models.Search
 {
+    [IsDocumented]
     public class SearchRequestModel
     {
         public string text { get; set; }

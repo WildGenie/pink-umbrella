@@ -1,8 +1,10 @@
 using System;
 using System.Text.Json.Serialization;
+using PinkUmbrella.Util;
 
 namespace PinkUmbrella.Models.Peer
 {
+    [IsDocumented]
     public class PeerStatsModel
     {
         [JsonPropertyName("userCount")]

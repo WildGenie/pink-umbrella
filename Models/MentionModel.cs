@@ -2,9 +2,11 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using PinkUmbrella.Models.Public;
+using PinkUmbrella.Util;
 
 namespace PinkUmbrella.Models
 {
+    [IsDocumented]
     public class MentionModel
     {
         public int Id { get; set; }

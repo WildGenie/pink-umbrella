@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
@@ -19,8 +20,9 @@ namespace PinkUmbrella.Controllers.Api
 {
     [FeatureGate(FeatureFlags.ApiControllerSystem)]
     [ServiceFilter(typeof(ApiCallFilterAttribute))]
-    [Route("api/[controller]/[action]"), ApiController]
+    [Route("/Api/[controller]/[action]"), ApiController]
     [AllowAnonymous]
+    [ApiExplorerSettings(IgnoreApi = false, GroupName = nameof(SystemController))]
     public class SystemController: Controller
     {
         private readonly IAuthService _auth;
@@ -35,6 +37,9 @@ namespace PinkUmbrella.Controllers.Api
         }
 
         [AllowAnonymous]
+        [Produces("application/json", "application/pink-umbrella")]
+        [ProducesResponseType(typeof(PeerModel), 200)]
+        [HttpGet]
         public async Task<ActionResult> Index()
         {
             return Json(new {
@@ -51,6 +56,9 @@ namespace PinkUmbrella.Controllers.Api
         }
 
         [AllowAnonymous]
+        [Produces("application/json", "application/pink-umbrella")]
+        [ProducesResponseType(typeof(PeerStatsModel), 200)]
+        [HttpGet]
         public async Task<ActionResult> Stats()
         {
             return Json(new PeerStatsModel() {

@@ -1,0 +1,48 @@
+@model PinkUmbrella.ViewModels.Doc.DataViewModel
+@{
+    ViewData["Title"] = "Api";
+}
+<partial name="_Header" />
+<div style="display: grid; grid-template-columns: 1fr 2fr">
+    <div style="overflow-y: scroll;max-height: 75vh;">
+        @foreach (var kvp in PinkUmbrella.ViewModels.Doc.DataViewModel.Models.OrderBy(m => m.Value.DisplayName))
+        {
+            var privmodel = kvp.Value;
+            var isSelected = kvp.Key == Model.Selected;
+            var classes = isSelected ? "bg-accent" : "";
+            var id = isSelected ? "selected-item" : "";
+            <div class="@classes" id="@id">
+                <a asp-action="Data" asp-controller="Doc" asp-route-selected="@kvp.Key">
+                    <h4>@privmodel.DisplayName</h4>
+                    <p>@privmodel.Description</p>
+                </a>
+            </div>
+        }
+    </div>
+    @if (!string.IsNullOrWhiteSpace(Model.Selected) && PinkUmbrella.ViewModels.Doc.DataViewModel.Models.TryGetValue(Model.Selected, out var selected))
+    {
+        <script>document.getElementById("selected-item").scrollIntoView()</script>
+        <table class="table">
+            <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+            <tbody>
+                @foreach (var field in selected.Fields)
+                {
+                    <tr>
+                        <td>@field.DisplayName</td>
+                        <td>
+                            @if (string.IsNullOrWhiteSpace(field.ReturnType))
+                            {
+                                @field.ReturnTypeDisplayName
+                            }
+                            else
+                            {
+                                <a asp-action="Data" asp-controller="Doc" asp-route-selected="@field.ReturnType">@field.ReturnTypeDisplayName</a>
+                            }
+                        </td>
+                        <td>@field.Description</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

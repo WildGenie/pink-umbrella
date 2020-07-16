@@ -2,9 +2,11 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using PinkUmbrella.Util;
 
 namespace PinkUmbrella.Models
 {
+    [IsDocumented]
     public class ReactionModel
     {
 

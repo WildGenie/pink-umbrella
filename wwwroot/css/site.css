@@ -5,6 +5,10 @@ for details on configuring this project to bundle and minify static web assets. 
   color: var(--accent-color);
 }
 
+.bg-accent {
+  background-color: var(--accent-color);
+}
+
 .accent-border {
   border-color: var(--accent-color) !important;
 }

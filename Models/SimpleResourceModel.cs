@@ -1,11 +1,11 @@
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using PinkUmbrella.Util;
 
 namespace PinkUmbrella.Models
 {
+    [IsDocumented]
     public class SimpleResourceModel
     {
         public int Id { get; set; }

@@ -1,0 +1,32 @@
+﻿@{
+    var actionName = (string) ViewData["Action"];
+    var indexLiClass = actionName == "Index" ? "selected" : "";
+    var apiLiClass = actionName == "Api" ? "selected" : "";
+    var dataLiClass = actionName == "Data" ? "selected" : "";
+}
+@model PinkUmbrella.ViewModels.BaseViewModel
+<div class="text-center">
+    <partial name="_Covid19" />
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <div class="container">
+            <h1>Documentation</h1>
+            <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                <ul class="navbar-nav flex-grow-1 highlight-selected">
+                    <li class="nav-item @indexLiClass">
+                        <a class="nav-link text-dark" asp-controller="Doc" asp-action="Index"><u>Index</u></a>
+                    </li>
+                    <li class="nav-item @apiLiClass">
+                        <a class="nav-link text-dark" asp-controller="Doc" asp-action="Api"><u>API</u></a>
+                    </li>
+                    <li class="nav-item @dataLiClass">
+                        <a class="nav-link text-dark" asp-controller="Doc" asp-action="Data"><u>Data</u></a>
+                    </li>
+                    @* <li class="nav-item my-2"><span class="px-1">&nbsp;&nbsp;</span><span class="border-left border-dark">&nbsp;</span><span class="px-1">&nbsp;</span></li>
+                    <li class="nav-item @notificationsLiClass">
+                        <a class="nav-link text-dark" asp-controller="Doc" asp-action="Notifications"><u>Notifications</u></a>
+                    </li> *@
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>

@@ -12,7 +12,7 @@ using PinkUmbrella.Util;
 
 namespace PinkUmbrella.Models
 {
-    [DisplayName("Business Page"), Description("A virtual storefront for local businesses.")]
+    [DisplayName("Business Page"), Description("A virtual storefront for local businesses."), IsDocumented]
     public class ShopModel: IHazPublicId
     {
         [NotMapped]

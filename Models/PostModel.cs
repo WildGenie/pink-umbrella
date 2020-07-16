@@ -7,10 +7,11 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using PinkUmbrella.Models.Public;
+using PinkUmbrella.Util;
 
 namespace PinkUmbrella.Models
 {
-    [DisplayName("Post"), Description("A post a user types or uploads.")]
+    [DisplayName("Post"), Description("A post a user types or uploads."), IsDocumented]
     public class PostModel: IHazPublicId
     {
         [NotMapped]

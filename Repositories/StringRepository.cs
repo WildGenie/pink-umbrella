@@ -23,6 +23,8 @@ namespace PinkUmbrella.Repositories
         public string ReportBugUrl => "https://github.com/pink-umbrella/pink-umbrella/issues/new";
         public string ContributorsUrl => "https://github.com/pink-umbrella/pink-umbrella/graphs/contributors";
         public string CommunityDocUrl => "https://docs.google.com/document/d/13RdzrgGWLu21BfCVKf5BBSJgpk2cvhixYOZnRv1bITM/edit#";
+        public string SshKeyGenUrl => "https://linux.die.net/man/1/ssh-keygen";
+        public string OpenSSLKeyGenUrl => "https://wiki.openssl.org/index.php/Command_Line_Utilities";
 
         public string RoleDeveloper => "dev";
 

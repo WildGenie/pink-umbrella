@@ -1,0 +1,28 @@
+@using Microsoft.AspNetCore.Mvc.ApiExplorer;
+@inject IApiDescriptionGroupCollectionProvider _apiExplorer
+@{
+    ViewData["Title"] = "Documentation";
+}
+<partial name="_Header" />
+<h2>What is the API?</h2>
+<p>
+    The API is simply a collection of routes that use asymmetrically encrypted requests and responses between a client
+    and this server to access or change data. There are rates and limits to the API, and abuse may result in a temporary
+    or permanent suspension of use.</p>
+<h2>Using the API</h2>
+<p>An API Key is required befure using the API.
+@if (System.Diagnostics.Debugger.IsAttached)
+{
+    <span class="bg-warning">Since you are debugging locally, I'm going to let you know that there is a flag to turn off the api key requirement, but it requires a rebuild.</span>
+}
+You have to generate a public / private key pair via <a href="@_strings.SshKeyGenUrl" target="_blank">ssh-keygen</a> or <a href="@_strings.OpenSSLKeyGenUrl" target="_blank">openssl's keygen</a> 
+and then add the public key to your <a asp-action="AuthKeys" asp-controller="Account">key ring</a>
+@if (System.Diagnostics.Debugger.IsAttached)
+{
+    <span>(or since you have dev access, add it to the </span>
+    <a asp-action="Integrations" asp-controller="Developer">integrations API key list</a><span>)</span>
+}
+. After that, you can access the API by adding the <code>X-Api-Key</code> header to your requests.
+The format is <code>&lt;auth-type public-key&gt;</code>, where <code>auth-type</code> is either <code>RSA</code> or <code>OpenPGP</code>,
+and the public key is the value of the public key you added previously. An example might look like <code>X-Api-Key: rsa ssh-rsa AWDwqe12e2.....aWDdawd</code>
+</p>

@@ -53,6 +53,9 @@ namespace PinkUmbrella.Models.Settings
         [FeatureFlagInfo("Tag Controller", "Create, read, update, delete tags", FeatureFlagType.Controller)]
         ControllerTag,
 
+        [FeatureFlagInfo("Doc Controller", "View documentation on how to use this site", FeatureFlagType.Controller)]
+        ControllerDoc,
+
         
         
         

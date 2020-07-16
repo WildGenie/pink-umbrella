@@ -7,6 +7,7 @@ using PinkUmbrella.Util;
 
 namespace PinkUmbrella.Models
 {
+    [IsDocumented]
     public class SimpleInventoryModel: IHazPublicId
     {
         [NotMapped]

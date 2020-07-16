@@ -1,5 +1,8 @@
+using PinkUmbrella.Util;
+
 namespace PinkUmbrella.Models.AhPushIt
 {
+    [IsDocumented]
     public class NotificationMethodSetting
     {
         public int Id { get; set; }
