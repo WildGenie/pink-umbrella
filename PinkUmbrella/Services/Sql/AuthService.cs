@@ -24,7 +24,7 @@ namespace PinkUmbrella.Services.Sql
     {
         private readonly StringRepository _strings;
         private readonly AuthDbContext _db;
-        private readonly Dictionary<AuthType, IAuthTypeHandler> _typeHandlers;
+        private readonly Dictionary<AuthType, Dictionary<AuthKeyFormat, IAuthTypeHandler>> _typeHandlers;
 
         private IQueryable<SavedIPAddressModel> GetIPv4() => _db.IPs.Where(ip => ip.Type == IPType.IPv4);
 
@@ -34,7 +34,7 @@ namespace PinkUmbrella.Services.Sql
         {
             _strings = strings;
             _db = dbContext;
-            _typeHandlers = typeHandlers.ToDictionary(k => k.Type, v => v);
+            _typeHandlers = typeHandlers.GroupBy(g => g.Type).ToDictionary(k => k.Key, v => v.ToDictionary(k => k.Format, v => v));
         }
 
         public async Task ForgetIPs()
@@ -55,6 +55,20 @@ namespace PinkUmbrella.Services.Sql
             {
                 key.Value = key.Value.Replace("\r", "");
                 hasValue = true;
+
+                var resolvedFormat = AuthKeyFormatResolver.Resolve(key.Value);
+                if (!resolvedFormat.HasValue)
+                {
+                    throw new ArgumentException($"Input key does not resolve to a valid format");
+                }
+                else if (key.Format == AuthKeyFormat.Error)
+                {
+                    key.Format = resolvedFormat.Value;
+                }
+                else if (key.Format != resolvedFormat)
+                {
+                    throw new ArgumentException($"Input key format ({key.Format}) does not match resolved format ({resolvedFormat})");
+                }
             }
 
             var original = key.Id > 0 ? await _db.PublicKeys.FindAsync(key.Id) : hasValue ? await _db.PublicKeys.FirstOrDefaultAsync(k => k.Type == key.Type && k.Format == key.Format && k.Value == key.Value) : null;
@@ -72,6 +86,7 @@ namespace PinkUmbrella.Services.Sql
                 key.FingerPrint = ComputeFingerPrint(key, FingerPrintType.MD5);
                 await _db.SaveChangesAsync();
             }
+            
             return original;
         }
 
@@ -237,7 +252,7 @@ namespace PinkUmbrella.Services.Sql
 
         public async Task<AuthKeyResult> GenKey(AuthKeyOptions options, HandshakeMethod method)
         {
-            var ret = await _typeHandlers[options.Type].GenerateKey(options.Format, method);
+            var ret = await _typeHandlers[options.Type][options.Format].GenerateKey(method);
             if (string.IsNullOrWhiteSpace(ret.Public.FingerPrint))
             {
                 ret.Public.FingerPrint = ComputeFingerPrint(ret.Public, FingerPrintType.MD5);
@@ -483,7 +498,7 @@ namespace PinkUmbrella.Services.Sql
             return await _db.PublicKeys.FirstOrDefaultAsync(k => k.Type == type && k.Value == key);
         }
 
-        public IAuthTypeHandler GetHandler(AuthType type) => _typeHandlers[type];
+        public IAuthTypeHandler GetHandler(AuthType type, AuthKeyFormat format) => _typeHandlers[type][format];
 
         public Task<PrivateKey> GetPrivateKey(long publicKeyId, AuthType type)
         {
@@ -501,7 +516,7 @@ namespace PinkUmbrella.Services.Sql
             using (var answerStream = new MemoryStream(answer))
             {
                 using var challengeStream = new MemoryStream();
-                await GetHandler(pubkey.Type).EncryptStreamAsync(answerStream, challengeStream, pubkey);
+                await GetHandler(pubkey.Type, pubkey.Format).EncryptStreamAsync(answerStream, challengeStream, pubkey);
                 challengeStream.Position = 0;
                 challengeBytes = challengeStream.ToArray();
             }

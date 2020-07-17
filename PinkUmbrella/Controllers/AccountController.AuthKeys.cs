@@ -62,7 +62,6 @@ namespace PinkUmbrella.Controllers
             ViewData["Action"] = nameof(GenAuthKey);
             var user = await GetCurrentLocalUserAsync();
 
-            AuthKey.Format = AuthKeyFormat.Raw;
             var result = await _auth.GenKey(AuthKey, HandshakeMethod.Default);
             switch (result.Error)
             {

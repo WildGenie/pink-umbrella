@@ -117,7 +117,7 @@ namespace Poncho.Models.Peer.Client
                                 {
                                     using (var outputStream = new MemoryStream())
                                     {
-                                        await new RSAAuthHandler().DecryptAndVerifyStreamAsync(stream, outputStream, keys.Private, keys.Public, null);
+                                        await new RSAAuthHandlerMsft().DecryptAndVerifyStreamAsync(stream, outputStream, keys.Private, keys.Public, null);
                                         return System.Text.Encoding.UTF8.GetString(outputStream.ToArray());
                                     }
                                 }

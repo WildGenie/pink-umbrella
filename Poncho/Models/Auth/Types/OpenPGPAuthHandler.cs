@@ -11,6 +11,8 @@ namespace Poncho.Models.Auth.Types
     {
         public AuthType Type { get; } = AuthType.OpenPGP;
 
+        public AuthKeyFormat Format => AuthKeyFormat.PEM;
+
         public HashSet<HandshakeMethod> HandshakeMethodsSupported { get; } = new HashSet<HandshakeMethod>();
 
         public async Task DecryptAndVerifyStreamAsync(Stream inputStream, Stream outputStream, PrivateKey privateKey, PublicKey publicKey, Func<string> passwordFinder)
@@ -57,7 +59,7 @@ namespace Poncho.Models.Auth.Types
             return await pgp.VerifyStreamAsync(inputStream, publicKeyStream);
         }
 
-        public async Task<KeyPair> GenerateKey(AuthKeyFormat format, HandshakeMethod method)
+        public async Task<KeyPair> GenerateKey(HandshakeMethod method)
         {
             var tmpFilePublic = System.IO.Path.GetTempFileName();
             var tmpFilePrivate = System.IO.Path.GetTempFileName();
@@ -69,14 +71,14 @@ namespace Poncho.Models.Auth.Types
             {
                 Private = new PrivateKey()
                 {
-                    Format = AuthKeyFormat.Raw,
+                    Format = AuthKeyFormat.PEM,
                     Type = Type,
                     Value = privateKey,
                     WhenAdded = DateTime.UtcNow,
                 },
                 Public = new PublicKey()
                 {
-                    Format = AuthKeyFormat.Raw,
+                    Format = AuthKeyFormat.PEM,
                     Type = Type,
                     Value = publicKey.Trim(),
                     WhenAdded = DateTime.UtcNow,

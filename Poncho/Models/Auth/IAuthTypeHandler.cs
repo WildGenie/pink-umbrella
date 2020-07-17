@@ -8,12 +8,13 @@ namespace Poncho.Models.Auth
     public interface IAuthTypeHandler
     {
         AuthType Type { get; }
+        AuthKeyFormat Format { get; }
         
         bool HandshakeMethodSupported(HandshakeMethod method);
         
         HashSet<HandshakeMethod> HandshakeMethodsSupported { get; }
 
-        Task<KeyPair> GenerateKey(AuthKeyFormat format, HandshakeMethod method);
+        Task<KeyPair> GenerateKey(HandshakeMethod method);
 
         Task EncryptStreamAsync(Stream inputStream, Stream outputStream, PublicKey auth);
 

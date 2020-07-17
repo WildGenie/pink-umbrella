@@ -75,7 +75,7 @@ namespace RainBoots
         {
             if (!HAS_PUBLIC_KEY)
             {
-                var rsa = await new RSAAuthHandler().GenerateKey(AuthKeyFormat.Raw, HandshakeMethod.Default);
+                var rsa = await new RSAAuthHandlerMsft().GenerateKey(HandshakeMethod.Default);
                 await File.WriteAllTextAsync(PUBLIC_KEY_PATH, $"{rsa.Public.Type} {rsa.Public.Value}");
                 await File.WriteAllTextAsync(PRIVATE_KEY_PATH, $"{rsa.Private.Type} {rsa.Private.Value}");
 

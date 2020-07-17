@@ -148,7 +148,8 @@ namespace PinkUmbrella
                 }
             });
 
-            services.AddSingleton<IAuthTypeHandler, RSAAuthHandler>();
+            services.AddSingleton<IAuthTypeHandler, RSAAuthHandlerMsft>();
+            services.AddSingleton<IAuthTypeHandler, RSAAuthHandlerBouncy>();
             services.AddSingleton<IAuthTypeHandler, OpenPGPAuthHandler>();
             services.AddSingleton<IElasticService, ElasticService>();
 

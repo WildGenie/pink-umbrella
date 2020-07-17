@@ -61,7 +61,7 @@ namespace PinkUmbrella.Util
                                 var privateKey = await _auth.GetPrivateKey(apiKey.ServerPublicKeyId, at);
                                 if (privateKey != null)
                                 {
-                                    var authHandler = _auth.GetHandler(at);
+                                    var authHandler = _auth.GetHandler(at, key.Format);
                                     context.HttpContext.Items.Add(_HANDLER_KEY, authHandler);
                                     context.HttpContext.Items.Add(_API_KEY, apiKey);
 

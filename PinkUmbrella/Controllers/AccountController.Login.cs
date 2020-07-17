@@ -162,7 +162,7 @@ namespace PinkUmbrella.Controllers
                         var userId = await _auth.GetUserByKey(pubkey);
                         if (userId.HasValue)
                         {
-                            var loginResult = await _localProfiles.LoginPublicKeyChallenge(userId.Value, pubkey, privateKey, challenge, answer, _auth.GetHandler(type));
+                            var loginResult = await _localProfiles.LoginPublicKeyChallenge(userId.Value, pubkey, privateKey, challenge, answer, _auth.GetHandler(type, pubkey.Format));
                             if (loginResult.Error == null)
                             {        
                                 return Redirect("~/");

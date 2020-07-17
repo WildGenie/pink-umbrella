@@ -17,7 +17,7 @@ namespace PinkUmbrella.Services
 
         Task ForgetIPs();
 
-        IAuthTypeHandler GetHandler(AuthType type);
+        IAuthTypeHandler GetHandler(AuthType type, AuthKeyFormat format);
 
         Task<AuthKeyResult> GenKey(AuthKeyOptions options, HandshakeMethod method);
 
