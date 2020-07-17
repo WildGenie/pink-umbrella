@@ -1,0 +1,17 @@
+﻿@using PinkUmbrella
+@using PinkUmbrella.Models
+@using PinkUmbrella.Models.Public
+@using PinkUmbrella.Repositories
+@using PinkUmbrella.Services
+@using PinkUmbrella.Util
+@using PinkUmbrella.ViewModels.Shared
+@using static PinkUmbrella.Models.Settings.FeatureFlags
+@using Poncho.Models
+@using Poncho.Models.Auth
+@using Poncho.Models.Public
+@using Poncho.Util
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@inject StringRepository _strings
+@inject ISettingsService _settings
+@using StackExchange.Profiling
+@addTagHelper *, MiniProfiler.AspNetCore.Mvc
