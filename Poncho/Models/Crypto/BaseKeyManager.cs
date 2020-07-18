@@ -53,8 +53,12 @@ namespace Poncho.Models.Crypto
         public async Task Generate(IAuthTypeHandler handler)
         {
             var key = await handler.GenerateKey(HandshakeMethod.Default);
+            key.Public.Value = CleanupKeyString(key.Public.Value);
+            key.Private.Value = CleanupKeyString(key.Private.Value);
             await File.WriteAllTextAsync(PUBLIC_KEY_PATH, $"{key.Public.Type} {key.Public.Value}");
             await File.WriteAllTextAsync(PRIVATE_KEY_PATH, $"{key.Private.Type} {key.Private.Value}");
         }
+
+        public string CleanupKeyString(string key) => key.Replace("\r", "");
     }
 }

@@ -691,5 +691,7 @@ namespace PinkUmbrella.Services.Sql
             _db.PublicKeys.Remove(apiPublicKey);
             await _db.SaveChangesAsync();
         }
+
+        public string CleanupKeyString(string key) => _siteKeyManager.CleanupKeyString(key);
     }
 }

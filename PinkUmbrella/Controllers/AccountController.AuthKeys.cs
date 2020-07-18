@@ -34,7 +34,7 @@ namespace PinkUmbrella.Controllers
 
             var key = new PublicKey()
             {
-                Value = value,
+                Value = _auth.CleanupKeyString(value),
                 Type = type,
             };
             var result = await _auth.TryAddUserKey(key, user);

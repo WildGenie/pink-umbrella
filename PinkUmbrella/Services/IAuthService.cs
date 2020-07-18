@@ -88,5 +88,7 @@ namespace PinkUmbrella.Services
         Task SaveAsync();
         
         Task DeleteApiKey(long clientPublicKeyId);
+
+        string CleanupKeyString(string key);
     }
 }
