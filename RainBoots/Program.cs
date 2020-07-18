@@ -13,6 +13,7 @@ namespace RainBoots
         private static RESTPeerClient client = null;
         private static string serverUrl = "localhost";
         private static int serverPort = 12524;
+        private static LocalKeyManager keyMgr = new LocalKeyManager();
 
         static void Main(string[] args)
         {
@@ -42,35 +43,35 @@ namespace RainBoots
             {
                 route += $"?filter={Uri.EscapeDataString(filterMatch.Value)}";
             }
-            var res = (await client.QueryJson(route, LocalKeyManager.MyKeys)) ?? "{ \"error\": \"no response\" }";
+            var res = (await client.QueryJson(route, keyMgr.MyKeys)) ?? "{ \"error\": \"no response\" }";
             return $"application/json {res}";
         }
 
         private static async Task<string> Trust(Match arg)
         {
-            var res = await client.Query(LocalKeyManager.MyKeys);
+            var res = await client.Query(keyMgr.MyKeys);
             
             return $"application/json {res}";
         }
 
         private static void InitKeys()
         {
-            if (!LocalKeyManager.Exists)
+            if (!keyMgr.Exists)
             {
-                LocalKeyManager.Generate();
+                keyMgr.Generate();
                 Console.WriteLine($"You should add your public key to the server you wish to connect to:");
-                Console.WriteLine(LocalKeyManager.PUBLIC_KEY);
+                Console.WriteLine(keyMgr.PUBLIC_KEY);
             }
         }
 
         private static async Task<string> DoGet(Match arg)
         {
-            return (await client.Query(LocalKeyManager.MyKeys))?.ToString() ?? "no response";
+            return (await client.Query(keyMgr.MyKeys))?.ToString() ?? "no response";
         }
 
         private static async Task<string> DoHtml(Match arg)
         {
-            var html = await client.QueryHtml("", LocalKeyManager.MyKeys);
+            var html = await client.QueryHtml("", keyMgr.MyKeys);
             return $"text/html {html}";
         }
 
@@ -81,7 +82,7 @@ namespace RainBoots
             {
                 route = routeMatch.Value;
             }
-            var res = (await client.QueryJson(route, LocalKeyManager.MyKeys)) ?? "{ \"error\": \"no response\" }";
+            var res = (await client.QueryJson(route, keyMgr.MyKeys)) ?? "{ \"error\": \"no response\" }";
             return $"application/json {res}";
         }
 
@@ -109,10 +110,10 @@ namespace RainBoots
         {
             if (arg.Groups.TryGetValue("recycle", out var recycle) && recycle.Value.Length > 0)
             {
-                if (LocalKeyManager.Exists)
+                if (keyMgr.Exists)
                 {
                     Console.WriteLine($"Deleting old keys");
-                    LocalKeyManager.Delete();
+                    keyMgr.Delete();
                 }
                 InitKeys();
             }
@@ -135,10 +136,10 @@ namespace RainBoots
             {
                 var sb = new StringBuilder();
                 sb.Append("my public: \t");
-                sb.Append(LocalKeyManager.PUBLIC_KEY);
+                sb.Append(keyMgr.PUBLIC_KEY);
                 sb.Append("\n\n");
                 sb.Append("my private: \t");
-                sb.Append(LocalKeyManager.PRIVATE_KEY);
+                sb.Append(keyMgr.PRIVATE_KEY);
                 
                 return Task.FromResult($"text/plain {sb}");
             }

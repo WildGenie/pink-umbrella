@@ -105,7 +105,7 @@ namespace PinkUmbrella.Controllers
         public async Task<IActionResult> Integrations()
         {
             var user = await GetCurrentUserAsync();
-            ViewData["Controller"] = "Account";
+            ViewData["Controller"] = "Developer";
             ViewData["Action"] = nameof(Integrations);
 
             return View(new IntegrationsViewModel()
@@ -137,6 +137,13 @@ namespace PinkUmbrella.Controllers
                     var apiKey = await _auth.GenApiKey(pub, HandshakeMethod.Default);
                 }
             }
+            return RedirectToAction(nameof(Integrations));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteApiKey(long clientPublicKeyId)
+        {
+            await _auth.DeleteApiKey(clientPublicKeyId);
             return RedirectToAction(nameof(Integrations));
         }
 

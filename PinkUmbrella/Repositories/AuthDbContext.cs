@@ -10,7 +10,7 @@ namespace PinkUmbrella.Repositories
     {
         public DbSet<PublicKey> PublicKeys { get; set; }
         
-        public DbSet<PrivateKey> PrivateKeys { get; set; }
+        // public DbSet<PrivateKey> PrivateKeys { get; set; }
 
         public DbSet<SavedIPAddressModel> IPs { get; set; }
 

@@ -7,10 +7,18 @@
 <partial name="_Header" />
 @if (Model.Items.Count > 0)
 {
-    foreach (var integration in Model.Items)
-    {
-        <p>client pub id: @integration.ClientPublicKeyId, server pub id: @integration.ServerPublicKeyId, server private id: @integration.ServerPublicKey?.ToString()</p>
-    }
+    <ol>
+        @foreach (var integration in Model.Items)
+        {
+            <li style="margin-bottom: 2rem">
+                @using (Html.BeginForm("DeleteApiKey", "Developer", new { clientPublicKeyId = integration.ClientPublicKeyId }, FormMethod.Post, true, new { @class = " float-right" }))
+                {
+                    <button class="btn btn-danger" type="submit"><i class="fas fa-times"></i> Delete</button>
+                }
+                client pub id: @integration.ClientPublicKeyId, server pub id: @integration.ServerPublicKeyId, server private id: @integration.ServerPublicKey
+            </li>
+        }
+    </ol>
 }
 else
 {

@@ -57,58 +57,98 @@ namespace PinkUmbrella.Util
                         var key = await _auth.GetPublicKey(matchKey, at);
                         if (key != null)
                         {
+                            var authHandler = _auth.GetHandler(at, key.Format);
+                            context.HttpContext.Items.Add(_HANDLER_KEY, authHandler);
+
+                            if (context.HttpContext.Request.ContentLength.HasValue && context.HttpContext.Request.ContentLength == 0)
+                            {
+                                // No body, no problem
+                                return;
+                            }
+
+                            PrivateKey privateKey = null;
                             var apiKey = await _auth.GetApiKey(key);
                             if (apiKey != null)
                             {
-                                var privateKey = await _auth.GetPrivateKey(apiKey.ServerPublicKeyId, at);
-                                if (privateKey != null)
+                                context.HttpContext.Items.Add(_API_KEY, apiKey);
+                                // privateKey = await _auth.GetPrivateKey(apiKey.ServerPublicKeyId, at);
+                            }
+                            else
+                            {
+                                var ip = await _auth.GetOrRememberIP(context.HttpContext.Connection.RemoteIpAddress);
+                                if (ip != null)
                                 {
-                                    var authHandler = _auth.GetHandler(at, key.Format);
-                                    context.HttpContext.Items.Add(_HANDLER_KEY, authHandler);
-                                    context.HttpContext.Items.Add(_API_KEY, apiKey);
-
-                                    if (context.HttpContext.Request.ContentLength.HasValue && context.HttpContext.Request.ContentLength == 0)
+                                    if (ip.PublicKeyId.HasValue)
                                     {
-                                        // No body, no problem
-                                        return;
-                                    }
-
-                                    context.HttpContext.Request.EnableBuffering();
-                                    context.HttpContext.Request.Body.Position = 0;
-                                    using var encrypted = new MemoryStream();
-                                    await context.HttpContext.Request.Body.CopyToAsync(encrypted);
-                                    if (encrypted.Position == 0)
-                                    {
-                                        // No body, no problem
-                                        return;
-                                    }
-                                    encrypted.Position = 0;
-
-                                    var decrypted = new MemoryStream();
-                                    try
-                                    {
-                                        if (context.HttpContext.Request.Headers.TryGetValue(_CIPHER_HEADER_KEY, out var apiCipher) && apiCipher.Count == 1)
+                                        if (ip.PublicKeyId == key.Id)
                                         {
-                                            var aesHelper = new AesHelper();
-                                            using var apiCipherKeyEncrypted = new MemoryStream(Convert.FromBase64String(apiCipher[0]));
-                                            using var apiCipherKeyDecrypted = new MemoryStream(aesHelper.Key);
-                                            await authHandler.DecryptAndVerifyStreamAsync(apiCipherKeyEncrypted, apiCipherKeyDecrypted, privateKey, apiKey.ClientPublicKey, null);
-                                            apiCipherKeyDecrypted.Position = 0;
-
-                                            aesHelper.Decrypt(encrypted, decrypted);
+                                            if (await _auth.IsTrusted(context.HttpContext.Connection.RemoteIpAddress, key))
+                                            {
+                                                privateKey = await _auth.GetCurrentPrivateKey();
+                                            }
+                                            else
+                                            {
+                                                context.Result = new JsonResult(new { Error = "You are not trusted" });
+                                                return;
+                                            }
                                         }
                                         else
                                         {
-                                            await authHandler.DecryptAndVerifyStreamAsync(encrypted, decrypted, privateKey, apiKey.ClientPublicKey, null);
+                                            context.Result = new JsonResult(new { Error = "Key mismatch (are you using the right key?)" });
+                                            return;
                                         }
-                                        context.HttpContext.Request.Body = decrypted;
                                     }
-                                    catch (Exception e)
+                                    else
                                     {
-                                        context.Result = new JsonResult(new { error = "Could not decrypt and verify payload", e.Message, e.StackTrace, e.Source });
+                                        //context.Result = new JsonResult(new { Error = "Key not associated with your address" });
+                                        //return;
                                     }
-                                    return;
                                 }
+                                //privateKey = await _auth.GetPrivateKey(key.Id, key.Type);
+                                // if (privateKey == null)
+                                // {
+                                //     var current = await _auth.GetCurrent();
+                                //     privateKey = await _auth.GetPrivateKey(current.Id, current.Type);
+                                // }
+                            }
+
+                            context.HttpContext.Request.EnableBuffering();
+                            context.HttpContext.Request.Body.Position = 0;
+                            using var encrypted = new MemoryStream();
+                            await context.HttpContext.Request.Body.CopyToAsync(encrypted);
+                            if (encrypted.Position == 0)
+                            {
+                                // No body, no problem
+                                return;
+                            }
+                            encrypted.Position = 0;
+
+                            if (privateKey != null)
+                            {
+                                var decrypted = new MemoryStream();
+                                try
+                                {
+                                    if (context.HttpContext.Request.Headers.TryGetValue(_CIPHER_HEADER_KEY, out var apiCipher) && apiCipher.Count == 1)
+                                    {
+                                        var aesHelper = new AesHelper();
+                                        using var apiCipherKeyEncrypted = new MemoryStream(Convert.FromBase64String(apiCipher[0]));
+                                        using var apiCipherKeyDecrypted = new MemoryStream(aesHelper.Key);
+                                        await authHandler.DecryptAndVerifyStreamAsync(apiCipherKeyEncrypted, apiCipherKeyDecrypted, privateKey, apiKey.ClientPublicKey, null);
+                                        apiCipherKeyDecrypted.Position = 0;
+
+                                        aesHelper.Decrypt(encrypted, decrypted);
+                                    }
+                                    else
+                                    {
+                                        await authHandler.DecryptAndVerifyStreamAsync(encrypted, decrypted, privateKey, apiKey.ClientPublicKey, null);
+                                    }
+                                    context.HttpContext.Request.Body = decrypted;
+                                }
+                                catch (Exception e)
+                                {
+                                    context.Result = new JsonResult(new { error = "Could not decrypt and verify payload", e.Message, e.StackTrace, e.Source });
+                                }
+                                return;
                             }
                         }
                         else
@@ -165,7 +205,7 @@ namespace PinkUmbrella.Util
                         }
                         else
                         {
-                            await authHandler.EncryptStreamAndSignAsync(jsonStream, encrypted, apiKey.ServerPrivateKey, apiKey.ClientPublicKey, null);
+                            //await authHandler.EncryptStreamAndSignAsync(jsonStream, encrypted, apiKey.ServerPrivateKey, apiKey.ClientPublicKey, null);
                         }
                         encrypted.Position = 0;
                         context.Result = new FileStreamResult(encrypted, "application/pink-umbrella");

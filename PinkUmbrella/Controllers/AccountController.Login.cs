@@ -149,31 +149,31 @@ namespace PinkUmbrella.Controllers
             var pubkey = await _auth.GetPublicKey(key, type);
             if (pubkey != null)
             {
-                if (newChallenge)
-                {
-                    var expiration = DateTime.Today.AddMinutes(5);
-                    challenge = Convert.ToBase64String(await _auth.GenChallenge(pubkey, expiration));
-                }
-                else
-                {
-                    var privateKey = await _auth.GetPrivateKey(pubkey.Id, type);
-                    if (privateKey != null)
-                    {
-                        var userId = await _auth.GetUserByKey(pubkey);
-                        if (userId.HasValue)
-                        {
-                            var loginResult = await _localProfiles.LoginPublicKeyChallenge(userId.Value, pubkey, privateKey, challenge, answer, _auth.GetHandler(type, pubkey.Format));
-                            if (loginResult.Error == null)
-                            {        
-                                return Redirect("~/");
-                            }
-                            else
-                            {
-                                ModelState.AddModelError(nameof(answer), loginResult.Error.Message);
-                            }
-                        }
-                    }
-                }
+                // if (newChallenge)
+                // {
+                var expiration = DateTime.Today.AddMinutes(5);
+                challenge = Convert.ToBase64String(await _auth.GenChallenge(pubkey, expiration));
+                // }
+                // else
+                // {
+                //     var privateKey = await _auth.GetPrivateKey(pubkey.Id, type);
+                //     if (privateKey != null)
+                //     {
+                //         var userId = await _auth.GetUserByKey(pubkey);
+                //         if (userId.HasValue)
+                //         {
+                //             var loginResult = await _localProfiles.LoginPublicKeyChallenge(userId.Value, pubkey, privateKey, challenge, answer, _auth.GetHandler(type, pubkey.Format));
+                //             if (loginResult.Error == null)
+                //             {        
+                //                 return Redirect("~/");
+                //             }
+                //             else
+                //             {
+                //                 ModelState.AddModelError(nameof(answer), loginResult.Error.Message);
+                //             }
+                //         }
+                //     }
+                // }
             }
             else
             {

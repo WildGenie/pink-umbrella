@@ -24,16 +24,22 @@ namespace PinkUmbrella.Services.Sql
     {
         private readonly StringRepository _strings;
         private readonly AuthDbContext _db;
+        private readonly SiteKeyManager _siteKeyManager;
         private readonly Dictionary<AuthType, Dictionary<AuthKeyFormat, IAuthTypeHandler>> _typeHandlers;
 
         private IQueryable<SavedIPAddressModel> GetIPv4() => _db.IPs.Where(ip => ip.Type == IPType.IPv4);
 
         private IQueryable<SavedIPAddressModel> GetIPv6() => _db.IPs.Where(ip => ip.Type == IPType.IPv6);
 
-        public AuthService(StringRepository strings, AuthDbContext dbContext, IEnumerable<IAuthTypeHandler> typeHandlers)
+        public AuthService(StringRepository strings, AuthDbContext dbContext, IEnumerable<IAuthTypeHandler> typeHandlers, SiteKeyManager siteKeyManager)
         {
             _strings = strings;
             _db = dbContext;
+            _siteKeyManager = siteKeyManager;
+            if (!_siteKeyManager.Exists)
+            {
+                _siteKeyManager.Generate();
+            }
             _typeHandlers = typeHandlers.GroupBy(g => g.Type).ToDictionary(k => k.Key, v => v.ToDictionary(k => k.Format, v => v));
         }
 
@@ -90,28 +96,28 @@ namespace PinkUmbrella.Services.Sql
             return original;
         }
 
-        public async Task<PrivateKey> GetOrAdd(PrivateKey key)
-        {
-            if (key == null)
-            {
-                throw new ArgumentNullException(nameof(key));
-            }
+        // public async Task<PrivateKey> GetOrAdd(PrivateKey key)
+        // {
+        //     if (key == null)
+        //     {
+        //         throw new ArgumentNullException(nameof(key));
+        //     }
 
-            var original = key.Id > 0 ? await _db.PrivateKeys.FindAsync(key.Id) : !string.IsNullOrWhiteSpace(key.Value) ? await _db.PrivateKeys.FirstOrDefaultAsync(k => k.Type == key.Type && k.Format == key.Format && k.Value == key.Value) : null;
-            if (original == null)
-            {
-                if (!key.PublicKeyId.HasValue || key.PublicKeyId.Value == 0)
-                {
-                    throw new ArgumentOutOfRangeException();
-                }
-                key.WhenAdded = DateTime.UtcNow;
-                await _db.PrivateKeys.AddAsync(key);
-                await _db.SaveChangesAsync();
-                original = key;
-            }
+        //     var original = key.Id > 0 ? await _db.PrivateKeys.FindAsync(key.Id) : !string.IsNullOrWhiteSpace(key.Value) ? await _db.PrivateKeys.FirstOrDefaultAsync(k => k.Type == key.Type && k.Format == key.Format && k.Value == key.Value) : null;
+        //     if (original == null)
+        //     {
+        //         if (!key.PublicKeyId.HasValue || key.PublicKeyId.Value == 0)
+        //         {
+        //             throw new ArgumentOutOfRangeException();
+        //         }
+        //         key.WhenAdded = DateTime.UtcNow;
+        //         await _db.PrivateKeys.AddAsync(key);
+        //         await _db.SaveChangesAsync();
+        //         original = key;
+        //     }
             
-            return original;
-        }
+        //     return original;
+        // }
 
         private string ComputeFingerPrint(PublicKey key, FingerPrintType type)
         {
@@ -189,7 +195,7 @@ namespace PinkUmbrella.Services.Sql
             }
             await _db.SaveChangesAsync();
 
-            _db.PrivateKeys.RemoveRange(_db.PrivateKeys.Where(pk => pk.PublicKeyId == key.Id));
+            //_db.PrivateKeys.RemoveRange(_db.PrivateKeys.Where(pk => pk.PublicKeyId == key.Id));
             await _db.SaveChangesAsync();
         }
 
@@ -202,39 +208,9 @@ namespace PinkUmbrella.Services.Sql
             return true;
         }
 
-        public async Task<PublicKey> GetCurrent()
-        {
-            var key = new PublicKey()
-            {
-                Type = AuthType.OpenPGP
-            };
+        public Task<PublicKey> GetCurrent() => Task.FromResult(_siteKeyManager.publicKey);
 
-            if (_db.PublicKeys.Count() == 0)
-            {
-                await GenKey(new AuthKeyOptions()
-                {
-                    Type = key.Type
-                }, HandshakeMethod.Default);
-            }
-            
-            var first = await _db.PublicKeys.FirstAsync();
-            if (string.IsNullOrWhiteSpace(first.Value))
-            {
-                // Regen
-                await GenKey(new AuthKeyOptions()
-                {
-                    Type = key.Type
-                }, HandshakeMethod.Default);
-            }
-
-            if (string.IsNullOrWhiteSpace(first.FingerPrint))
-            {
-                first.FingerPrint = ComputeFingerPrint(first, FingerPrintType.MD5);
-                await _db.SaveChangesAsync();
-            }
-
-            return first;
-        }
+        public Task<PrivateKey> GetCurrentPrivateKey() => Task.FromResult(_siteKeyManager.privateKey);
 
         public async Task<AuthKeyResult> GenKey(AuthKeyOptions options, HandshakeMethod method)
         {
@@ -248,7 +224,11 @@ namespace PinkUmbrella.Services.Sql
             await _db.PublicKeys.AddAsync(ret.Public);
             await _db.SaveChangesAsync();
             ret.Private.PublicKeyId = ret.Public.Id;
-            await _db.PrivateKeys.AddAsync(ret.Private);
+            
+            throw new Exception();
+            //await _db.PrivateKeys.AddAsync(ret.Private);
+            
+            
             await _db.SaveChangesAsync();
             return new AuthKeyResult()
             {
@@ -497,10 +477,10 @@ namespace PinkUmbrella.Services.Sql
 
         public IAuthTypeHandler GetHandler(AuthType type, AuthKeyFormat format) => _typeHandlers[type][format];
 
-        public Task<PrivateKey> GetPrivateKey(long publicKeyId, AuthType type)
-        {
-            return _db.PrivateKeys.FirstOrDefaultAsync(k => k.PublicKeyId == publicKeyId && k.Type == type);
-        }
+        // public Task<PrivateKey> GetPrivateKey(long publicKeyId, AuthType type)
+        // {
+        //     return _db.PrivateKeys.FirstOrDefaultAsync(k => k.PublicKeyId == publicKeyId && k.Type == type);
+        // }
 
         public async Task<byte[]> GenChallenge(PublicKey pubkey, DateTime? expires)
         {
@@ -660,10 +640,10 @@ namespace PinkUmbrella.Services.Sql
             {
                 apiKey.ServerPublicKey = await _db.PublicKeys.FindAsync(apiKey.ServerPublicKeyId);
             }
-            if (apiKey.ServerPrivateKey == null)
-            {
-                apiKey.ServerPrivateKey = await _db.PrivateKeys.FindAsync(apiKey.ServerPrivateKeyId);
-            }
+            // if (apiKey.ServerPrivateKey == null)
+            // {
+            //     apiKey.ServerPrivateKey = await _db.PrivateKeys.FindAsync(apiKey.ServerPrivateKeyId);
+            // }
         }
 
         public async Task<ApiAuthKeyModel> GetApiKey(PublicKey key)
@@ -677,10 +657,39 @@ namespace PinkUmbrella.Services.Sql
         {
             if (key != null)
             {
-                var privateKey = await GetPrivateKey(key.Id, key.Type);
-                return new KeyPair { Private = privateKey, Public = key };
+                // var privateKey = await GetPrivateKey(key.Id, key.Type);
+                return new KeyPair
+                {
+                    //Private = privateKey,
+                    Public = key
+                };
             }
             return null;
+        }
+
+        public async Task DeleteApiKey(long clientPublicKeyId)
+        {
+            var apiPublicKey = await _db.PublicKeys.FindAsync(clientPublicKeyId);
+            if (apiPublicKey == null)
+            {
+                return;
+            }
+
+            var apiKeys = await _db.ApiAuthKeys.Where(k => k.ClientPublicKeyId == clientPublicKeyId).ToListAsync();
+            if (apiKeys.Count > 0)
+            {
+                // var privateKeyIds = apiKeys.Select(k => k.ServerPrivateKeyId).ToArray();
+                // if (privateKeyIds.Length > 0)
+                // {
+                //     var privateKeys = await _db.PrivateKeys.Where(pk => privateKeyIds.Contains(pk.Id)).ToListAsync();
+                //     _db.PrivateKeys.RemoveRange(privateKeys);
+                // }
+
+                _db.ApiAuthKeys.RemoveRange(apiKeys);
+            }
+            
+            _db.PublicKeys.Remove(apiPublicKey);
+            await _db.SaveChangesAsync();
         }
     }
 }

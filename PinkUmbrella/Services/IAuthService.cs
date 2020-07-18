@@ -29,7 +29,7 @@ namespace PinkUmbrella.Services
 
         Task<PublicKey> GetOrAdd(PublicKey key);
 
-        Task<PrivateKey> GetOrAdd(PrivateKey key);
+        // Task<PrivateKey> GetOrAdd(PrivateKey key);
 
         Task<KeyPair> GetKeyPair(PublicKey key);
 
@@ -44,6 +44,8 @@ namespace PinkUmbrella.Services
         Task<bool> IsTrusted(IPAddress address, PublicKey key);
 
         Task<PublicKey> GetCurrent();
+        
+        Task<PrivateKey> GetCurrentPrivateKey();
         
         Task<List<PublicKey>> GetForUser(int id);
         
@@ -67,7 +69,7 @@ namespace PinkUmbrella.Services
         
         Task<PublicKey> GetPublicKey(string key, AuthType type);
         
-        Task<PrivateKey> GetPrivateKey(long publicKeyId, AuthType type);
+        // Task<PrivateKey> GetPrivateKey(long publicKeyId, AuthType type);
         
         Task<byte[]> GenChallenge(PublicKey pubkey, DateTime? expires);
         
@@ -84,5 +86,7 @@ namespace PinkUmbrella.Services
         Task DeleteRecoveryKey(RecoveryKeyModel key);
         
         Task SaveAsync();
+        
+        Task DeleteApiKey(long clientPublicKeyId);
     }
 }

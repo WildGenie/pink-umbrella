@@ -8,7 +8,7 @@
     <div class="form-group">
         <label asp-for="PublicKey.Value" for="value">PublicKey</label>
         <div class="input-group">
-            <input asp-for="PublicKey.Value" name="value" class="form-control" />
+            <textarea asp-for="PublicKey.Value" name="value" class="form-control"></textarea>
             <span class="input-group-addon" aria-hidden="true"><span class="glyphicon glyphicon-ok text-success"></span></span>
         </div>
         <span asp-validation-for="PublicKey.Value" class="text-danger"></span>

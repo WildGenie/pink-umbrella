@@ -10,6 +10,6 @@ namespace PinkUmbrella.Models.Auth
         public long ServerPrivateKeyId { get; set; }
         public PublicKey ClientPublicKey { get; set; }
         public PublicKey ServerPublicKey { get; set; }
-        public PrivateKey ServerPrivateKey { get; set; }
+        // public PrivateKey ServerPrivateKey { get; set; }
     }
 }

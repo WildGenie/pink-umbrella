@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.FeatureManagement;
 using PinkUmbrella.Models;
+using PinkUmbrella.Models.Auth;
 using PinkUmbrella.Repositories;
 using PinkUmbrella.Services;
 using PinkUmbrella.Services.Elastic.Search;
@@ -152,6 +153,7 @@ namespace PinkUmbrella
             services.AddSingleton<IAuthTypeHandler, RSAAuthHandlerBouncy>();
             services.AddSingleton<IAuthTypeHandler, OpenPGPAuthHandler>();
             services.AddSingleton<IElasticService, ElasticService>();
+            services.AddSingleton<SiteKeyManager>();
 
             services.AddSingleton<IPeerConnectionType, RESTPeerClientType>();
 
