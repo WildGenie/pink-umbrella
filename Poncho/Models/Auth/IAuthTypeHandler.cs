@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace Poncho.Models.Auth
@@ -27,5 +28,7 @@ namespace Poncho.Models.Auth
         Task DecryptStreamAsync(Stream inputStream, Stream outputStream, PrivateKey privateKey, Func<string> passwordFinder);
 
         Task<bool> VerifyStreamAsync(Stream inputStream, Stream outputStream, PublicKey publicKey);
+        
+        string ComputeFingerPrint(PublicKey key, HashAlgorithm alg);
     }
 }

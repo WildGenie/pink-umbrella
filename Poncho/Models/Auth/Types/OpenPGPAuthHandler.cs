@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using PgpCore;
+using Poncho.Util;
 
 namespace Poncho.Models.Auth.Types
 {
@@ -35,7 +37,7 @@ namespace Poncho.Models.Auth.Types
             using var pgp = new PGP();
             using var publicKeyStream = GetPublicKey(publicKey);
             using var privateKeyStream = GetPrivateKey(privateKey);
-            await pgp.EncryptStreamAndSignAsync(inputStream, outputStream, publicKeyStream, privateKeyStream, null, true, true);
+            await pgp.EncryptStreamAsync(inputStream, outputStream, publicKeyStream); // AndSign, privateKeyStream
         }
 
         public async Task EncryptStreamAsync(Stream inputStream, Stream outputStream, PublicKey publicKey)
@@ -94,5 +96,14 @@ namespace Poncho.Models.Auth.Types
         private Stream GetPublicKey(PublicKey auth) => new MemoryStream(Encoding.UTF8.GetBytes(auth.Value));
 
         private Stream GetPrivateKey(PrivateKey auth) => new MemoryStream(Encoding.UTF8.GetBytes(auth.Value.Split("\n\n")[0]));
+
+        public string ComputeFingerPrint(PublicKey key, HashAlgorithm alg)
+        {
+            var raw = key.Value ?? throw new ArgumentNullException("value");
+            raw = RegexHelper.OpenPGPKeyRegex.Match(raw).Groups["base64"].Value.Replace("\n", "").Trim();
+            var bytes = Encoding.ASCII.GetBytes(raw);
+            var hashBytes = alg.ComputeHash(bytes);
+            return BitConverter.ToString(hashBytes).Replace('-', ':');
+        }
     }
 }

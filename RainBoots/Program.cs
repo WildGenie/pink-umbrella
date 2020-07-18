@@ -1,36 +1,18 @@
 ﻿using System;
-using System.IO;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Poncho.Models.Auth;
-using Poncho.Models.Auth.Types;
 using Poncho.Models.Peer;
 
 namespace RainBoots
 {
     class Program
     {
-        private static readonly string PUBLIC_KEY_PATH = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/.ssh/id_pink.pub";
-        
-        private static readonly string PRIVATE_KEY_PATH = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/.ssh/id_pink";
-
-        private static bool HAS_PUBLIC_KEY => File.Exists(PUBLIC_KEY_PATH);
-
-        private static string PUBLIC_KEY => File.ReadAllText(PUBLIC_KEY_PATH).Substring(4);
-        
-        private static string PRIVATE_KEY => File.ReadAllText(PRIVATE_KEY_PATH).Substring(4);
-
-        private static KeyPair MyKeys => new KeyPair { Public = publicKey, Private = privateKey };
-
         private static RESTPeerClient client = null;
         private static string serverUrl = "localhost";
         private static int serverPort = 12524;
-
-        private static PublicKey publicKey => new PublicKey { Value = PUBLIC_KEY, Type = AuthType.RSA };
-        
-        private static PrivateKey privateKey => new PrivateKey { Value = PRIVATE_KEY, Type = AuthType.RSA };
 
         static void Main(string[] args)
         {
@@ -60,38 +42,35 @@ namespace RainBoots
             {
                 route += $"?filter={Uri.EscapeDataString(filterMatch.Value)}";
             }
-            var res = (await client.QueryJson(route, MyKeys)) ?? "{ \"error\": \"no response\" }";
+            var res = (await client.QueryJson(route, LocalKeyManager.MyKeys)) ?? "{ \"error\": \"no response\" }";
             return $"application/json {res}";
         }
 
         private static async Task<string> Trust(Match arg)
         {
-            var res = await client.Query(MyKeys);
+            var res = await client.Query(LocalKeyManager.MyKeys);
             
             return $"application/json {res}";
         }
 
-        private static async void InitKeys()
+        private static void InitKeys()
         {
-            if (!HAS_PUBLIC_KEY)
+            if (!LocalKeyManager.Exists)
             {
-                var rsa = await new RSAAuthHandlerMsft().GenerateKey(HandshakeMethod.Default);
-                await File.WriteAllTextAsync(PUBLIC_KEY_PATH, $"{rsa.Public.Type} {rsa.Public.Value}");
-                await File.WriteAllTextAsync(PRIVATE_KEY_PATH, $"{rsa.Private.Type} {rsa.Private.Value}");
-
+                LocalKeyManager.Generate();
                 Console.WriteLine($"You should add your public key to the server you wish to connect to:");
-                Console.WriteLine(PUBLIC_KEY);
+                Console.WriteLine(LocalKeyManager.PUBLIC_KEY);
             }
         }
 
         private static async Task<string> DoGet(Match arg)
         {
-            return (await client.Query(MyKeys))?.ToString() ?? "no response";
+            return (await client.Query(LocalKeyManager.MyKeys))?.ToString() ?? "no response";
         }
 
         private static async Task<string> DoHtml(Match arg)
         {
-            var html = await client.QueryHtml("", MyKeys);
+            var html = await client.QueryHtml("", LocalKeyManager.MyKeys);
             return $"text/html {html}";
         }
 
@@ -102,7 +81,7 @@ namespace RainBoots
             {
                 route = routeMatch.Value;
             }
-            var res = (await client.QueryJson(route, MyKeys)) ?? "{ \"error\": \"no response\" }";
+            var res = (await client.QueryJson(route, LocalKeyManager.MyKeys)) ?? "{ \"error\": \"no response\" }";
             return $"application/json {res}";
         }
 
@@ -130,11 +109,10 @@ namespace RainBoots
         {
             if (arg.Groups.TryGetValue("recycle", out var recycle) && recycle.Value.Length > 0)
             {
-                if (HAS_PUBLIC_KEY)
+                if (LocalKeyManager.Exists)
                 {
                     Console.WriteLine($"Deleting old keys");
-                    File.Delete(PUBLIC_KEY_PATH);
-                    File.Delete(PRIVATE_KEY_PATH);
+                    LocalKeyManager.Delete();
                 }
                 InitKeys();
             }
@@ -157,10 +135,10 @@ namespace RainBoots
             {
                 var sb = new StringBuilder();
                 sb.Append("my public: \t");
-                sb.Append(PUBLIC_KEY);
+                sb.Append(LocalKeyManager.PUBLIC_KEY);
                 sb.Append("\n\n");
                 sb.Append("my private: \t");
-                sb.Append(PRIVATE_KEY);
+                sb.Append(LocalKeyManager.PRIVATE_KEY);
                 
                 return Task.FromResult($"text/plain {sb}");
             }

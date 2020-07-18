@@ -1,4 +1,3 @@
-using System;
 using Poncho.Util;
 
 namespace Poncho.Models.Auth
@@ -11,7 +10,7 @@ namespace Poncho.Models.Auth
             {
                 return AuthKeyFormat.Raw;
             }
-            else if (RegexHelper.OpenPGPKeyRegex.IsMatch(key))
+            else if (RegexHelper.OpenPGPKeyRegex.IsMatch(key) || RegexHelper.RSAKeyPEMRegex.IsMatch(key))
             {
                 return AuthKeyFormat.PEM;
             }

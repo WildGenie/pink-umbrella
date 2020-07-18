@@ -1,13 +1,13 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Encodings;
 using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Crypto.Prng;
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Security;
 using Poncho.Util;
@@ -22,30 +22,7 @@ namespace Poncho.Models.Auth.Types
         
         public override async Task DecryptAndVerifyStreamAsync(Stream inputStream, Stream outputStream, PrivateKey privateKey, PublicKey publicKey, Func<string> passwordFinder)
         {
-            int numRead = 0;
-
-            var rsaCsp = new RSACryptoServiceProvider();
-            rsaCsp.ImportRSAPrivateKey(Convert.FromBase64String(privateKey.Value), out numRead);
-
-            var buffer = new byte[rsaCsp.KeySize / 8];
-            var totalWritten = 0;
-            while (true)
-            {
-                numRead = await inputStream.ReadAsync(buffer);
-                if (numRead > 0)
-                {
-                    var todo = new byte[numRead];
-                    Array.Copy(buffer, todo, numRead);
-                    var outBuffer = rsaCsp.Decrypt(todo, RSAEncryptionPadding.Pkcs1);
-                    totalWritten += outBuffer.Length;
-                    await outputStream.WriteAsync(outBuffer);
-                }
-                else
-                {
-                    await outputStream.FlushAsync();
-                    break;
-                }
-            }
+            await Decrypt(inputStream, outputStream, privateKey, passwordFinder);
         }
 
         private async Task Decrypt(Stream inputStream, Stream outputStream, PrivateKey privateKey, Func<string> passwordFinder)
@@ -108,39 +85,31 @@ namespace Poncho.Models.Auth.Types
 
         public override async Task DecryptStreamAsync(Stream inputStream, Stream outputStream, PrivateKey privateKey, Func<string> passwordFinder)
         {
-            AsymmetricKeyParameter asymmetricKeyParameter = PublicKeyFactory.CreateKey(Convert.FromBase64String(privateKey.Value));
-            RsaKeyParameters rsaKeyParameters = (RsaKeyParameters) asymmetricKeyParameter;
-            RSAParameters rsaParameters = new RSAParameters();
-            rsaParameters.Modulus = rsaKeyParameters.Modulus.ToByteArrayUnsigned();
-            rsaParameters.Exponent = rsaKeyParameters.Exponent.ToByteArrayUnsigned();
-            RSACryptoServiceProvider _rsa = new RSACryptoServiceProvider();
-            _rsa.ImportParameters(rsaParameters);
 
-            int numRead = 0;
+            // Func<RSACryptoServiceProvider, RsaKeyParameters, RSACryptoServiceProvider> MakePublicRCSP = (RSACryptoServiceProvider rcsp, RsaKeyParameters rkp) =>
+            // {
+            //     RSAParameters rsaParameters = DotNetUtilities.ToRSAParameters(rkp);
+            //     rcsp.ImportParameters(rsaParameters);
+            //     return rsaKey;
+            // };
 
-            // var _rsa = new RSACryptoServiceProvider();
-            // _rsa.ImportRSAPrivateKey(Convert.FromBase64String(privateKey.Value), out numRead);
+            // var cspParameters = new CspParameters();
+            // var rsaKey = new RSACryptoServiceProvider(cspParameters);
+            // PemReader reader = new PemReader(new StringReader(privateKey.Value));
+            // object kp = reader.ReadObject();
+            // var rkp = (RsaPrivateCrtKeyParameters)(((AsymmetricCipherKeyPair)kp).Private);
+            // RSAParameters rsaParameters = DotNetUtilities.ToRSAParameters(rkp);
+            // rsaKey.ImportParameters(rsaParameters);
 
+            // AsymmetricKeyParameter asymmetricKeyParameter = PublicKeyFactory.CreateKey(Convert.FromBase64String(privateKey.Value));
+            // RsaKeyParameters rsaKeyParameters = (RsaKeyParameters) asymmetricKeyParameter;
+            // RSAParameters rsaParameters = new RSAParameters();
+            // rsaParameters.Modulus = rsaKeyParameters.Modulus.ToByteArrayUnsigned();
+            // rsaParameters.Exponent = rsaKeyParameters.Exponent.ToByteArrayUnsigned();
+            // RSACryptoServiceProvider _rsa = new RSACryptoServiceProvider();
+            // _rsa.ImportParameters(rsaParameters);
 
-            var buffer = new byte[_rsa.KeySize / 8 - 11];
-            var totalWritten = 0;
-            while (true)
-            {
-                numRead = await inputStream.ReadAsync(buffer);
-                if (numRead > 0)
-                {
-                    var todo = new byte[numRead];
-                    Array.Copy(buffer, todo, numRead);
-                    var outBuffer = _rsa.Decrypt(todo, RSAEncryptionPadding.OaepSHA1);
-                    totalWritten += outBuffer.Length;
-                    await outputStream.WriteAsync(outBuffer);
-                }
-                else
-                {
-                    await outputStream.FlushAsync();
-                    break;
-                }
-            }
+            await Decrypt(inputStream, outputStream, privateKey, passwordFinder);
         }
 
         public override Task EncryptStreamAndSignAsync(Stream inputStream, Stream outputStream, PrivateKey privateKey, PublicKey publicKey, Func<string> passwordFinder)
@@ -155,19 +124,43 @@ namespace Poncho.Models.Auth.Types
 
         public override Task<KeyPair> GenerateKey(HandshakeMethod method)
         {
-            var _rsa = new RSACryptoServiceProvider();
-            var rsaKeyInfo = _rsa.ExportParameters(true);
+            var randomGenerator = new CryptoApiRandomGenerator();
+            var secureRandom = new SecureRandom(randomGenerator);
+            var keyGenerationParameters = new KeyGenerationParameters(secureRandom, 1024);
+
+            var keyPairGenerator = new RsaKeyPairGenerator();
+            keyPairGenerator.Init(keyGenerationParameters);
+            var pair = keyPairGenerator.GenerateKeyPair();
+
+            string privateKey;
+            using (var writer = new StringWriter())
+            {
+                var pemWriter = new PemWriter(writer);
+                pemWriter.WriteObject(pair.Private);
+                pemWriter.Writer.Flush();
+                privateKey = writer.ToString();
+            }
+
+            string publicKey;
+            using (var writer = new StringWriter())
+            {
+                var pemWriter = new PemWriter(writer);
+                pemWriter.WriteObject(pair.Public);
+                pemWriter.Writer.Flush();
+                publicKey = writer.ToString();
+            }
+
             return Task.FromResult(new KeyPair()
             {
                 Public = new PublicKey()
                 {
-                    Value = Convert.ToBase64String(_rsa.ExportSubjectPublicKeyInfo()),
+                    Value = publicKey,
                     Format = Format,
                     Type = Type,
                 },
                 Private = new PrivateKey()
                 {
-                    Value = Convert.ToBase64String(_rsa.ExportRSAPrivateKey()),
+                    Value = privateKey,
                     Format = Format,
                     Type = Type,
                 },
@@ -182,6 +175,15 @@ namespace Poncho.Models.Auth.Types
         public override Task<bool> VerifyStreamAsync(Stream inputStream, Stream outputStream, PublicKey publicKey)
         {
             throw new NotImplementedException();
+        }
+
+        public override string ComputeFingerPrint(PublicKey key, HashAlgorithm alg)
+        {
+            var raw = key.Value ?? throw new ArgumentNullException("value");
+            raw = RegexHelper.RSAKeyRegex.Match(raw).Groups["base64"].Value.Trim();
+            var bytes = Convert.FromBase64String(raw);
+            var hashBytes = alg.ComputeHash(bytes);
+            return BitConverter.ToString(hashBytes).Replace('-', ':');
         }
     }
 }

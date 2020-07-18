@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
+using Poncho.Util;
 
 namespace Poncho.Models.Auth.Types
 {
@@ -159,6 +160,15 @@ namespace Poncho.Models.Auth.Types
         public override Task<bool> VerifyStreamAsync(Stream inputStream, Stream outputStream, PublicKey publicKey)
         {
             throw new NotImplementedException();
+        }
+
+        public override string ComputeFingerPrint(PublicKey key, HashAlgorithm alg)
+        {
+            string raw = key.Value ?? throw new ArgumentNullException("value");
+            raw = RegexHelper.RSAKeyRegex.Match(raw).Groups["base64"].Value.Trim();
+            var bytes = Convert.FromBase64String(raw);
+            var hashBytes = alg.ComputeHash(bytes);
+            return BitConverter.ToString(hashBytes).Replace('-', ':');
         }
     }
 }

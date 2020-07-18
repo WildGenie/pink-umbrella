@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Org.BouncyCastle.OpenSsl;
@@ -52,5 +53,6 @@ namespace Poncho.Models.Auth.Types
         public abstract Task DecryptAndVerifyStreamAsync(Stream inputStream, Stream outputStream, PrivateKey privateKey, PublicKey publicKey, Func<string> passwordFinder);
         public abstract Task DecryptStreamAsync(Stream inputStream, Stream outputStream, PrivateKey privateKey, Func<string> passwordFinder);
         public abstract Task<bool> VerifyStreamAsync(Stream inputStream, Stream outputStream, PublicKey publicKey);
+        public abstract string ComputeFingerPrint(PublicKey key, HashAlgorithm alg);
     }
 }

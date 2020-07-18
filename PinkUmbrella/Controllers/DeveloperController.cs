@@ -122,6 +122,7 @@ namespace PinkUmbrella.Controllers
             {
                 ModelState.AddModelError(nameof(clientPublicKey), "Required");
             }
+            clientPublicKey = clientPublicKey.Replace("\r", "");
             var authFormat = AuthKeyFormatResolver.Resolve(clientPublicKey);
             if (!authFormat.HasValue)
             {

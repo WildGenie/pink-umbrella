@@ -23,7 +23,7 @@ else
     <div class="form-group">
         <label asp-for="clientPublicKey" for="clientPublicKey">Client Public Key</label>
         <div class="input-group">
-            <input asp-for="clientPublicKey" class="form-control" />
+            <textarea asp-for="clientPublicKey" class="form-control"></textarea>
             <span class="input-group-addon" aria-hidden="true"><span class="glyphicon glyphicon-ok text-success"></span></span>
         </div>
         <span asp-validation-for="clientPublicKey" class="text-danger"></span>

@@ -53,7 +53,7 @@ namespace PinkUmbrella.Services.Sql
             var hasValue = false;
             if (!string.IsNullOrWhiteSpace(key.Value))
             {
-                key.Value = key.Value.Replace("\r", "");
+                key.Value = key.Value.Replace("\r", "");//.Replace("\n", " ").Replace("  ", " ");
                 hasValue = true;
 
                 var resolvedFormat = AuthKeyFormatResolver.Resolve(key.Value);
@@ -115,24 +115,10 @@ namespace PinkUmbrella.Services.Sql
 
         private string ComputeFingerPrint(PublicKey key, FingerPrintType type)
         {
-            using (var hash = GetHashAlgorithm(type))
+            var authType = _typeHandlers[key.Type][key.Format];
+            using (var alg = GetHashAlgorithm(type))
             {
-                string raw = key.Value ?? throw new ArgumentNullException("value");
-                switch (key.Type)
-                {
-                    case AuthType.OpenPGP: raw = RegexHelper.OpenPGPKeyRegex.Match(raw).Groups["base64"].Value; break;
-                    case AuthType.RSA: raw = RegexHelper.RSAKeyRegex.Match(raw).Groups["base64"].Value; break;
-                }
-                raw = raw.Trim();
-
-                byte[] bytes = null;
-                switch (key.Type)
-                {
-                    case AuthType.OpenPGP: bytes = Encoding.ASCII.GetBytes(raw); break;
-                    case AuthType.RSA: bytes = Convert.FromBase64String(raw); break;
-                }
-                var hashBytes = hash.ComputeHash(bytes);
-                return BitConverter.ToString(hashBytes).Replace('-', ':');
+                return authType.ComputeFingerPrint(key, alg);
             }
         }
 
@@ -253,14 +239,11 @@ namespace PinkUmbrella.Services.Sql
         public async Task<AuthKeyResult> GenKey(AuthKeyOptions options, HandshakeMethod method)
         {
             var ret = await _typeHandlers[options.Type][options.Format].GenerateKey(method);
+            ret.Public.Value = ret.Public.Value.Replace("\r", "");//.Replace("\n", " ").Replace("  ", " ");
             if (string.IsNullOrWhiteSpace(ret.Public.FingerPrint))
             {
                 ret.Public.FingerPrint = ComputeFingerPrint(ret.Public, FingerPrintType.MD5);
             }
-            // if (string.IsNullOrWhiteSpace(ret.Private.FingerPrint))
-            // {
-            //     ret.Private.FingerPrint = ComputeFingerPrint(ret.Private, FingerPrintType.MD5);
-            // }
 
             await _db.PublicKeys.AddAsync(ret.Public);
             await _db.SaveChangesAsync();
@@ -323,8 +306,20 @@ namespace PinkUmbrella.Services.Sql
             
             if (authKey.Id == 0)
             {
-                authKey.Value = authKey.Value.Trim();
-                authKey.Format = AuthKeyFormat.Raw;
+                authKey.Value = authKey.Value.Replace("\r", "");//.Replace("\n", " ").Replace("  ", " ").Trim();
+                var resolvedFormat = AuthKeyFormatResolver.Resolve(authKey.Value);
+                if (!resolvedFormat.HasValue)
+                {
+                    throw new ArgumentException($"Input key does not resolve to a valid format");
+                }
+                else if (authKey.Format == AuthKeyFormat.Error)
+                {
+                    authKey.Format = resolvedFormat.Value;
+                }
+                else if (authKey.Format != resolvedFormat)
+                {
+                    throw new ArgumentException($"Input key format ({authKey.Format}) does not match resolved format ({resolvedFormat})");
+                }
             }
             Regex validator = null;
             switch (authKey.Type)
@@ -495,6 +490,8 @@ namespace PinkUmbrella.Services.Sql
 
         public async Task<PublicKey> GetPublicKey(string key, AuthType type)
         {
+            key = key.Replace("\r", "");//.Replace("\n", " ").Replace("  ", " ");
+            var test = _db.PublicKeys.FirstOrDefault(k => k.Value == key);
             return await _db.PublicKeys.FirstOrDefaultAsync(k => k.Type == type && k.Value == key);
         }
 

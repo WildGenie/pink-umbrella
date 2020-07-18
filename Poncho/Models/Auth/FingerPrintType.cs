@@ -1,4 +1,4 @@
-namespace PinkUmbrella.Models.Auth
+namespace Poncho.Models.Auth
 {
     public enum FingerPrintType
     {
