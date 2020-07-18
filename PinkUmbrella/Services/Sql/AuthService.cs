@@ -53,7 +53,7 @@ namespace PinkUmbrella.Services.Sql
             var hasValue = false;
             if (!string.IsNullOrWhiteSpace(key.Value))
             {
-                key.Value = key.Value.Replace("\r", "");//.Replace("\n", " ").Replace("  ", " ");
+                key.Value = key.Value.Replace("\r", "");
                 hasValue = true;
 
                 var resolvedFormat = AuthKeyFormatResolver.Resolve(key.Value);
@@ -239,7 +239,7 @@ namespace PinkUmbrella.Services.Sql
         public async Task<AuthKeyResult> GenKey(AuthKeyOptions options, HandshakeMethod method)
         {
             var ret = await _typeHandlers[options.Type][options.Format].GenerateKey(method);
-            ret.Public.Value = ret.Public.Value.Replace("\r", "");//.Replace("\n", " ").Replace("  ", " ");
+            ret.Public.Value = ret.Public.Value.Replace("\r", "");
             if (string.IsNullOrWhiteSpace(ret.Public.FingerPrint))
             {
                 ret.Public.FingerPrint = ComputeFingerPrint(ret.Public, FingerPrintType.MD5);
@@ -306,7 +306,7 @@ namespace PinkUmbrella.Services.Sql
             
             if (authKey.Id == 0)
             {
-                authKey.Value = authKey.Value.Replace("\r", "");//.Replace("\n", " ").Replace("  ", " ").Trim();
+                authKey.Value = authKey.Value.Replace("\r", "");
                 var resolvedFormat = AuthKeyFormatResolver.Resolve(authKey.Value);
                 if (!resolvedFormat.HasValue)
                 {
@@ -490,7 +490,7 @@ namespace PinkUmbrella.Services.Sql
 
         public async Task<PublicKey> GetPublicKey(string key, AuthType type)
         {
-            key = key.Replace("\r", "");//.Replace("\n", " ").Replace("  ", " ");
+            key = key.Replace("\r", "");
             var test = _db.PublicKeys.FirstOrDefault(k => k.Value == key);
             return await _db.PublicKeys.FirstOrDefaultAsync(k => k.Type == type && k.Value == key);
         }

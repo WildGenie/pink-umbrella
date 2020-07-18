@@ -37,7 +37,7 @@ namespace Poncho.Models.Auth.Types
             using var pgp = new PGP();
             using var publicKeyStream = GetPublicKey(publicKey);
             using var privateKeyStream = GetPrivateKey(privateKey);
-            await pgp.EncryptStreamAsync(inputStream, outputStream, publicKeyStream); // AndSign, privateKeyStream
+            await pgp.EncryptStreamAndSignAsync(inputStream, outputStream, privateKeyStream, publicKeyStream, null);
         }
 
         public async Task EncryptStreamAsync(Stream inputStream, Stream outputStream, PublicKey publicKey)

@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Poncho.Models.Auth;
 using Poncho.Models.Auth.Types;
+using Poncho.Models.Crypto;
 
 namespace Poncho.Models.Peer.Client
 {
@@ -82,6 +84,11 @@ namespace Poncho.Models.Peer.Client
                     {
                         var pub = keys.Public.Value.Replace("\n", "%n%").Replace("\r", "");
                         request.Headers.Add("X-Api-Key", new string[]{ $"{keys.Public.Type} {pub}" });
+
+                        var helper = new AesHelper();
+                        helper.Randomize();
+                        
+                        request.Headers.Add("X-Api-Cipher", $"{helper.Size} {Convert.ToBase64String(helper.Key)}");
                     }
                 }
 
@@ -117,7 +124,15 @@ namespace Poncho.Models.Peer.Client
                                 {
                                     using (var outputStream = new MemoryStream())
                                     {
-                                        await new RSAAuthHandlerMsft().DecryptAndVerifyStreamAsync(stream, outputStream, keys.Private, keys.Public, null);
+                                        var cipherHeader = response.Content.Headers.GetValues("X-Api-Cipher").First();
+                                        var helper = new AesHelper();
+                                        stream.Read(helper.IV);
+
+                                        var cipherEncrypted = new MemoryStream(Convert.FromBase64String(cipherHeader));
+                                        var cipherDecrypted = new MemoryStream();
+                                        await new RSAAuthHandlerMsft().DecryptAndVerifyStreamAsync(cipherEncrypted, cipherDecrypted, keys.Private, keys.Public, null);
+                                        
+                                        helper.Decrypt(stream, outputStream);
                                         return System.Text.Encoding.UTF8.GetString(outputStream.ToArray());
                                     }
                                 }
