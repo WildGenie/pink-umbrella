@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Hangfire;
 using Hangfire.Server;
@@ -6,11 +7,14 @@ using Hangfire.Storage.SQLite;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.FeatureManagement;
 using PinkUmbrella.Models;
@@ -277,6 +281,8 @@ namespace PinkUmbrella
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
+
+            SetupFiles(app);
             app.UseStaticFiles();
 
             app.UseRouting();
@@ -317,6 +323,34 @@ namespace PinkUmbrella
             RecurringJob.AddOrUpdate(() => ElasticJobs.SyncMentions(null), Cron.Hourly);
             RecurringJob.AddOrUpdate(() => ElasticJobs.SyncPeers(null), Cron.Hourly);
             RecurringJob.AddOrUpdate(() => ElasticJobs.SyncInventories(null), Cron.Hourly);
+        }
+
+        private void SetupFiles(IApplicationBuilder app)
+        {
+            var provider = new FileExtensionContentTypeProvider();
+            provider.Mappings[".ts"] = "application/javascript;application/typescript";
+
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                FileProvider = new PhysicalFileProvider(
+                    Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/ts")),
+                RequestPath = new PathString("/ts"),
+                ContentTypeProvider = provider
+            });
+
+            // Tribute
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                FileProvider = new PhysicalFileProvider(
+                    Path.Combine(Directory.GetCurrentDirectory(), "wwwroot-lib/tribute/dist")),
+                RequestPath = new PathString("/lib/tribute"),
+            });
+            // app.UseDirectoryBrowser(new DirectoryBrowserOptions()
+            // {
+            //     FileProvider = new PhysicalFileProvider(
+            //         Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\images")),
+            //     RequestPath = new PathString("/MyImages")
+            // });
         }
     }
 }

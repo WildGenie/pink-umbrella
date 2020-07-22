@@ -1,10 +1,13 @@
-function coerceToBase64Url(thing, name) {
+function coerceToBase64Url(thing: any, name: string | undefined): Uint8Array {
+    // Array or ArrayBuffer to Uint8Array
     if (Array.isArray(thing)) {
         thing = Uint8Array.from(thing);
     }
     if (thing instanceof ArrayBuffer) {
         thing = new Uint8Array(thing);
     }
+    
+    // Uint8Array to base64
     if (thing instanceof Uint8Array) {
         var str = '';
         var len = thing.byteLength;
@@ -13,16 +16,23 @@ function coerceToBase64Url(thing, name) {
         }
         thing = window.btoa(str);
     }
+
     if (typeof thing !== 'string') {
         throw new Error('could not coerce \'' + (name || 'input') + '\' to string');
     }
+    
+    // base64 to base64url
+    // NOTE: "=" at the end of challenge is optional, strip it off here
     thing = thing.replace(/\+/g, '-').replace(/\//g, '_').replace(/=*$/g, '');
-    return thing;
+    return thing as Uint8Array;
 }
+
+
 async function registerNewCredential() {
-    var data = $('form#integrated-credentials').serialize();
+    var data = $('form#integrated-credentials').serialize();//Array().reduce(function(form,p){  form[p.name] = p.value; return form;}, {});
     console.log('integrated-credentials: ');
     console.log(data);
+
     let makeCredentialOptions;
     try {
         let url = $('#makeCredentialOptions').attr('href');
@@ -33,27 +43,29 @@ async function registerNewCredential() {
         });
         makeCredentialOptions.challenge = Uint8Array.from(atob(makeCredentialOptions.challenge), c => c.charCodeAt(0));
         makeCredentialOptions.user.id = Uint8Array.from(atob(makeCredentialOptions.user.id), c => c.charCodeAt(0));
-    }
-    catch (e) {
+    } catch (e) {
         console.error(e);
         return;
     }
-    let newCredential;
+
+    let newCredential: any | undefined;
     try {
         newCredential = await navigator.credentials.create({
             publicKey: makeCredentialOptions
         });
-    }
-    catch (e) {
-        var msg = "Could not create credentials in browser. Probably because the username is already registered with your authenticator. Please change username or authenticator.";
+    } catch (e) {
+        var msg = "Could not create credentials in browser. Probably because the username is already registered with your authenticator. Please change username or authenticator."
         console.error(msg);
         console.error(e);
         return;
     }
+
     if (newCredential) {
+        // Move data into Arrays incase it is super long
         let attestationObject = new Uint8Array(newCredential.response.attestationObject);
         let clientDataJSON = new Uint8Array(newCredential.response.clientDataJSON);
         let rawId = new Uint8Array(newCredential.rawId);
+
         const credData = {
             id: newCredential.id,
             rawId: coerceToBase64Url(rawId, 'rawId'),
@@ -64,6 +76,7 @@ async function registerNewCredential() {
                 clientDataJson: coerceToBase64Url(clientDataJSON, 'clientDataJSON')
             }
         };
+
         try {
             let url = $('#makeCredentials').attr('href') + '?' + makeCredentialOptions.serialize();
             console.log(url);
@@ -73,23 +86,26 @@ async function registerNewCredential() {
                 data: credData
             });
             console.log(cred);
-        }
-        catch (e) {
+        } catch (e) {
             console.error(e);
             return;
         }
     }
 }
-async function loginViaIntegratedCredentials(el) {
+
+async function loginViaIntegratedCredentials(el: HTMLElement) {
+    // event.preventDefault();
     let $form = $(el).closest('form');
-    let email = $form.find('input[name=EmailAddress]').val() || '';
+    let email = $form.find('input[name=EmailAddress]').val() as string || '';
+
     if (email.trim().length === 0) {
         $('[data-valmsg-for="EmailAddress"]').text('Email required');
         return;
-    }
-    else {
+    } else {
         $('[data-valmsg-for="EmailAddress"]').text('');
     }
+
+    // send to server for registering
     let makeAssertionOptions;
     try {
         let url = $('#assertionOptions').attr('href');
@@ -98,41 +114,55 @@ async function loginViaIntegratedCredentials(el) {
             type: 'post',
             data: 'email=' + encodeURIComponent(email)
         });
-    }
-    catch (e) {
+    } catch (e) {
         console.log("Request to server failed");
         console.log(e);
         return;
     }
+
+    // show options error to user
     if (makeAssertionOptions.status !== "ok") {
         console.log("Error creating assertion options");
         console.log(makeAssertionOptions.errorMessage);
         return;
     }
+
+    // todo: switch this to coercebase64
     const challenge = makeAssertionOptions.challenge.replace(/-/g, "+").replace(/_/g, "/");
     makeAssertionOptions.challenge = Uint8Array.from(atob(challenge), c => c.charCodeAt(0));
-    makeAssertionOptions.allowCredentials.forEach(function (listItem) {
+
+    // fix escaping. Change this to coerce
+    makeAssertionOptions.allowCredentials.forEach(function (listItem: any) {
         var fixedId = listItem.id.replace(/\_/g, "/").replace(/\-/g, "+");
         listItem.id = Uint8Array.from(atob(fixedId), c => c.charCodeAt(0));
     });
+
     confirm('Tap your security key to login.');
+
+    // ask browser for credentials (browser will ask connected authenticators)
     let credential;
     try {
-        credential = await navigator.credentials.get({ publicKey: makeAssertionOptions });
-    }
-    catch (err) {
+        credential = await navigator.credentials.get({ publicKey: makeAssertionOptions })
+    } catch (err) {
         console.log(err.message ? err.message : err);
         return;
     }
+
     try {
         await verifyLoginAssertionWithServer(credential);
-    }
-    catch (e) {
+    } catch (e) {
         console.error("Could not verify assertion");
         console.error(e);
     }
 }
-async function verifyLoginAssertionWithServer(assertedCredential) {
+
+// https://github.com/abergs/fido2-net-lib/blob/master/Demo/wwwroot/js/passwordless.login.js
+/**
+ * Sends the credential to the the FIDO2 server for assertion
+ * @param {any} assertedCredential
+ */
+async function verifyLoginAssertionWithServer(assertedCredential: any) {
+    // Move data into Arrays incase it is super long
     let authData = new Uint8Array(assertedCredential.response.authenticatorData);
     let clientDataJSON = new Uint8Array(assertedCredential.response.clientDataJSON);
     let rawId = new Uint8Array(assertedCredential.rawId);
@@ -148,6 +178,7 @@ async function verifyLoginAssertionWithServer(assertedCredential) {
             signature: coerceToBase64Url(sig, 'sig')
         }
     };
+
     let response;
     try {
         let url = $('#makeAssertion').attr('href');
@@ -156,17 +187,19 @@ async function verifyLoginAssertionWithServer(assertedCredential) {
             type: 'post',
             data: data
         });
-    }
-    catch (e) {
+    } catch (e) {
         console.error("Request to server failed", e);
         throw e;
     }
+
     console.log("Assertion Object", response);
+
+    // show error
     if (response.status !== "ok") {
         console.log("Error doing assertion");
         console.log(response.errorMessage);
         return;
     }
+
     location.assign('/');
 }
-//# sourceMappingURL=fido.js.map

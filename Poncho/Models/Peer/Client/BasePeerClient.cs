@@ -16,7 +16,6 @@ namespace Poncho.Models.Peer.Client
         protected readonly PeerModel _peer;
         protected readonly HttpClientHandler _clientHandler;
         public IPeerConnectionType Type { get; }
-        
 
         public BasePeerClient(IPeerConnectionType type, PeerModel peer)
         {
@@ -51,7 +50,7 @@ namespace Poncho.Models.Peer.Client
                 {
                     if (keys.Public != null)
                     {
-                        var pub = keys.Public.Value.Replace("\n", "%n%").Replace("\r", "");
+                        var pub = keys.Public.Value.Replace("\n", "%n%");
                         request.Headers.Add("X-Api-Key", new string[]{ $"{keys.Public.Type} {pub}" });
 
                         if (body != null)

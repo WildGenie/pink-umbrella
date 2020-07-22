@@ -250,7 +250,7 @@ namespace PinkUmbrella.Controllers
                 var user = await GetCurrentUserAsync();
                 var tags = await _localProfiles.GetCompletionsFor(prefix, user.UserId);
                 return Json(new {
-                    items = tags.Select(t => new { value = t.Id.ToString(), label = t.Handle }).ToArray()
+                    items = tags.Select(t => new { value = t.Id.ToString(), label = t.Handle, display = t.DisplayName }).ToArray()
                 });
             }
             else

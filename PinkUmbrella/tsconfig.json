@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+      "removeComments": true,
+      "target": "esnext",
+      "module": "commonjs",
+      "sourceMap": true,
+      "allowJs": true,
+      "baseUrl": "wwwroot",
+      "rootDir": "wwwroot/ts",
+      "outDir": "wwwroot/js",
+      "strict": false,
+      "esModuleInterop": true,
+      "moduleResolution": "node",
+      "paths": {
+        "*": ["wwwroot/ts/*"]
+      },
+    },
+    "include": [
+        "wwwroot/ts/*",
+        "wwwroot/ts/**/*"
+    ],
+    "exclude": [
+    ]
+  }
