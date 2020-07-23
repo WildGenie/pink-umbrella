@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Hangfire;
 using Hangfire.Server;
 using Hangfire.Storage.SQLite;
+using Markdig;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -158,6 +159,8 @@ namespace PinkUmbrella
             services.AddSingleton<IAuthTypeHandler, OpenPGPAuthHandler>();
             services.AddSingleton<IElasticService, ElasticService>();
             services.AddSingleton<SiteKeyManager>();
+
+            services.AddSingleton<MarkdownPipeline>(new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
 
             services.AddSingleton<IPeerConnectionType, RESTPeerClientType>();
 

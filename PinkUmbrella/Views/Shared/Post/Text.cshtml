@@ -1,2 +1,6 @@
-﻿@model PostModel
-<p>@Model.Content</p>
+﻿@inject Markdig.MarkdownPipeline mdPipeline
+@model PostModel
+@if (!string.IsNullOrWhiteSpace(Model.Content))
+{
+<p>@Html.Raw(Markdig.Markdown.ToHtml(Model.Content, mdPipeline))</p>
+}
