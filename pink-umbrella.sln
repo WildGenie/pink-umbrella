@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pink-umbrella", "PinkUmbrella\pink-umbrella.csproj", "{8868A278-DF68-4F77-A627-9E29478441C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poncho", "Poncho\Poncho.csproj", "{2F501ECE-C4F4-41B8-8295-42296BA279C8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tides", "Tides\Tides.csproj", "{2F501ECE-C4F4-41B8-8295-42296BA279C8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RainBoots", "RainBoots\RainBoots.csproj", "{0430781F-411A-4F3C-874D-628E840F1E3B}"
 EndProject

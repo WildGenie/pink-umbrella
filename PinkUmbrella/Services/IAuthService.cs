@@ -7,7 +7,7 @@ using Fido2NetLib.Development;
 using Fido2NetLib.Objects;
 using PinkUmbrella.Models;
 using PinkUmbrella.Models.Auth;
-using Poncho.Models.Auth;
+using Tides.Models.Auth;
 
 namespace PinkUmbrella.Services
 {

@@ -16,7 +16,7 @@ using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Models.Search;
 using PinkUmbrella.Services.Local;
-using Poncho.Models;
+using Tides.Models;
 
 namespace PinkUmbrella.Controllers
 {

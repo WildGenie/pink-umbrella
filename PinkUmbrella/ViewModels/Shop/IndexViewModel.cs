@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using PinkUmbrella.Models;
-using Poncho.Models;
-using Poncho.Models.Public;
+using Tides.Models;
+using Tides.Models.Public;
 
 namespace PinkUmbrella.ViewModels.Shop
 {

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>Tides</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BouncyCastle.NetCoreSdk" Version="1.9.3.1" />
+    <PackageReference Include="PgpCore" Version="2.4.0" />
+  </ItemGroup>
+</Project>

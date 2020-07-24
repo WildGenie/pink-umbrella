@@ -6,7 +6,7 @@ using PinkUmbrella.Repositories;
 using System.Collections.Generic;
 using PinkUmbrella.Services.Search;
 using PinkUmbrella.Models.Search;
-using Poncho.Models;
+using Tides.Models;
 
 namespace PinkUmbrella.Services.Sql.Search
 {

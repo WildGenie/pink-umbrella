@@ -5,8 +5,8 @@ using Nest;
 using PinkUmbrella.Models;
 using PinkUmbrella.Models.Public;
 using PinkUmbrella.Services.Elastic;
-using Poncho.Models.Peer;
-using Poncho.Models.Public;
+using Tides.Models.Peer;
+using Tides.Models.Public;
 
 namespace PinkUmbrella.Services.NoSql
 {

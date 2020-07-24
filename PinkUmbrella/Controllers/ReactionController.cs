@@ -15,8 +15,8 @@ using PinkUmbrella.Models.Settings;
 using PinkUmbrella.Services;
 using PinkUmbrella.Services.Local;
 using PinkUmbrella.ViewModels.Shared;
-using Poncho.Models;
-using Poncho.Models.Public;
+using Tides.Models;
+using Tides.Models.Public;
 
 namespace PinkUmbrella.Controllers
 {

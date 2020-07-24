@@ -1,5 +1,5 @@
 using PinkUmbrella.Models;
-using Poncho.Models;
+using Tides.Models;
 
 namespace PinkUmbrella.ViewModels.Archive
 {

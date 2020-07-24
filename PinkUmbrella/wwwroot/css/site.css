@@ -187,8 +187,9 @@ ul.highlight-selected > li.selected {
   margin: 0;
 }
 
-.js-new-post-form input#Content {
+.js-new-post-form .js-new-post-content {
   grid-column: span 3;
+  width: 100%;
 }
 
 .change-post {
@@ -242,3 +243,16 @@ ul.highlight-selected > li.selected {
   .validate-success + .badge > .success, .validate-danger + .badge > .danger, .validate-warning + .badge > .warning, .validate-thinking + .badge > .thinking {
       display: inline-block;
   }
+
+
+
+
+.supports-markdown-container {
+  position: relative;
+}
+
+.supports-markdown-container .supports-markdown-icon {
+  position: absolute;
+  bottom: .5rem;
+  right: .5rem;
+}

@@ -5,8 +5,8 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text.Json.Serialization;
-using Poncho.Models;
-using Poncho.Models.Public;
+using Tides.Models;
+using Tides.Models.Public;
 
 namespace PinkUmbrella.Models.Public
 {

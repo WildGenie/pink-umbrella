@@ -2,7 +2,7 @@ using Fido2NetLib.Development;
 using Microsoft.EntityFrameworkCore;
 using PinkUmbrella.Models.Auth;
 using PinkUmbrella.Models.Auth.Permissions;
-using Poncho.Models.Auth;
+using Tides.Models.Auth;
 
 namespace PinkUmbrella.Repositories
 {

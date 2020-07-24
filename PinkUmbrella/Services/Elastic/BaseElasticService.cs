@@ -4,9 +4,9 @@ using Nest;
 using PinkUmbrella.Models;
 using PinkUmbrella.Models.Peer;
 using PinkUmbrella.Models.Public;
-using Poncho.Models;
-using Poncho.Models.Peer;
-using Poncho.Models.Public;
+using Tides.Models;
+using Tides.Models.Peer;
+using Tides.Models.Public;
 
 namespace PinkUmbrella.Services.Elastic
 {

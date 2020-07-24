@@ -9,8 +9,8 @@ using PinkUmbrella.Models.Peer;
 using PinkUmbrella.Repositories;
 using PinkUmbrella.Services.Peer;
 using PinkUmbrella.Util;
-using Poncho.Models.Auth;
-using Poncho.Models.Peer;
+using Tides.Models.Auth;
+using Tides.Models.Peer;
 
 namespace PinkUmbrella.Services.NoSql
 {

@@ -5,7 +5,7 @@ using PinkUmbrella.Services.Search;
 using PinkUmbrella.Models.Search;
 using Nest;
 using System.Collections.Generic;
-using Poncho.Models;
+using Tides.Models;
 
 namespace PinkUmbrella.Services.Elastic.Search
 {

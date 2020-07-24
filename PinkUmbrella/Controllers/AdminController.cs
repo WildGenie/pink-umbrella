@@ -20,10 +20,10 @@ using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Util;
 using PinkUmbrella.Services.Local;
 using PinkUmbrella.Models.Public;
-using Poncho.Models;
-using Poncho.Models.Public;
-using Poncho.Models.Auth;
-using Poncho.Models.Peer;
+using Tides.Models;
+using Tides.Models.Public;
+using Tides.Models.Auth;
+using Tides.Models.Peer;
 
 namespace PinkUmbrella.Controllers
 {

@@ -13,9 +13,9 @@ using System.IO;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using PinkUmbrella.Services.Local;
-using Poncho.Models;
-using Poncho.Models.Public;
-using Poncho.Models.Auth;
+using Tides.Models;
+using Tides.Models.Public;
+using Tides.Models.Auth;
 
 namespace PinkUmbrella.Services.Sql
 {

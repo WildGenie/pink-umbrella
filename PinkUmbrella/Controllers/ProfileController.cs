@@ -14,8 +14,8 @@ using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Models.Community;
 using PinkUmbrella.Services.Local;
 using PinkUmbrella.Models.Public;
-using Poncho.Models.Public;
-using Poncho.Models;
+using Tides.Models.Public;
+using Tides.Models;
 
 namespace PinkUmbrella.Controllers
 {

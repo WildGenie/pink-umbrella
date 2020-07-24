@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using PinkUmbrella.Models.Public;
-using Poncho.Util;
+using Tides.Util;
 
 namespace PinkUmbrella.Models
 {

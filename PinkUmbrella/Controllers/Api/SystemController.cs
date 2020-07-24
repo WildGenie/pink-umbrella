@@ -10,8 +10,8 @@ using PinkUmbrella.Models.Settings;
 using PinkUmbrella.Repositories;
 using PinkUmbrella.Services;
 using PinkUmbrella.Util;
-using Poncho.Models.Auth;
-using Poncho.Models.Peer;
+using Tides.Models.Auth;
+using Tides.Models.Peer;
 
 namespace PinkUmbrella.Controllers.Api
 {

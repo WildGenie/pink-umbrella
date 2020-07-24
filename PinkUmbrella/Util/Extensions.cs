@@ -5,8 +5,8 @@ using System.Data;
 using System.Data.Common;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Poncho.Models;
-using Poncho.Util;
+using Tides.Models;
+using Tides.Util;
 
 namespace PinkUmbrella.Util
 {

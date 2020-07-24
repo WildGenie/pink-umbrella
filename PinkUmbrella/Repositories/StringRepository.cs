@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 using PinkUmbrella.Models;
-using Poncho.Models;
+using Tides.Models;
 
 namespace PinkUmbrella.Repositories
 {
@@ -22,6 +22,7 @@ namespace PinkUmbrella.Repositories
         public string CommunityDocUrl => "https://docs.google.com/document/d/13RdzrgGWLu21BfCVKf5BBSJgpk2cvhixYOZnRv1bITM/edit#";
         public string SshKeyGenUrl => "https://linux.die.net/man/1/ssh-keygen";
         public string OpenSSLKeyGenUrl => "https://wiki.openssl.org/index.php/Command_Line_Utilities";
+        public string MarkdownUrl => "https://guides.github.com/features/mastering-markdown/";
 
         public string RoleDeveloper => "dev";
 

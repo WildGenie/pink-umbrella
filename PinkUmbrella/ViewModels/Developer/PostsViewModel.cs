@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using PinkUmbrella.Models;
-using Poncho.Models;
+using Tides.Models;
 
 namespace PinkUmbrella.ViewModels.Developer
 {

@@ -7,8 +7,8 @@ using PinkUmbrella.Models;
 using PinkUmbrella.Models.AhPushIt;
 using PinkUmbrella.Models.Public;
 using PinkUmbrella.Repositories;
-using Poncho.Models;
-using Poncho.Models.Public;
+using Tides.Models;
+using Tides.Models.Public;
 
 namespace PinkUmbrella.Services.Sql
 {

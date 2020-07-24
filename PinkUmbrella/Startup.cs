@@ -33,9 +33,9 @@ using PinkUmbrella.Services.Sql;
 using PinkUmbrella.Services.Sql.React;
 using PinkUmbrella.Services.Sql.Search;
 using PinkUmbrella.Util;
-using Poncho.Models.Auth;
-using Poncho.Models.Auth.Types;
-using Poncho.Models.Peer;
+using Tides.Models.Auth;
+using Tides.Models.Auth.Types;
+using Tides.Models.Peer;
 using StackExchange.Profiling.Storage;
 
 namespace PinkUmbrella

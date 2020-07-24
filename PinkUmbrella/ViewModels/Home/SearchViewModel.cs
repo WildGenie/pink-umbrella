@@ -1,5 +1,5 @@
 using PinkUmbrella.Models.Search;
-using Poncho.Models;
+using Tides.Models;
 
 namespace PinkUmbrella.ViewModels.Home
 {

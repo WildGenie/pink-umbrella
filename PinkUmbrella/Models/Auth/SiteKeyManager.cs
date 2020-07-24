@@ -1,5 +1,5 @@
-using Poncho.Models.Auth.Types;
-using Poncho.Models.Crypto;
+using Tides.Models.Auth.Types;
+using Tides.Models.Crypto;
 
 namespace PinkUmbrella.Models.Auth
 {

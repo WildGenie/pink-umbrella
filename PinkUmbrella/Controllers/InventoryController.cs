@@ -10,7 +10,7 @@ using PinkUmbrella.ViewModels.Inventory;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Models.Settings;
 using PinkUmbrella.Services.Local;
-using Poncho.Models;
+using Tides.Models;
 
 namespace PinkUmbrella.Controllers
 {

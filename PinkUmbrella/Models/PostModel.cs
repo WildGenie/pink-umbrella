@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using PinkUmbrella.Models.Public;
-using Poncho.Models;
-using Poncho.Models.Public;
-using Poncho.Util;
+using Tides.Models;
+using Tides.Models.Public;
+using Tides.Util;
 
 namespace PinkUmbrella.Models
 {

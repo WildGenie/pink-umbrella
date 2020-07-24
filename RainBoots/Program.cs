@@ -3,8 +3,8 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Poncho.Models.Auth;
-using Poncho.Models.Peer;
+using Tides.Models.Auth;
+using Tides.Models.Peer;
 
 namespace RainBoots
 {

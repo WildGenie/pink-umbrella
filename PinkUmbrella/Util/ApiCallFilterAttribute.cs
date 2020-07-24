@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using PinkUmbrella.Models.Auth;
 using PinkUmbrella.Services;
-using Poncho.Models.Auth;
-using Poncho.Models.Crypto;
+using Tides.Models.Auth;
+using Tides.Models.Crypto;
 
 namespace PinkUmbrella.Util
 {

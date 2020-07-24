@@ -14,7 +14,7 @@ using System.Linq;
 using Fido2NetLib.Development;
 using PinkUmbrella.Util;
 using PinkUmbrella.Models;
-using Poncho.Models.Auth;
+using Tides.Models.Auth;
 
 namespace PinkUmbrella.Controllers
 {

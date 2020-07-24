@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using PinkUmbrella.Util;
-using Poncho.Util;
+using Tides.Util;
 
 namespace PinkUmbrella.ViewModels.Doc
 {

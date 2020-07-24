@@ -6,9 +6,9 @@ using PinkUmbrella.Models;
 using PinkUmbrella.Models.Auth;
 using PinkUmbrella.Models.Public;
 using PinkUmbrella.ViewModels.Account;
-using Poncho.Models;
-using Poncho.Models.Auth;
-using Poncho.Models.Public;
+using Tides.Models;
+using Tides.Models.Auth;
+using Tides.Models.Public;
 
 namespace PinkUmbrella.Services.Local
 {

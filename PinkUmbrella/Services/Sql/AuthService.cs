@@ -15,8 +15,8 @@ using PinkUmbrella.Models;
 using PinkUmbrella.Models.Auth;
 using PinkUmbrella.Models.Auth.Permissions;
 using PinkUmbrella.Repositories;
-using Poncho.Models.Auth;
-using Poncho.Util;
+using Tides.Models.Auth;
+using Tides.Util;
 
 namespace PinkUmbrella.Services.Sql
 {

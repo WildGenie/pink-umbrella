@@ -8,6 +8,9 @@
     <span asp-validation-for="Visibility" class="text-danger"></span>
     <button type="submit" class="btn btn-primary text-nowrap"><i class="fas fa-paper-plane" style="margin-right:.5rem"></i> Post</button>
     <label asp-for="Content"></label>
-    <textarea asp-for="Content" placeholder="Speak your message..." class="form-control js-item-editable js-tag-editor js-user-handle-editor" autocomplete="off"></textarea>
+    <div class="supports-markdown-container js-new-post-content">
+        <textarea asp-for="Content" placeholder="Speak your message..." class="form-control js-item-editable js-tag-editor js-user-handle-editor" autocomplete="off"></textarea>
+        <a class="supports-markdown-icon" href="@_strings.MarkdownUrl" target="_blank" title="Styling with markdown is supported"><i class="fab fa-markdown"></i></a>
+    </div>
     <span asp-validation-for="Content" class="text-danger"></span>
 </form>

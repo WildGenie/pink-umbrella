@@ -5,8 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using PinkUmbrella.Models;
 using PinkUmbrella.Repositories;
 using PinkUmbrella.Models.Public;
-using Poncho.Models;
-using Poncho.Models.Public;
+using Tides.Models;
+using Tides.Models.Public;
 
 namespace PinkUmbrella.Services.Sql.React
 {

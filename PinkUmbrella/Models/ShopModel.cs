@@ -9,9 +9,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PinkUmbrella.Models.Public;
 using PinkUmbrella.Util;
-using Poncho.Models;
-using Poncho.Models.Public;
-using Poncho.Util;
+using Tides.Models;
+using Tides.Models.Public;
+using Tides.Util;
 
 namespace PinkUmbrella.Models
 {

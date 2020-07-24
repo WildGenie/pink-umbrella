@@ -1,4 +1,4 @@
-using Poncho.Models.Auth;
+using Tides.Models.Auth;
 
 namespace PinkUmbrella.Models.Auth
 {

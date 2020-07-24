@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using PinkUmbrella.Models.Auth;
 using PinkUmbrella.Models.Peer;
-using Poncho.Models.Auth;
-using Poncho.Models.Peer;
+using Tides.Models.Auth;
+using Tides.Models.Peer;
 
 namespace PinkUmbrella.Services
 {

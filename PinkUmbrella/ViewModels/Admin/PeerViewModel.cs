@@ -1,5 +1,5 @@
 using PinkUmbrella.Models.Peer;
-using Poncho.Models.Peer;
+using Tides.Models.Peer;
 
 namespace PinkUmbrella.ViewModels.Admin
 {

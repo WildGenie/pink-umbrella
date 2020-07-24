@@ -14,8 +14,8 @@ using PinkUmbrella.Util;
 using PinkUmbrella.Services.Local;
 using PinkUmbrella.Models.Auth;
 using System.ComponentModel.DataAnnotations;
-using Poncho.Models;
-using Poncho.Models.Auth;
+using Tides.Models;
+using Tides.Models.Auth;
 
 namespace PinkUmbrella.Controllers
 {

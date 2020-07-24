@@ -1,7 +1,7 @@
 using System;
-using Poncho.Models.Auth;
-using Poncho.Models.Auth.Types;
-using Poncho.Models.Crypto;
+using Tides.Models.Auth;
+using Tides.Models.Auth.Types;
+using Tides.Models.Crypto;
 
 namespace RainBoots
 {
