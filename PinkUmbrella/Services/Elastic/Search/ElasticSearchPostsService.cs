@@ -6,15 +6,17 @@ using PinkUmbrella.Models.Search;
 using Nest;
 using System.Collections.Generic;
 using Tides.Models;
+using Tides.Services;
+using Tides.Core;
 
 namespace PinkUmbrella.Services.Elastic.Search
 {
-    public class ElasticSearchPostsService : BaseSearchElasticService<PostModel>, ISearchableService
+    public class ElasticSearchPostsService : BaseSearchElasticService<BaseObject>, ISearchableService
     {
         private readonly SimpleDbContext _dbContext;
         private readonly IPostService _posts;
 
-        public ElasticSearchPostsService(SimpleDbContext dbContext, IPostService posts)
+        public ElasticSearchPostsService(SimpleDbContext dbContext, IPostService posts, IHazActivityStreamPipe pipe): base(pipe)
         {
             _dbContext = dbContext;
             _posts = posts;
@@ -28,6 +30,7 @@ namespace PinkUmbrella.Services.Elastic.Search
 
         public async Task<SearchResultsModel> Search(SearchRequestModel request)
         {
+            await Task.Delay(1);
             var elastic = GetClient();
             var musts = new List<QueryContainer>();
 
@@ -43,16 +46,11 @@ namespace PinkUmbrella.Services.Elastic.Search
             }
 
             AddTagSearch(request, musts);
-            return await DoSearch(request, elastic, new BoolQuery()
-            {
-                Must = musts,
-            }, new TermQuery { Name = "postType", Value = PostType.Text }, ResultType);
-        }
-
-        protected override async Task<bool> CanView(PostModel r, int? viewerId)
-        {
-            await _posts.BindReferences(r, viewerId);
-            return _posts.CanView(r, viewerId);
+            // return await DoSearch(request, elastic, new BoolQuery()
+            // {
+            //     Must = musts,
+            // }, new TermQuery { Name = "postType", Value = PostType.Text }, ResultType);
+            return null;
         }
     }
 }

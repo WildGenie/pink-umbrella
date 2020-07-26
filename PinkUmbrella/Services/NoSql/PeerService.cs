@@ -5,12 +5,11 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PinkUmbrella.Models.Auth;
-using PinkUmbrella.Models.Peer;
 using PinkUmbrella.Repositories;
-using PinkUmbrella.Services.Peer;
 using PinkUmbrella.Util;
 using Tides.Models.Auth;
-using Tides.Models.Peer;
+using Tides.Models.Peer.Client;
+using Tides.Services;
 
 namespace PinkUmbrella.Services.NoSql
 {
@@ -18,18 +17,16 @@ namespace PinkUmbrella.Services.NoSql
     {
         private readonly IAuthService _auth;
         private readonly StringRepository _strings;
-        private readonly IPeerConnectionTypeResolver _typeResolver;
         private readonly ExternalDbOptions _options;
 
-        public PeerService(IAuthService auth, StringRepository strings, IPeerConnectionTypeResolver typeResolver, ExternalDbOptions options)
+        public PeerService(IAuthService auth, StringRepository strings, ExternalDbOptions options)
         {
             _auth = auth;
             _strings = strings;
-            _typeResolver = typeResolver;
             _options = options;
         }
 
-        public async Task<ISyncPeerClient> Open(IPAddressModel address, int? port = null)
+        public async Task<IActivityStreamRepository> Open(IPAddressModel address, int? port = null)
         {
             if (address is SavedIPAddressModel savedAddress)
             {
@@ -46,7 +43,7 @@ namespace PinkUmbrella.Services.NoSql
             }
         }
 
-        protected async Task<ISyncPeerClient> Open(SavedIPAddressModel savedAddress, int port)
+        protected async Task<IActivityStreamRepository> Open(SavedIPAddressModel savedAddress, int port)
         {
             var peer = await GetPeer(savedAddress, port);
             DbContext db = null;
@@ -56,18 +53,18 @@ namespace PinkUmbrella.Services.NoSql
             }
             else
             {
-                peer = new PeerModel()
+                peer = new Tides.Actors.Peer()
                 {
                     Address = savedAddress,
                     AddressPort = port,
                 };
             }
-            return _typeResolver?.Get(PeerConnectionType.RestApiV1)?.Open(peer) as ISyncPeerClient;
+            return new HttpActivityStreamRepository(null, peer);
         }
 
-        public async Task<List<PeerModel>> GetPeers()
+        public async Task<List<Tides.Actors.Peer>> GetPeers()
         {
-            var ret = new List<PeerModel>();
+            var ret = new List<Tides.Actors.Peer>();
             var handles = System.IO.Directory.GetFileSystemEntries("Peers");
             foreach (var handle in handles)
             {
@@ -88,9 +85,9 @@ namespace PinkUmbrella.Services.NoSql
             return ret;
         }
 
-        public async Task AddPeer(PeerModel peer)
+        public async Task AddPeer(Tides.Actors.Peer peer)
         {
-            if (_strings.ValidHandleRegex.IsMatch(peer.DisplayName))
+            if (_strings.ValidHandleRegex.IsMatch(peer.name))
             {
                 var dir = PeerDirectory(peer.Address, peer.AddressPort);
                 System.IO.Directory.CreateDirectory(dir);
@@ -101,20 +98,20 @@ namespace PinkUmbrella.Services.NoSql
             }
             else
             {
-                throw new ArgumentException("Peer display name is invalid", nameof(peer.DisplayName));
+                throw new ArgumentException("Peer display name is invalid", nameof(peer.name));
             }
         }
 
-        public async Task<PeerModel> GetPeer(SavedIPAddressModel address, int? port = null)
+        public async Task<Tides.Actors.Peer> GetPeer(SavedIPAddressModel address, int? port = null)
         {
             port = port ?? 443;
             var dir = PeerDirectory(address, port);
             if (System.IO.Directory.Exists(dir))
             {
-                PeerModel peer = null;
+                Tides.Actors.Peer peer = null;
                 using (var stream = new FileStream($"{dir}/peer.json", FileMode.Open))
                 {
-                    peer = await JsonSerializer.DeserializeAsync<PeerModel>(stream);
+                    peer = await JsonSerializer.DeserializeAsync<Tides.Actors.Peer>(stream);
                 }
 
                 return peer;
@@ -129,7 +126,7 @@ namespace PinkUmbrella.Services.NoSql
         
         private string PeerHandle(SavedIPAddressModel address, int? port) => $"{address}-{port}";
 
-        public Task RemovePeer(PeerModel peer)
+        public Task RemovePeer(Tides.Actors.Peer peer)
         {
             var dir = PeerDirectory(peer.Address, peer.AddressPort);
             if (System.IO.Directory.Exists(dir))
@@ -139,7 +136,7 @@ namespace PinkUmbrella.Services.NoSql
             return Task.CompletedTask;
         }
 
-        public async Task ReplacePeer(PeerModel peer)
+        public async Task ReplacePeer(Tides.Actors.Peer peer)
         {
             await RemovePeer(peer);
             await AddPeer(peer);

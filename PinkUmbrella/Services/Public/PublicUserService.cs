@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using PinkUmbrella.Models;
-using PinkUmbrella.Models.Public;
 using PinkUmbrella.Services.Local;
-using Tides.Models;
+using Tides.Actors;
+using Tides.Core;
 using Tides.Models.Public;
+using Tides.Util;
 
 namespace PinkUmbrella.Services.Public
 {
@@ -25,13 +26,13 @@ namespace PinkUmbrella.Services.Public
             _tags = tags;
         }
 
-        public async Task<PublicProfileModel> GetUser(PublicId id, int? viewerId)
+        public async Task<BaseObject> GetUser(PublicId id, int? viewerId)
         {   
             var user = id.PeerId == 0 ? await _locals.GetUser(id.Id, viewerId) : null;
             return await Transform(user, id.PeerId, viewerId);
         }
 
-        public async Task<PublicProfileModel> GetUser(string handle, int? viewerId)
+        public async Task<BaseObject> GetUser(string handle, int? viewerId)
         {   
             var find = await _locals.GetUser(handle, viewerId);
             if (find != null)
@@ -45,78 +46,63 @@ namespace PinkUmbrella.Services.Public
             return null;
         }
 
-        public bool CanView(PublicProfileModel user, int? viewerId)
+        public bool CanView(BaseObject user, int? viewerId)
         {
             if (viewerId.HasValue && user.PeerId == 0 && user.UserId == viewerId.Value)
             {
                 return true;
             }
-            else if (user.HasBeenBlockedOrReported)
+            else if (user.HasBeenBlockedOrReportedByPublisher)
             {
                 return false;
-            }
-
-            switch (user.Visibility)
-            {
-                case Visibility.HIDDEN: return false;
-                case Visibility.VISIBLE_TO_FOLLOWERS:
-                if (!user.Reactions.Any(r => r.Type == ReactionType.Follow))
-                {
-                    return false;
-                }
-                break;
-                case Visibility.VISIBLE_TO_REGISTERED:
-                if (!viewerId.HasValue)
-                {
-                    return false;
-                }
-                break;
             }
             return true;
         }
 
-        public async Task BindReferences(PublicProfileModel user, int? viewerId)
-        {
-            if (viewerId.HasValue)
-            {
-                var id = new PublicId(user.UserId, user.PeerId);
-                user.Reactions = await _reactions.Get(ReactionSubject.Profile, id, viewerId);
-                var reactionTypes = user.Reactions.Select(r => r.Type).ToHashSet();
-                user.HasLiked = reactionTypes.Contains(ReactionType.Like);
-                user.HasDisliked = reactionTypes.Contains(ReactionType.Dislike);
-                user.HasFollowed = reactionTypes.Contains(ReactionType.Follow);
-                user.HasBlocked = reactionTypes.Contains(ReactionType.Block);
-                user.HasReported = reactionTypes.Contains(ReactionType.Report);
-
-                var blockOrReport = await _reactions.HasBlockedViewer(ReactionSubject.Profile, id, viewerId);
-                user.HasBeenBlockedOrReported = blockOrReport;
-            }
-
-            if (user.PeerId == 0)
-            {
-                user.Tags = await _tags.GetTagsFor(user.UserId, ReactionSubject.Profile, viewerId);
-            }
-        }
-
-        public async Task<PublicProfileModel> Transform(UserProfileModel privateModel, long peerId, int? viewerId)
+        public async Task<ActorObject> Transform(UserProfileModel privateModel, long peerId, int? viewerId)
         {
             if (privateModel != null)
             {
-                var asPublic = new PublicProfileModel(privateModel, peerId);
-                await BindReferences(asPublic, viewerId);
-                if (CanView(asPublic, viewerId))
+                var asPublic = new Common.Person();
+                // privateModel, peerId
+
+                //asPublic.UserId = (privateModel ?? throw new ArgumentNullException(nameof(privateModel))).Id;
+                if (peerId > 0)
                 {
-                    return asPublic;
+                    throw new NotSupportedException();
                 }
+                if (privateModel.Id > 0)
+                {
+                    asPublic.PeerId = peerId;
+                }
+                
+                asPublic.BanExpires = privateModel.BanExpires;
+                asPublic.BanReason = privateModel.BanReason;
+                asPublic.summary = privateModel.Bio;
+                asPublic.BioVisibility = privateModel.BioVisibility;
+                asPublic.name = privateModel.DisplayName;
+                asPublic.Email = privateModel.Email;
+                // this.EmailVisibility = user.EmailVisibility;
+                asPublic.Handle = privateModel.Handle;
+                asPublic.Visibility = privateModel.Visibility;
+                asPublic.WhenCreated = privateModel.WhenCreated;
+                asPublic.WhenLastLoggedIn = privateModel.WhenLastLoggedIn;
+                asPublic.WhenLastLoggedInVisibility = privateModel.WhenLastLoggedInVisibility;
+                asPublic.WhenLastOnline = privateModel.WhenLastOnline;
+                asPublic.WhenLastOnlineVisibility = privateModel.WhenLastOnlineVisibility;
+                asPublic.WhenLastUpdated = privateModel.WhenLastUpdated;            
+
+                await Task.Delay(1);
+                return asPublic;
             }
             return null;
         }
 
-        public async Task<PublicProfileModel[]> GetFollowers(PublicId id, int? viewerId)
+        public async Task<CollectionObject> GetFollowers(PublicId id, int? viewerId)
         {
             if (id.PeerId == 0)
             {
-                return await Task.WhenAll((await _locals.GetFollowers(id.Id, viewerId)).Select(u => Transform(u, id.PeerId, viewerId)));
+                return (await Task.WhenAll((await _locals.GetFollowers(id.Id, viewerId)).Select(u => Transform(u, id.PeerId, viewerId)))).ToCollection();
             }
             else
             {
@@ -124,11 +110,11 @@ namespace PinkUmbrella.Services.Public
             }
         }
 
-        public async Task<PublicProfileModel[]> GetFollowing(PublicId id, int? viewerId)
+        public async Task<CollectionObject> GetFollowing(PublicId id, int? viewerId)
         {
             if (id.PeerId == 0)
             {
-                return await Task.WhenAll((await _locals.GetFollowing(id.Id, viewerId)).Select(u => Transform(u, id.PeerId, viewerId)));
+                return (await Task.WhenAll((await _locals.GetFollowing(id.Id, viewerId)).Select(u => Transform(u, id.PeerId, viewerId)))).ToCollection();
             }
             else
             {
@@ -136,18 +122,16 @@ namespace PinkUmbrella.Services.Public
             }
         }
 
-        public async Task<List<PublicProfileModel>> GetAllLocal()
+        public async Task<CollectionObject> GetAllLocal()
         {
             var users = await _locals.GetAll(_WhenLastSynced);
-            var ret = new List<PublicProfileModel>();
+            var ret = new List<BaseObject>();
             foreach (var user in users)
             {
-                var asPublic = new PublicProfileModel(user, 0);
-                await BindReferences(asPublic, 0);
-                ret.Add(asPublic);
+                ret.Add(await Transform(user, 0, 0));
             }
             _WhenLastSynced = DateTime.UtcNow;
-            return ret;
+            return ret.ToCollection();
         }
     }
 }

@@ -1,8 +1,7 @@
-﻿@using PinkUmbrella.ViewModels.Home
-@model FeedModel
-@if (Model.Items.Count > 0)
+﻿@model Tides.Core.CollectionObject
+@if (Model.items.Count > 0)
 {
-    foreach (var result in Model.Items) {
+    foreach (var result in Model.items) {
         <partial name="Post/_Container" model="result" />
         <hr />
     }

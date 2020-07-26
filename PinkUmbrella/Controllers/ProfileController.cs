@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -13,9 +12,13 @@ using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Models.Community;
 using PinkUmbrella.Services.Local;
-using PinkUmbrella.Models.Public;
 using Tides.Models.Public;
 using Tides.Models;
+using Tides.Services;
+using System;
+using Tides.Objects;
+using Tides.Actors;
+using Tides.Core;
 
 namespace PinkUmbrella.Controllers
 {
@@ -29,8 +32,8 @@ namespace PinkUmbrella.Controllers
         public ProfileController(IWebHostEnvironment environment, ILogger<ProfileController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles, IReactionService reactions,
             IArchiveService archive, ITagService tags, IShopService shops, INotificationService notifications, IPeerService peers, IAuthService auth,
-            ISettingsService settings):
-            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings)
+            ISettingsService settings, IActivityStreamRepository activityStreams):
+            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
         {
             _logger = logger;
             _archive = archive;
@@ -38,7 +41,7 @@ namespace PinkUmbrella.Controllers
         }
 
         [Route("/Profile")]
-        public async Task<IActionResult> Index() => RedirectToAction(nameof(Index), new { id = (await GetCurrentUserAsync()).Id });
+        public async Task<IActionResult> Index() => RedirectToAction(nameof(Index), new { id = (await GetCurrentUserAsync()).UserId });
 
         [Route("/Profile/{id}")]
         [AllowAnonymous]
@@ -51,6 +54,10 @@ namespace PinkUmbrella.Controllers
             if (user == null)
             {
                 return NotFound();
+            }
+            else if (IsActivityStreamRequest)
+            {
+                return ActivityStream(await _activityStreams.GetActor(new ActivityStreamFilter() { id = id }));
             }
             else
             {
@@ -74,6 +81,10 @@ namespace PinkUmbrella.Controllers
             {
                 return Redirect("/Error/404");
             }
+            else if (IsActivityStreamRequest)
+            {
+                return ActivityStream(await _activityStreams.GetReplies(new ActivityStreamFilter { id = id }));
+            }
             else
             {
                 return View("Index", new IndexViewModel() {
@@ -96,6 +107,10 @@ namespace PinkUmbrella.Controllers
             {
                 return Redirect("/Error/404");
             }
+            else if (IsActivityStreamRequest)
+            {
+                return ActivityStream(await _activityStreams.GetMentions(new ActivityStreamFilter { id = id }));
+            }
             else
             {
                 return View("Index", new IndexViewModel() {
@@ -112,7 +127,7 @@ namespace PinkUmbrella.Controllers
         {
             ViewData["Controller"] = "Profile";
             ViewData["Action"] = nameof(Photos);
-            return await ViewMedia(id, ArchivedMediaType.Photo);
+            return await ViewMedia(id, CommonMediaType.Photo);
         }
         
         [Route("/Profile/{id}/Videos")]
@@ -121,7 +136,7 @@ namespace PinkUmbrella.Controllers
         {
             ViewData["Controller"] = "Profile";
             ViewData["Action"] = nameof(Videos);
-            return await ViewMedia(id, ArchivedMediaType.Video);
+            return await ViewMedia(id, CommonMediaType.Video);
         }
         
         [Route("/Profile/{id}/ArchivedMedia")]
@@ -145,13 +160,22 @@ namespace PinkUmbrella.Controllers
             {
                 return Redirect("/Error/404");
             }
+            else if (IsActivityStreamRequest)
+            {
+                return ActivityStream(await _activityStreams.GetShops(new ActivityStreamFilter { id = id }));
+            }
             else
             {
                 return View("Index", new IndexViewModel()
                 {
                     MyProfile = currentUser,
                     Profile = user,
-                    Shops = await _shops.GetShopsForUser(user.PublicId, currentUser?.UserId) // , new PaginationModel() { count = 10, start = 0 }
+                    Shops = await _activityStreams.GetShops(new ActivityStreamFilter
+                    {
+                        userId = user.UserId,
+                        peerId = user.PeerId,
+                        viewerId = currentUser?.UserId,
+                    })
                 });
             }
         }
@@ -182,23 +206,33 @@ namespace PinkUmbrella.Controllers
             {
                 return Redirect("/Error/404");
             }
+            else if (IsActivityStreamRequest)
+            {
+                var filter = new ActivityStreamFilter { id = id };
+                switch (type)
+                {
+                    case UserListType.Followers: return ActivityStream(await _activityStreams.GetFollowers(filter));
+                    case UserListType.Following: return ActivityStream(await _activityStreams.GetFollowing(filter));
+                    default: throw new ArgumentOutOfRangeException();
+                }
+            }
             else
             {
-                PublicProfileModel[] list = null;
+                CollectionObject list = null;
                 switch (type)
                 {
                     case UserListType.Followers:
-                    list = await _publicProfiles.GetFollowers(user.PublicId, currentUser?.UserId);
+                    list = await _activityStreams.GetFollowers(user.PublicId, currentUser?.UserId);
                     break;
                     case UserListType.Following:
-                    list = await _publicProfiles.GetFollowing(user.PublicId, currentUser?.UserId);
+                    list = await _activityStreams.GetFollowing(user.PublicId, currentUser?.UserId);
                     break;
                 }
                 return ViewUserListForUser(user, currentUser, type, list);
             }
         }
 
-        private IActionResult ViewUserListForUser(PublicProfileModel user, PublicProfileModel currentUser, UserListType type, PublicProfileModel[] list)
+        private IActionResult ViewUserListForUser(BaseObject user, ActorObject currentUser, UserListType type, CollectionObject list)
         {
             return View("Index", new IndexViewModel()
             {
@@ -209,13 +243,17 @@ namespace PinkUmbrella.Controllers
             });
         }
 
-        private async Task<IActionResult> ViewMedia(string id, ArchivedMediaType? type)
+        private async Task<IActionResult> ViewMedia(string id, CommonMediaType? type)
         {
             var currentUser = await GetCurrentUserAsync();
             var user = await _publicProfiles.GetUser(new PublicId(id), currentUser?.UserId);
             if (user == null)
             {
                 return Redirect("/Error/404");
+            }
+            else if (IsActivityStreamRequest)
+            {
+                return ActivityStream(await _activityStreams.GetMedia(new ActivityStreamFilter { id = id, type = type }));
             }
             else
             {
@@ -235,6 +273,10 @@ namespace PinkUmbrella.Controllers
             if (user == null)
             {
                 return Redirect("/Error/404");
+            }
+            else if (IsActivityStreamRequest)
+            {
+                return ActivityStream(await _activityStreams.GetActor(new ActivityStreamFilter { handle = handle }));
             }
             else
             {

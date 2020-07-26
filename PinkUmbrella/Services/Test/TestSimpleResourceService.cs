@@ -8,7 +8,7 @@ using Tides.Models.Public;
 
 namespace PinkUmbrella.Services
 {
-    public class TestSimpleResourceService: ISimpleResourceService
+    public class TestSimpleResourceService
     {
         private static Random rand = new Random();
         private static string[] Brands = { "Unicorn", "Rainbow", "Hot Cakes", "LaLaLatte", "The People's" };

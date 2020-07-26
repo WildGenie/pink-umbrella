@@ -20,12 +20,11 @@ using PinkUmbrella.Models.Settings;
 using Fido2NetLib;
 using Microsoft.AspNetCore.Http;
 using QRCoder;
-using PinkUmbrella.Models.Auth;
 using PinkUmbrella.Services.Local;
-using PinkUmbrella.Models.Public;
 using Tides.Models;
 using Tides.Models.Public;
 using Tides.Models.Auth;
+using Tides.Services;
 
 namespace PinkUmbrella.Controllers
 {
@@ -50,9 +49,10 @@ namespace PinkUmbrella.Controllers
                 IAuthService auth,
                 ISettingsService settings,
                 IFido2 fido2,
-                IInvitationService invitationService
+                IInvitationService invitationService,
+                IActivityStreamRepository activityStreams
                 ) :
-            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings)
+            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
         {
             _logger = logger;
             _fido2 = fido2;
@@ -238,7 +238,15 @@ namespace PinkUmbrella.Controllers
                         break;
                         case InvitationType.FollowMe:
                         {
-                            var user = model.MyProfile.UserId == code.CreatedByUserId ? model.MyProfile.Local : await _localProfiles.GetUser(code.CreatedByUserId, model.MyProfile.UserId);
+                            UserProfileModel user;
+                            if (model.MyProfile.UserId == code.CreatedByUserId)
+                            {
+                                user = await _localProfiles.GetUser(model.MyProfile.UserId, model.MyProfile.UserId);
+                            }
+                            else
+                            {
+                                user = await _localProfiles.GetUser(code.CreatedByUserId, model.MyProfile.UserId);
+                            }
                             subject = $"{user.DisplayName} @{user.Handle}";
                         } break;
                         case InvitationType.AddMeToGroup:

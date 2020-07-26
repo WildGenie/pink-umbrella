@@ -1,10 +1,10 @@
-using PinkUmbrella.Models;
+using Tides.Core;
 
 namespace PinkUmbrella.ViewModels.Inventory
 {
     public class ResourceViewModel: BaseViewModel
     {
-        public SimpleResourceModel Resource { get; set; }
+        public BaseObject Resource { get; set; }
         public string ReturnUrl { get; set; }
     }
 }

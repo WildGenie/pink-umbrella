@@ -1,9 +1,9 @@
-using PinkUmbrella.Models;
+using Tides.Core;
 
 namespace PinkUmbrella.ViewModels.Shop
 {
     public class ShopViewModel: BaseViewModel
     {
-        public ShopModel Shop { get; set; }
+        public BaseObject Shop { get; set; }
     }
 }

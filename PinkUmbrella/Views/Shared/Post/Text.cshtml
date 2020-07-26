@@ -1,6 +1,6 @@
 ﻿@inject Markdig.MarkdownPipeline mdPipeline
-@model PostModel
-@if (!string.IsNullOrWhiteSpace(Model.Content))
+@model Tides.Core.BaseObject
+@if (!string.IsNullOrWhiteSpace(Model.content))
 {
-<p>@Html.Raw(Markdig.Markdown.ToHtml(Model.Content, mdPipeline))</p>
+<p>@Html.Raw(Markdig.Markdown.ToHtml(Model.content, mdPipeline))</p>
 }

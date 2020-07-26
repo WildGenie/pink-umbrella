@@ -2,10 +2,10 @@
 <form asp-controller="Account" asp-action="UpdateProfile" method="POST">
     <div asp-validation-summary="All" class="text-danger"></div>
     <div class="form-group">
-        <label asp-for="MyProfile.DisplayName">Display Name</label>
-        <small>@Model.MyProfile.GetPropertyDescription(nameof(Model.MyProfile.DisplayName))</small>
-        <input asp-for="MyProfile.DisplayName" class="form-control" />
-        <span asp-validation-for="MyProfile.DisplayName" class="text-danger"></span>
+        <label asp-for="MyProfile.name">Display Name</label>
+        <small>@Model.MyProfile.GetPropertyDescription(nameof(Model.MyProfile.name))</small>
+        <input asp-for="MyProfile.name" class="form-control" />
+        <span asp-validation-for="MyProfile.name" class="text-danger"></span>
     </div>
     <div class="form-group">
         <label asp-for="MyProfile.Handle"></label>
@@ -19,10 +19,10 @@
         <span asp-validation-for="MyProfile.Handle" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="MyProfile.Bio"></label>
-        <small>@Model.MyProfile.GetPropertyDescription(nameof(Model.MyProfile.Bio))</small>
-        <input asp-for="MyProfile.Bio" class="form-control" />
-        <span asp-validation-for="MyProfile.Bio" class="text-danger"></span>
+        <label asp-for="MyProfile.summary"></label>
+        <small>@Model.MyProfile.GetPropertyDescription(nameof(Model.MyProfile.summary))</small>
+        <input asp-for="MyProfile.summary" class="form-control" />
+        <span asp-validation-for="MyProfile.summary" class="text-danger"></span>
     </div>
     <div class="form-group">
         <label asp-for="MyProfile.BioVisibility"></label>

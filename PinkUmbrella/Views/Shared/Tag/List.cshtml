@@ -1,7 +1,7 @@
 @model TagsViewModel
 <ul>
-    @foreach (var tag in Model.Tags)
+    @foreach (var tag in Model.Tags.items)
     {
-        <li><a class="js-tag-display--tag" asp-controller="Home" asp-action="Search" asp-route-tags="@tag.Tag" asp-route-t="@Model.Type">@tag.Tag</a> - @tag.Topic</li>
+        <li><a class="js-tag-display--tag" asp-controller="Home" asp-action="Search" asp-route-tags="@tag.content" asp-route-t="@Model.Type">@tag.content</a> - @tag.summary</li>
     }
 </ul>

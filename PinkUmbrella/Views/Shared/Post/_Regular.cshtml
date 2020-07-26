@@ -1,4 +1,4 @@
-﻿@model PostModel
+﻿@model Tides.Core.BaseObject
 @{
     var reactLike = new ReactViewModel() {
         Type = ReactionType.Like,
@@ -7,7 +7,7 @@
         HasReacted = Model.HasLiked,
         Count = Model.LikeCount,
         ViewerId = Model.ViewerId,
-        Enabled = !Model.ViewerIsPoster,
+        Enabled = !Model.ViewerIsPublisher,
     };
     var reactDislike = new ReactViewModel() {
         Type = ReactionType.Dislike,
@@ -16,7 +16,7 @@
         HasReacted = Model.HasDisliked,
         Count = Model.DislikeCount,
         ViewerId = Model.ViewerId,
-        Enabled = !Model.ViewerIsPoster,
+        Enabled = !Model.ViewerIsPublisher,
     };
     var reactBlock = new ReactViewModel() {
         Type = ReactionType.Block,
@@ -25,7 +25,7 @@
         HasReacted = false,
         Count = Model.BlockCount,
         ViewerId = Model.ViewerId,
-        Enabled = !Model.ViewerIsPoster,
+        Enabled = !Model.ViewerIsPublisher,
         ManualReactionUrl = "/Post/Block/" + Model.PublicId,
         ResponseHandler = "post-replacewith",
     };
@@ -36,7 +36,7 @@
         HasReacted = false,
         Count = Model.ReportCount,
         ViewerId = Model.ViewerId,
-        Enabled = !Model.ViewerIsPoster,
+        Enabled = !Model.ViewerIsPublisher,
         ManualReactionUrl = "/Post/Report/" + Model.PublicId,
         ResponseHandler = "post-replacewith",
     };
@@ -45,30 +45,25 @@
         reactLike, reactDislike, reactBlock, reactReport,
     };
 
-    var tags = new TagEditorViewModel() { Tags = Model.Tags };
+    var tags = new TagEditorViewModel() { Tags = Model.tag };
 }
 <div class="contains-goto post">
     <a class="goto" asp-controller="Post" asp-action="Index" asp-route-id="@Model.PublicId">goto</a>
     <p>
-        <partial name="Profile/Goto" model="Model.User" />
-        &bull; <partial name="_Timestamp" model="Model.WhenCreated" />
+        <partial name="Profile/Goto" model="Model.UserId" />
+        &bull; <partial name="_Timestamp" model="Model.published" />
         <partial name="_VisibilityStatus" />
     </p>
-    @switch (Model.PostType)
-    {
-        case PostType.Text:
-        <partial name="Post/Text" />
-        break;
-        default:
-        <div>No view for @Model.PostType</div>
-        break;
-    }
-    @if (Model.Mentions.Any())
+    
+    <partial name="Post/@Model.type" />
+    
+    
+    @if (Model.to.items.Count > 0)
     {
         <span>Mentions:</span>
         <ul>
-            @foreach (var mention in Model.Mentions) {
-                <li class="contains-goto">@mention.MentionedPublicUser.DisplayName<a class="goto" asp-controller="Profile" asp-action="Index" asp-route-id="@(new PublicId(mention.MentionedUserId, mention.MentionedUserPeerId))">goto</a></li>
+            @foreach (var mention in Model.to.items) {
+                <li class="contains-goto">@mention.name<a class="goto" asp-controller="Profile" asp-action="Index" asp-route-id="@mention.id">goto</a></li>
             }
         </ul>
     }

@@ -69,7 +69,7 @@ else if (Model.Media != null)
 }
 else if (Model.Users != null)
 {
-    if (Model.Users.Length > 0)
+    if (Model.Users.items.Count > 0)
     {
         <partial name="Profile/List" model="Model.Users" />
     }
@@ -88,7 +88,7 @@ else if (Model.Users != null)
 }
 else if (Model.Shops != null)
 {
-    if (Model.Shops.Count > 0)
+    if (Model.Shops.items.Count > 0)
     {
         <partial name="Shop/List" model="Model.Shops" />
     }

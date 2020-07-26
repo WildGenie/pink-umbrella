@@ -1,8 +1,8 @@
 ﻿@using PinkUmbrella.ViewModels.Inventory
 @model IndexViewModel
 @{
-    var everythingLiClass = !Model.InventoryId.HasValue ? "selected" : "";
-    var allId = Model.MyProfile != null ? (Model.MyProfile.UserId == Model.Inventory?.OwnerUserId ? null : Model.Inventory?.OwnerUserId) : Model.Inventory?.OwnerUserId;
+    var everythingLiClass = string.IsNullOrWhiteSpace(Model.InventoryId) ? "selected" : "";
+    var allId = Model.MyProfile != null ? (Model.MyProfile.UserId == Model.Inventory?.UserId ? null : Model.Inventory?.UserId) : Model.Inventory?.UserId;
 }
 <h1>Inventories</h1>
 <ul class="highlight-selected">
@@ -14,9 +14,10 @@
     {
     <li class="@everythingLiClass"><a asp-controller="Inventory" asp-action="Index" asp-route-id="">All</a></li>
     }
-    @foreach (var i in Model.Inventories) {
-        var liClass = i.Id == Model.InventoryId ? "selected" : "";
-        <li class="@liClass"><a asp-controller="Inventory" asp-action="Inventory" asp-route-id="@i.Id">@i.DisplayName - @i.Description</a></li>
+    @foreach (var i in Model.Inventories.items)
+    {
+        var liClass = i.id == Model.InventoryId ? "selected" : "";
+        <li class="@liClass"><a asp-controller="Inventory" asp-action="Inventory" asp-route-id="@i.id">@i.name - @i.summary</a></li>
     }
     @if (Model.AddResourceEnabled)
     {

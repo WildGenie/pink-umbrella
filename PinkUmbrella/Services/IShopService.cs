@@ -1,39 +1,31 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using PinkUmbrella.Models;
-using PinkUmbrella.Models.Public;
-using Tides.Models;
+using Tides.Core;
 using Tides.Models.Public;
 
 namespace PinkUmbrella.Services
 {
     public interface IShopService
     {
-        Task BindReferences(ShopModel shop, int? viewerId);
-
-        bool CanView(ShopModel shop, int? viewerId);
-
-        Task<ShopModel> GetShopByHandle(string handle, int? viewerId);
+        // Task<BaseObject> GetShopByHandle(string handle, int? viewerId);
         
-        Task<ShopModel> GetShopById(PublicId id, int? viewerId);
+        // Task<BaseObject> GetShopById(PublicId id, int? viewerId);
 
-        Task<PaginatedModel<ShopModel>> GetMostReportedShops();
+        // Task<CollectionObject> GetMostReportedShops();
 
-        Task<PaginatedModel<ShopModel>> GetMostDislikedShops();
+        // Task<CollectionObject> GetMostDislikedShops();
 
-        Task<List<ShopModel>> GetShopsForUser(PublicId userId, int? viewerId);
+        // Task<CollectionObject> GetShopsForUser(PublicId userId, int? viewerId);
 
-        Task<List<ShopModel>> GetAllShops(int? viewerId);
+        // Task<CollectionObject> GetAllShops(int? viewerId);
 
-        Task DeleteShop(int id, int userId);
+        // Task DeleteShop(int id, int userId);
 
-        Task<ArgumentException> TryCreateShop(ShopModel shop);
+        Task<ArgumentException> TryCreateShop(BaseObject shop);
 
-        Task<List<ShopModel>> GetShopsTaggedUnder(TagModel tag, int? viewerId);
-
-        Task<bool> HandleExists(string handle);
+        Task<CollectionObject> GetShopsTaggedUnder(BaseObject tag, int? viewerId);
         
-        Task<List<ShopModel>> GetAllLocal();
+        // Task<CollectionObject> GetAllLocal();
     }
 }

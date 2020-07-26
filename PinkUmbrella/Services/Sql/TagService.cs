@@ -7,8 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using PinkUmbrella.Models;
 using PinkUmbrella.Repositories;
 using PinkUmbrella.Util;
+using Tides.Core;
 using Tides.Models;
-using Tides.Models.Public;
+using Tides.Util;
 
 namespace PinkUmbrella.Services.Sql
 {
@@ -47,27 +48,28 @@ namespace PinkUmbrella.Services.Sql
             }
         }
 
-        public bool CanView(TaggedModel tag, int? viewerId)
+        public async Task<CollectionObject> GetMostBlockedTags()
         {
-            return true;
+            // var query = _dbContext.AllTags.Where(t => t.BlockCount > 0);
+            // return await Paginate(query, query.OrderByDescending(t => t.BlockCount));
+            await Task.Delay(1);
+            return null;
         }
 
-        public async Task<PaginatedModel<TagModel>> GetMostBlockedTags()
+        public async Task<CollectionObject> GetMostDislikedTags()
         {
-            var query = _dbContext.AllTags.Where(t => t.BlockCount > 0);
-            return await Paginate(query, query.OrderByDescending(t => t.BlockCount));
+            // var query = _dbContext.AllTags.Where(t => t.DislikeCount > 0);
+            // return await Paginate(query, query.OrderByDescending(t => t.DislikeCount));
+            await Task.Delay(1);
+            return null;
         }
 
-        public async Task<PaginatedModel<TagModel>> GetMostDislikedTags()
+        public async Task<CollectionObject> GetMostLikedTags()
         {
-            var query = _dbContext.AllTags.Where(t => t.DislikeCount > 0);
-            return await Paginate(query, query.OrderByDescending(t => t.DislikeCount));
-        }
-
-        public async Task<PaginatedModel<TagModel>> GetMostLikedTags()
-        {
-            var query = _dbContext.AllTags.Where(t => t.LikeCount > 0);
-            return await Paginate(query, query.OrderByDescending(t => t.LikeCount));
+            // var query = _dbContext.AllTags.Where(t => t.LikeCount > 0);
+            // return await Paginate(query, query.OrderByDescending(t => t.LikeCount));
+            await Task.Delay(1);
+            return null;
         }
 
         private static async Task<PaginatedModel<T>> Paginate<T>(IQueryable<T> query, IQueryable<T> queryOrdered)
@@ -80,7 +82,7 @@ namespace PinkUmbrella.Services.Sql
             };
         }
 
-        public async Task<PaginatedModel<UsedTagModel>> GetMostUsedTags()
+        public async Task<CollectionObject> GetMostUsedTags()
         {
             var queryStr = $"SELECT b.* FROM (" +
                                 "SELECT TagId 'Id', COUNT(TagId) 'UseCount' FROM (" +
@@ -93,7 +95,7 @@ namespace PinkUmbrella.Services.Sql
             return await QueryTagsFromIds(queryStr);
         }
 
-        private async Task<PaginatedModel<UsedTagModel>> QueryTagsFromIds(string queryStr)
+        private async Task<CollectionObject> QueryTagsFromIds(string queryStr)
         {
             var tagCounts = new Dictionary<int, long>();
             var query = _dbContext.RawSqlQuery(queryStr, r => new { Id = (int)r[0], UseCount = (long)r[1] });
@@ -107,19 +109,23 @@ namespace PinkUmbrella.Services.Sql
                     UseCount = ct.UseCount,
                 });
             }
-            return new PaginatedModel<UsedTagModel>()
+            return new CollectionObject()
             {
-                Items = keepers,
-                Total = query.Count,
-                Pagination = new PaginationModel(),
+                items = keepers.Select(Transform).ToList(),
+                totalItems = query.Count,
             };
         }
 
-        public async Task<TagModel> GetTag(string text, int? viewerId) => await _dbContext.AllTags.SingleOrDefaultAsync(t => t.Tag.ToLower() == text.ToLower());
+        public BaseObject Transform(UsedTagModel tag)
+        {
+            return null;
+        }
 
-        public async Task<TagModel> GetTag(int id, int? viewerId) => await _dbContext.AllTags.FindAsync(id);
+        public async Task<BaseObject> GetTag(string text, int? viewerId) => await Transform(await _dbContext.AllTags.SingleOrDefaultAsync(t => t.Tag.ToLower() == text.ToLower()));
 
-        public async Task<List<TagModel>> GetTagsFor(int toId, ReactionSubject subject, int? viewerId)
+        public async Task<BaseObject> GetTag(int id, int? viewerId) => await Transform(await _dbContext.AllTags.FindAsync(id));
+
+        public async Task<CollectionObject> GetTagsFor(int toId, ReactionSubject subject, int? viewerId)
         {
             var taggeds = new List<TaggedModel>();
             switch (subject)
@@ -139,29 +145,29 @@ namespace PinkUmbrella.Services.Sql
                 default:
                     break;
             }
-            return await BindReferencesAndGetViewable(viewerId, taggeds);
+            return (await Task.WhenAll(taggeds.Select(Transform))).ToOrderedCollection();
         }
 
-        private async Task<List<TagModel>> BindReferencesAndGetViewable(int? viewerId, List<TaggedModel> tags)
-        {
-            var keepers = new List<TagModel>();
-            foreach (var t in tags)
-            {
-                await BindReferences(t, viewerId);
-                if (CanView(t, viewerId))
-                {
-                    var tag = await this.GetTag(t.TagId, viewerId);
-                    if (tag != null)
-                    {
-                        keepers.Add(tag);
-                    }
-                }
-            }
+        // private async Task<CollectionObject> BindReferencesAndGetViewable(int? viewerId, List<TaggedModel> tags)
+        // {
+        //     var keepers = new List<TagModel>();
+        //     foreach (var t in tags)
+        //     {
+        //         await BindReferences(t, viewerId);
+        //         if (CanView(t, viewerId))
+        //         {
+        //             var tag = await this.GetTag(t.TagId, viewerId);
+        //             if (tag != null)
+        //             {
+        //                 keepers.Add(tag);
+        //             }
+        //         }
+        //     }
 
-            return keepers;
-        }
+        //     return keepers;
+        // }
 
-        public async Task<List<TagModel>> GetTagsForSubject(ReactionSubject subject, int? viewerId)
+        public async Task<CollectionObject> GetTagsForSubject(ReactionSubject subject, int? viewerId)
         {
             var tags = new List<TaggedModel>();
             switch (subject)
@@ -182,23 +188,23 @@ namespace PinkUmbrella.Services.Sql
                     break;
             }
 
-            return await BindReferencesAndGetViewable(viewerId, tags);
+            return (await Task.WhenAll(tags.Select(Transform))).ToCollection();
         }
 
-        public async Task<TagModel> TryGetOrCreateTag(TagModel tag, int? viewerId)
+        public async Task<BaseObject> TryGetOrCreateTag(BaseObject tag, int? viewerId)
         {
-            TagModel by_tag = null;
-            if (tag.Id > 0)
+            BaseObject by_tag = null;
+            if (tag.objectId.HasValue && tag.objectId.Value > 0)
             {
-                by_tag = await GetTag(tag.Id, viewerId);
+                by_tag = await GetTag(tag.objectId.Value, viewerId);
                 if (by_tag == null)
                 {
                     return null;
                 }
             }
-            else if (!string.IsNullOrWhiteSpace(tag.Tag))
+            else if (!string.IsNullOrWhiteSpace(tag.content))
             {
-                by_tag = await GetTag(tag.Tag, viewerId);
+                by_tag = await GetTag(tag.content, viewerId);
             }
             else
             {
@@ -211,10 +217,15 @@ namespace PinkUmbrella.Services.Sql
             }
             else if (viewerId.HasValue)
             {
-                tag.Id = 0;
-                tag.CreatedByUserId = viewerId.Value;
-                await _dbContext.AllTags.AddAsync(tag);
+                var tm = new TagModel
+                {
+                    Tag = tag.content,
+                    CreatedByUserId = viewerId.Value
+                };
+                await _dbContext.AllTags.AddAsync(tm);
                 await _dbContext.SaveChangesAsync();
+
+                tag.objectId = tm.Id;
                 return tag;
             }
             else
@@ -223,14 +234,13 @@ namespace PinkUmbrella.Services.Sql
             }
         }
 
-        public async Task<PaginatedModel<UsedTagModel>> GetMostUsedTagsForSubject(ReactionSubject subject)
+        public async Task<CollectionObject> GetMostUsedTagsForSubject(ReactionSubject subject)
         {
             var tags = await GetTagsForSubject(subject, null);
-            var used = tags.GroupBy(g => g.Id).Select(g => new UsedTagModel() { Tag = g.First(), UseCount = g.Count() });
-            return new PaginatedModel<UsedTagModel>() {
-                Items = used.OrderByDescending(t => t.UseCount).Take(10).ToList(),
-                Total = used.Count(),
-                Pagination = new PaginationModel(),
+            var used = tags.items.GroupBy(g => g.objectId.Value).Select(g => new UsedTagModel() { Tag = g.First(), UseCount = g.Count() });
+            return new CollectionObject() {
+                items = used.OrderByDescending(t => t.UseCount).Take(10).Select(Transform).ToList(),
+                totalItems = used.Count(),
             };
             // var queryStr = "SELECT b.* FROM (" +
             //                     $"SELECT TagId 'Id', COUNT(TagId) 'UseCount' FROM {subject}Tags " +
@@ -240,22 +250,22 @@ namespace PinkUmbrella.Services.Sql
 
         }
 
-        public Task<PaginatedModel<TagModel>> GetMostBlockedTagsForSubject(ReactionSubject subject)
+        public Task<CollectionObject> GetMostBlockedTagsForSubject(ReactionSubject subject)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task<PaginatedModel<TagModel>> GetMostLikedTagsForSubject(ReactionSubject subject)
+        public Task<CollectionObject> GetMostLikedTagsForSubject(ReactionSubject subject)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task<PaginatedModel<TagModel>> GetMostDislikedTagsForSubject(ReactionSubject subject)
+        public Task<CollectionObject> GetMostDislikedTagsForSubject(ReactionSubject subject)
         {
             throw new System.NotImplementedException();
         }
         
-        public async Task<List<TagModel>> GetCompletionsForTag(string prefix)
+        public async Task<CollectionObject> GetCompletionsForTag(string prefix)
         {
             prefix = prefix.ToLower();
             var ret = await _dbContext.AllTags.Where(t => t.Tag.ToLower().StartsWith(prefix)).Take(10).ToListAsync();
@@ -266,10 +276,9 @@ namespace PinkUmbrella.Services.Sql
                 {
                     ret.Add(new TagModel() { Id = -1, Tag = $"TestTag{i}" });
                 }
-                return ret;
             }
             
-            return ret;
+            return (await Task.WhenAll(ret.Select(Transform))).ToCollection();
         }
 
         public async Task Save(ReactionSubject subject, List<TagModel> tags, int userId, int toId)
@@ -309,6 +318,16 @@ namespace PinkUmbrella.Services.Sql
             {
                 src.RemoveRange(noLongerTagged);
             }
+        }
+
+        public Task<BaseObject> Transform(TagModel tag)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<BaseObject> Transform(TaggedModel tag)
+        {
+            throw new NotImplementedException();
         }
     }
 }

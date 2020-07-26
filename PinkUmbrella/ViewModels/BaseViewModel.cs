@@ -1,9 +1,9 @@
-using PinkUmbrella.Models.Public;
+using Tides.Actors;
 
 namespace PinkUmbrella.ViewModels
 {
     public class BaseViewModel
     {
-        public PublicProfileModel MyProfile { get; set; }
+        public ActorObject MyProfile { get; set; }
     }
 }

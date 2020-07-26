@@ -1,4 +1,4 @@
-using PinkUmbrella.Models.Public;
+using Tides.Core;
 
 namespace PinkUmbrella.Models.AhPushIt
 {
@@ -14,6 +14,6 @@ namespace PinkUmbrella.Models.AhPushIt
 
         public Notification Notif { get; set; }
         
-        public PublicProfileModel FromUser { get; set; }
+        public BaseObject FromUser { get; set; }
     }
 }

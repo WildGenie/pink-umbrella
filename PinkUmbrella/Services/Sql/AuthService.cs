@@ -655,6 +655,7 @@ namespace PinkUmbrella.Services.Sql
 
         public async Task<KeyPair> GetKeyPair(PublicKey key)
         {
+            await Task.Delay(1);
             if (key != null)
             {
                 // var privateKey = await GetPrivateKey(key.Id, key.Type);

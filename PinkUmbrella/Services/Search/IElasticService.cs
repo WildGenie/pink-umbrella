@@ -1,33 +1,34 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using PinkUmbrella.Models;
-using PinkUmbrella.Models.Public;
-using Tides.Models.Peer;
+using Tides.Core;
 
 namespace PinkUmbrella.Services
 {
     public interface IElasticService
     {
-        Task SyncProfiles(long peerId, List<PublicProfileModel> profiles);
-        Task SyncProfile(long peerId, PublicProfileModel profile);
+        Task SyncObjects(long peerId, CollectionObject items);
+        Task SyncObject(long peerId, BaseObject item);
+
+        Task SyncProfiles(long peerId, CollectionObject profiles);
+        Task SyncProfile(long peerId, BaseObject profile);
         
         
-        Task SyncPosts(long peerId, List<PostModel> items);
-        Task SyncPost(long peerId, PostModel item);
+        Task SyncPosts(long peerId, CollectionObject items);
+        Task SyncPost(long peerId, BaseObject item);
         
         
-        Task SyncShops(long peerId, List<ShopModel> items);
-        Task SyncShop(long peerId, ShopModel item);
+        Task SyncShops(long peerId, CollectionObject items);
+        Task SyncShop(long peerId, BaseObject item);
         
         
-        Task SyncArchivedMedias(long peerId, List<ArchivedMediaModel> items);
-        Task SyncArchivedMedia(long peerId, ArchivedMediaModel items);
+        Task SyncArchivedMedias(long peerId, CollectionObject items);
+        Task SyncArchivedMedia(long peerId, BaseObject items);
         
         
-        Task SyncInventories(long peerId, List<SimpleInventoryModel> items);
-        Task SyncInventory(long peerId, SimpleInventoryModel items);
+        Task SyncInventories(long peerId, CollectionObject items);
+        Task SyncInventory(long peerId, BaseObject items);
         
         
-        Task SyncPeers(long peerId, List<PeerModel> items);
+        Task SyncPeers(long peerId, CollectionObject items);
+        Task SyncPeer(long peerId, BaseObject items);
     }
 }

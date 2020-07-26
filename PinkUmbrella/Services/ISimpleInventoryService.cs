@@ -1,15 +1,17 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using PinkUmbrella.Models;
+using PinkUmbrella.ViewModels.Inventory;
+using Tides.Core;
 
 namespace PinkUmbrella.Services
 {
     public interface ISimpleInventoryService
     {
-        Task<List<SimpleInventoryModel>> GetForUser(int userId, int? viewerId);
-        Task<SimpleInventoryModel> Get(int id, int? viewerId);
-        Task<SimpleInventoryModel> CreateInventory(SimpleInventoryModel initial);
+        Task<CollectionObject> GetForUser(int userId, int? viewerId);
+        Task<BaseObject> Get(int id, int? viewerId);
+        Task<BaseObject> CreateInventory(BaseObject initial);
         
-        Task<List<SimpleInventoryModel>> GetAllLocal();
+        Task<CollectionObject> GetAllLocal();
+        
+        BaseObject Transform(NewInventoryViewModel inventory);
     }
 }

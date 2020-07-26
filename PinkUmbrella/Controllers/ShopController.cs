@@ -11,12 +11,13 @@ using PinkUmbrella.Services;
 using PinkUmbrella.ViewModels;
 using PinkUmbrella.ViewModels.Shop;
 using PinkUmbrella.ViewModels.Shared;
-using System.IO;
 using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Models.Search;
 using PinkUmbrella.Services.Local;
 using Tides.Models;
+using Tides.Services;
+using Tides.Core;
 
 namespace PinkUmbrella.Controllers
 {
@@ -29,8 +30,8 @@ namespace PinkUmbrella.Controllers
         public ShopController(IWebHostEnvironment environment, ILogger<ShopController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles, IShopService shops, 
             IReactionService reactions, ITagService tags, INotificationService notifications, IPeerService peers, IAuthService auth,
-            ISettingsService settings):
-            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings)
+            ISettingsService settings, IActivityStreamRepository activityStreams):
+            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
         {
             _logger = logger;
             _shops = shops;
@@ -47,19 +48,23 @@ namespace PinkUmbrella.Controllers
             {
                 var model = new ShopViewModel() {
                     MyProfile = user,
-                    Shop = await _shops.GetShopByHandle(handle, user?.UserId)
+                    Shop = await _activityStreams.GetShop(new ActivityStreamFilter
+                    {
+                        handle = handle,
+                        viewerId = user?.UserId
+                    })
                 };
                 return View("Shop", model);
             }
             else
             {
                 var topTags = await _tags.GetMostUsedTagsForSubject(ReactionSubject.Shop);
-                if (topTags.Total > 0)
+                if (topTags.totalItems > 0)
                 {
-                    var shopsByCategory = new Dictionary<int, List<ShopModel>>();
-                    foreach (var category in topTags.Items)
+                    var shopsByCategory = new Dictionary<int, CollectionObject>();
+                    foreach (var category in topTags.items)
                     {
-                        shopsByCategory[category.Tag.Id] = await _shops.GetShopsTaggedUnder(category.Tag, user?.UserId);
+                        shopsByCategory[category.objectId.Value] = await _shops.GetShopsTaggedUnder(category, user?.UserId);
                     }
                     var model = new IndexViewModel() {
                         MyProfile = user,
@@ -70,8 +75,8 @@ namespace PinkUmbrella.Controllers
                 }
                 else
                 {
-                    var allShops = await _shops.GetAllShops(user?.UserId);
-                    if (allShops.Count > 0)
+                    var allShops = await _activityStreams.GetShops(new ActivityStreamFilter { viewerId = user?.UserId });
+                    if (allShops.totalItems > 0)
                     {
                         var model = new IndexViewModel() {
                             MyProfile = user,
@@ -117,33 +122,11 @@ namespace PinkUmbrella.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> New(NewShopViewModel model, string tagsJson)
+        public async Task<IActionResult> New(NewShopViewModel model)
         {
             var user = await GetCurrentUserAsync();
-            var shop = model.Validate(this.ModelState);
-            shop.UserId = user.UserId;
-
-            using (var ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(tagsJson)))
-            {
-                var tags = await System.Text.Json.JsonSerializer.DeserializeAsync<List<SimpleTag>>(ms);
-                foreach (var tag in tags)
-                {
-                    var tm = new TagModel() {
-                        Tag = tag.label,
-                        Id = tag.value,
-                    };
-                    var newTag = await _tags.TryGetOrCreateTag(tm, user.UserId);
-                    if (newTag != null)
-                    {
-                        shop.Tags.Add(newTag);
-                    }
-                    else
-                    {
-                        shop.Tags.Add(tm);
-                        ModelState.AddModelError(nameof(ShopModel.Tags), $"Tag invalid: {tm.Tag}");
-                    }
-                }
-            }
+            var shop = await model.Validate(this.ModelState, user.objectId.Value, _tags);
+            shop.attributedTo.Add(user);
 
             if (this.ModelState.ErrorCount == 0)
             {
@@ -172,7 +155,7 @@ namespace PinkUmbrella.Controllers
         {
             if (Debugger.IsAttached)
             {
-                var debug = new List<TagModel>();
+                var debug = new List<BaseObject>();
                 foreach (var tmp in new string[] {})
                 {
                     var t = await _tags.GetTag("", null);
@@ -186,22 +169,10 @@ namespace PinkUmbrella.Controllers
                 {
                     for (int i = 0; i < 5; i++)
                     {
-                        debug.Add(new TagModel() { Id = -1, Tag = $"TestTag{i}" });
+                        debug.Add(new BaseObject { id = "tag/-1", objectId = -1, content = $"TestTag{i}" });
                     }
                 }
                 ViewData["ShopTagsDebugValue"] = debug;
-            }
-        }
-
-        public async Task<IActionResult> IsHandleUnique([FromQuery(Name="Shop.Handle")] string handle)
-        {
-            if (!string.IsNullOrWhiteSpace(handle))
-            {
-                return Json(!await _shops.HandleExists(handle));
-            }
-            else
-            {
-                return NotFound();
             }
         }
     }

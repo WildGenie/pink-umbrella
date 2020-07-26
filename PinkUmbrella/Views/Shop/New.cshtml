@@ -4,10 +4,10 @@
     ViewData["Title"] = "List Your Business";
     var tagEditor = new TagEditorViewModel() {
         HtmlClasses = "form-control",
-        Placeholder = Model.Shop.GetPropertyPlaceHolder(nameof(Model.Shop.Tags)),
+        Placeholder = Model.GetPropertyPlaceHolder(nameof(Model.Tags)),
         DebugValue = ViewData["ShopTagsDebugValue"] as List<TagModel>,
         InputName = "tagsJson",
-        Tags = Model.Shop.Tags,
+        Tags = Model.Tags,
     };
 }
 <partial name="_Header" />
@@ -16,66 +16,66 @@
 <form asp-action="New" asp-controller="Shop" method="POST">
     <div asp-validation-summary="All" class="text-danger"></div>
     <div class="form-group">
-        <label asp-for="Shop.DisplayName"></label>
-        <small>@Model.Shop.GetPropertyDescription(nameof(Model.Shop.DisplayName))</small>
-        <input asp-for="Shop.DisplayName" class="form-control" placeholder="@Model.Shop.GetPropertyPlaceHolder(nameof(Model.Shop.DisplayName))" data-debug-value="@Model.Shop.GetDebugValue(nameof(Model.Shop.DisplayName))" />
-        <span asp-validation-for="Shop.DisplayName" class="text-danger"></span>
+        <label asp-for="DisplayName"></label>
+        <small>@Model.GetPropertyDescription(nameof(Model.DisplayName))</small>
+        <input asp-for="DisplayName" class="form-control" placeholder="@Model.GetPropertyPlaceHolder(nameof(Model.DisplayName))" data-debug-value="@Model.GetDebugValue(nameof(Model.DisplayName))" />
+        <span asp-validation-for="DisplayName" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="Shop.Handle"></label>
-        <small>@Model.Shop.GetPropertyDescription(nameof(Model.Shop.Handle))</small>
-        <input asp-for="Shop.Handle" class="form-control js-keypress-validate" placeholder="@Model.Shop.GetPropertyPlaceHolder(nameof(Model.Shop.Handle))" data-debug-value="@Model.Shop.GetDebugValue(nameof(Model.Shop.Handle))" autocomplete="off" />
-        <span asp-validation-for="Shop.Handle" class="text-danger"></span>
+        <label asp-for="Handle"></label>
+        <small>@Model.GetPropertyDescription(nameof(Model.Handle))</small>
+        <input asp-for="Handle" class="form-control js-keypress-validate" placeholder="@Model.GetPropertyPlaceHolder(nameof(Model.Handle))" data-debug-value="@Model.GetDebugValue(nameof(Model.Handle))" autocomplete="off" />
+        <span asp-validation-for="Handle" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="Shop.StreetAddress"></label>
-        <small>@Model.Shop.GetPropertyDescription(nameof(Model.Shop.StreetAddress))</small>
-        <input asp-for="Shop.StreetAddress" class="form-control" placeholder="@Model.Shop.GetPropertyPlaceHolder(nameof(Model.Shop.StreetAddress))" data-debug-value="@Model.Shop.GetDebugValue(nameof(Model.Shop.StreetAddress))" />
-        <span asp-validation-for="Shop.StreetAddress" class="text-danger"></span>
+        <label asp-for="StreetAddress"></label>
+        <small>@Model.GetPropertyDescription(nameof(Model.StreetAddress))</small>
+        <input asp-for="StreetAddress" class="form-control" placeholder="@Model.GetPropertyPlaceHolder(nameof(Model.StreetAddress))" data-debug-value="@Model.GetDebugValue(nameof(Model.StreetAddress))" />
+        <span asp-validation-for="StreetAddress" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="Shop.ZipCode"></label>
-        <small>@Model.Shop.GetPropertyDescription(nameof(Model.Shop.ZipCode))</small>
-        <input asp-for="Shop.ZipCode" class="form-control" placeholder="@Model.Shop.GetPropertyPlaceHolder(nameof(Model.Shop.ZipCode))" data-debug-value="@Model.Shop.GetDebugValue(nameof(Model.Shop.ZipCode))" />
-        <span asp-validation-for="Shop.ZipCode" class="text-danger"></span>
+        <label asp-for="ZipCode"></label>
+        <small>@Model.GetPropertyDescription(nameof(Model.ZipCode))</small>
+        <input asp-for="ZipCode" class="form-control" placeholder="@Model.GetPropertyPlaceHolder(nameof(Model.ZipCode))" data-debug-value="@Model.GetDebugValue(nameof(Model.ZipCode))" />
+        <span asp-validation-for="ZipCode" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="Shop.WebsiteLink"></label>
-        <small>@Model.Shop.GetPropertyDescription(nameof(Model.Shop.WebsiteLink))</small>
-        <input asp-for="Shop.WebsiteLink" class="form-control" type="url" placeholder="@Model.Shop.GetPropertyPlaceHolder(nameof(Model.Shop.WebsiteLink))" data-debug-value="@Model.Shop.GetDebugValue(nameof(Model.Shop.WebsiteLink))" />
-        <span asp-validation-for="Shop.WebsiteLink" class="text-danger"></span>
+        <label asp-for="WebsiteLink"></label>
+        <small>@Model.GetPropertyDescription(nameof(Model.WebsiteLink))</small>
+        <input asp-for="WebsiteLink" class="form-control" type="url" placeholder="@Model.GetPropertyPlaceHolder(nameof(Model.WebsiteLink))" data-debug-value="@Model.GetDebugValue(nameof(Model.WebsiteLink))" />
+        <span asp-validation-for="WebsiteLink" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="Shop.MenuLink"></label>
-        <small>@Model.Shop.GetPropertyDescription(nameof(Model.Shop.MenuLink))</small>
-        <input asp-for="Shop.MenuLink" class="form-control" type="url" placeholder="@Model.Shop.GetPropertyPlaceHolder(nameof(Model.Shop.MenuLink))" data-debug-value="@Model.Shop.GetDebugValue(nameof(Model.Shop.MenuLink))" />
-        <span asp-validation-for="Shop.MenuLink" class="text-danger"></span>
+        <label asp-for="MenuLink"></label>
+        <small>@Model.GetPropertyDescription(nameof(Model.MenuLink))</small>
+        <input asp-for="MenuLink" class="form-control" type="url" placeholder="@Model.GetPropertyPlaceHolder(nameof(Model.MenuLink))" data-debug-value="@Model.GetDebugValue(nameof(Model.MenuLink))" />
+        <span asp-validation-for="MenuLink" class="text-danger"></span>
     </div>
     @* V2 of shops / profiles <div class="form-group">
-        <label asp-for="Shop.ExternalUsernamesJson"></label>
-        <small>@Model.Shop.GetPropertyDescription(nameof(Model.Shop.ExternalUsernamesJson))</small>
-        <input type="hidden" asp-for="Shop.ExternalUsernamesJson" class="form-control" />
-        <span asp-validation-for="Shop.ExternalUsernamesJson" class="text-danger"></span>
+        <label asp-for="ExternalUsernamesJson"></label>
+        <small>@Model.GetPropertyDescription(nameof(Model.ExternalUsernamesJson))</small>
+        <input type="hidden" asp-for="ExternalUsernamesJson" class="form-control" />
+        <span asp-validation-for="ExternalUsernamesJson" class="text-danger"></span>
     </div> *@
     <div class="form-group">
-        <label asp-for="Shop.Description"></label>
-        <small>@Model.Shop.GetPropertyDescription(nameof(Model.Shop.Description))</small>
-        <textarea asp-for="Shop.Description" class="form-control" placeholder="@Model.Shop.GetPropertyPlaceHolder(nameof(Model.Shop.Description))" data-debug-value="@Model.Shop.GetDebugValue(nameof(Model.Shop.Description))"></textarea>
-        <span asp-validation-for="Shop.Description" class="text-danger"></span>
+        <label asp-for="Description"></label>
+        <small>@Model.GetPropertyDescription(nameof(Model.Description))</small>
+        <textarea asp-for="Description" class="form-control" placeholder="@Model.GetPropertyPlaceHolder(nameof(Model.Description))" data-debug-value="@Model.GetDebugValue(nameof(Model.Description))"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="Shop.Tags"></label>
-        <small>@Model.Shop.GetPropertyDescription(nameof(Model.Shop.Tags))</small>
+        <label asp-for="Tags"></label>
+        <small>@Model.GetPropertyDescription(nameof(Model.Tags))</small>
         <partial name="Tag/Editor" model="tagEditor" />
-        <span asp-validation-for="Shop.Tags" class="text-danger"></span>
+        <span asp-validation-for="Tags" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="Shop.Visibility"></label>
-        <small>@Model.Shop.GetPropertyDescription(nameof(Model.Shop.Visibility))</small>
-        <select asp-for="Shop.Visibility" class="form-control" autocomplete="off">
-            <partial name="_EnumOptions" model="new EnumViewModel() { Type = typeof(Visibility), Selected = Model.Shop.Visibility }" />
+        <label asp-for="Visibility"></label>
+        <small>@Model.GetPropertyDescription(nameof(Model.Visibility))</small>
+        <select asp-for="Visibility" class="form-control" autocomplete="off">
+            <partial name="_EnumOptions" model="new EnumViewModel() { Type = typeof(Visibility), Selected = Model.Visibility }" />
         </select>
-        <span asp-validation-for="Shop.Visibility" class="text-danger"></span>
+        <span asp-validation-for="Visibility" class="text-danger"></span>
     </div>
     <button type="submit" class="btn btn-primary">Publish Store</button>
     <partial name="Button/DebugValuesButton" />

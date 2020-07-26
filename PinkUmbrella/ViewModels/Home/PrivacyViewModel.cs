@@ -49,8 +49,6 @@ namespace PinkUmbrella.ViewModels.Home
         public PrivacyViewModel() {
             Models = new List<PrivacyModel>() {
                 new PrivacyModel(typeof(UserProfileModel)),
-                new PrivacyModel(typeof(PostModel)),
-                new PrivacyModel(typeof(ShopModel)),
             };
         }
 

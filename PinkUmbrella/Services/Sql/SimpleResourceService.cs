@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using PinkUmbrella.Models;
 using PinkUmbrella.Repositories;
 using Tides.Models;
-using Tides.Models.Public;
+using Tides.Core;
 
 namespace PinkUmbrella.Services.Sql
 {
@@ -18,11 +17,11 @@ namespace PinkUmbrella.Services.Sql
             _dbContext = dbContext;
         }
 
-        public async Task<SimpleResourceModel> CreateResource(SimpleResourceModel initial)
+        public async Task<BaseObject> CreateResource(BaseObject initial)
         {
-            initial.WhenCreated = DateTime.UtcNow;
-            initial.Units ??= string.Empty;
-            _dbContext.Resources.Add(initial);
+            initial.published = DateTime.UtcNow;
+            // initial.units ??= string.Empty;
+            // _dbContext.Resources.Add(initial);
             await _dbContext.SaveChangesAsync();
             return initial;
         }
@@ -37,31 +36,37 @@ namespace PinkUmbrella.Services.Sql
             }
         }
 
-        public async Task<SimpleResourceModel> ForkResource(int id, int userId, int inventoryId)
+        public async Task<BaseObject> ForkResource(int id, int userId, int inventoryId)
         {
-            var r = new SimpleResourceModel(await _dbContext.Resources.FindAsync(id));
-            r.Id = -1;
-            r.ForkedFromId = id;
-            r.CreatedByUserId = userId;
-            r.DeletedByUserId = null;
-            r.WhenDeleted = null;
-            r.WhenCreated = DateTime.UtcNow;
-            r.InventoryId = inventoryId;
+            // var r = new BaseObject(await _dbContext.Resources.FindAsync(id));
+            // r.Id = -1;
+            // r.ForkedFromId = id;
+            // r.CreatedByUserId = userId;
+            // r.DeletedByUserId = null;
+            // r.WhenDeleted = null;
+            // r.WhenCreated = DateTime.UtcNow;
+            // r.InventoryId = inventoryId;
 
-            _dbContext.Resources.Add(r);
-            await _dbContext.SaveChangesAsync();
-            return r;
+            // _dbContext.Resources.Add(r);
+            // await _dbContext.SaveChangesAsync();
+            // return r;
+            await Task.Delay(1);
+            return null;
         }
 
-        public async Task<List<SimpleResourceModel>> GetAllForUser(int id, int? viewerId)
+        public async Task<CollectionObject> GetAllForUser(int id, int? viewerId)
         {
-            var invs = await _dbContext.Inventories.Where(i => i.OwnerUserId == id).ToListAsync();
-            return invs.SelectMany(i => _dbContext.Resources.Where(r => r.InventoryId == i.Id)).ToList();
+            //var invs = await _dbContext.Inventories.Where(i => i.OwnerUserId == id).ToListAsync();
+            //return invs.SelectMany(i => _dbContext.Resources.Where(r => r.InventoryId == i.Id)).ToList();
+            await Task.Delay(1);
+            return null;
         }
 
-        public Task<List<SimpleResourceModel>> GetAllForInventory(int id, int? viewerId)
+        public async Task<CollectionObject> GetAllForInventory(int id, int? viewerId)
         {
-            return _dbContext.Resources.Where(r => r.InventoryId == id).ToListAsync();
+            //return _dbContext.Resources.Where(r => r.InventoryId == id).ToListAsync();
+            await Task.Delay(1);
+            return null;
         }
 
         public Task<List<string>> GetBrands()
@@ -74,9 +79,11 @@ namespace PinkUmbrella.Services.Sql
             return _dbContext.Resources.Select(r => r.Category).Distinct().ToListAsync();
         }
 
-        public async Task<SimpleResourceModel> GetResource(int id, int? viewerId)
+        public async Task<BaseObject> GetResource(int id, int? viewerId)
         {
-            return await _dbContext.Resources.FindAsync(id);
+            // return await _dbContext.Resources.FindAsync(id);
+            await Task.Delay(1);
+            return null;
         }
 
         public Task<List<string>> GetUnits()
@@ -84,24 +91,22 @@ namespace PinkUmbrella.Services.Sql
             return _dbContext.Resources.Select(r => r.Units).Distinct().ToListAsync();
         }
 
-        public async Task<List<SimpleResourceModel>> QueryInventory(int inventoryId, int? viewerId, string text, PaginationModel pagination)
+        public async Task<CollectionObject> QueryInventory(int inventoryId, int? viewerId, string text, PaginationModel pagination)
         {
             var forUser = await GetAllForInventory(inventoryId, viewerId);
-            if (string.IsNullOrWhiteSpace(text)) {
-                return forUser;
-            } else {
-                return forUser.Where(r => r.Name.Contains(text)).ToList();
+            if (!string.IsNullOrWhiteSpace(text)) {
+                forUser.items = forUser.items.Where(r => r.name.Contains(text)).ToList();
             }
+            return forUser;
         }
 
-        public async Task<List<SimpleResourceModel>> QueryUser(int userId, int? viewerId, string text, PaginationModel pagination)
+        public async Task<CollectionObject> QueryUser(int userId, int? viewerId, string text, PaginationModel pagination)
         {
             var forUser = await GetAllForUser(userId, viewerId);
-            if (string.IsNullOrWhiteSpace(text)) {
-                return forUser;
-            } else {
-                return forUser.Where(r => r.Name.Contains(text)).ToList();
+            if (!string.IsNullOrWhiteSpace(text)) {
+                forUser.items = forUser.items.Where(r => r.name.Contains(text)).ToList();
             }
+            return forUser;
         }
 
         public async Task UpdateAmount(int id, double newAmount)
@@ -109,6 +114,11 @@ namespace PinkUmbrella.Services.Sql
             var r = await _dbContext.Resources.FindAsync(id);
             r.Amount = newAmount;
             await _dbContext.SaveChangesAsync();
+        }
+
+        public Task<BaseObject> Transform(Models.SimpleResourceModel resource)
+        {
+            throw new NotImplementedException();
         }
     }
 }

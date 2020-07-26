@@ -6,9 +6,9 @@
         debugTagJson = $"[{string.Join(',', Model.DebugValue.Select(t => new { value = t.Id, label = t.Tag }).Select(t => System.Text.Json.JsonSerializer.Serialize(t)))}]";
     }
     string tagJson = null;
-    if (Model.Tags != null && Model.Tags.Count > 0)
+    if (Model.Tags != null && Model.Tags.items.Count > 0)
     {
-        tagJson = $"[{string.Join(',', Model.Tags.Select(t => new { value = t.Id, label = t.Tag }).Select(t => System.Text.Json.JsonSerializer.Serialize(t)))}]";
+        tagJson = $"[{string.Join(',', Model.Tags.items.Select(t => new { value = t.objectId, label = t.content }).Select(t => System.Text.Json.JsonSerializer.Serialize(t)))}]";
     }
 }
 <div class="js-tag-editor @Model.HtmlClasses" data-tag-editor-id="-1" id="@Model.HtmlId" >

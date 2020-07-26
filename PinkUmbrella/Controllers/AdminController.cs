@@ -12,18 +12,17 @@ using PinkUmbrella.Models;
 using PinkUmbrella.Services;
 using PinkUmbrella.ViewModels.Admin;
 using PinkUmbrella.Models.AhPushIt;
-using PinkUmbrella.Models.Auth;
 using System.Net;
-using PinkUmbrella.Models.Peer;
 using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Util;
 using PinkUmbrella.Services.Local;
-using PinkUmbrella.Models.Public;
 using Tides.Models;
 using Tides.Models.Public;
 using Tides.Models.Auth;
 using Tides.Models.Peer;
+using Tides.Services;
+using Tides.Actors;
 
 namespace PinkUmbrella.Controllers
 {
@@ -39,8 +38,8 @@ namespace PinkUmbrella.Controllers
         public AdminController(IWebHostEnvironment environment, ILogger<AdminController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles, IDebugService debugService,
             RoleManager<UserGroupModel> roleManager, IReactionService reactions, ITagService tags, INotificationService notifications,
-            IPeerService peers, IAuthService auth, ISettingsService settings, IInvitationService invitationService):
-            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings)
+            IPeerService peers, IAuthService auth, ISettingsService settings, IInvitationService invitationService, IActivityStreamRepository activityStreams):
+            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
         {
             _logger = logger;
             _debugService = debugService;
@@ -87,8 +86,8 @@ namespace PinkUmbrella.Controllers
                 var client = await _peers.Open(p.Address, p.AddressPort);
                 peers.Add(new PeerViewModel()
                 {
-                    Peer = p,
-                    Stats = await client.QueryStats(await _auth.GetKeyPair(p.PublicKey)),
+                    Peer = p, //await _auth.GetKeyPair(p.PublicKey)
+                    Stats = ((await client.Get()) as Tides.Actors.Peer)?.stats,
                 });
             }
 
@@ -114,8 +113,15 @@ namespace PinkUmbrella.Controllers
                     return BadRequest();
                 }
             }
-            var peer = await (await _peers.Open(Addr, port)).Query(null);
-            return await ViewPeer(peer);
+            var peer = await (await _peers.Open(Addr, port)).Get();
+            if (peer is Peer truePeer)
+            {
+                return await ViewPeer(truePeer);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         [HttpGet, IsAdminOrDebuggingOrElse404Filter]
@@ -123,14 +129,21 @@ namespace PinkUmbrella.Controllers
         {
             var ip = await _auth.GetOrRememberIP(IPAddress.Parse(address));
             var peerClient = await _peers.Open(ip, port);
-            var peer = await peerClient.Query(null);
-            return Redirect($"/{peer.Address}-{peer.AddressPort}/{route}");
-            // var vm = await peerClient.QueryViewModel(route);
-            // return await ViewPeer(peer, vm);
+            var peer = await peerClient.Get();
+            if (peer is Peer truePeer)
+            {
+                return Redirect($"/{truePeer.Address}-{truePeer.AddressPort}/{route}");
+                // var vm = await peerClient.QueryViewModel(route);
+                // return await ViewPeer(peer, vm);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         [HttpGet, IsAdminOrDebuggingOrElse404Filter]
-        private async Task<IActionResult> ViewPeer(PeerModel peer, object proxiedViewModel = null)
+        private async Task<IActionResult> ViewPeer(Tides.Actors.Peer peer, object proxiedViewModel = null)
         {
             ViewData["Controller"] = "Admin";
             ViewData["Action"] = nameof(Peer);
@@ -150,10 +163,10 @@ namespace PinkUmbrella.Controllers
             ViewData["Action"] = nameof(PreviewPeer);
 
             var peerClient = await _peers.Open(Addr, port);
-            var peer = await peerClient.Query(null);
-            if (peer != null)
+            var peer = await peerClient.Get();
+            if (peer != null && peer is Peer truePeer)
             {
-                await _peers.AddPeer(peer);
+                await _peers.AddPeer(truePeer);
                 if (ModelState.IsValid)
                 {
                     return RedirectToAction(nameof(Peer), new { address = Addr.Address, port = port });
@@ -162,7 +175,7 @@ namespace PinkUmbrella.Controllers
             return View(new PinkUmbrella.ViewModels.Peer.PeerViewModel()
             {
                  MyProfile = await GetCurrentUserAsync(),
-                 Peer = await (await _peers.Open(Addr, port)).Query(null),
+                 //Peer = peer?.Get(),
             });
         }
 
@@ -178,9 +191,9 @@ namespace PinkUmbrella.Controllers
             return View(new PostsViewModel()
             {
                 MyProfile = user,
-                MostReportedPosts = await _posts.GetMostReportedPosts(),
-                MostBlockedPosts = await _posts.GetMostBlockedPosts(),
-                MostDislikedPosts = await _posts.GetMostDislikedPosts(),
+                // MostReportedPosts = await _posts.GetMostReportedPosts(),
+                // MostBlockedPosts = await _posts.GetMostBlockedPosts(),
+                // MostDislikedPosts = await _posts.GetMostDislikedPosts(),
             });
         }
 

@@ -5,7 +5,7 @@
 <partial name="_Header" />
 <div>
     <h1>Most Reported Posts</h1>
-    @if (Model.MostReportedPosts.Pagination.start == 0)
+    @* @if (Model.MostReportedPosts.startIndex == 0)
     {
         <span>@Model.MostReportedPosts.Total total reported posts</span>
     }
@@ -32,5 +32,5 @@
     @foreach (var p in Model.MostDislikedPosts.Items) {
         <hr />
         <partial name="SearchResult/PostSearchResult" model="p" />
-    }
+    } *@
 </div>

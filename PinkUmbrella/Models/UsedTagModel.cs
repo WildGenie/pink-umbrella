@@ -1,8 +1,10 @@
+using Tides.Core;
+
 namespace PinkUmbrella.Models
 {
     public class UsedTagModel
     {
-        public TagModel Tag { get; set; }
+        public BaseObject Tag { get; set; }
         
         public long UseCount { get; set; }
     }

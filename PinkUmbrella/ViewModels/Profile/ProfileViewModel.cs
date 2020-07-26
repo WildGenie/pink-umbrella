@@ -1,9 +1,9 @@
-using PinkUmbrella.Models.Public;
+using Tides.Core;
 
 namespace PinkUmbrella.ViewModels.Profile
 {
-    public class ProfileViewModel: BaseViewModel
+    public class ProfileViewModel: Account.LocalAccountViewModel
     {
-        public PublicProfileModel Profile { get; set; }
+        public BaseObject Profile { get; set; }
     }
 }

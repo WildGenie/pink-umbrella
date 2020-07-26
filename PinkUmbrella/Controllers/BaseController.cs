@@ -8,7 +8,10 @@ using PinkUmbrella.Services;
 using Microsoft.FeatureManagement;
 using PinkUmbrella.ViewModels.Shared;
 using PinkUmbrella.Services.Local;
-using PinkUmbrella.Models.Public;
+using Tides.Services;
+using Tides.Core;
+using PinkUmbrella.Util;
+using Tides.Actors;
 
 namespace PinkUmbrella.Controllers
 {
@@ -27,12 +30,13 @@ namespace PinkUmbrella.Controllers
         protected readonly IAuthService _auth;
         protected readonly IFeatureManager _featureManager;
         protected readonly ISettingsService _settings;
+        protected readonly IActivityStreamRepository _activityStreams;
         
         public BaseController(IWebHostEnvironment environment, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles,
-            IPublicProfileService publicProfiles,
+            IPublicProfileService publicProfiles, 
             IReactionService reactions, ITagService tags, INotificationService notifications,
-            IPeerService peers, IAuthService auth, ISettingsService settings)
+            IPeerService peers, IAuthService auth, ISettingsService settings, IActivityStreamRepository activityStreams)
         {
             _environment = environment;
             _signInManager = signInManager;
@@ -47,9 +51,10 @@ namespace PinkUmbrella.Controllers
             _auth = auth;
             _settings = settings;
             _featureManager = settings.FeatureManager;
+            _activityStreams = activityStreams;
         }
 
-        protected async Task<PublicProfileModel> GetCurrentUserAsync()
+        protected async Task<ActorObject> GetCurrentUserAsync()
         {
             var local = await _userManager.GetUserAsync(HttpContext.User);
             return await _publicProfiles.Transform(local, 0, local?.Id);
@@ -69,6 +74,8 @@ namespace PinkUmbrella.Controllers
             }
         }
 
+        protected bool IsActivityStreamRequest => Request.Headers["Content-Type"] == "application/activity+json";
+
         protected void ShowStatus(string statusMessage, string statusType)
         {
             if (!string.IsNullOrWhiteSpace(statusMessage) && !string.IsNullOrWhiteSpace(statusType))
@@ -79,6 +86,11 @@ namespace PinkUmbrella.Controllers
                     AlertType = statusType,
                 };
             }
+        }
+
+        protected ActivityStreamActionResult ActivityStream(BaseObject result)
+        {
+            return new ActivityStreamActionResult(result);
         }
     }
 }

@@ -14,6 +14,8 @@ using PinkUmbrella.ViewModels.Shop;
 using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Services.Local;
+using Tides.Services;
+using Tides.Models;
 
 namespace PinkUmbrella.Controllers
 {
@@ -27,8 +29,8 @@ namespace PinkUmbrella.Controllers
         public TagController(IWebHostEnvironment environment, ILogger<ShopController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles, IShopService shops,
             IReactionService reactions, ITagService tags, INotificationService notifications, IPeerService peers, IAuthService auth,
-            ISettingsService settings):
-            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings)
+            ISettingsService settings, IActivityStreamRepository activityStreams):
+            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
         {
             _logger = logger;
             _shops = shops;
@@ -45,7 +47,10 @@ namespace PinkUmbrella.Controllers
             {
                 var model = new ShopViewModel() {
                     MyProfile = user,
-                    Shop = await _shops.GetShopByHandle(handle, user?.UserId)
+                    Shop = await _activityStreams.GetShop(new ActivityStreamFilter
+                    {
+                        handle = handle, userId = user?.objectId, viewerId = user?.objectId
+                    })
                 };
                 return View(model);
             }
@@ -65,7 +70,7 @@ namespace PinkUmbrella.Controllers
             {
                 var tags = await _tags.GetCompletionsForTag(prefix);
                 return Json(new {
-                    items = tags.Select(t => new { value = t.Id.ToString(), label = t.Tag }).ToArray()
+                    items = tags.items.Select(t => new { value = t.objectId?.ToString(), label = t.content }).ToArray()
                 });
             }
             else

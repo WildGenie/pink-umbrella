@@ -2,25 +2,36 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Nest;
-using PinkUmbrella.Models;
 using PinkUmbrella.Models.Search;
+using Tides.Core;
+using Tides.Services;
 
 namespace PinkUmbrella.Services.Elastic
 {
-    public abstract class BaseSearchElasticService<T>: BaseElasticService where T: class
+    public abstract class BaseSearchElasticService<T>: BaseElasticService where T: BaseObject
     {
+        private IHazActivityStreamPipe _pipeline;
+
+        public BaseSearchElasticService(IHazActivityStreamPipe pipeline)
+        {
+            _pipeline = pipeline;
+        }
+
         protected async Task<SearchResultsModel> HandleResponse(SearchRequestModel request, Nest.ISearchResponse<T> response, SearchResultType resultType)
         {
             if (response.IsValid && response.Documents.Count > 0)
             {
                 var sources = response.HitsMetadata.Hits.Select(h => h.Source);
                 var highlights = response.HitsMetadata.Hits.Select(h => h.Highlight);
-                var results = new List<T>();
+                var results = new List<BaseObject>();
+                var pipe = _pipeline.Get();
                 foreach (var r in sources)
                 {
-                    if (await CanView(r, request.viewerId))
+                    r.ViewerId = request.viewerId;
+                    var final = await pipe.Pipe(r, true);
+                    if (final != null)
                     {
-                        results.Add(r);
+                        results.Add(final);
                     }
                 }
                 return new SearchResultsModel()
@@ -59,7 +70,5 @@ namespace PinkUmbrella.Services.Elastic
             var response = await elastic.SearchAsync<T>(searchRequest);
             return await HandleResponse(request, response, resultType);
         }
-
-        protected abstract Task<bool> CanView(T r, int? viewerId);
     }
 }

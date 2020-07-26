@@ -1,19 +1,19 @@
 using System.Collections.Generic;
 using System.ComponentModel;
-using PinkUmbrella.Models;
+using Tides.Core;
 
 namespace PinkUmbrella.ViewModels.Inventory
 {
     public class IndexViewModel: BaseViewModel
     {
         [DisplayName("Inventory")]
-        public int? InventoryId { get; set; }
-        public int? SelectedId { get; set; }
-        public List<SimpleResourceModel> Resources { get; set; } = new List<SimpleResourceModel>();
-        public List<SimpleInventoryModel> Inventories { get; set; } = new List<SimpleInventoryModel>();
-        public SimpleInventoryModel Inventory { get; set; }
+        public string InventoryId { get; set; }
+        public string SelectedId { get; set; }
+        public CollectionObject Resources { get; set; } = new CollectionObject();
+        public CollectionObject Inventories { get; set; } = new CollectionObject();
+        public BaseObject Inventory { get; set; }
         public NewResourceViewModel NewResource { get; set; } = new NewResourceViewModel();
-        public SimpleInventoryModel NewInventory { get; set; } = new SimpleInventoryModel();
+        public NewInventoryViewModel NewInventory { get; set; } = null;
 
         public bool AddResourceEnabled { get; set; } = false;
     }

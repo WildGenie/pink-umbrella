@@ -10,8 +10,10 @@ using PinkUmbrella.Models.Settings;
 using PinkUmbrella.Repositories;
 using PinkUmbrella.Services;
 using PinkUmbrella.Util;
+using Tides.Models;
 using Tides.Models.Auth;
 using Tides.Models.Peer;
+using Tides.Services;
 
 namespace PinkUmbrella.Controllers.Api
 {
@@ -27,23 +29,25 @@ namespace PinkUmbrella.Controllers.Api
         private readonly IPeerService _peers;
         private readonly SimpleDbContext _db;
         private readonly IApiDescriptionGroupCollectionProvider _apiExplorer;
+        private readonly IActivityStreamRepository _activityStreams;
         
-        public SystemController(IAuthService auth, SimpleDbContext db, IPeerService peers, IApiDescriptionGroupCollectionProvider apiExplorer)
+        public SystemController(IAuthService auth, SimpleDbContext db, IPeerService peers, IApiDescriptionGroupCollectionProvider apiExplorer, IActivityStreamRepository activityStreams)
         {
             _auth = auth;
             _db = db;
             _peers = peers;
             _apiExplorer = apiExplorer;
+            _activityStreams = activityStreams;
         }
 
         [AllowAnonymous]
         [Produces("application/json", "application/pink-umbrella")]
-        [ProducesResponseType(typeof(PeerModel), 200)]
+        [ProducesResponseType(typeof(Tides.Actors.Peer), 200)]
         [HttpGet]
         public async Task<ActionResult> Index()
         {
-            return Json(new PeerModel() {
-                DisplayName = "Hello World",
+            return Json(new Tides.Actors.Peer() {
+                name = "Hello World",
                 Address = new IPAddressModel()
                 {
                     Name = HttpContext.Request.Host.Host,
@@ -62,8 +66,8 @@ namespace PinkUmbrella.Controllers.Api
             return Json(new PeerStatsModel() {
                 PeerCount = await _peers.CountAsync(),
                 MediaCount = await _db.ArchivedMedia.CountAsync(),
-                PostCount = await _db.Posts.CountAsync(),
-                ShopCount = await _db.Shops.CountAsync(),
+                PostCount = (await _activityStreams.GetPosts(new ActivityStreamFilter { peerId = 0 })).totalItems,
+                ShopCount = (await _activityStreams.GetShops(new ActivityStreamFilter { peerId = 0 })).totalItems,
                 UserCount = await _db.Users.CountAsync(),
                 StartTime = Process.GetCurrentProcess().StartTime,
             });
@@ -85,6 +89,7 @@ namespace PinkUmbrella.Controllers.Api
                 filter = filter.ToLower();
                 actions = actions.Where(e => e.Route.ToLower().Contains(filter));
             }
+            await Task.Delay(1);
             return Json(new
             {
                 Items = actions.ToList()

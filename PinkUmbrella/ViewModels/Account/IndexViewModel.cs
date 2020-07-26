@@ -4,7 +4,7 @@ using PinkUmbrella.Models.Auth;
 
 namespace PinkUmbrella.ViewModels.Account
 {
-    public class IndexViewModel: BaseViewModel
+    public class IndexViewModel: LocalAccountViewModel
     {
         public Dictionary<UserLoginMethod, UserLoginMethodModel> MethodOverrides { get; set; } = new Dictionary<UserLoginMethod, UserLoginMethodModel>();
 

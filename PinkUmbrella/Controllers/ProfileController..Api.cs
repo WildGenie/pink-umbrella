@@ -4,12 +4,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement.Mvc;
-using PinkUmbrella.Models.Auth;
-using PinkUmbrella.Models.Peer;
 using PinkUmbrella.Models.Settings;
 using PinkUmbrella.Util;
+using Tides.Actors;
 using Tides.Models.Auth;
-using Tides.Models.Peer;
 
 namespace PinkUmbrella.Controllers
 {
@@ -21,8 +19,8 @@ namespace PinkUmbrella.Controllers
         [Route("/Api/Profile")]
         public async Task<ActionResult> ApiIndex()
         {
-            return Json(new PeerModel() {
-                DisplayName = "Hello World",
+            return Json(new Peer() {
+                name = "Hello World",
                 Address = new IPAddressModel()
                 {
                     Name = HttpContext.Request.Host.Host,

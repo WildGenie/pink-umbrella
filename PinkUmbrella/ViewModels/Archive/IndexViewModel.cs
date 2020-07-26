@@ -1,10 +1,9 @@
-using PinkUmbrella.Models;
-using Tides.Models;
+using Tides.Core;
 
 namespace PinkUmbrella.ViewModels.Archive
 {
     public class IndexViewModel : BaseViewModel
     {
-        public PaginatedModel<ArchivedMediaModel> Items { get; set; }
+        public CollectionObject Items { get; set; }
     }
 }

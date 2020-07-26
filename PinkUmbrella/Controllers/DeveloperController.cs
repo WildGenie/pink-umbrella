@@ -16,6 +16,7 @@ using PinkUmbrella.Models.Auth;
 using System.ComponentModel.DataAnnotations;
 using Tides.Models;
 using Tides.Models.Auth;
+using Tides.Services;
 
 namespace PinkUmbrella.Controllers
 {
@@ -29,8 +30,8 @@ namespace PinkUmbrella.Controllers
         public DeveloperController(IWebHostEnvironment environment, ILogger<DeveloperController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles, IDebugService debugService,
             RoleManager<UserGroupModel> roleManager, IReactionService reactions, ITagService tags, INotificationService notifications, IPeerService peers,
-            IAuthService auth, ISettingsService settings):
-            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings)
+            IAuthService auth, ISettingsService settings, IActivityStreamRepository activityStreams):
+            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
         {
             _logger = logger;
             _debugService = debugService;
@@ -78,9 +79,9 @@ namespace PinkUmbrella.Controllers
             ViewData["Action"] = nameof(Posts);
             return View(new PostsViewModel() {
                 MyProfile = user,
-                MostReportedPosts = await _posts.GetMostReportedPosts(),
-                MostBlockedPosts = await _posts.GetMostBlockedPosts(),
-                MostDislikedPosts = await _posts.GetMostDislikedPosts(),
+                // MostReportedPosts = await _posts.GetMostReportedPosts(),
+                // MostBlockedPosts = await _posts.GetMostBlockedPosts(),
+                // MostDislikedPosts = await _posts.GetMostDislikedPosts(),
             });
         }
 

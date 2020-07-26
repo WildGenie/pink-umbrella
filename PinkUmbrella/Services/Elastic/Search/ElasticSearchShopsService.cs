@@ -1,17 +1,18 @@
 using System.Threading.Tasks;
-using PinkUmbrella.Models;
 using PinkUmbrella.Services.Search;
 using PinkUmbrella.Models.Search;
 using System.Collections.Generic;
 using Nest;
+using Tides.Actors;
+using Tides.Services;
 
 namespace PinkUmbrella.Services.Elastic.Search
 {
-    public class ElasticSearchShopsService : BaseSearchElasticService<ShopModel>, ISearchableService
+    public class ElasticSearchShopsService : BaseSearchElasticService<Common.Organization>, ISearchableService
     {
         private readonly IShopService _shops;
 
-        public ElasticSearchShopsService(IShopService shops)
+        public ElasticSearchShopsService(IShopService shops, IHazActivityStreamPipe pipe): base(pipe)
         {
             _shops = shops;
         }
@@ -46,12 +47,6 @@ namespace PinkUmbrella.Services.Elastic.Search
             {
                 Must = musts,
             }, null, ResultType);
-        }
-
-        protected override async Task<bool> CanView(ShopModel r, int? viewerId)
-        {
-            await _shops.BindReferences(r, viewerId);
-            return _shops.CanView(r, viewerId);
         }
     }
 }

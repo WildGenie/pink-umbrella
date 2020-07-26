@@ -1,8 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using PinkUmbrella.Models.Peer;
 using PinkUmbrella.Util;
-using Tides.Models.Peer;
+using Tides.Actors;
 
 namespace PinkUmbrella.Services.Sql
 {
@@ -17,7 +16,7 @@ namespace PinkUmbrella.Services.Sql
 
         public DbContext Context { get; set; }
         
-        public PeerModel Peer { get; set; }
+        public Peer Peer { get; set; }
 
         public async Task SwitchTo(string peerHandle)
         {

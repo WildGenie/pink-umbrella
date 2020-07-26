@@ -1,12 +1,11 @@
 using System.Collections.Generic;
-using PinkUmbrella.Models;
-using PinkUmbrella.Models.Public;
+using Tides.Core;
 
 namespace PinkUmbrella.ViewModels.Post
 {
     public class PostViewModel: BaseViewModel
     {
-        public PostModel Post { get; set; }
-        public List<PostModel> Chain { get; set; }
+        public BaseObject Post { get; set; }
+        public List<BaseObject> Chain { get; set; }
     }
 }

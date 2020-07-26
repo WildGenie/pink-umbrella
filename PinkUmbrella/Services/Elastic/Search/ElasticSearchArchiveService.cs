@@ -1,21 +1,21 @@
 using System.Threading.Tasks;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using PinkUmbrella.Models;
 using PinkUmbrella.Repositories;
 using PinkUmbrella.Services.Search;
 using PinkUmbrella.Models.Search;
 using System.Collections.Generic;
 using Nest;
+using Tides.Objects;
+using Tides.Core;
+using Tides.Services;
 
 namespace PinkUmbrella.Services.Elastic.Search
 {
-    public abstract class ElasticSearchArchiveService : BaseSearchElasticService<ArchivedMediaModel>, ISearchableService
+    public abstract class ElasticSearchArchiveService : BaseSearchElasticService<BaseObject>, ISearchableService
     {
         private readonly SimpleDbContext _dbContext;
         private readonly IArchiveService _archive;
 
-        public ElasticSearchArchiveService(SimpleDbContext dbContext, IArchiveService archive)
+        public ElasticSearchArchiveService(SimpleDbContext dbContext, IArchiveService archive, IHazActivityStreamPipe pipe): base(pipe)
         {
             _dbContext = dbContext;
             _archive = archive;
@@ -27,7 +27,7 @@ namespace PinkUmbrella.Services.Elastic.Search
 
         public SearchSource Source => SearchSource.Elastic;
 
-        public async Task<SearchResultsModel> Search(SearchRequestModel request, ArchivedMediaType mediaType)
+        public async Task<SearchResultsModel> Search(SearchRequestModel request, CommonMediaType mediaType)
         {
             var elastic = GetClient();
             var musts = new List<QueryContainer>();
@@ -50,12 +50,6 @@ namespace PinkUmbrella.Services.Elastic.Search
             {
                 Must = musts,
             }, null, ResultType);
-        }
-
-        protected override async Task<bool> CanView(ArchivedMediaModel r, int? viewerId)
-        {
-            await _archive.BindReferences(r, viewerId);
-            return _archive.CanView(r, viewerId);
         }
 
         public abstract Task<SearchResultsModel> Search(SearchRequestModel request);

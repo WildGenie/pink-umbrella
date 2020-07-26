@@ -7,8 +7,8 @@ using System.Collections.Generic;
 using PinkUmbrella.Models.Search;
 using PinkUmbrella.Services.Search;
 using PinkUmbrella.Services.Local;
-using PinkUmbrella.Models.Public;
 using PinkUmbrella.Repositories;
+using Tides.Actors;
 
 namespace PinkUmbrella.Services.Sql.Search
 {
@@ -63,7 +63,7 @@ namespace PinkUmbrella.Services.Sql.Search
             }
 
             var searchResults = await query.ToListAsync();
-            var results = new List<PublicProfileModel>();
+            var results = new List<ActorObject>();
             foreach (var r in searchResults)
             {
                 var asPublic = await _publicProfiles.Transform(r, 0, request.viewerId);

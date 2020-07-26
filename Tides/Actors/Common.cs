@@ -1,30 +1,28 @@
-using Tides.Core;
-
 namespace Tides.Actors
 {
     public static class Common
     {
-        public class Application : BaseObject
+        public class Application : ActorObject
         {
             public Application(string type = null) : base(type ?? nameof(Application)) { }
         }
 
-        public class Group : BaseObject
+        public class Group : ActorObject
         {
             public Group(string type = null) : base(type ?? nameof(Group)) { }
         }
 
-        public class Organization : BaseObject
+        public class Organization : ActorObject
         {
             public Organization(string type = null) : base(type ?? nameof(Organization)) { }
         }
 
-        public class Person : BaseObject
+        public class Person : ActorObject
         {
             public Person(string type = null) : base(type ?? nameof(Person)) { }
         }
 
-        public class Service : BaseObject
+        public class Service : ActorObject
         {
             public Service(string type = null) : base(type ?? nameof(Service)) { }
         }

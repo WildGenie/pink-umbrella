@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -10,13 +6,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Models;
-using PinkUmbrella.Models.Public;
 using PinkUmbrella.Models.Settings;
 using PinkUmbrella.Services;
 using PinkUmbrella.Services.Local;
 using PinkUmbrella.ViewModels.Shared;
 using Tides.Models;
 using Tides.Models.Public;
+using Tides.Services;
 
 namespace PinkUmbrella.Controllers
 {
@@ -28,8 +24,8 @@ namespace PinkUmbrella.Controllers
 
         public ReactionController(IWebHostEnvironment environment, ILogger<ReactionController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles,IReactionService reactions, ITagService tags,
-            INotificationService notifications, IPeerService peers, IAuthService auth, ISettingsService settings):
-            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings)
+            INotificationService notifications, IPeerService peers, IAuthService auth, ISettingsService settings, IActivityStreamRepository activityStreams):
+            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
         {
             _logger = logger;
         }

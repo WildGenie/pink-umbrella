@@ -1,7 +1,5 @@
 using System;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations.Schema;
-using PinkUmbrella.Models.Public;
 using Tides.Util;
 
 namespace PinkUmbrella.Models
@@ -15,9 +13,6 @@ namespace PinkUmbrella.Models
         public DateTime WhenMentioned { get; set; }
 
         public int PostId { get; set; }
-
-        [NotMapped]
-        public long PostPeerId { get; set; }
         
         public int MentionedUserId { get; set; }
 
@@ -28,14 +23,5 @@ namespace PinkUmbrella.Models
         
         [DefaultValue(null)]
         public DateTime? WhenMentionedUserDismissMention { get; set; }
-
-        public UserProfileModel MentionedUser { get; set; }
-
-        public PostModel Post { get; set; }
-
-
-
-        [NotMapped]
-        public PublicProfileModel MentionedPublicUser { get; set; }
     }
 }

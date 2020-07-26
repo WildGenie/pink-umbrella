@@ -1,7 +1,7 @@
-﻿@model ShopModel
+﻿@model Tides.Core.BaseObject
 <div class="contains-goto">
     <i class="fas fa-store"></i>
-    <a class="goto" asp-controller="Shop" asp-action="Index" asp-route-handle="@Model.Handle">goto</a>
+    <a class="goto" asp-controller="Shop" asp-action="Index" asp-route-id="@Model.id">goto</a>
     <b>@Model.DisplayName</b>
-    <span>&bull; @Model.Description</span>
+    <span>&bull; @Model.summary</span>
 </div>

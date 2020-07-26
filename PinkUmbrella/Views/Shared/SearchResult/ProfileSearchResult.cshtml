@@ -1,9 +1,9 @@
-﻿@model PublicProfileModel
+﻿@model Tides.Actors.ActorObject
 <div class="contains-goto">
     <i class="fas fa-user-circle"></i>
     <a class="goto" asp-controller="Profile" asp-action="Index" asp-route-id="@Model.PublicId">goto</a>
-    <b>@Model.DisplayName</b>
+    <b>@Model.name</b>
     <i>@@@Model.Handle</i>
-    <span>&bull; @Model.Bio</span>
-    <span style="float: right">Joined <partial name="_Timestamp" model="@Model.WhenCreated" /></span>
+    <span>&bull; @Model.summary</span>
+    <span style="float: right">Joined <partial name="_Timestamp" model="@Model.published" /></span>
 </div>

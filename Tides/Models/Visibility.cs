@@ -5,6 +5,9 @@ namespace Tides.Models
 {
     public enum Visibility
     {
+        [Name("Shadow Banned"), Description("Hidden to everybody, even the publisher, minus admins")]
+        SHADOW_BANNED = -1,
+
         [Name("Hidden"), Description("Hidden to everybody")]
         HIDDEN = 0,
 

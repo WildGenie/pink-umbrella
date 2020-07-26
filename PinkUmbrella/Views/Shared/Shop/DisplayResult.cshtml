@@ -1,6 +1,6 @@
-@model ShopModel
+@model Tides.Core.BaseObject
 <div class="contains-goto">
-    <a class="goto" asp-controller="Shop" asp-action="Index" asp-route-handle="@Model.Handle">goto</a>
-    <h3>@Model.DisplayName</h3>
+    <a class="goto" asp-controller="Shop" asp-action="Index" asp-route-id="@Model.id">goto</a>
+    <h3>@Model.name</h3>
     <partial name="Shop/Display" />
 </div>

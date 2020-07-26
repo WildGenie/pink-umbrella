@@ -1,8 +1,16 @@
-@model ShopModel
+@using Tides.Core
+@model Tides.Core.BaseObject
 @{
-    var hasWebsiteLink = string.IsNullOrWhiteSpace(Model.WebsiteLink);
-    var hasMenuLink = string.IsNullOrWhiteSpace(Model.MenuLink);
-    var hasLinks = hasMenuLink || hasWebsiteLink;
+    Link[] links = null;
+    if (Model.url.type == "Link")
+    {
+        links = new Link[] { Model.url as Link };
+    }
+    else if (Model.url.type.EndsWith("Collection"))
+    {
+        links = (Model.url as Tides.Core.CollectionObject).items.OfType<Link>().ToArray();
+    }
+    var hasLinks = links != null && links.Length > 0;
 
     var reactLike = new ReactViewModel() {
         Type = ReactionType.Like,
@@ -11,7 +19,7 @@
         HasReacted = Model.HasLiked,
         Count = Model.LikeCount,
         ViewerId = Model.ViewerId,
-        Enabled = !Model.ViewerIsOwner,
+        Enabled = !Model.ViewerIsPublisher,
     };
     var reactDislike = new ReactViewModel() {
         Type = ReactionType.Dislike,
@@ -20,7 +28,7 @@
         HasReacted = Model.HasDisliked,
         Count = Model.DislikeCount,
         ViewerId = Model.ViewerId,
-        Enabled = !Model.ViewerIsOwner,
+        Enabled = !Model.ViewerIsPublisher,
     };
     var reactReport = new ReactViewModel() {
         Type = ReactionType.Report,
@@ -29,7 +37,7 @@
         HasReacted = false,
         Count = Model.ReportCount,
         ViewerId = Model.ViewerId,
-        Enabled = !Model.ViewerIsOwner,
+        Enabled = !Model.ViewerIsPublisher,
         ManualReactionUrl = "/Post/Report/" + Model.PublicId,
         ResponseHandler = "post-replacewith",
     };
@@ -38,9 +46,9 @@
         reactLike, reactDislike, reactReport,
     };
 
-    var locationString = $"{Model.StreetAddress}, {_settings.Site.HostDisplayName} {Model.ZipCode}";
+    var locationString = $"{Model.location}, {_settings.Site.HostDisplayName}";
 
-    var tags = new TagEditorViewModel() { Tags = Model.Tags };
+    var tags = new TagEditorViewModel() { Tags = Model.tag };
     var travelModes = new string [] { "driving", "transit", "bicycling", "walking" };
     var travelIcons = new Dictionary<string, string>() {
         { "driving", "fas fa-car" },
@@ -50,10 +58,10 @@
     };
 }
 <partial name="_VisibilityStatus" />
-<small>Last updated <partial name="_Timestamp" model="Model.LastUpdated" /> - published <partial name="_Timestamp" model="Model.WhenCreated" /></small>
+<small>Last updated <partial name="_Timestamp" model="Model.updated" /> - published <partial name="_Timestamp" model="Model.published" /></small>
 <p>
     Managed by 
-    <a asp-controller="Profile" asp-action="Index" asp-route-id="@Model.PublicId">@Model.OwnerUser.DisplayName</a>
+    <a asp-controller="Profile" asp-action="Index" asp-route-id="@Model.publisher">@Model.publisher.name</a>
 </p>
 <ul>
     <li><a href="https://www.google.com/maps/search/?api=1&query=@Uri.EscapeDataString(locationString)" target="_blank"><i class="fas fa-map-marker-alt"></i> @locationString</a></li>
@@ -64,17 +72,26 @@
 </ul>
 @if (hasLinks)
 {
+    var websiteLink = links[0].content;
+    var menuLink = string.Empty;
+    if (links.Length > 1)
+    {
+        websiteLink = links.FirstOrDefault(l => l.name == "website")?.content ?? websiteLink;
+        menuLink = links.FirstOrDefault(l => l.name == "menu")?.content;
+    }
+    var hasWebsiteLink = string.IsNullOrWhiteSpace(websiteLink);
+    var hasMenuLink = string.IsNullOrWhiteSpace(menuLink);
     <ul>
         @if (hasWebsiteLink)
         {
-        <li><a href="@Model.WebsiteLink" target="_blank"><i class="fas fa-external-link-alt"></i> Website</a></li>
+        <li><a href="@websiteLink" target="_blank"><i class="fas fa-external-link-alt"></i> Website</a></li>
         }
         @if (hasMenuLink)
         {
-        <li><a href="@Model.MenuLink" target="_blank"><i class="fas fa-book-open"></i> Menu</a></li>
+        <li><a href="@menuLink" target="_blank"><i class="fas fa-book-open"></i> Menu</a></li>
         }
     </ul>
 }
-<p>@Model.Description</p>
+<p>@Model.summary</p>
 <partial name="Button/ReactButtonList" model="reactions" />
 <partial name="Tag/Display" model="tags" />

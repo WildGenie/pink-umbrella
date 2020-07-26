@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
@@ -12,16 +11,15 @@ using PinkUmbrella.Models;
 using PinkUmbrella.Services;
 using PinkUmbrella.ViewModels.Home;
 using PinkUmbrella.ViewModels;
-using PinkUmbrella.Util;
-using PinkUmbrella.ViewModels.Shared;
 using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Models.Search;
 using PinkUmbrella.Services.Local;
-using PinkUmbrella.Models.Public;
 using Tides.Models;
 using Tides.Models.Public;
-using Tides.Models.Auth;
+using Tides.Services;
+using Tides.Actors;
+using Tides.Core;
 
 namespace PinkUmbrella.Controllers
 {
@@ -36,8 +34,8 @@ namespace PinkUmbrella.Controllers
         public HomeController(IWebHostEnvironment environment, ILogger<HomeController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService postService, IUserProfileService localProfiles, IPublicProfileService publicProfiles, ISearchService searchService,
             IReactionService reactions, IFeedService feedService, ITagService tags, INotificationService notifications, IPeerService peers,
-            IAuthService auth, ISettingsService settings):
-            base(environment, signInManager, userManager, postService, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings)
+            IAuthService auth, ISettingsService settings, IActivityStreamRepository activityStreams):
+            base(environment, signInManager, userManager, postService, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
         {
             _logger = logger;
             _searchService = searchService;
@@ -55,8 +53,8 @@ namespace PinkUmbrella.Controllers
                 MyProfile = user,
             };
 
-            if (address == null)
-            {
+            //if (address == null)
+            //{
                 if (user != null)
                 {
                     model.MyFeed = await _feedService.GetFeedForUser(user.PublicId, user.UserId, false, new PaginationModel() { count = 10, start = 0 });
@@ -70,7 +68,7 @@ namespace PinkUmbrella.Controllers
                     }
                     return View("Welcome", model);
                 }
-            }
+            /*}
             else
             {
                 var ip = await _auth.GetOrRememberIP(IPAddress.Parse(address));
@@ -78,14 +76,14 @@ namespace PinkUmbrella.Controllers
                 var peer = await _peers.GetPeer(ip, port);
 
                 ViewData["Peer"] = peer;
-                var bodycontent = await client.QueryHtml("", await _auth.GetKeyPair(peer.PublicKey));
+                //var bodycontent = await client.QueryHtml("", await _auth.GetKeyPair(peer.PublicKey));
                 bodycontent = bodycontent.HtmlExtractBody();
                 bodycontent = bodycontent.HtmlExtractMain();
                 return View("Proxy/_BodyContent", new BodyContentViewModel() {
                     MyProfile = user,
                     Html = bodycontent,
                 });
-            }
+            }*/
         }
 
 
@@ -159,7 +157,7 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentUserAsync();
             var notifs = await _notifications.GetNotifications(user.UserId, sinceId, includeViewed, includeDismissed, pagination ?? new PaginationModel());
 
-            var fromUsers = new Dictionary<string, PublicProfileModel>();
+            var fromUsers = new Dictionary<string, BaseObject>();
             foreach (var notif in notifs.Items)
             {
                 var id = new PublicId(notif.Notif.FromUserId, notif.Notif.FromPeerId);

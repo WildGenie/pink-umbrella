@@ -11,6 +11,8 @@ using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Models.Settings;
 using PinkUmbrella.Services.Local;
 using Tides.Models;
+using Tides.Services;
+using Tides.Core;
 
 namespace PinkUmbrella.Controllers
 {
@@ -26,8 +28,8 @@ namespace PinkUmbrella.Controllers
             IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles, ISimpleResourceService resourceService,
             ISimpleInventoryService inventories, IReactionService reactions, ITagService tags,
             INotificationService notifications, IPeerService peers, IAuthService auth,
-            ISettingsService settings):
-            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings)
+            ISettingsService settings, IActivityStreamRepository activityStreams):
+            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
         {
             _logger = logger;
             _resources = resourceService;
@@ -77,29 +79,31 @@ namespace PinkUmbrella.Controllers
         }
 
         [Route("/Inventory/{id}")]
-        public async Task<IActionResult> Inventory(int id, int? selected = null, string queryText = null)
+        public async Task<IActionResult> Inventory(string id, string selected = null, string queryText = null)
         {
             ViewData["Controller"] = "Inventory";
             ViewData["Action"] = nameof(Index);
             
             var currentUser = await GetCurrentUserAsync();
-            var inventory = await _inventories.Get(id, currentUser?.UserId);
+            var inventory = await _activityStreams.GetInventory(new ActivityStreamFilter { id = id, viewerId = currentUser?.UserId });
             if (inventory == null) {
                 return NotFound();
             }
             
-            var inventories = await _inventories.GetForUser(inventory.OwnerUserId, currentUser?.UserId);
+            var inventories = await _inventories.GetForUser(inventory.UserId, currentUser?.UserId);
 
+            // queryText
             var model = new IndexViewModel() {
                 InventoryId = id,
                 SelectedId = selected,
                 MyProfile = await GetCurrentUserAsync(),
-                Resources = await _resources.QueryInventory(id, currentUser?.UserId, queryText, new PaginationModel() { start = 0, count = 10 }),
+                Resources = await _activityStreams.GetResources(new ActivityStreamFilter { id = id, viewerId = currentUser?.UserId }),
                 Inventories = inventories,
                 Inventory = inventory,
-                AddResourceEnabled = await _settings.FeatureManager.IsEnabledAsync(nameof(FeatureFlags.FunctionInventoryNewResource)) && currentUser?.UserId == inventory.OwnerUserId,
+                AddResourceEnabled = await _settings.FeatureManager.IsEnabledAsync(nameof(FeatureFlags.FunctionInventoryNewResource)) && currentUser?.UserId == inventory.UserId,
             };
-            model.NewResource.Resource.InventoryId = id;
+            // TODO: uncomment
+            //model.NewResource.Resource.InventoryId = id;
             return View("Inventory", model);
         }
 
@@ -108,7 +112,7 @@ namespace PinkUmbrella.Controllers
         {
             var user = await GetCurrentUserAsync();
             Resource.CreatedByUserId = user.UserId;
-            var result = await _resources.CreateResource(Resource);
+            var result = await _resources.CreateResource(await _resources.Transform(Resource));
 
             if (result != null) {
                 return RedirectToAction(nameof(Index), new { Id = Resource.InventoryId, Selected = Resource.Id });
@@ -134,25 +138,22 @@ namespace PinkUmbrella.Controllers
         {
             var user = await GetCurrentUserAsync();
             return View(new NewInventoryViewModel() {
-                MyProfile = user,
-                Inventory = new SimpleInventoryModel()
+                MyProfile = user
             });
         }
 
         [HttpPost, Authorize]
-        public async Task<IActionResult> NewInventory(SimpleInventoryModel Inventory)
+        public async Task<IActionResult> NewInventory(NewInventoryViewModel Inventory)
         {
             var user = await GetCurrentUserAsync();
             Inventory.OwnerUserId = user.UserId;
-            var result = await _inventories.CreateInventory(Inventory);
+            var result = await _inventories.CreateInventory(_inventories.Transform(Inventory));
 
             if (result != null) {
                 return RedirectToAction(nameof(Inventory), new { Id = Inventory.Id });
             } else {
-                return View(new NewInventoryViewModel() {
-                    MyProfile = user,
-                    Inventory = Inventory
-                });
+                Inventory.MyProfile = user;
+                return View(Inventory);
             }
         }
 

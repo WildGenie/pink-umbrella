@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Tides.Core;
 using Tides.Util;
 
 namespace PinkUmbrella.Models
@@ -7,6 +8,6 @@ namespace PinkUmbrella.Models
     public class NewMediaResult
     {
         public bool Error { get; internal set; }
-        public List<ArchivedMediaModel> Medias { get; internal set; }
+        public List<BaseObject> Medias { get; internal set; }
     }
 }

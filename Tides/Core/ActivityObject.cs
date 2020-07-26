@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Tides.Core
 {
     public class ActivityObject : HazObject
@@ -8,14 +6,14 @@ namespace Tides.Core
         {
         }
 
-        public List<BaseObject> actor { get; set; }
+        public CollectionObject actor { get; set; }
 
-        public List<BaseObject> target { get; set; }
+        public CollectionObject target { get; set; }
 
         public BaseObject result { get; set; }
 
         public BaseObject origin { get; set; }
 
-        public List<BaseObject> instrument { get; set; }
+        public CollectionObject instrument { get; set; }
     }
 }

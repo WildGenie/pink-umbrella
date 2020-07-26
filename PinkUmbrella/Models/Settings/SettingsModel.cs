@@ -20,5 +20,13 @@ namespace PinkUmbrella.Models.Settings
 
         [DisplayName("Peer Max Connect Count"), Description("The maximum amount of peers this site can connect to at once")]
         public long PeerMaxConnectCount { get; set; } = 50;
+
+
+
+
+        public int MaxFileSize { get; set; } = 4000000;
+        public int MaxPayloadSize { get; set; } = 4000000 * 5;
+        public int MaxImageDimensionSize { get; set; } = 1920;
+        public int MinImageDimensionSize { get; set; } = 480;
     }
 }

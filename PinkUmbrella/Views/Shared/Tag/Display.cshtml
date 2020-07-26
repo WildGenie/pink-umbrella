@@ -1,7 +1,7 @@
 @model TagEditorViewModel
 <div class="js-tag-display @Model.HtmlClasses" id="@Model.HtmlId" >
-    @foreach (var tag in Model.Tags)
+    @foreach (var tag in Model.Tags.items)
     {
-        <a class="js-tag-display--tag" title="@tag.Topic" asp-controller="Home" asp-action="Search" asp-route-tags="@tag.Tag">@tag.Tag</a>
+        <a class="js-tag-display--tag" title="@tag.summary" asp-controller="Home" asp-action="Search" asp-route-tags="@tag.content">@tag.content</a>
     }
 </div>

@@ -1,5 +1,3 @@
-using PinkUmbrella.Models;
-using PinkUmbrella.Models.Public;
 using Tides.Models;
 using Tides.Models.Public;
 

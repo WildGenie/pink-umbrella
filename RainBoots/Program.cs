@@ -3,14 +3,16 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Tides.Actors;
 using Tides.Models.Auth;
 using Tides.Models.Peer;
+using Tides.Models.Peer.Client;
 
 namespace RainBoots
 {
     class Program
     {
-        private static RESTPeerClient client = null;
+        private static HttpActivityStreamRepository client = null;
         private static string serverUrl = "localhost";
         private static int serverPort = 12524;
         private static LocalKeyManager keyMgr = new LocalKeyManager();
@@ -26,8 +28,7 @@ namespace RainBoots
             boots.Add("api",            "Get API information from server",          new Regex(@"(?<filter>.*)"), ListApi);
             boots.Add("auth",           "Manage credentials for authentication",    new Regex(@"(?<recycle>recycle)|(?<show>show)(?: *)(?<which>.*)|(?<add>add)(?: *)(?<which>.*)|(?<remove>remove)(?: *)(?<which>.*)|(?<help>help)(?: *)(?<which>.*)"), Auth);
             boots.Add("get",            "Get peer information from server",         new Regex(@"(?<route>.*)"), DoGet);
-            boots.Add("json",           "Perform API action with JSON response",    new Regex(@"(?<route>.*)"), DoJson);
-            boots.Add("html",           "View page on server",                      new Regex(@"(?<route>.*)"), DoHtml);
+            //boots.Add("json",           "Perform API action with JSON response",    new Regex(@"(?<route>.*)"), DoJson);
             boots.Add("trust",          "Trust server",                             new Regex(@"(?<route>.*)"), Trust);
             
             boots.Loop(() => {
@@ -43,13 +44,13 @@ namespace RainBoots
             {
                 route += $"?filter={Uri.EscapeDataString(filterMatch.Value)}";
             }
-            var res = (await client.QueryJson(route, keyMgr.MyKeys)) ?? "{ \"error\": \"no response\" }";
+            var res = (await client.QueryJson(route)) ?? "{ \"error\": \"no response\" }";
             return $"application/json {res}";
         }
 
         private static async Task<string> Trust(Match arg)
         {
-            var res = await client.Query(keyMgr.MyKeys);
+            var res = await client.Get();
             
             return $"application/json {res}";
         }
@@ -66,25 +67,19 @@ namespace RainBoots
 
         private static async Task<string> DoGet(Match arg)
         {
-            return (await client.Query(keyMgr.MyKeys))?.ToString() ?? "no response";
+            return (await client.Get())?.ToString() ?? "no response";
         }
 
-        private static async Task<string> DoHtml(Match arg)
-        {
-            var html = await client.QueryHtml("", keyMgr.MyKeys);
-            return $"text/html {html}";
-        }
-
-        private static async Task<string> DoJson(Match arg)
-        {
-            var route = "Api/System/Index";
-            if (arg.Groups.TryGetValue("route", out var routeMatch) && routeMatch.Value.Length > 0)
-            {
-                route = routeMatch.Value;
-            }
-            var res = (await client.QueryJson(route, keyMgr.MyKeys)) ?? "{ \"error\": \"no response\" }";
-            return $"application/json {res}";
-        }
+        // private static async Task<string> DoJson(Match arg)
+        // {
+        //     var route = "Api/System/Index";
+        //     if (arg.Groups.TryGetValue("route", out var routeMatch) && routeMatch.Value.Length > 0)
+        //     {
+        //         route = routeMatch.Value;
+        //     }
+        //     var res = (await client.Get(route)) ?? "{ \"error\": \"no response\" }";
+        //     return $"application/json {res}";
+        // }
 
         private static Task<string> Config(Match arg)
         {
@@ -153,7 +148,7 @@ namespace RainBoots
 
         private static void RefreshClient()
         {
-            client = new RESTPeerClient(new RESTPeerClientType(), new PeerModel() { Address = new IPAddressModel { Address = serverUrl, Name = serverUrl }, AddressPort = serverPort });
+            client = new HttpActivityStreamRepository(keyMgr.MyKeys, new Peer() { Address = new IPAddressModel { Address = serverUrl, Name = serverUrl }, AddressPort = serverPort });
         }
 
         private static string GetPassword()

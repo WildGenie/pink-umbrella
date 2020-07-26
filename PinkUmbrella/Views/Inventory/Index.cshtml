@@ -2,7 +2,7 @@
 @model IndexViewModel
 @{
     ViewData["Title"] = "Inventory";
-    if (Model.Inventories.Any())
+    if (Model.Inventories.totalItems > 0)
     {
         <div>
             <partial name="_InventoryList" />

@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using PinkUmbrella.Models.Public;
 
 namespace PinkUmbrella.ViewModels.Account
 {

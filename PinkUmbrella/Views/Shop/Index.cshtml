@@ -6,11 +6,11 @@
 <partial name="_Header" />
 @if (Model.Categories != null)
 {
-    foreach (var category in Model.Categories.Items)
+    foreach (var category in Model.Categories.items)
     {
-        <h3>@category.Tag.Tag (@category.UseCount)</h3>
-        <p>@category.Tag.Topic</p>
-        foreach (var shop in Model.ShopsByCategory[category.Tag.Id])
+        <h3>@category.content (category.UseCount)</h3>
+        <p>@category.summary</p>
+        foreach (var shop in Model.ShopsByCategory[category.objectId.Value].items)
         {
             <ul>
                 <li><partial name="SearchResult/ShopSearchResult" model="shop" /></li>
@@ -21,7 +21,7 @@
 }
 else
 {
-    foreach (var shop in Model.ShopsList)
+    foreach (var shop in Model.ShopsList.items)
     {
         <partial name="Shop/DisplayResult" model="shop" />
         <hr />

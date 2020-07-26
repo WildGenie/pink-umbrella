@@ -1,18 +1,18 @@
 using System.Threading.Tasks;
-using System.Linq;
-using PinkUmbrella.Models;
 using PinkUmbrella.Models.Search;
 using PinkUmbrella.Services.Search;
 using Nest;
 using System.Collections.Generic;
+using Tides.Core;
+using Tides.Services;
 
 namespace PinkUmbrella.Services.Elastic.Search
 {
-    public class ElasticSearchInventoryService : BaseSearchElasticService<SimpleInventoryModel>, ISearchableService
+    public class ElasticSearchInventoryService : BaseSearchElasticService<BaseObject>, ISearchableService
     {
         private readonly ISimpleInventoryService _inventories;
 
-        public ElasticSearchInventoryService(ISimpleInventoryService inventories)
+        public ElasticSearchInventoryService(ISimpleInventoryService inventories, IHazActivityStreamPipe pipe): base(pipe)
         {
             _inventories = inventories;
         }
@@ -45,12 +45,6 @@ namespace PinkUmbrella.Services.Elastic.Search
             {
                 Must = musts,
             }, null, ResultType);
-        }
-
-        protected override async Task<bool> CanView(SimpleInventoryModel r, int? viewerId)
-        {
-            //await _inventories.BindReferences(r, viewerId);
-            return true;//_inventories.CanView(r, viewerId);
         }
     }
 }

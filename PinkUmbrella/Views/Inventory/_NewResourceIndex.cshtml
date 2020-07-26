@@ -10,8 +10,8 @@
         <label asp-for="NewResource.Resource.InventoryId"></label>
         <small>@Model.NewResource.Resource.GetPropertyDescription(nameof(Model.NewResource.Resource.InventoryId))</small>
         <select required asp-for="NewResource.Resource.InventoryId" class="form-control">
-            @foreach (var i in Model.Inventories) {
-                <option value="@i.Id" title="@i.Description">@i.DisplayName</option>
+            @foreach (var i in Model.Inventories.items) {
+                <option value="@i.id" title="@i.summary">@i.name</option>
             }
         </select>
         <span asp-validation-for="NewResource.Resource.InventoryId" class="text-danger"></span>

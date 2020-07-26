@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Hangfire;
-using Hangfire.Server;
 using Hangfire.Storage.SQLite;
 using Markdig;
 using Microsoft.AspNetCore.Authorization;
@@ -26,17 +25,16 @@ using PinkUmbrella.Services.Elastic.Search;
 using PinkUmbrella.Services.Jobs;
 using PinkUmbrella.Services.Local;
 using PinkUmbrella.Services.NoSql;
-using PinkUmbrella.Services.Peer;
 using PinkUmbrella.Services.Public;
 using PinkUmbrella.Services.Search;
 using PinkUmbrella.Services.Sql;
-using PinkUmbrella.Services.Sql.React;
+using PinkUmbrella.Services.Sql.ActivityStreamPipes;
 using PinkUmbrella.Services.Sql.Search;
 using PinkUmbrella.Util;
+using Tides.Core;
 using Tides.Models.Auth;
 using Tides.Models.Auth.Types;
-using Tides.Models.Peer;
-using StackExchange.Profiling.Storage;
+using Tides.Services;
 
 namespace PinkUmbrella
 {
@@ -160,16 +158,19 @@ namespace PinkUmbrella
             services.AddSingleton<IElasticService, ElasticService>();
             services.AddSingleton<SiteKeyManager>();
 
-            services.AddSingleton<MarkdownPipeline>(new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
-
-            services.AddSingleton<IPeerConnectionType, RESTPeerClientType>();
-
             services.AddSingleton<ISettingsService, SettingsService>();
 
             services.AddScoped<IExternalDbContext, ExternalDbContext>();
-            services.AddScoped<IPeerConnectionTypeResolver, PeerConnectionTypeResolver>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IPeerService, PeerService>();
+
+            services.AddSingleton<MarkdownPipeline>(new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
+
+            services.AddScoped<IActivityStreamPipe, BindSqlReferencesToActivityStream>();
+            services.AddScoped<IActivityStreamPipe, CanViewActivityStream>();
+            services.AddScoped<IActivityStreamPipe, BindTagsToActivityStream>();
+
+            services.AddScoped<IHazActivityStreamPipe, ActivityStreamPipe>();
 
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<ITagService, TagService>();
@@ -185,12 +186,12 @@ namespace PinkUmbrella
             services.AddScoped<IFeedService, FeedService>();
             services.AddScoped<IDebugService, DebugService>();
             
-            services.AddScoped<ISearchableService, SqlSearchPostsService>();
-            services.AddScoped<ISearchableService, SqlSearchProfilesService>();
-            services.AddScoped<ISearchableService, SqlSearchShopsService>();
-            services.AddScoped<ISearchableService, SqlSearchArchivedPhotosService>();
-            services.AddScoped<ISearchableService, SqlSearchArchivedVideosService>();
-            services.AddScoped<ISearchableService, SqlSearchInventoryService>();
+            // services.AddScoped<ISearchableService, SqlSearchPostsService>();
+            // services.AddScoped<ISearchableService, SqlSearchProfilesService>();
+            // services.AddScoped<ISearchableService, SqlSearchShopsService>();
+            // services.AddScoped<ISearchableService, SqlSearchArchivedPhotosService>();
+            // services.AddScoped<ISearchableService, SqlSearchArchivedVideosService>();
+            // services.AddScoped<ISearchableService, SqlSearchInventoryService>();
 
             services.AddScoped<ISearchableService, ElasticSearchPostsService>();
             services.AddScoped<ISearchableService, ElasticSearchProfilesService>();
@@ -201,9 +202,6 @@ namespace PinkUmbrella
 
             services.AddScoped<ISearchService, SearchService>();
 
-            services.AddScoped<IReactableService, PostReactionService>();
-            services.AddScoped<IReactableService, ShopReactionService>();
-            services.AddScoped<IReactableService, ProfileReactionService>();
             services.AddScoped<IReactionService, ReactionService>();
 
             services.Configure<IdentityOptions>(options =>
@@ -318,14 +316,15 @@ namespace PinkUmbrella
 
             ElasticJobs.Services = app.ApplicationServices;
 
-            RecurringJob.AddOrUpdate(() => ElasticJobs.SyncProfiles(null), Cron.Hourly);
-            RecurringJob.AddOrUpdate(() => ElasticJobs.SyncPosts(null), Cron.Hourly);
-            RecurringJob.AddOrUpdate(() => ElasticJobs.SyncMedia(null), Cron.Hourly);
-            RecurringJob.AddOrUpdate(() => ElasticJobs.SyncShops(null), Cron.Hourly);
-            RecurringJob.AddOrUpdate(() => ElasticJobs.SyncReactions(null), Cron.Hourly);
-            RecurringJob.AddOrUpdate(() => ElasticJobs.SyncMentions(null), Cron.Hourly);
-            RecurringJob.AddOrUpdate(() => ElasticJobs.SyncPeers(null), Cron.Hourly);
-            RecurringJob.AddOrUpdate(() => ElasticJobs.SyncInventories(null), Cron.Hourly);
+            // RecurringJob.AddOrUpdate(() => ElasticJobs.SyncProfiles(null), Cron.Hourly);
+            // RecurringJob.AddOrUpdate(() => ElasticJobs.SyncPosts(null), Cron.Hourly);
+            // RecurringJob.AddOrUpdate(() => ElasticJobs.SyncMedia(null), Cron.Hourly);
+            // RecurringJob.AddOrUpdate(() => ElasticJobs.SyncShops(null), Cron.Hourly);
+            // RecurringJob.AddOrUpdate(() => ElasticJobs.SyncReactions(null), Cron.Hourly);
+            // RecurringJob.AddOrUpdate(() => ElasticJobs.SyncMentions(null), Cron.Hourly);
+            // RecurringJob.AddOrUpdate(() => ElasticJobs.SyncPeers(null), Cron.Hourly);
+            // RecurringJob.AddOrUpdate(() => ElasticJobs.SyncInventories(null), Cron.Hourly);
+            RecurringJob.AddOrUpdate(() => ElasticJobs.SyncObjects(null), Cron.Hourly);
         }
 
         private void SetupFiles(IApplicationBuilder app)

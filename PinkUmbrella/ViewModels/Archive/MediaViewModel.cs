@@ -1,9 +1,9 @@
-using PinkUmbrella.Models;
+using Tides.Core;
 
 namespace PinkUmbrella.ViewModels.Archive
 {
     public class MediaViewModel : BaseViewModel
     {
-        public ArchivedMediaModel Media { get; set; }
+        public BaseObject Media { get; set; }
     }
 }

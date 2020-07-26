@@ -13,5 +13,7 @@ namespace Tides.Core
         public BaseObject first { get; set; }
         public BaseObject last { get; set; }
         public List<BaseObject> items { get; set; }
+
+        public void Add(BaseObject item) => items.Add(item);
     }
 }

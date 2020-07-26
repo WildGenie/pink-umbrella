@@ -12,6 +12,7 @@ using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Services.Local;
 using PinkUmbrella.ViewModels.Doc;
+using Tides.Services;
 
 namespace PinkUmbrella.Controllers
 {
@@ -22,8 +23,8 @@ namespace PinkUmbrella.Controllers
         public DocController(IWebHostEnvironment environment, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService postService, IUserProfileService localProfiles, IPublicProfileService publicProfiles, ISearchService searchService,
             IReactionService reactions, IFeedService feedService, ITagService tags, INotificationService notifications, IPeerService peers,
-            IAuthService auth, ISettingsService settings):
-            base(environment, signInManager, userManager, postService, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings)
+            IAuthService auth, ISettingsService settings, IActivityStreamRepository activityStreams):
+            base(environment, signInManager, userManager, postService, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
         {
         }
 

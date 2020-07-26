@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -12,17 +10,15 @@ using PinkUmbrella.Services;
 using PinkUmbrella.ViewModels.Archive;
 using Microsoft.AspNetCore.Http;
 using PinkUmbrella.Repositories;
-using System.IO;
 using Microsoft.AspNetCore.Authorization;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
 using PinkUmbrella.ViewModels;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Models.Settings;
 using PinkUmbrella.Services.Local;
-using PinkUmbrella.Models.Public;
 using Tides.Models;
 using Tides.Models.Public;
+using Tides.Objects;
+using Tides.Services;
 
 namespace PinkUmbrella.Controllers
 {
@@ -36,8 +32,8 @@ namespace PinkUmbrella.Controllers
         public ArchiveController(IWebHostEnvironment environment, ILogger<ArchiveController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles, IArchiveService archive,
             IReactionService reactions, StringRepository strings, ITagService tags, INotificationService notifications, IPeerService peers,
-            IAuthService auth, ISettingsService settings):
-            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings)
+            IAuthService auth, ISettingsService settings, IActivityStreamRepository activityStreams):
+            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
         {
             _logger = logger;
             _archive = archive;
@@ -67,7 +63,7 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentUserAsync();
             var model = new IndexViewModel() {
                 MyProfile = user,
-                Items = await _archive.GetMediaForUser(user.PublicId, user.UserId, ArchivedMediaType.Photo, pagination)
+                Items = await _archive.GetMediaForUser(user.PublicId, user.UserId, CommonMediaType.Photo, pagination)
             };
 
             return View("Index", model);
@@ -81,7 +77,7 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentUserAsync();
             var model = new IndexViewModel() {
                 MyProfile = user,
-                Items = await _archive.GetMediaForUser(user.PublicId, user.UserId, ArchivedMediaType.Video, pagination)
+                Items = await _archive.GetMediaForUser(user.PublicId, user.UserId, CommonMediaType.Video, pagination)
             };
 
             return View("Index", model);
@@ -148,134 +144,30 @@ namespace PinkUmbrella.Controllers
         [HttpPost, Authorize]
         public async Task<IActionResult> Upload(List<IFormFile> Files, string Description, string Title, string Attribution, int? RelatedPostId, Visibility Visibility)
         {
-            const int MaxFileSize = 4000000;
-            const int MaxPayloadSize = 4000000 * 5;
-            const int MaxImageDimensionSize = 1920;
-            const int MinImageDimensionSize = 480;
             long size = Files.Sum(f => f.Length);
 
             if (Files.Count == 0)
             {
                 ModelState.AddModelError("Files", "No files selected");
             }
-            else if (size < MaxPayloadSize)
+            else if (size < _settings.Site.MaxPayloadSize)
             {
                 var user = await GetCurrentUserAsync();
-                var fileModels = Files.Select((f, i) => {
-                    if (f.Length == 0)
-                    {
-                        ModelState.AddModelError("Files", $"File {f.FileName} is empty");
-                    }
-                    else if (f.Length > MaxFileSize)
-                    {
-                        ModelState.AddModelError("Files", $"File {f.FileName} too large ({f.Length} is over limit of {MaxFileSize})");
-                    }
-                    else if (!System.IO.Path.HasExtension(f.FileName))
-                    {
-                        ModelState.AddModelError("Files", $"File missing extension: {f.FileName}");
-                    }
-                    else
-                    {
-                        var mediaType = _archive.ResolveMediaType(f.FileName);
-                        if (mediaType.HasValue)
-                        {
-                            return new ArchivedMediaModel() {
-                                Path = Path.ChangeExtension(System.IO.Path.GetTempFileName(), Path.GetExtension(f.FileName)),
-                                Description = string.IsNullOrEmpty(Description) ? f.FileName : Description,
-                                Attribution = Attribution,
-                                OriginalName = f.FileName,
-                                SizeBytes = f.Length < Int32.MaxValue ? (int) f.Length : -1,
-                                DisplayName = string.IsNullOrWhiteSpace(Title) ? f.FileName : Title,
-                                RelatedPostId = RelatedPostId,
-                                UserId = user.UserId,
-                                Visibility = Visibility,
-                                MediaType = mediaType.Value,
-                            };
-                        }
-                        else
-                        {
-                            ModelState.AddModelError("Files", $"Unsupported file type: {f.FileName}");
-                        }
-                    }
-                    return null;
-                }).ToList();
+                var fileModels = await _archive.GenModels(ModelState, Files, Description, Title, Attribution, RelatedPostId, Visibility);
 
                 if (ModelState.ErrorCount == 0)
                 {
-                    for (int i = 0; i < Files.Count; i++)
-                    {
-                        var file = fileModels[i];
-                        var ifile = Files[i];
-                        string finalPath = null;
-                        try
-                        {
-                            using (var stream = System.IO.File.Create(file.Path))
-                            {
-                                await ifile.CopyToAsync(stream);
-                            }
-                            finalPath = Path.ChangeExtension(System.IO.Path.GetTempFileName(), Path.GetExtension(file.Path));
-                            using (Image image = Image.Load(file.Path)) 
-                            {
-                                if (Math.Min(image.Width, image.Height) < MinImageDimensionSize)
-                                {
-                                    ModelState.AddModelError("Files", $"Image {ifile.FileName} must be at least {MinImageDimensionSize}x{MinImageDimensionSize} pixels");
-                                    break;
-                                }
-                                image.Mutate(x => x.AutoOrient());
-                                if (Math.Max(image.Width, image.Height) > MaxImageDimensionSize)
-                                {
-                                    if (image.Width > image.Height)
-                                    {
-                                        image.Mutate(x => x.Resize(MaxImageDimensionSize, (int) Math.Round(image.Height * 1.0 * MaxImageDimensionSize / image.Width)));
-                                    }
-                                    else
-                                    {
-                                        image.Mutate(x => x.Resize((int) Math.Round(image.Width * 1.0 * MaxImageDimensionSize / image.Height), MaxImageDimensionSize));
-                                    }
-                                }
-
-                                // Wipe EXIF data
-                                image.Metadata.ExifProfile = null;
-                                
-                                image.Save(finalPath); 
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            if (System.IO.File.Exists(file.Path))
-                            {
-                                System.IO.File.Delete(file.Path);
-                            }
-                            
-                            if (finalPath != null && System.IO.File.Exists(finalPath))
-                            {
-                                System.IO.File.Delete(finalPath);
-                            }
-                            ModelState.AddModelError("Files", e, null);
-                            break;
-                        }
-                        System.IO.File.Delete(file.Path);
-                        file.Path = finalPath;
-                    }
+                    await _archive.CopyUpload(ModelState, Files, fileModels);
 
                     if (ModelState.ErrorCount == 0)
                     {
-                        var mediaResult = await _archive.TryUploadMedias(fileModels);
-                        if (mediaResult.Error)
-                        {
-                            ModelState.AddModelError("Files", "Error while uploading files");
-                        }
-                        else
-                        {
-                            return RedirectToAction(nameof(Index));
-                            // Ok(new { count = Files.Count, size, medias = mediaResult.Medias })
-                        }
+                        return RedirectToAction(nameof(Index));
                     }
                 }
             }
             else
             {
-                ModelState.AddModelError("Files", $"Total file upload is too large ({MaxPayloadSize} max, total was {size})");
+                ModelState.AddModelError("Files", $"Total file upload is too large ({_settings.Site.MaxPayloadSize} max, total was {size})");
             }
             return View();
         }

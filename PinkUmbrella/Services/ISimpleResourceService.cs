@@ -1,24 +1,26 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using PinkUmbrella.Models;
+using Tides.Core;
 using Tides.Models;
-using Tides.Models.Public;
 
 namespace PinkUmbrella.Services
 {
     public interface ISimpleResourceService
     {
-        Task<List<SimpleResourceModel>> QueryUser(int userId, int? viewerId, string text, PaginationModel pagination);
+        Task<CollectionObject> QueryUser(int userId, int? viewerId, string text, PaginationModel pagination);
         
-        Task<List<SimpleResourceModel>> GetAllForUser(int id, int? viewerId);
+        Task<CollectionObject> GetAllForUser(int id, int? viewerId);
 
-        Task<List<SimpleResourceModel>> QueryInventory(int inventoryId, int? viewerId, string text, PaginationModel pagination);
+        Task<CollectionObject> QueryInventory(int inventoryId, int? viewerId, string text, PaginationModel pagination);
 
-        Task<SimpleResourceModel> GetResource(int id, int? viewerId);
+        Task<BaseObject> GetResource(int id, int? viewerId);
 
-        Task<SimpleResourceModel> CreateResource(SimpleResourceModel initial);
+        Task<BaseObject> CreateResource(BaseObject initial);
 
-        Task<SimpleResourceModel> ForkResource(int id, int userId, int inventoryId);
+        Task<BaseObject> ForkResource(int id, int userId, int inventoryId);
+
+        Task<BaseObject> Transform(SimpleResourceModel resource);
 
         Task UpdateAmount(int id, double newAmount);
 

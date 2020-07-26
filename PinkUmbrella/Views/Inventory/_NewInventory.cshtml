@@ -1,5 +1,5 @@
 ﻿@using PinkUmbrella.ViewModels.Inventory
-@model SimpleInventoryModel
+@model NewInventoryViewModel
 <h4>Create new inventory</h4>
 @if (await _settings.FeatureManager.IsEnabledAsync(nameof(FunctionInventoryNew)))
 {

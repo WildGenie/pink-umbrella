@@ -1,19 +1,18 @@
 using System.Threading.Tasks;
 using PinkUmbrella.Models.Search;
 using PinkUmbrella.Services.Search;
-using PinkUmbrella.Models.Public;
 using Nest;
 using System.Collections.Generic;
-using System.Linq;
-using System;
+using Tides.Actors;
+using Tides.Services;
 
 namespace PinkUmbrella.Services.Elastic.Search
 {
-    public class ElasticSearchProfilesService : BaseSearchElasticService<PublicProfileModel>, ISearchableService
+    public class ElasticSearchProfilesService : BaseSearchElasticService<ActorObject>, ISearchableService
     {
         private readonly IPublicProfileService _profiles;
 
-        public ElasticSearchProfilesService(IPublicProfileService profiles)
+        public ElasticSearchProfilesService(IPublicProfileService profiles, IHazActivityStreamPipe pipe): base(pipe)
         {
             _profiles = profiles;
         }
@@ -35,9 +34,9 @@ namespace PinkUmbrella.Services.Elastic.Search
                 {
                     Should = new List<QueryContainer>
                     {
-                        new MatchQuery() { Field = "displayName", Query = request.text, Boost = .8 },
+                        new MatchQuery() { Field = "name", Query = request.text, Boost = .8 },
                         new MatchQuery() { Field = "handle", Query = request.text, Boost = 1 },
-                        new MatchQuery() { Field = "bio", Query = request.text, Boost = 0.5 },
+                        new MatchQuery() { Field = "summary", Query = request.text, Boost = 0.5 },
                     }
                 });
             }
@@ -47,12 +46,6 @@ namespace PinkUmbrella.Services.Elastic.Search
             {
                 Must = musts,
             }, null, ResultType);
-        }
-
-        protected override async Task<bool> CanView(PublicProfileModel r, int? viewerId)
-        {
-            await _profiles.BindReferences(r, viewerId);
-            return _profiles.CanView(r, viewerId);
         }
     }
 }

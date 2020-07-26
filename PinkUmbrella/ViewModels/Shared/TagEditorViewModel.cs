@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using PinkUmbrella.Models;
+using Tides.Core;
 
 namespace PinkUmbrella.ViewModels.Shared
 {
@@ -11,6 +12,6 @@ namespace PinkUmbrella.ViewModels.Shared
         public string InputName { get; set; }
         public int MaxCount { get; set; }
         public List<TagModel> DebugValue { get; set; }
-        public List<TagModel> Tags { get; set; }
+        public CollectionObject Tags { get; set; }
     }
 }

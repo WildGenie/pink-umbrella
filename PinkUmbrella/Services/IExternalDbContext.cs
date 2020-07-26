@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Tides.Models.Peer;
+using Tides.Actors;
 
 namespace PinkUmbrella.Services
 {
@@ -9,7 +9,7 @@ namespace PinkUmbrella.Services
     {
         DbContext Context { get; set; }
 
-        PeerModel Peer { get; set; }
+        Peer Peer { get; set; }
 
         Task SwitchTo(string peerHandle);
     }

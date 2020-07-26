@@ -1,9 +1,10 @@
 ﻿@using PinkUmbrella.ViewModels.Inventory
 @model IndexViewModel
 <ul class="highlight-selected">
-    @foreach (var r in Model.Resources) {
-        var liClass = r.Id == Model.SelectedId ? "selected" : "";
-        var shortenDesc = r.Description.Substring(0, Math.Min(100, r.Description.Length));
-        <li class="@liClass"><a asp-controller="Inventory" asp-action="Resource" asp-route-id="@r.Id">@r.Name - @shortenDesc</a></li>
+    @foreach (var r in Model.Resources.items)
+    {
+        var liClass = r.id == Model.SelectedId ? "selected" : "";
+        var shortenDesc = r.summary.Substring(0, Math.Min(100, r.summary.Length));
+        <li class="@liClass"><a asp-controller="Inventory" asp-action="Resource" asp-route-id="@r.id">@r.name - @shortenDesc</a></li>
     }
 </ul>

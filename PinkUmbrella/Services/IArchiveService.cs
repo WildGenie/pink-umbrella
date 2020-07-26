@@ -1,47 +1,52 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PinkUmbrella.Models;
-using PinkUmbrella.Models.Public;
+using Tides.Core;
 using Tides.Models;
 using Tides.Models.Public;
+using Tides.Objects;
 
 namespace PinkUmbrella.Services
 {
     public interface IArchiveService
     {
-        Task<NewMediaResult> TryUploadMedias(List<ArchivedMediaModel> medias);
+        Task<NewMediaResult> UploadMedia(BaseObject media);
 
-        Task<ArchivedMediaModel> GetMedia(PublicId id, int? viewerId);
 
-        Task<ArchivedMediaModel> GetMedia(string path, int? viewerId);
+        Task<BaseObject> GetMedia(PublicId id, int? viewerId);
+
+        Task<BaseObject> GetMedia(string path, int? viewerId);
         
-        Task<PaginatedModel<ArchivedMediaModel>> GetMediaForUser(PublicId userId, int? viewerId, ArchivedMediaType? type, PaginationModel pagination);
-
-        Task BindReferences(ArchivedMediaModel media, int? viewerId);
-
-        bool CanView(ArchivedMediaModel media, int? viewerId);
+        Task<CollectionObject> GetMediaForUser(PublicId userId, int? viewerId, CommonMediaType? type, PaginationModel pagination);
         
-        Task<ArchivedMediaModel> DeleteMedia(int id, int? viewerId);
+        Task<BaseObject> DeleteMedia(int id, int? viewerId);
         
-        Task<MediaScanResultModel> ScanMediaForProfanity(ArchivedMediaModel media, int? viewerId);
+        Task<MediaScanResultModel> ScanMediaForProfanity(BaseObject media, int? viewerId);
         
-        Task<MediaScanResultModel> ScanMediaForVirusOrBadThings(ArchivedMediaModel media, int? viewerId);
+        Task<MediaScanResultModel> ScanMediaForVirusOrBadThings(BaseObject media, int? viewerId);
         
-        Task<MediaScanResultModel> ScanMediaForKKKops(ArchivedMediaModel media, int? viewerId);
+        Task<MediaScanResultModel> ScanMediaForKKKops(BaseObject media, int? viewerId);
 
-        Task<Stream> GetStream(ArchivedMediaModel media, int? viewerId);
+        Task<Stream> GetStream(BaseObject media, int? viewerId);
 
-        Task UpdateShadowBanStatus(PublicId id, bool status);
 
-        Task<PaginatedModel<ArchivedMediaModel>> GetMostReportedMedia();
+        // Task<CollectionObject> GetMostReportedMedia();
         
-        Task<PaginatedModel<ArchivedMediaModel>> GetMostBlockedMedia();
+        // Task<CollectionObject> GetMostBlockedMedia();
 
-        Task<PaginatedModel<ArchivedMediaModel>> GetMostDislikedMedia();
+        // Task<CollectionObject> GetMostDislikedMedia();
 
-        ArchivedMediaType? ResolveMediaType(string path);
+        CommonMediaType? ResolveMediaType(string path);
         
-        Task<List<ArchivedMediaModel>> GetAllLocal();
+        string LocalPath(BaseObject doc);
+
+        Task<BaseObject> Transform(ArchivedMediaModel archivedMediaModel);
+        
+        Task CopyUpload(ModelStateDictionary modelState, List<IFormFile> files, List<BaseObject> fileModels);
+        
+        Task<List<BaseObject>> GenModels(ModelStateDictionary modelState, List<IFormFile> files, string description, string title, string attribution, int? relatedPostId, Visibility visibility);
     }
 }

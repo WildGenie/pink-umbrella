@@ -6,8 +6,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using PinkUmbrella.Models.Public;
-using PinkUmbrella.Util;
 using Tides.Models;
 using Tides.Models.Public;
 using Tides.Util;

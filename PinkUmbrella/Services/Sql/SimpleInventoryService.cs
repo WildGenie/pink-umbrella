@@ -1,10 +1,8 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using PinkUmbrella.Models;
 using PinkUmbrella.Repositories;
 using System;
+using Tides.Core;
+using PinkUmbrella.ViewModels.Inventory;
 
 namespace PinkUmbrella.Services.Sql
 {
@@ -16,27 +14,36 @@ namespace PinkUmbrella.Services.Sql
             _dbContext = dbContext;
         }
 
-        public async Task<SimpleInventoryModel> CreateInventory(SimpleInventoryModel initial)
+        public async Task<BaseObject> CreateInventory(BaseObject initial)
         {
-            initial.WhenCreated = DateTime.UtcNow;
-            _dbContext.Inventories.Add(initial);
+            initial.published = DateTime.UtcNow;
+            // TODO: this won't work
+            //_dbContext.Inventories.Add(initial);
             await _dbContext.SaveChangesAsync();
             return initial;
         }
 
-        public async Task<SimpleInventoryModel> Get(int id, int? viewerId)
+        public async Task<BaseObject> Get(int id, int? viewerId)
         {
-            return await _dbContext.Inventories.FindAsync(id);
+            await Task.Delay(1);
+            return null;//await _dbContext.Inventories.FindAsync(id);
         }
 
-        public Task<List<SimpleInventoryModel>> GetAllLocal()
+        public async Task<CollectionObject> GetAllLocal()
         {
-            return _dbContext.Inventories.ToListAsync();
+            await Task.Delay(1);
+            return null;//_dbContext.Inventories.ToListAsync();
         }
 
-        public Task<List<SimpleInventoryModel>> GetForUser(int userId, int? viewerId)
+        public async Task<CollectionObject> GetForUser(int userId, int? viewerId)
         {
-            return _dbContext.Inventories.Where(i => i.OwnerUserId == userId).ToListAsync();
+            await Task.Delay(1);
+            return null;//(await _dbContext.Inventories.Where(i => i.OwnerUserId == userId).ToListAsync()).Select(Transform).ToList();
+        }
+
+        public BaseObject Transform(NewInventoryViewModel inventory)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -14,7 +14,6 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using PinkUmbrella.Services.Local;
 using Tides.Models;
-using Tides.Models.Public;
 using Tides.Models.Auth;
 
 namespace PinkUmbrella.Services.Sql
@@ -113,20 +112,26 @@ namespace PinkUmbrella.Services.Sql
 
         public async Task<List<UserProfileModel>> GetFollowing(int userId, int? viewerId)
         {
-            var ids = await _dbContext.ProfileReactions.Where(r => r.UserId == userId && r.Type == ReactionType.Follow).Select(r => r.ToId).ToListAsync();
-            return await GetUsers(ids, viewerId);
+            // var ids = await _dbContext.ProfileReactions.Where(r => r.UserId == userId && r.Type == ReactionType.Follow).Select(r => r.ToId).ToListAsync();
+            // return await GetUsers(ids, viewerId);
+            await Task.Delay(1);
+            return null;
         }
 
         public async Task<List<UserProfileModel>> GetFollowers(int userId, int? viewerId)
         {
-            var ids = await _dbContext.ProfileReactions.Where(r => r.ToId == userId && r.Type == ReactionType.Follow).Select(r => r.UserId).ToListAsync();
-            return await GetUsers(ids, viewerId);
+            // var ids = await _dbContext.ProfileReactions.Where(r => r.ToId == userId && r.Type == ReactionType.Follow).Select(r => r.UserId).ToListAsync();
+            // return await GetUsers(ids, viewerId);
+            await Task.Delay(1);
+            return null;
         }
 
         public async Task<List<UserProfileModel>> GetBlocked(int userId, int? viewerId)
         {
-            var ids = await _dbContext.ProfileReactions.Where(r => r.UserId == userId && r.Type == ReactionType.Block).Select(r => r.UserId).ToListAsync();
-            return await GetUsers(ids, viewerId);
+            // var ids = await _dbContext.ProfileReactions.Where(r => r.UserId == userId && r.Type == ReactionType.Block).Select(r => r.UserId).ToListAsync();
+            // return await GetUsers(ids, viewerId);
+            await Task.Delay(1);
+            return null;
         }
 
         private async Task<List<UserProfileModel>> GetUsers(List<int> ids, int? viewerId)

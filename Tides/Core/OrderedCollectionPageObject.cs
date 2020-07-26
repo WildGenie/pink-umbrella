@@ -9,5 +9,7 @@ namespace Tides.Core
         }
 
         public List<BaseObject> orderedItems { get; set; }
+
+        public int startIndex { get; set; }
     }
 }

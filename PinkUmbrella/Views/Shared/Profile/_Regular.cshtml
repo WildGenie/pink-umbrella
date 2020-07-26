@@ -8,7 +8,7 @@
         Subject = ReactionSubject.Profile,
         ToId = Model.Profile.PublicId,
         HasReacted = Model.Profile.HasLiked,
-        Count = Model.Profile.Local.LikeCount,
+        Count = Model.Profile.LikeCount,
         ViewerId = Model.MyProfile?.UserId,
         Enabled = !viewingOwnProfile,
     };
@@ -17,7 +17,7 @@
         Subject = ReactionSubject.Profile,
         ToId = Model.Profile.PublicId,
         HasReacted = Model.Profile.HasDisliked,
-        Count = Model.Profile.Local.DislikeCount,
+        Count = Model.Profile.DislikeCount,
         ViewerId = Model.MyProfile?.UserId,
         Enabled = !viewingOwnProfile,
     };
@@ -26,7 +26,7 @@
         Subject = ReactionSubject.Profile,
         ToId = Model.Profile.PublicId,
         HasReacted = Model.Profile.HasBlocked,
-        Count = Model.Profile.Local.BlockCount,
+        Count = Model.Profile.BlockCount,
         ViewerId = Model.MyProfile?.UserId,
         Enabled = !viewingOwnProfile,
         ResponseHandler = "page-reload",
@@ -36,7 +36,7 @@
         Subject = ReactionSubject.Profile,
         ToId = Model.Profile.PublicId,
         HasReacted = Model.Profile.HasReported,
-        Count = Model.Profile.Local.ReportCount,
+        Count = Model.Profile.ReportCount,
         ViewerId = Model.MyProfile?.UserId,
         Enabled = !viewingOwnProfile,
         ResponseHandler = "page-reload",
@@ -46,7 +46,7 @@
         Subject = ReactionSubject.Profile,
         ToId = Model.Profile.PublicId,
         HasReacted = Model.Profile.HasFollowed,
-        Count = Model.Profile.Local.FollowCount,
+        Count = Model.Profile.FollowCount,
         ViewerId = Model.MyProfile?.UserId,
         Enabled = !viewingOwnProfile,
     };
@@ -55,13 +55,15 @@
         reactLike, reactDislike, reactBlock, reactReport, reactFollow
     };
     
-    var tags = new TagEditorViewModel() { Tags = Model.Profile.Tags };
+    var tags = new TagEditorViewModel() { Tags = Model.Profile.tag };
+
+    var asActor = Model.Profile as Tides.Actors.ActorObject;
 }
-<h1>@Model.Profile.DisplayName</h1>
-<i>@@@Model.Profile.Handle</i>
-@if (viewingOwnProfile && Model.Profile.Visibility != Visibility.VISIBLE_TO_WORLD)
+<h1>@asActor.DisplayName</h1>
+<i>@@@asActor.Handle</i>
+@if (viewingOwnProfile && asActor.visibility != Visibility.VISIBLE_TO_WORLD)
 {
-    switch (Model.Profile.Visibility)
+    switch (asActor.visibility)
     {
         case Visibility.HIDDEN:
         <span>&bull; Hidden to everyone</span>
@@ -70,7 +72,7 @@
         <span>&bull; Visible to other users on this site</span>
         break;
         case Visibility.VISIBLE_TO_FOLLOWERS:
-        if (Model.Profile.Id == Model.MyProfile?.Id)
+        if (asActor.PublicId == Model.MyProfile?.PublicId)
         {
         <span>&bull; Only visible to your followers</span>
         }
@@ -81,6 +83,6 @@
         break;
     }
 }
-<p>@Model.Profile.Bio</p>
+<p>@asActor.summary</p>
 <partial name="Tag/Display" model="tags" />
 <partial name="Button/ReactButtonList" model="reactions" /></li>

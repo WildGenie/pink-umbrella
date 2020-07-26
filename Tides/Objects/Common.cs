@@ -45,7 +45,7 @@ namespace Tides.Objects
             public Event(string type = null) : base(type ?? nameof(Event)) { }
         }
 
-        public class Mention : LinkObject
+        public class Mention : Link
         {
             public Mention(string type = null) : base(type ?? nameof(Mention)) { }
         }
@@ -63,7 +63,7 @@ namespace Tides.Objects
 
             public string formerType { get; set; }
             
-            public DateTime deleted { get; set; }
+            // public DateTime deleted { get; set; }
         }
     }
 }

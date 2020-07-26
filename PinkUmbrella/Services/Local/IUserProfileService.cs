@@ -4,11 +4,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PinkUmbrella.Models;
 using PinkUmbrella.Models.Auth;
-using PinkUmbrella.Models.Public;
 using PinkUmbrella.ViewModels.Account;
 using Tides.Models;
 using Tides.Models.Auth;
-using Tides.Models.Public;
 
 namespace PinkUmbrella.Services.Local
 {

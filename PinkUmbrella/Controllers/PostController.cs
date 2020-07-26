@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,9 +12,10 @@ using PinkUmbrella.ViewModels.Home;
 using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Services.Local;
-using PinkUmbrella.Models.Public;
 using Tides.Models;
 using Tides.Models.Public;
+using Tides.Services;
+using Tides.Objects;
 
 namespace PinkUmbrella.Controllers
 {
@@ -30,8 +28,8 @@ namespace PinkUmbrella.Controllers
         public PostController(IWebHostEnvironment environment, ILogger<PostController> logger, SignInManager<UserProfileModel> signInManager,
             UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles,
             IReactionService reactions, ITagService tags, INotificationService notifications, IPeerService peers, IAuthService auth,
-            ISettingsService settings):
-            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings)
+            ISettingsService settings, IActivityStreamRepository activityStreams):
+            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
         {
             _logger = logger;
         }
@@ -44,7 +42,7 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentUserAsync();
             if (id != null)
             {
-                var post = await _posts.GetPost(new PublicId(id), user?.UserId ?? -1);
+                var post = await _activityStreams.GetPost(new ActivityStreamFilter { publicId = new PublicId(id), viewerId = user?.UserId });
                 if (post != null)
                 {
                     return View(new PostViewModel() {
@@ -95,7 +93,7 @@ namespace PinkUmbrella.Controllers
         private async Task<IActionResult> ViewPost(PublicId id)
         {
             var user = await GetCurrentUserAsync();
-            var post = await _posts.GetPost(id, user?.UserId);
+            var post = await _activityStreams.GetPost(new ActivityStreamFilter { publicId = id, viewerId = user?.UserId });
 
             ViewData["PartialName"] = "Post/_Container";
             return View("_NoLayout", post);
@@ -105,15 +103,15 @@ namespace PinkUmbrella.Controllers
         public async Task<IActionResult> NewPost(NewPostViewModel model)
         {
             var user = await GetCurrentUserAsync();
-            var result = await _posts.TryCreateTextPosts(user.UserId, model.Content, model.Visibility);
-            if (!result.Error)
+            var result = await _posts.TryCreateTextPost(user.UserId, model.Content, model.Visibility);
+            if (result is Error err)
             {
-                return RedirectToAction(nameof(Index), new { Id = result.Posts.First().Id });
+                ViewData["errorMsg"] = $"{err.errorCode}: {err.content}";
+                return View();
             }
             else
             {
-                ViewData["errorMsg"] = result.Message;
-                return View();
+                return RedirectToAction(nameof(Index), new { Id = result.objectId.Value });
             }
         }
     }

@@ -8,5 +8,6 @@
   <ItemGroup>
     <PackageReference Include="BouncyCastle.NetCoreSdk" Version="1.9.3.1" />
     <PackageReference Include="PgpCore" Version="2.4.0" />
+    <PackageReference Include="NEST" Version="7.8.1" />
   </ItemGroup>
 </Project>

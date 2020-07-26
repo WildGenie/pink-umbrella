@@ -1,4 +1,4 @@
-﻿@model ArchivedMediaModel
+﻿@model Tides.Core.BaseObject
 @{
     var reactLike = new ReactViewModel() {
         Type = ReactionType.Like,
@@ -7,7 +7,7 @@
         HasReacted = Model.HasLiked,
         Count = Model.LikeCount,
         ViewerId = Model.ViewerId,
-        Enabled = !Model.ViewerIsPoster,
+        Enabled = !Model.ViewerIsPublisher,
     };
     var reactDislike = new ReactViewModel() {
         Type = ReactionType.Dislike,
@@ -16,7 +16,7 @@
         HasReacted = Model.HasDisliked,
         Count = Model.DislikeCount,
         ViewerId = Model.ViewerId,
-        Enabled = !Model.ViewerIsPoster,
+        Enabled = !Model.ViewerIsPublisher,
     };
     var reactBlock = new ReactViewModel() {
         Type = ReactionType.Block,
@@ -25,7 +25,7 @@
         HasReacted = false,
         Count = Model.BlockCount,
         ViewerId = Model.ViewerId,
-        Enabled = !Model.ViewerIsPoster,
+        Enabled = !Model.ViewerIsPublisher,
         ManualReactionUrl = "/Media/Block/" + Model.PublicId,
         ResponseHandler = "archived-media-replacewith",
     };
@@ -36,7 +36,7 @@
         HasReacted = false,
         Count = Model.ReportCount,
         ViewerId = Model.ViewerId,
-        Enabled = !Model.ViewerIsPoster,
+        Enabled = !Model.ViewerIsPublisher,
         ManualReactionUrl = "/Media/Report/" + Model.PublicId,
         ResponseHandler = "archived-media-replacewith",
     };
@@ -45,29 +45,29 @@
         reactLike, reactDislike, reactBlock, reactReport,
     };
 
-    var ext  = System.IO.Path.GetExtension(Model.Path);
+    var ext  = System.IO.Path.GetExtension(Model.url.content);
 }
 <div class="contains-goto archived-media">
     <a class="goto" asp-controller="Archive" asp-action="Media" asp-route-id="@Model.PublicId">goto</a>
     <p>
         <span>@Model.DisplayName</span><i> by </i>
-        <partial name="Profile/Goto" model="Model.User" />
-        &bull; <partial name="_Timestamp" model="Model.WhenCreated" /></li>
+        partial name="Profile/Goto" model="Model.User"
+        &bull; <partial name="_Timestamp" model="Model.published" /></li>
         <partial name="_VisibilityStatus" model="Model" />
     </p>
-    <p class="text-center">@Model.Description</p>
+    <p class="text-center">@Model.summary</p>
     @switch (ext)
     {
         case ".png":
-        <img src="/Archive/Raw/@Model.Path" class="archived-media image" />
+        <img src="/Archive/Raw/@Model.url.content" class="archived-media image" />
         break;
         default:
         <span>unknown type @ext</span>
         break;
     }
-    @if (!string.IsNullOrWhiteSpace(Model.Attribution))
+    @if (!string.IsNullOrWhiteSpace(Model.attributedTo.content))
     {
-        <p>Attribution: @Model.Attribution</p>
+        <p>Attribution: @Model.attributedTo.content</p>
     }
     
     <partial name="Button/ReactButtonList" model="reactions" /></li>

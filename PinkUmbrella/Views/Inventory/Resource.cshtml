@@ -1,13 +1,12 @@
 ﻿@using PinkUmbrella.ViewModels.Inventory
 @model ResourceViewModel
 @{
-    ViewData["Title"] = Model.Resource.Name;
+    ViewData["Title"] = Model.Resource.name;
 }
-
 <div>
     <h1>Resource: @ViewData["Title"]</h1>
-    <p>@Model.Resource.Description</p>
-    <p>Amount: <b>@Model.Resource.Amount </b> @Model.Resource.Units</p>
+    <p>@Model.Resource.summary</p>
+    <p>Amount: <b>Model.Resource.Amount </b> Model.Resource.units</p>
 </div>
 @if (!string.IsNullOrWhiteSpace(Model.ReturnUrl)) {
     <a href="@Model.ReturnUrl">Return</a>

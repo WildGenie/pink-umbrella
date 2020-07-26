@@ -2,11 +2,8 @@ using System;
 using Elasticsearch.Net;
 using Nest;
 using PinkUmbrella.Models;
-using PinkUmbrella.Models.Peer;
-using PinkUmbrella.Models.Public;
-using Tides.Models;
-using Tides.Models.Peer;
-using Tides.Models.Public;
+using Tides.Actors;
+using Tides.Core;
 
 namespace PinkUmbrella.Services.Elastic
 {
@@ -17,23 +14,11 @@ namespace PinkUmbrella.Services.Elastic
             var uri = new Uri("http://localhost:9200");
             var pool = new SingleNodeConnectionPool(uri);
             var settings = new ConnectionSettings(pool)
-                .DefaultMappingFor<PublicProfileModel>(m => m
-                    .IndexName("profiles")
+                .DefaultMappingFor<ActorObject>(m => m
+                    .IndexName("actors")
                 )
-                .DefaultMappingFor<ShopModel>(m => m
-                    .IndexName("shops")
-                )
-                .DefaultMappingFor<PostModel>(m => m
-                    .IndexName("posts")
-                )
-                .DefaultMappingFor<ArchivedMediaModel>(m => m
-                    .IndexName("archived-media")
-                )
-                .DefaultMappingFor<SimpleInventoryModel>(m => m
-                    .IndexName("inventories")
-                )
-                .DefaultMappingFor<PeerModel>(m => m
-                    .IndexName("peers")
+                .DefaultMappingFor<BaseObject>(m => m
+                    .IndexName("objects")
                 );
             return new ElasticClient(settings);
         }
