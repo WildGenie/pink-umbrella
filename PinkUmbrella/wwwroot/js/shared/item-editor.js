@@ -6,7 +6,7 @@ var tribute = new Tribute({
                 if (text.trim().length > 0) {
                     $.ajax({
                         method: 'GET',
-                        url: '/Profile/Completions/' + text,
+                        url: '/Person/Completions/' + text,
                         dataType: 'json'
                     }).then(r => r.items, () => []).then((items) => {
                         cb(items);

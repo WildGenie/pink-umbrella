@@ -26,30 +26,35 @@ $(() => {
             dataType: responseType || 'html',
         });
         if (responseHandler) {
+            var replaceEv = (r) => new CustomEvent(responseHandler, { detail: { r, $ajax } });
             if (responseOnClosest && responseOnClosest.trim().length > 0) {
-                p.then(r => $ajax.closest(responseOnClosest).trigger(responseHandler, [r, $ajax]));
+                p.then(r => document.dispatchEvent(replaceEv(r)));
             }
             else {
-                p.then(r => $ajax.trigger(responseHandler, [r, $ajax]));
+                p.then(r => document.dispatchEvent(replaceEv(r)));
             }
         }
         return false;
     });
     document.addEventListener('replacewith', (ev) => {
-        if (ev.target && ev.target.classList.contains('contains-ajax')) {
-            ev.target.outerHTML = ev.data.r;
+        if (ev.detail.$ajax) {
+            ev.detail.$ajax.closest('.contains-ajax')[0].outerHTML = ev.detail.r;
         }
     });
     $(document).on('page-reload', '.contains-ajax', (ev) => {
         ev.preventDefault();
         location.reload();
     });
-    $(document).on('post-replacewith', '.post', (ev) => {
-        let $post = ev.data.$ajax.closest('.post');
-        let $newElement = $(ev.data.r);
-        $newElement.css('height', $post[0].clientHeight + 'px');
-        $post.after($newElement);
-        $post.remove();
+    document.addEventListener('post-replacewith', (ev) => {
+        console.log(ev.detail.r);
+        console.log(ev.detail);
+        if (ev.target && ev.target.classList.contains('post')) {
+            let $post = $(ev.target);
+            let $newElement = $(ev.detail.r);
+            $newElement.css('height', $post[0].clientHeight + 'px');
+            $post.after($newElement);
+            $post.remove();
+        }
     });
     $(document).on('archived-media-replacewith', '.archived-media', (ev) => {
         let $post = ev.data.$ajax.closest('.archived-media');
@@ -69,6 +74,15 @@ $(() => {
                 if ($input.is('.js-tags')) {
                 }
             }
+        }
+    });
+    $(document).on('change', '.js-contains-selectable-goto', (ev) => {
+        let $select = $(ev.target);
+        let $gotos = $($select.attr('data-selectable-gotos')).find('a');
+        let gotoIndex = parseInt($select.val());
+        let $goto = $gotos[gotoIndex];
+        if ($goto) {
+            $goto.click();
         }
     });
     let jsKeypressValidateTimeoutHandle = undefined;
@@ -257,25 +271,25 @@ $(() => {
             dataType: responseType,
         });
         if (responseHandler) {
+            var replaceEv = (r) => new CustomEvent(responseHandler, { detail: { r, $ajax } });
             if (responseOnClosest && responseOnClosest.trim().length > 0) {
-                p.then(r => $ajax.closest(responseOnClosest).trigger(responseHandler, [r, $ajax]));
+                p.then(r => $ajax.closest(responseOnClosest)[0].dispatchEvent(replaceEv(r)));
             }
             else {
-                p.then(r => $ajax.trigger(responseHandler, [r, $ajax]));
+                p.then(r => $ajax[0].dispatchEvent(replaceEv(r)));
             }
         }
         return false;
-    });
-    $(document).on('replacewith', '.contains-ajax', (ev) => {
-        ev.data.$ajax.closest('.contains-ajax')[0].outerHTML = ev.data.r;
     });
     $(document).on('page-reload', '.contains-ajax', (ev) => {
         ev.preventDefault();
         location.reload();
     });
     $(document).on('post-replacewith', '.post', (ev) => {
-        let $post = ev.data.$ajax.closest('.post');
-        let $newElement = $(ev.data.r);
+        console.log(ev.detail);
+        console.log(ev.detail.r);
+        let $post = ev.detail.$ajax.closest('.post');
+        let $newElement = $(ev.detail.r);
         $newElement.css('height', $post[0].clientHeight + 'px');
         $post.after($newElement);
         $post.remove();

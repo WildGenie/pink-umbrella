@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PinkUmbrella.Models;
-using Tides.Core;
+using Estuary.Core;
 using Tides.Models;
 using Tides.Models.Public;
-using Tides.Objects;
+using Estuary.Objects;
 
 namespace PinkUmbrella.Services
 {

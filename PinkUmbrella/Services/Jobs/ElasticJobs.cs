@@ -1,13 +1,10 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Hangfire;
 using Microsoft.Extensions.DependencyInjection;
-using PinkUmbrella.Util;
-using Tides.Actors;
-using Tides.Core;
-using Tides.Models;
-using Tides.Services;
+using Estuary.Core;
+using Estuary.Services;
+using Estuary.Util;
 
 namespace PinkUmbrella.Services.Jobs
 {
@@ -29,6 +26,7 @@ namespace PinkUmbrella.Services.Jobs
         [AutomaticRetry(Attempts = 0)]
         public static async Task SyncObjects(IServiceProvider s)
         {
+            var filter = new ActivityStreamFilter("outbox") { sinceLastUpdated = LastTimeSyncedObjects }.FixObjType("Actor");
             using (var scope = Services.CreateScope())
             {
                 var elastic = scope.ServiceProvider.GetRequiredService<IElasticService>();
@@ -37,7 +35,6 @@ namespace PinkUmbrella.Services.Jobs
                 var peers = await peerService.GetPeers();
                 if (peers.Count > 0)
                 {
-                    var filter = new ActivityStreamFilter { sinceLastUpdated = LastTimeSyncedObjects };
                     foreach (var peer in peers)
                     {
                         if (peer != null)
@@ -46,7 +43,7 @@ namespace PinkUmbrella.Services.Jobs
                             var client = await peerService.Open(peer.Address, peer.AddressPort);
                             try
                             {
-                                var profiles = await client.GetActors(filter);
+                                var profiles = await client.Get(filter);
                                 if (profiles is OrderedCollectionObject orderedCollection)
                                 {
                                     await elastic.SyncProfiles(peer.PublicKey.Id, orderedCollection);
@@ -64,9 +61,12 @@ namespace PinkUmbrella.Services.Jobs
                 {
                     Console.WriteLine("No peers");
                 }
-
-                var locals = await scope.ServiceProvider.GetRequiredService<IActivityStreamRepository>().GetAll(new ActivityStreamFilter { sinceLastUpdated = LastTimeSyncedObjects });
-                await elastic.SyncObjects(0, locals);
+                
+                var locals = await scope.ServiceProvider.GetRequiredService<IActivityStreamRepository>().Get(filter);
+                if (locals is CollectionObject collection)
+                {
+                    await elastic.SyncObjects(0, collection);
+                }
             }
             LastTimeSyncedObjects = DateTime.UtcNow;
         }

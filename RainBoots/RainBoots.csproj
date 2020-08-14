@@ -14,5 +14,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Tides\Tides.csproj" />
+    <ProjectReference Include="..\Estuary\Estuary.csproj" />
   </ItemGroup>
 </Project>

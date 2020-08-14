@@ -1,7 +1,6 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using Tides.Core;
 
 namespace Tides.Models
 {
@@ -12,6 +11,12 @@ namespace Tides.Models
 
         [DefaultValue(0), DisplayName("Dislike Count"), Description("How many times this was disliked by other users.")]
         int DislikeCount { get; set; }
+
+        [DefaultValue(0), DisplayName("Upvote Count"), Description("How many times this was upvoted by other users.")]
+        int UpvoteCount { get; set; }
+
+        [DefaultValue(0), DisplayName("Downvote Count"), Description("How many times this was downvoted by other users.")]
+        int DownvoteCount { get; set; }
 
         [DefaultValue(0), DisplayName("Report Count"), Description("How many times this was reported by other users.")]
         int ReportCount { get; set; }
@@ -29,6 +34,12 @@ namespace Tides.Models
         bool HasDisliked { get; set; }
 
         [NotMapped, Nest.Ignore]
+        bool HasUpvoted { get; set; }
+        
+        [NotMapped, Nest.Ignore]
+        bool HasDownvoted { get; set; }
+
+        [NotMapped, Nest.Ignore]
         bool HasFollowed { get; set; }
         
         [NotMapped, Nest.Ignore]
@@ -42,11 +53,5 @@ namespace Tides.Models
 
         [NotMapped, Nest.Ignore]
         bool HasBeenBlockedOrReportedByPublisher { get; set; }
-
-
-
-        
-        [NotMapped, JsonIgnore, Nest.Ignore]
-        OrderedCollectionObject Reactions { get; set; }
     }
 }

@@ -1,0 +1,6 @@
+﻿@inject Markdig.MarkdownPipeline mdPipeline
+@model Estuary.Core.BaseObject
+@if (!string.IsNullOrWhiteSpace(Model.content ?? Model.summary))
+{
+<p>@Html.Raw(Markdig.Markdown.ToHtml(Model.content ?? Model.summary, mdPipeline))</p>
+}

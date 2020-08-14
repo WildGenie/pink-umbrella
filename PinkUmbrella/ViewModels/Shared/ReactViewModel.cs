@@ -7,7 +7,6 @@ namespace PinkUmbrella.ViewModels.Shared
     {
         public int? ViewerId { get; set; }
         public ReactionType Type { get; set; }
-        public ReactionSubject Subject { get; set; }
         public PublicId ToId { get; set; }
 
         public bool HasReacted { get; set; }
@@ -20,5 +19,7 @@ namespace PinkUmbrella.ViewModels.Shared
         public string DataResponseOnClosest { get; set; }
 
         public string ResponseHandler { get; set; } = "replacewith";
+        
+        public string UndoId { get; set; }
     }
 }

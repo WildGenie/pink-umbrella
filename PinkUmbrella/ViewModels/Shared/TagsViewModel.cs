@@ -1,5 +1,5 @@
 using PinkUmbrella.Models.Search;
-using Tides.Core;
+using Estuary.Core;
 
 namespace PinkUmbrella.ViewModels.Shared
 {

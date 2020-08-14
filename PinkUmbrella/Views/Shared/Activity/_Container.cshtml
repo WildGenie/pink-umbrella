@@ -1,0 +1,22 @@
+﻿@model Estuary.Core.ActivityObject
+@{
+    var highlightedActivity = !string.IsNullOrWhiteSpace(Model.id) && Context.Request.Query.TryGetValue("highlightActivity", out var highlightedActivities) && highlightedActivities.FirstOrDefault() == Model.id;
+    var additionalClasses = highlightedActivity ? "bg-accent" : string.Empty;
+    var hasObj = Model.obj != null;
+    if (hasObj)
+    {
+        additionalClasses += " contains-goto";
+    }
+}
+<div class="@Model.BaseType @Model.type @additionalClasses p-2">
+    @if (hasObj)
+    {
+        <a class="goto" asp-controller="@Model.obj.type" asp-action="Index" asp-route-id="@Model.PublicId">goto</a>
+    }
+    <p>
+        <partial name="Person/Goto" model="Model.actor?.items?.FirstOrDefault()" />
+        &bull; <partial name="_Timestamp" model="Model.published" />
+        <partial name="_VisibilityStatus" />
+    </p>
+    <partial name="@Model.BaseType/@Model.type" />
+</div>

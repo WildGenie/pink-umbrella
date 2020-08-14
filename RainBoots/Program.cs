@@ -3,10 +3,9 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Tides.Actors;
+using Estuary.Actors;
+using Estuary.Services;
 using Tides.Models.Auth;
-using Tides.Models.Peer;
-using Tides.Models.Peer.Client;
 
 namespace RainBoots
 {

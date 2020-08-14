@@ -1,0 +1,8 @@
+@model Estuary.Core.BaseObject
+<div class="border rounded my-4">
+    <partial name="Activity/_Container" />
+</div>
+@* @{
+    var shortenDesc = string.IsNullOrWhiteSpace(Model.summary) ? Model.content : Model.summary.Substring(0, Math.Min(100, Model.summary.Length));
+}
+<a asp-controller="@Model.BaseType" asp-action="@Model.type" asp-route-id="@Model.id">@shortenDesc</a> *@

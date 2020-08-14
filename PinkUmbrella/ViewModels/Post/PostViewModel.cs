@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Tides.Core;
+using Estuary.Core;
 
 namespace PinkUmbrella.ViewModels.Post
 {

@@ -2,12 +2,14 @@
 @model IndexViewModel
 @{
     ViewData["Title"] = "Inventory";
-    if (Model.Inventories.totalItems > 0)
+    if (Model.Inventories.Items.items.Count > 0)
     {
+        <partial name="Activity/List" model="Model.Inventories" />
         <div>
+            <partial name="Activity/List" model="Model.Inventories" />
             <partial name="_InventoryList" />
             <h1>Resources from all inventories</h1>
-            <partial name="_ResourceList" model="Model" />
+            <partial name="Activity/List" model="Model.Resources" />
         </div>
         if (Model.AddResourceEnabled)
         {

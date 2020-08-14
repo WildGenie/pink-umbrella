@@ -1,0 +1,28 @@
+﻿@model Estuary.Objects.Common.Note
+@{
+    var parts = new List<string> { Html.Encode(Model.content) };
+    var tagLookup = new Dictionary<string, Estuary.Core.BaseObject>();
+    if (Model.tag != null)
+    {
+        foreach (var linkedTag in Model.tag.items)
+        {
+            var tag = $"#{linkedTag.content}";
+            var split = new System.Text.RegularExpressions.Regex($"({tag})");
+            tagLookup[tag] = linkedTag;
+            parts = parts.SelectMany(p => split.Split(p)).ToList();
+        }
+    }
+}
+<div class="js-tag-display">
+    @foreach (var p in parts)
+    {
+        if (tagLookup.TryGetValue(p, out var tag))
+        {
+            <partial name="Tag/Item" model="tag" />
+        }
+        else
+        {
+            @Html.Raw(p)
+        }
+    }
+</div>

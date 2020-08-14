@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using PinkUmbrella.Models;
@@ -8,24 +7,28 @@ using PinkUmbrella.Services;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Models.Settings;
 using PinkUmbrella.Services.Local;
-using Tides.Services;
 
 namespace PinkUmbrella.Controllers
 {
     [FeatureGate(FeatureFlags.ControllerNotification)]
     public class NotificationController : BaseController
     {
-        private readonly ILogger<ShopController> _logger;
-        private readonly IShopService _shops;
+        private readonly ILogger<NotificationController> _logger;
+        private readonly INotificationService _notifications;
 
-        public NotificationController(IWebHostEnvironment environment, ILogger<ShopController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles, IShopService shops,
-            IReactionService reactions, ITagService tags, INotificationService notifications, IPeerService peers, IAuthService auth,
-            ISettingsService settings, IActivityStreamRepository activityStreams):
-            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
+        public NotificationController(
+            ILogger<NotificationController> logger,
+            SignInManager<UserProfileModel> signInManager,
+            UserManager<UserProfileModel> userManager,
+            IUserProfileService localProfiles,
+            IPublicProfileService publicProfiles,
+            INotificationService notifications,
+            IAuthService auth,
+            ISettingsService settings):
+            base(signInManager, userManager, localProfiles, publicProfiles, auth, settings)
         {
             _logger = logger;
-            _shops = shops;
+            _notifications = notifications;
         }
 
         public async Task<IActionResult> ViewedSince(int id)

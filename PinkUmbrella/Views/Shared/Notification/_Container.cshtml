@@ -13,23 +13,23 @@
     }
 }
 <div class="js-notification-container notification-container contains-goto @cclass">
-    @switch (Model.Notif.Subject)
+    @switch (Model.Notif.SubjectType)
     {
-        case ReactionSubject.Post:
+        case "Note":
         <a class="goto" asp-action="Index" asp-controller="Post" asp-route-id="@Model.Notif.SubjectId">goto</a>
         break;
-        case ReactionSubject.Profile:
-        <a class="goto" asp-action="Index" asp-controller="Profile" asp-route-id="@Model.Notif.SubjectId">goto</a>
+        case "Actor":
+        <a class="goto" asp-action="Index" asp-controller="Person" asp-route-id="@Model.Notif.SubjectId">goto</a>
         break;
-        case ReactionSubject.ArchivedMedia:
+        case "ArchivedMedia":
         <a class="goto" asp-action="Index" asp-controller="Archive" asp-route-id="@Model.Notif.SubjectId">goto</a>
         break;
-        case ReactionSubject.Shop:
+        case "Shop":
         <a class="goto" asp-action="Index" asp-controller="Shop" asp-route-id="@Model.Notif.SubjectId">goto</a>
         break;
         default:
             <ul>
-                <li><b>Subject:</b> @Model.Notif.Subject</li>
+                <li><b>Subject:</b> @Model.Notif.SubjectType</li>
                 <li><b>Subject Id:</b> @Model.Notif.SubjectId</li>
             </ul>
         break;

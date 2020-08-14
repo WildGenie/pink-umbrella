@@ -1,0 +1,30 @@
+@model ListViewModel
+@if (!string.IsNullOrWhiteSpace(Model.Title))
+{
+    @:<@Model.TitleTag class="@Model.TitleClass">
+    @Model.Title
+    @:</@Model.TitleTag>
+}
+@if (Model != null && Model.Items != null && Model.Items.items.Count > 0)
+{
+    @:<@Model.ContainerTag class="@Model.ContainerClasses">
+    @foreach (var item in Model.Items.items)
+    {
+        var liClass = object.ReferenceEquals(item, Model.Selected ?? Model.Highlighted) ? "selected" : "";
+        @:<@Model.ItemTag class="@liClass">
+        if (item is Estuary.Objects.Error err)
+        {
+            <partial name="Object/Error" model="item" />
+        }
+        else
+        {
+            <partial name="@Model.ItemViewName" model="item" />
+        }
+        @:</@Model.ItemTag>
+    }
+    @:</@Model.ContainerTag>
+}
+else
+{
+    <partial name="@Model.EmptyViewName" model="@Model.EmptyViewModel" />
+}

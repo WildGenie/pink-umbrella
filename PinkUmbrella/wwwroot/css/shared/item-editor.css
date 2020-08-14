@@ -26,6 +26,7 @@
   margin: .25rem;
   border-radius: 4px;
   color: white;
+  border: 1px white solid;
   background-color: var(--accent-color);
 }
 

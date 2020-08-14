@@ -117,58 +117,14 @@ namespace PinkUmbrella.Migrations
 
             modelBuilder.Entity("PinkUmbrella.Models.ArchivedMediaModel", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Attribution")
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(100);
-
-                    b.Property<int>("BlockCount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("ContainsProfanity")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("DeletedByUserId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(1000);
-
-                    b.Property<int>("DislikeCount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("DisplayName")
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(100);
-
-                    b.Property<int>("LikeCount")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("MediaType")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("OriginalName")
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(100);
-
-                    b.Property<string>("Path")
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(500);
-
-                    b.Property<int?>("RelatedPostId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ReportCount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("ShadowBanned")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("SizeBytes")
+                    b.Property<long>("SizeBytes")
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("UploadedStatus")
@@ -177,20 +133,7 @@ namespace PinkUmbrella.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("Visibility")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("WhenCreated")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("WhenDeleted")
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("RelatedPostId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("ArchivedMedia");
                 });
@@ -247,239 +190,68 @@ namespace PinkUmbrella.Migrations
                     b.ToTable("GroupAccessCodes");
                 });
 
-            modelBuilder.Entity("PinkUmbrella.Models.MentionModel", b =>
+            modelBuilder.Entity("PinkUmbrella.Models.ObjectContentModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("MentionedUserId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<long>("MentionedUserPeerId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("PostId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("WhenMentioned")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("WhenMentionedUserDismissMention")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("WhenMentionedUserSeenMention")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MentionedUserId");
-
-                    b.HasIndex("PostId");
-
-                    b.ToTable("Mentions");
-                });
-
-            modelBuilder.Entity("PinkUmbrella.Models.PostModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("BlockCount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("ContainsProfanity")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Content")
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(1000);
-
-                    b.Property<int?>("DeletedByUserId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("DislikeCount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsReply")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("LikeCount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("NextInChain")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("PostType")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ReportCount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("ShadowBanned")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Visibility")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("WhenCreated")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime?>("WhenDeleted")
+                    b.Property<DateTime?>("Deleted")
                         .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Posts");
-                });
-
-            modelBuilder.Entity("PinkUmbrella.Models.ReactionModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("DeliverToPeerTryCount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ToId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<long>("ToPeerId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime?>("WhenDeliveredToPeer")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("WhenReacted")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ReactionModel");
-                });
-
-            modelBuilder.Entity("PinkUmbrella.Models.ShopModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(1000);
-
-                    b.Property<int>("DislikeCount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("DisplayName")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(200);
-
-                    b.Property<string>("ExternalUsernamesJson")
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(1000);
-
-                    b.Property<int>("GeoLocationId")
-                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Handle")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(100);
-
-                    b.Property<DateTime>("LastUpdated")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("LikeCount")
+                    b.Property<bool>("IsMature")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("MenuLink")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(300);
+                    b.Property<string>("MediaType")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("ReportCount")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
 
-                    b.Property<string>("StreetAddress")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(300);
+                    b.Property<DateTime>("Published")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Summary")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("Updated")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Visibility")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("WebsiteLink")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(300);
-
-                    b.Property<DateTime>("WhenCreated")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("WhenDeleted")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ZipCode")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(20);
 
                     b.HasKey("Id");
 
                     b.HasIndex("Handle")
                         .IsUnique();
 
-                    b.ToTable("Shops");
+                    b.ToTable("ObjectContentModel");
                 });
 
-            modelBuilder.Entity("PinkUmbrella.Models.SimpleInventoryModel", b =>
+            modelBuilder.Entity("PinkUmbrella.Models.ObjectShadowBanModel", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(1000);
-
-                    b.Property<string>("DisplayName")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(100);
-
-                    b.Property<double>("Latitude")
-                        .HasColumnType("REAL");
-
-                    b.Property<double>("Longitude")
-                        .HasColumnType("REAL");
-
-                    b.Property<int>("OwnerUserId")
+                    b.Property<int>("ObjectId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("WhenCreated")
+                    b.Property<long>("PeerId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Type")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Inventories");
+                    b.ToTable("ObjectShadowBans");
                 });
 
             modelBuilder.Entity("PinkUmbrella.Models.SimpleResourceModel", b =>
@@ -504,9 +276,6 @@ namespace PinkUmbrella.Migrations
                     b.Property<int>("CreatedByUserId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("DeletedByUserId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("TEXT")
@@ -518,9 +287,6 @@ namespace PinkUmbrella.Migrations
                     b.Property<int>("InventoryId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("MipmapId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT")
@@ -530,12 +296,6 @@ namespace PinkUmbrella.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT")
                         .HasMaxLength(100);
-
-                    b.Property<DateTime>("WhenCreated")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("WhenDeleted")
-                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -570,29 +330,6 @@ namespace PinkUmbrella.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("AllTags");
-                });
-
-            modelBuilder.Entity("PinkUmbrella.Models.TaggedModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("TagId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ToId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("WhenCreated")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TaggedModel");
                 });
 
             modelBuilder.Entity("PinkUmbrella.Models.UserGroupModel", b =>
@@ -656,9 +393,6 @@ namespace PinkUmbrella.Migrations
                     b.Property<string>("Bio")
                         .HasColumnType("TEXT")
                         .HasMaxLength(1000);
-
-                    b.Property<int>("BioVisibility")
-                        .HasColumnType("INTEGER");
 
                     b.Property<int>("BlockCount")
                         .HasColumnType("INTEGER");
@@ -740,9 +474,6 @@ namespace PinkUmbrella.Migrations
                         .HasColumnType("TEXT")
                         .HasMaxLength(256);
 
-                    b.Property<int>("Visibility")
-                        .HasColumnType("INTEGER");
-
                     b.Property<DateTime>("WhenCreated")
                         .HasColumnType("TEXT");
 
@@ -752,22 +483,13 @@ namespace PinkUmbrella.Migrations
                     b.Property<DateTime>("WhenLastLoggedIn")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("WhenLastLoggedInVisibility")
-                        .HasColumnType("INTEGER");
-
                     b.Property<DateTime>("WhenLastOnline")
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("WhenLastOnlineVisibility")
-                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("WhenLastUpdated")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Handle")
-                        .IsUnique();
 
                     b.HasIndex("NormalizedEmail")
                         .HasName("EmailIndex");
@@ -826,34 +548,6 @@ namespace PinkUmbrella.Migrations
                     b.HasOne("PinkUmbrella.Models.UserProfileModel", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("PinkUmbrella.Models.ArchivedMediaModel", b =>
-                {
-                    b.HasOne("PinkUmbrella.Models.PostModel", "RelatedPost")
-                        .WithMany()
-                        .HasForeignKey("RelatedPostId");
-
-                    b.HasOne("PinkUmbrella.Models.UserProfileModel", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("PinkUmbrella.Models.MentionModel", b =>
-                {
-                    b.HasOne("PinkUmbrella.Models.UserProfileModel", "MentionedUser")
-                        .WithMany()
-                        .HasForeignKey("MentionedUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PinkUmbrella.Models.PostModel", "Post")
-                        .WithMany()
-                        .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

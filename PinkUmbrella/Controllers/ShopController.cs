@@ -16,21 +16,35 @@ using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Models.Search;
 using PinkUmbrella.Services.Local;
 using Tides.Models;
-using Tides.Services;
-using Tides.Core;
+using Estuary.Core;
+using Estuary.Services;
+using Estuary.Activities;
+using Estuary.Util;
 
 namespace PinkUmbrella.Controllers
 {
     [FeatureGate(FeatureFlags.ControllerShop)]
-    public class ShopController : BaseController
+    public class ShopController : ActivityStreamController
     {
         private readonly ILogger<ShopController> _logger;
         private readonly IShopService _shops;
         
-        public ShopController(IWebHostEnvironment environment, ILogger<ShopController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles, IShopService shops, 
-            IReactionService reactions, ITagService tags, INotificationService notifications, IPeerService peers, IAuthService auth,
-            ISettingsService settings, IActivityStreamRepository activityStreams):
+        public ShopController(
+            IWebHostEnvironment environment,
+            ILogger<ShopController> logger,
+            SignInManager<UserProfileModel> signInManager,
+            UserManager<UserProfileModel> userManager,
+            IPostService posts,
+            IUserProfileService localProfiles,
+            IPublicProfileService publicProfiles,
+            IShopService shops, 
+            IReactionService reactions,
+            ITagService tags,
+            INotificationService notifications,
+            IPeerService peers,
+            IAuthService auth,
+            ISettingsService settings,
+            IActivityStreamRepository activityStreams):
             base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
         {
             _logger = logger;
@@ -48,20 +62,20 @@ namespace PinkUmbrella.Controllers
             {
                 var model = new ShopViewModel() {
                     MyProfile = user,
-                    Shop = await _activityStreams.GetShop(new ActivityStreamFilter
+                    Shop = await _activityStreams.Get(new ActivityStreamFilter("outbox")
                     {
                         handle = handle,
                         viewerId = user?.UserId
-                    })
+                    }.FixObjType(nameof(Estuary.Actors.Common.Organization)))
                 };
                 return View("Shop", model);
             }
             else
             {
-                var topTags = await _tags.GetMostUsedTagsForSubject(ReactionSubject.Shop);
+                var topTags = await _tags.GetMostUsedTagsForSubject("Shop");
                 if (topTags.totalItems > 0)
                 {
-                    var shopsByCategory = new Dictionary<int, CollectionObject>();
+                    var shopsByCategory = new Dictionary<int, BaseObject>();
                     foreach (var category in topTags.items)
                     {
                         shopsByCategory[category.objectId.Value] = await _shops.GetShopsTaggedUnder(category, user?.UserId);
@@ -75,19 +89,28 @@ namespace PinkUmbrella.Controllers
                 }
                 else
                 {
-                    var allShops = await _activityStreams.GetShops(new ActivityStreamFilter { viewerId = user?.UserId });
-                    if (allShops.totalItems > 0)
+                    var allShops = await _activityStreams.Get(new ActivityStreamFilter("outbox")
                     {
-                        var model = new IndexViewModel() {
-                            MyProfile = user,
-                            ShopsList = allShops
+                        viewerId = user?.UserId
+                    }.FixObjType(nameof(Estuary.Actors.Common.Organization)));
+                    
+                    ListViewModel lvm = null;
+                    if (allShops is CollectionObject collection)
+                    {
+                        lvm = new ListViewModel
+                        {
+                            Items = collection,
+                            EmptyViewName = "BeTheFirst",
                         };
-                        return View(model);
                     }
-                    else
+
+                    var model = new IndexViewModel()
                     {
-                        return View("BeTheFirst", new BaseViewModel() { MyProfile = user });
-                    }
+                        MyProfile = user,
+                        ListView = lvm
+                    };
+                    lvm.EmptyViewModel = model;
+                    return View(model);
                 }
             }
         }
@@ -99,7 +122,7 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentUserAsync();
             return View(new TagsViewModel() {
                 MyProfile = user,
-                Tags = await _tags.GetTagsForSubject(ReactionSubject.Shop, user?.UserId),
+                Tags = await _tags.GetTagsForSubject("Shop", user?.UserId),
                 Type = SearchResultType.Shop,
             });
         }
@@ -116,7 +139,8 @@ namespace PinkUmbrella.Controllers
             });
         }
 
-        public class SimpleTag {
+        public class SimpleTag
+        {
             public string label { get; set; }
             public int value { get; set; }
         }
@@ -133,7 +157,7 @@ namespace PinkUmbrella.Controllers
                 var error = await _shops.TryCreateShop(shop);
                 if (error != null)
                 {
-                    this.ModelState.AddModelError(error.ParamName, error.Message);
+                    this.ModelState.AddModelError(error.name, error.summary);
                 }
             }
 

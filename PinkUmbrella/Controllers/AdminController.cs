@@ -20,25 +20,40 @@ using PinkUmbrella.Services.Local;
 using Tides.Models;
 using Tides.Models.Public;
 using Tides.Models.Auth;
-using Tides.Models.Peer;
-using Tides.Services;
-using Tides.Actors;
+using Estuary.Actors;
+using Estuary.Services;
+using Estuary.Core;
 
 namespace PinkUmbrella.Controllers
 {
     [FeatureGate(FeatureFlags.ControllerAdmin)]
     [AllowAnonymous, IsAdminOrDebuggingOrElse404Filter]
-    public class AdminController : BaseController
+    public class AdminController : ActivityStreamController
     {
         private readonly ILogger<AdminController> _logger;
         private readonly IDebugService _debugService;
         private readonly RoleManager<UserGroupModel> _roleManager;
         private readonly IInvitationService _invitationService;
 
-        public AdminController(IWebHostEnvironment environment, ILogger<AdminController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles, IDebugService debugService,
-            RoleManager<UserGroupModel> roleManager, IReactionService reactions, ITagService tags, INotificationService notifications,
-            IPeerService peers, IAuthService auth, ISettingsService settings, IInvitationService invitationService, IActivityStreamRepository activityStreams):
+        public AdminController(
+            IWebHostEnvironment environment,
+            ILogger<AdminController> logger,
+            SignInManager<UserProfileModel> signInManager,
+            UserManager<UserProfileModel> userManager,
+            IPostService posts,
+            IUserProfileService localProfiles,
+            IPublicProfileService publicProfiles,
+            IDebugService debugService,
+            RoleManager<UserGroupModel> roleManager,
+            IReactionService reactions,
+            ITagService tags,
+            INotificationService notifications,
+            IPeerService peers,
+            IAuthService auth,
+            ISettingsService settings,
+            IInvitationService invitationService,
+            IActivityStreamRepository activityStreams
+            ):
             base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
         {
             _logger = logger;
@@ -87,7 +102,7 @@ namespace PinkUmbrella.Controllers
                 peers.Add(new PeerViewModel()
                 {
                     Peer = p, //await _auth.GetKeyPair(p.PublicKey)
-                    Stats = ((await client.Get()) as Tides.Actors.Peer)?.stats,
+                    Stats = ((await client.Get(new ActivityStreamFilter("outbox"))) as Peer)?.stats,
                 });
             }
 
@@ -113,7 +128,7 @@ namespace PinkUmbrella.Controllers
                     return BadRequest();
                 }
             }
-            var peer = await (await _peers.Open(Addr, port)).Get();
+            var peer = await (await _peers.Open(Addr, port)).Get(new ActivityStreamFilter("outbox"));
             if (peer is Peer truePeer)
             {
                 return await ViewPeer(truePeer);
@@ -129,7 +144,7 @@ namespace PinkUmbrella.Controllers
         {
             var ip = await _auth.GetOrRememberIP(IPAddress.Parse(address));
             var peerClient = await _peers.Open(ip, port);
-            var peer = await peerClient.Get();
+            var peer = await peerClient.Get(new ActivityStreamFilter("outbox"));
             if (peer is Peer truePeer)
             {
                 return Redirect($"/{truePeer.Address}-{truePeer.AddressPort}/{route}");
@@ -143,7 +158,7 @@ namespace PinkUmbrella.Controllers
         }
 
         [HttpGet, IsAdminOrDebuggingOrElse404Filter]
-        private async Task<IActionResult> ViewPeer(Tides.Actors.Peer peer, object proxiedViewModel = null)
+        private async Task<IActionResult> ViewPeer(Peer peer, object proxiedViewModel = null)
         {
             ViewData["Controller"] = "Admin";
             ViewData["Action"] = nameof(Peer);
@@ -163,7 +178,7 @@ namespace PinkUmbrella.Controllers
             ViewData["Action"] = nameof(PreviewPeer);
 
             var peerClient = await _peers.Open(Addr, port);
-            var peer = await peerClient.Get();
+            var peer = await peerClient.Get(new ActivityStreamFilter("outbox"));
             if (peer != null && peer is Peer truePeer)
             {
                 await _peers.AddPeer(truePeer);
@@ -245,7 +260,7 @@ namespace PinkUmbrella.Controllers
                     FromUserId = user.Id,
                     Priority = NotificationPriority.Normal,
                     Type = NotificationType.DIRECT_NOTIFICATION,
-                    Subject = ReactionSubject.Post,
+                    SubjectType = "Note",
                     SubjectId = postId,
                 }, recipients);
                 return Content($"You have sent {postId} to {group} ({recipients.Length} recipients). ");

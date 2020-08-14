@@ -1,25 +1,26 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Estuary.Actors;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Models.Settings;
 using PinkUmbrella.Util;
-using Tides.Actors;
 using Tides.Models.Auth;
 
 namespace PinkUmbrella.Controllers
 {
-    public partial class ProfileController: BaseController
+    public partial class PersonController: ActivityStreamController
     {
 
         [AllowAnonymous]
-        [FeatureGate(FeatureFlags.ApiControllerProfile)]
-        [Route("/Api/Profile")]
+        [FeatureGate(FeatureFlags.ApiControllerPerson)]
+        [Route("/Api/Person")]
         public async Task<ActionResult> ApiIndex()
         {
-            return Json(new Peer() {
+            return Json(new Peer()
+            {
                 name = "Hello World",
                 Address = new IPAddressModel()
                 {
@@ -31,12 +32,13 @@ namespace PinkUmbrella.Controllers
         }
 
         [AllowAnonymous]
-        [FeatureGate(FeatureFlags.ApiControllerProfile)]
-        [Route("/Api/Profile/All")]
+        [FeatureGate(FeatureFlags.ApiControllerPerson)]
+        [Route("/Api/Person/All")]
         public async Task<ActionResult> All(DateTime? sinceLastUpdated = null)
         {
             var users = await _localProfiles.GetAll(sinceLastUpdated);
-            return Json(new {
+            return Json(new
+            {
                 profiles = users.Select(u => u.ToElastic()).ToArray()
             });
         }

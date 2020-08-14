@@ -1,42 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using PinkUmbrella.Models;
 using PinkUmbrella.Services;
-using PinkUmbrella.ViewModels.Shop;
 using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Services.Local;
-using Tides.Services;
-using Tides.Models;
+using PinkUmbrella.ViewModels.Tag;
 
 namespace PinkUmbrella.Controllers
 {
     [AllowAnonymous]
     [FeatureGate(FeatureFlags.ControllerTag)]
-    public class TagController : BaseController
+    public class TagController: BaseController
     {
-        private readonly ILogger<ShopController> _logger;
-        private readonly IShopService _shops;
+        private readonly ILogger<TagController> _logger;
+        private readonly ITagService _tags;
 
-        public TagController(IWebHostEnvironment environment, ILogger<ShopController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles, IShopService shops,
-            IReactionService reactions, ITagService tags, INotificationService notifications, IPeerService peers, IAuthService auth,
-            ISettingsService settings, IActivityStreamRepository activityStreams):
-            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
+        public TagController(
+            ILogger<TagController> logger,
+            SignInManager<UserProfileModel> signInManager,
+            UserManager<UserProfileModel> userManager,
+            IUserProfileService localProfiles,
+            IPublicProfileService publicProfiles,
+            ITagService tags,
+            IAuthService auth,
+            ISettingsService settings):
+            base(signInManager, userManager, localProfiles, publicProfiles, auth, settings)
         {
             _logger = logger;
-            _shops = shops;
+            _tags = tags;
         }
 
-        //[Route("/Shop/{handle}")]
+        [Route("/Tag/{handle}")]
         public async Task<IActionResult> Index(string handle = null)
         {
             ViewData["Controller"] = "Tag";
@@ -45,22 +44,17 @@ namespace PinkUmbrella.Controllers
             
             if (!string.IsNullOrWhiteSpace(handle))
             {
-                var model = new ShopViewModel() {
-                    MyProfile = user,
-                    Shop = await _activityStreams.GetShop(new ActivityStreamFilter
-                    {
-                        handle = handle, userId = user?.objectId, viewerId = user?.objectId
-                    })
-                };
-                return View(model);
+                var tag = await _tags.GetTag(handle, user?.UserId);
+                if (tag != null)
+                {
+                    var model = new TagViewModel() {
+                        MyProfile = user,
+                        Tag = tag
+                    };
+                    return View(model);
+                }
             }
-            else
-            {
-                var model = new IndexViewModel() {
-
-                };
-                return View(model);
-            }
+            return NotFound();
         }
 
         [Route("/Tag/Completions/{prefix}")]

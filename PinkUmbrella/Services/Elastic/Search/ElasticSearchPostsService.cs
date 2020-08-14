@@ -1,13 +1,11 @@
 using System.Threading.Tasks;
-using PinkUmbrella.Models;
 using PinkUmbrella.Repositories;
 using PinkUmbrella.Services.Search;
 using PinkUmbrella.Models.Search;
 using Nest;
 using System.Collections.Generic;
-using Tides.Models;
-using Tides.Services;
-using Tides.Core;
+using Estuary.Services;
+using Estuary.Core;
 
 namespace PinkUmbrella.Services.Elastic.Search
 {

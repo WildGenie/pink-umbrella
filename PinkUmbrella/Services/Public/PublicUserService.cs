@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using PinkUmbrella.Models;
 using PinkUmbrella.Services.Local;
-using Tides.Actors;
-using Tides.Core;
+using Estuary.Core;
 using Tides.Models.Public;
-using Tides.Util;
+using Estuary.Actors;
+using Estuary.Util;
 
 namespace PinkUmbrella.Services.Public
 {
@@ -28,8 +28,8 @@ namespace PinkUmbrella.Services.Public
 
         public async Task<BaseObject> GetUser(PublicId id, int? viewerId)
         {   
-            var user = id.PeerId == 0 ? await _locals.GetUser(id.Id, viewerId) : null;
-            return await Transform(user, id.PeerId, viewerId);
+            var user = id.PeerId == 0 ? await _locals.GetUser(id.Id.Value, viewerId) : null;
+            return await Transform(user, id.PeerId.Value, viewerId);
         }
 
         public async Task<BaseObject> GetUser(string handle, int? viewerId)
@@ -63,34 +63,31 @@ namespace PinkUmbrella.Services.Public
         {
             if (privateModel != null)
             {
-                var asPublic = new Common.Person();
-                // privateModel, peerId
-
-                //asPublic.UserId = (privateModel ?? throw new ArgumentNullException(nameof(privateModel))).Id;
                 if (peerId > 0)
                 {
                     throw new NotSupportedException();
                 }
-                if (privateModel.Id > 0)
-                {
-                    asPublic.PeerId = peerId;
-                }
-                
+
+                var asPublic = new Common.Person();
+                asPublic.PublicId.Copy(privateModel.PublicId);
+                asPublic.PeerId = peerId;
                 asPublic.BanExpires = privateModel.BanExpires;
                 asPublic.BanReason = privateModel.BanReason;
                 asPublic.summary = privateModel.Bio;
-                asPublic.BioVisibility = privateModel.BioVisibility;
+                // asPublic.BioVisibility = privateModel.BioVisibility;
                 asPublic.name = privateModel.DisplayName;
                 asPublic.Email = privateModel.Email;
                 // this.EmailVisibility = user.EmailVisibility;
                 asPublic.Handle = privateModel.Handle;
-                asPublic.Visibility = privateModel.Visibility;
-                asPublic.WhenCreated = privateModel.WhenCreated;
+                // asPublic.audience = privateModel.Visibility.ToAudience(asPublic).IntoNewList<BaseObject>().ToCollection();
+                asPublic.published = privateModel.WhenCreated;
                 asPublic.WhenLastLoggedIn = privateModel.WhenLastLoggedIn;
-                asPublic.WhenLastLoggedInVisibility = privateModel.WhenLastLoggedInVisibility;
+                // asPublic.WhenLastLoggedInVisibility = privateModel.WhenLastLoggedInVisibility;
                 asPublic.WhenLastOnline = privateModel.WhenLastOnline;
-                asPublic.WhenLastOnlineVisibility = privateModel.WhenLastOnlineVisibility;
-                asPublic.WhenLastUpdated = privateModel.WhenLastUpdated;            
+                // asPublic.WhenLastOnlineVisibility = privateModel.WhenLastOnlineVisibility;
+                asPublic.updated = privateModel.WhenLastUpdated;
+                
+                asPublic.PrivateModel = privateModel;
 
                 await Task.Delay(1);
                 return asPublic;
@@ -102,7 +99,7 @@ namespace PinkUmbrella.Services.Public
         {
             if (id.PeerId == 0)
             {
-                return (await Task.WhenAll((await _locals.GetFollowers(id.Id, viewerId)).Select(u => Transform(u, id.PeerId, viewerId)))).ToCollection();
+                return (await Task.WhenAll((await _locals.GetFollowers(id.Id.Value, viewerId)).Select(u => Transform(u, id.PeerId.Value, viewerId)))).ToCollection();
             }
             else
             {
@@ -114,7 +111,7 @@ namespace PinkUmbrella.Services.Public
         {
             if (id.PeerId == 0)
             {
-                return (await Task.WhenAll((await _locals.GetFollowing(id.Id, viewerId)).Select(u => Transform(u, id.PeerId, viewerId)))).ToCollection();
+                return (await Task.WhenAll((await _locals.GetFollowing(id.Id.Value, viewerId)).Select(u => Transform(u, id.PeerId.Value, viewerId)))).ToCollection();
             }
             else
             {

@@ -17,22 +17,35 @@ using PinkUmbrella.Models.Settings;
 using PinkUmbrella.Services.Local;
 using Tides.Models;
 using Tides.Models.Public;
-using Tides.Objects;
-using Tides.Services;
+using Estuary.Objects;
+using Estuary.Services;
 
 namespace PinkUmbrella.Controllers
 {
     [FeatureGate(FeatureFlags.ControllerArchive)]
-    public class ArchiveController : BaseController
+    public class ArchiveController : ActivityStreamController
     {
         private readonly ILogger<ArchiveController> _logger;
         private readonly IArchiveService _archive;
         private readonly StringRepository _strings;
 
-        public ArchiveController(IWebHostEnvironment environment, ILogger<ArchiveController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles, IArchiveService archive,
-            IReactionService reactions, StringRepository strings, ITagService tags, INotificationService notifications, IPeerService peers,
-            IAuthService auth, ISettingsService settings, IActivityStreamRepository activityStreams):
+        public ArchiveController(
+            IWebHostEnvironment environment,
+            ILogger<ArchiveController> logger,
+            SignInManager<UserProfileModel> signInManager,
+            UserManager<UserProfileModel> userManager,
+            IPostService posts,
+            IUserProfileService localProfiles,
+            IPublicProfileService publicProfiles,
+            IArchiveService archive,
+            IReactionService reactions,
+            StringRepository strings,
+            ITagService tags,
+            INotificationService notifications,
+            IPeerService peers,
+            IAuthService auth,
+            ISettingsService settings,
+            IActivityStreamRepository activityStreams):
             base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
         {
             _logger = logger;

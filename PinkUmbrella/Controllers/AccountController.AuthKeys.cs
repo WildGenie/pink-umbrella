@@ -9,7 +9,7 @@ using Tides.Models.Auth;
 namespace PinkUmbrella.Controllers
 {
     [FeatureGate(FeatureFlags.ControllerAccount)]
-    public partial class AccountController: BaseController
+    public partial class AccountController: ActivityStreamController
     {
         [HttpGet]
         public async Task<IActionResult> AuthKeys()
@@ -21,7 +21,7 @@ namespace PinkUmbrella.Controllers
             return View(new AuthKeysViewModel()
             {
                 MyProfile = user,
-                Keys = await _auth.GetForUser(user.UserId),
+                Keys = await _auth.GetForUser(user.UserId.Value),
             });
         }
 

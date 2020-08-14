@@ -24,7 +24,7 @@
         <input asp-for="MyProfile.summary" class="form-control" />
         <span asp-validation-for="MyProfile.summary" class="text-danger"></span>
     </div>
-    <div class="form-group">
+    @* <div class="form-group">
         <label asp-for="MyProfile.BioVisibility"></label>
         <small>@Model.MyProfile.GetPropertyDescription(nameof(Model.MyProfile.BioVisibility))</small>
         <select asp-for="MyProfile.BioVisibility" class="form-control">
@@ -47,6 +47,6 @@
             <partial name="_EnumOptions" model="new EnumViewModel() { Type = typeof(Visibility), Selected = Model.MyProfile.WhenLastOnlineVisibility }" />
         </select>
         <span asp-validation-for="MyProfile.WhenLastOnlineVisibility" class="text-danger"></span>
-    </div>
+    </div> *@
     <button type="submit" class="btn btn-success">Update Profile</button>
 </form>

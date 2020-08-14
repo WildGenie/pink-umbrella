@@ -1,26 +1,71 @@
-using Tides.Core;
+using System.ComponentModel.DataAnnotations.Schema;
+using Estuary.Core;
+using Estuary.Util;
 using Tides.Models;
 
 namespace PinkUmbrella.Models
 {
-    public class ReactionsSummaryModel : IHazReactions
+    public class ReactionsSummaryModel : IHazReactions, IHazComputedId
     {
+        public string ComputedId => $"{ObjectType}-{ToId}-{ToPeerId}";
+        public string ObjectType { get; set; }
         public int ToId { get; set; }
+        public int ToPeerId { get; set; }
 
-        public int LikeCount { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
-        public int DislikeCount { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
-        public int ReportCount { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
-        public int BlockCount { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
-        public int FollowCount { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+        // Redis Values
+        [RedisValueAttribute]
+        public int LikeCount { get; set; }
+        
+        [RedisValueAttribute]
+        public int DislikeCount { get; set; }
+
+        [RedisValueAttribute]
+        public int UpvoteCount { get; set; }
+        
+        [RedisValueAttribute]
+        public int DownvoteCount { get; set; }
+        
+        [RedisValueAttribute]
+        public int ReportCount { get; set; }
+        
+        [RedisValueAttribute]
+        public int BlockCount { get; set; }
+        
+        [RedisValueAttribute]
+        public int IgnoreCount { get; set; }
+        
+        [RedisValueAttribute]
+        public int FollowCount { get; set; }
 
         // NotMapped
-        public bool HasLiked { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
-        public bool HasDisliked { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
-        public bool HasFollowed { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
-        public bool HasBlocked { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
-        public bool HasReported { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
-        public bool HasBeenBlockedOrReportedByViewer { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
-        public bool HasBeenBlockedOrReportedByPublisher { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+        [NotMapped]
+        public bool HasLiked { get; set; }
+        
+        [NotMapped]
+        public bool HasDisliked { get; set; }
+
+        [NotMapped]
+        public bool HasUpvoted { get; set; }
+        
+        [NotMapped]
+        public bool HasDownvoted { get; set; }
+        
+        [NotMapped]
+        public bool HasFollowed { get; set; }
+        
+        [NotMapped]
+        public bool HasBlocked { get; set; }
+        
+        [NotMapped]
+        public bool HasReported { get; set; }
+        
+        [NotMapped]
+        public bool HasBeenBlockedOrReportedByViewer { get; set; }
+        
+        [NotMapped]
+        public bool HasBeenBlockedOrReportedByPublisher { get; set; }
+
+        [NotMapped]
         public OrderedCollectionObject Reactions { get; set; }
     }
 }

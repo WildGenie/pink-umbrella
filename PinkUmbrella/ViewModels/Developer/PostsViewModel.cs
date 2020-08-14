@@ -1,4 +1,4 @@
-using Tides.Core;
+using Estuary.Core;
 
 namespace PinkUmbrella.ViewModels.Developer
 {

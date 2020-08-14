@@ -10,7 +10,8 @@
         <label asp-for="NewResource.Resource.InventoryId"></label>
         <small>@Model.NewResource.Resource.GetPropertyDescription(nameof(Model.NewResource.Resource.InventoryId))</small>
         <select required asp-for="NewResource.Resource.InventoryId" class="form-control">
-            @foreach (var i in Model.Inventories.items) {
+            @foreach (var i in Model.Inventories.Items.items)
+            {
                 <option value="@i.id" title="@i.summary">@i.name</option>
             }
         </select>

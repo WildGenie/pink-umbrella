@@ -5,7 +5,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using PinkUmbrella.Repositories;
 using Tides.Models;
-using Tides.Core;
+using Estuary.Core;
 
 namespace PinkUmbrella.Services.Sql
 {
@@ -30,8 +30,8 @@ namespace PinkUmbrella.Services.Sql
         {
             var res = await _dbContext.Resources.FindAsync(id);
             if (res != null) {
-                res.WhenDeleted = DateTime.UtcNow;
-                res.DeletedByUserId = by_user_id;
+                // res.WhenDeleted = DateTime.UtcNow;
+                // res.DeletedByUserId = by_user_id;
                 await _dbContext.SaveChangesAsync();
             }
         }

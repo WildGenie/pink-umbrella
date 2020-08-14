@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using PinkUmbrella.Repositories;
 using System;
-using Tides.Core;
+using Estuary.Core;
 using PinkUmbrella.ViewModels.Inventory;
 
 namespace PinkUmbrella.Services.Sql

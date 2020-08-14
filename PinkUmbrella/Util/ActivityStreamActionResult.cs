@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Tides.Core;
-using Tides.Objects;
+using Estuary.Core;
+using Estuary.Objects;
 
 namespace PinkUmbrella.Util
 {

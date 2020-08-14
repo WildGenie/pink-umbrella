@@ -1,18 +1,14 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
 using PinkUmbrella.Models;
 using PinkUmbrella.Services;
-using PinkUmbrella.ViewModels.Home;
 using PinkUmbrella.ViewModels;
 using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Services.Local;
 using PinkUmbrella.ViewModels.Doc;
-using Tides.Services;
 
 namespace PinkUmbrella.Controllers
 {
@@ -20,11 +16,14 @@ namespace PinkUmbrella.Controllers
     [AllowAnonymous]
     public class DocController : BaseController
     {
-        public DocController(IWebHostEnvironment environment, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService postService, IUserProfileService localProfiles, IPublicProfileService publicProfiles, ISearchService searchService,
-            IReactionService reactions, IFeedService feedService, ITagService tags, INotificationService notifications, IPeerService peers,
-            IAuthService auth, ISettingsService settings, IActivityStreamRepository activityStreams):
-            base(environment, signInManager, userManager, postService, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
+        public DocController(
+            SignInManager<UserProfileModel> signInManager,
+            UserManager<UserProfileModel> userManager,
+            IUserProfileService localProfiles,
+            IPublicProfileService publicProfiles,
+            IAuthService auth,
+            ISettingsService settings):
+            base(signInManager, userManager, localProfiles, publicProfiles, auth, settings)
         {
         }
 
@@ -34,8 +33,8 @@ namespace PinkUmbrella.Controllers
             ViewData["Controller"] = "Doc";
             ViewData["Action"] = nameof(Index);
             var user = await GetCurrentUserAsync();
-            var model = new IndexViewModel() {
-                Source = FeedSource.Following,
+            var model = new BaseViewModel()
+            {
                 MyProfile = user,
             };
             return View(model);

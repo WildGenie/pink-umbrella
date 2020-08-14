@@ -12,7 +12,7 @@ namespace PinkUmbrella.Services
         
         Task<int> GetUnviewedNotificationsCount(int userId);
 
-        Task<PaginatedModel<UserNotification>> GetNotifications(int userId, int? sinceId, bool includeViewed, bool includeDismissed, PaginationModel pagination);
+        Task<PaginatedModel<UserNotification>> GetNotifications(int userId, int? sinceId, bool includeViewed, PaginationModel pagination);
         
         Task<List<NotificationMethodSetting>> GetMethodSettings(int userId);
 

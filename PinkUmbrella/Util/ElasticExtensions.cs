@@ -1,5 +1,6 @@
 using PinkUmbrella.Models;
-using Tides.Actors;
+using Estuary.Actors;
+using static Estuary.Actors.Common;
 
 namespace PinkUmbrella.Util
 {
@@ -7,7 +8,8 @@ namespace PinkUmbrella.Util
     {
         public static ActorObject ToElastic(this UserProfileModel u)
         {
-            return new ActorObject {
+            return new Person
+            {
                 objectId = u.Id,
                 name = u.DisplayName,
                 summary = u.Bio,

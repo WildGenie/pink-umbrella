@@ -386,131 +386,45 @@ namespace PinkUmbrella.Repositories
             }
         }
 
-        public string GetMessage(ReactionType t, ReactionSubject subject)
+        public string GetMessage(ReactionType t, string subject)
         {
-            switch (subject)
+            switch (t)
             {
-                case ReactionSubject.Post:
-                switch (t)
-                {
-                    case ReactionType.Like:
-                    return "Liked post";
-                    case ReactionType.Dislike:
-                    return "Disliked post";
-                    case ReactionType.Report:
-                    return "Reported post";
-                    case ReactionType.Block:
-                    return "Blocked post";
-                }
-                break;
-                case ReactionSubject.Profile:
-                switch (t)
-                {
-                    case ReactionType.Like:
-                    return "Liked profile";
-                    case ReactionType.Dislike:
-                    return "Disliked profile";
-                    case ReactionType.Report:
-                    return "Reported profile";
-                    case ReactionType.Block:
-                    return "Blocked profile";
-                    case ReactionType.Follow:
-                    return "Followed profile";
-                }
-                break;
-                case ReactionSubject.Shop:
-                switch (t)
-                {
-                    case ReactionType.Like:
-                    return "Liked shop";
-                    case ReactionType.Dislike:
-                    return "Disliked shop";
-                    case ReactionType.Report:
-                    return "Reported shop";
-                    case ReactionType.Block:
-                    return "Blocked shop";
-                    case ReactionType.Follow:
-                    return "Followed shop";
-                }
-                break;
-                case ReactionSubject.ArchivedMedia:
-                switch (t)
-                {
-                    case ReactionType.Like:
-                    return "Liked media";
-                    case ReactionType.Dislike:
-                    return "Disliked media";
-                    case ReactionType.Report:
-                    return "Reported media";
-                    case ReactionType.Block:
-                    return "Blocked media";
-                }
-                break;
+                case ReactionType.Like:
+                return $"Liked {subject}";
+                case ReactionType.Dislike:
+                return $"Disliked {subject}";
+                case ReactionType.Report:
+                return $"Reported {subject}";
+                case ReactionType.Block:
+                return $"Blocked {subject}";
+                case ReactionType.Follow:
+                return $"Followed {subject}";
             }
-            return "no message";
+            throw new Exception();
         }
 
-        public string GetUndoMessage(ReactionType t, ReactionSubject subject)
+        public string GetUndoMessage(ReactionType t, string subject)
         {
-            switch (subject)
+            switch (t)
             {
-                case ReactionSubject.Post:
-                switch (t)
-                {
-                    case ReactionType.Like:
-                    return "Unliked post";
-                    case ReactionType.Dislike:
-                    return "Un-disliked post";
-                    case ReactionType.Block:
-                    return "Unblocked post";
-                }
-                break;
-                case ReactionSubject.Profile:
-                switch (t)
-                {
-                    case ReactionType.Like:
-                    return "Unliked profile";
-                    case ReactionType.Dislike:
-                    return "Un-disliked profile";
-                    case ReactionType.Block:
-                    return "Unblocked profile";
-                    case ReactionType.Follow:
-                    return "Unfollowed profile";
-                }
-                break;
-                case ReactionSubject.Shop:
-                switch (t)
-                {
-                    case ReactionType.Like:
-                    return "Unliked shop";
-                    case ReactionType.Dislike:
-                    return "Un-disliked shop";
-                    case ReactionType.Block:
-                    return "Unblocked shop";
-                    case ReactionType.Follow:
-                    return "Unfollowed shop";
-                }
-                break;
-                case ReactionSubject.ArchivedMedia:
-                switch (t)
-                {
-                    case ReactionType.Like:
-                    return "Unliked media";
-                    case ReactionType.Dislike:
-                    return "Un-disliked media";
-                    case ReactionType.Block:
-                    return "Unblocked media";
-                }
-                break;
+                case ReactionType.Like:
+                return $"Unliked {subject}";
+                case ReactionType.Dislike:
+                return $"Un-disliked {subject}";
+                case ReactionType.Block:
+                return $"Unblocked {subject}";
+                case ReactionType.Follow:
+                return $"Unfollowed {subject}";
             }
-            return "no undo message";
+            throw new Exception();
         }
 
-        public string GetCTA(ReactionType t, ReactionSubject subject)
+        public string GetCTA(ReactionType t, string subject)
         {
             switch (subject)
             {
-                case ReactionSubject.Post:
+                case "Post":
                 switch (t)
                 {
                     case ReactionType.Like:
@@ -523,7 +437,7 @@ namespace PinkUmbrella.Repositories
                     return "Block post";
                 }
                 break;
-                case ReactionSubject.Profile:
+                case "Profile":
                 switch (t)
                 {
                     case ReactionType.Like:
@@ -538,7 +452,7 @@ namespace PinkUmbrella.Repositories
                     return "Follow profile";
                 }
                 break;
-                case ReactionSubject.Shop:
+                case "Shop":
                 switch (t)
                 {
                     case ReactionType.Like:
@@ -553,7 +467,7 @@ namespace PinkUmbrella.Repositories
                     return "Follow shop";
                 }
                 break;
-                case ReactionSubject.ArchivedMedia:
+                case "ArchivedMedia":
                 switch (t)
                 {
                     case ReactionType.Like:
@@ -567,63 +481,25 @@ namespace PinkUmbrella.Repositories
                 }
                 break;
             }
-            return "no message";
+            throw new Exception();
         }
 
-        public string GetUndoCTA(ReactionType t, ReactionSubject subject)
+        public string GetUndoCTA(ReactionType t, string subject)
         {
-            switch (subject)
+            switch (t)
             {
-                case ReactionSubject.Post:
-                switch (t)
-                {
-                    case ReactionType.Like:
-                    return "Unlike post";
-                    case ReactionType.Dislike:
-                    return "Un-dislike post";
-                    case ReactionType.Block:
-                    return "Unblock post";
-                }
-                break;
-                case ReactionSubject.Profile:
-                switch (t)
-                {
-                    case ReactionType.Like:
-                    return "Unlike profile";
-                    case ReactionType.Dislike:
-                    return "Un-dislike profile";
-                    case ReactionType.Block:
-                    return "Unblock profile";
-                    case ReactionType.Follow:
-                    return "Unfollow profile";
-                }
-                break;
-                case ReactionSubject.Shop:
-                switch (t)
-                {
-                    case ReactionType.Like:
-                    return "Unlike shop";
-                    case ReactionType.Dislike:
-                    return "Un-dislike shop";
-                    case ReactionType.Block:
-                    return "Unblock shop";
-                    case ReactionType.Follow:
-                    return "Unfollow shop";
-                }
-                break;
-                case ReactionSubject.ArchivedMedia:
-                switch (t)
-                {
-                    case ReactionType.Like:
-                    return "Unlike media";
-                    case ReactionType.Dislike:
-                    return "Un-dislike media";
-                    case ReactionType.Block:
-                    return "Unblock media";
-                }
-                break;
+                case ReactionType.Like:
+                return $"Unlike {subject}";
+                case ReactionType.Dislike:
+                return $"Un-dislike {subject}";
+                case ReactionType.Block:
+                return $"Unblock {subject}";
+                case ReactionType.Report:
+                return $"Unreport {subject}";
+                case ReactionType.Follow:
+                return $"Unfollow {subject}";
             }
-            return "no undo message";
+            throw new Exception();
         }
 
         public string GetContentType(string extension)

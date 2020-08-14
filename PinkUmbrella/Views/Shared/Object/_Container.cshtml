@@ -1,0 +1,102 @@
+﻿@model Estuary.Core.BaseObject
+@if (Model.HasIgnored)
+{
+    <partial name="Object/_Ignored" />
+}
+else if (Model.HasBlocked)
+{
+    <partial name="Object/_Blocked" />
+}
+else if (Model.HasReported)
+{
+    <partial name="Object/_Reported" />
+}
+else
+{
+    var reactLike = new ReactViewModel() {
+        Type = ReactionType.Like,
+        ToId = Model.PublicId,
+        HasReacted = Model.HasLiked,
+        Count = Model.LikeCount,
+        ViewerId = Model.ViewerId,
+        Enabled = true,//!Model.ViewerIsPublisher,
+    };
+    var reactDislike = new ReactViewModel() {
+        Type = ReactionType.Dislike,
+        ToId = Model.PublicId,
+        HasReacted = Model.HasDisliked,
+        Count = Model.DislikeCount,
+        ViewerId = Model.ViewerId,
+        Enabled = true,//!Model.ViewerIsPublisher,
+    };
+    var reactUpvote = new ReactViewModel() {
+        Type = ReactionType.Upvote,
+        ToId = Model.PublicId,
+        HasReacted = Model.HasUpvoted,
+        Count = Model.UpvoteCount,
+        ViewerId = Model.ViewerId,
+        Enabled = true,//!Model.ViewerIsPublisher,
+    };
+    var reactDownvote = new ReactViewModel() {
+        Type = ReactionType.Downvote,
+        ToId = Model.PublicId,
+        HasReacted = Model.HasDownvoted,
+        Count = Model.DownvoteCount,
+        ViewerId = Model.ViewerId,
+        Enabled = true,//!Model.ViewerIsPublisher,
+    };
+    var reactIgnore = new ReactViewModel() {
+        Type = ReactionType.Ignore,
+        ToId = Model.PublicId,
+        HasReacted = false,
+        Count = Model.IgnoreCount,
+        ViewerId = Model.ViewerId,
+        Enabled = !Model.ViewerIsPublisher,
+        ManualReactionUrl = "/Post/Ignore/" + Model.PublicId,
+        ResponseHandler = "post-replacewith",
+    };
+    var reactBlock = new ReactViewModel() {
+        Type = ReactionType.Block,
+        ToId = Model.PublicId,
+        HasReacted = false,
+        Count = Model.BlockCount,
+        ViewerId = Model.ViewerId,
+        Enabled = !Model.ViewerIsPublisher,
+        ManualReactionUrl = "/Post/Block/" + Model.PublicId,
+        ResponseHandler = "post-replacewith",
+    };
+    var reactReport = new ReactViewModel() {
+        Type = ReactionType.Report,
+        ToId = Model.PublicId,
+        HasReacted = false,
+        Count = Model.ReportCount,
+        ViewerId = Model.ViewerId,
+        Enabled = !Model.ViewerIsPublisher,
+        ManualReactionUrl = "/Post/Report/" + Model.PublicId,
+        ResponseHandler = "post-replacewith",
+    };
+
+    var reactions = new List<ReactViewModel>()
+    {
+        reactLike, reactDislike, reactUpvote, reactDownvote, reactIgnore, reactBlock, reactReport,
+    };
+    var tags = Model.tag != null && Model.type != "Note" ? new TagEditorViewModel() { Tags = Model.tag } : null;
+    <div class="contains-goto @Model.BaseType @Model.type border rounded p-2 m-2">
+        <a class="goto" asp-controller="@Model.type" asp-action="Index" asp-route-id="@Model.PublicId">goto</a>
+        <partial name="@Model.BaseType/@Model.type" />
+        @if (tags != null)
+        {
+            <partial name="Tag/Display" model="tags" />
+        }
+        @if (Model.to != null && Model.to.items != null && Model.to.items.Count > 0)
+        {
+            <span>Mentions:</span>
+            <ul>
+                @foreach (var mention in Model.to.items) {
+                    <li class="contains-goto">@mention.name<a class="goto" asp-controller="Person" asp-action="Index" asp-route-id="@mention.id">goto</a></li>
+                }
+            </ul>
+        }
+        <partial name="Button/ReactButtonList" model="reactions" />
+    </div>
+}

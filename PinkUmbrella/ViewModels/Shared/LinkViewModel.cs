@@ -1,11 +1,10 @@
+using System;
 using System.Collections.Generic;
 
 namespace PinkUmbrella.ViewModels.Shared
 {
     public class LinkViewModel
     {
-        public bool Enabled { get; set; }
-
         public bool NewTab { get; set; }
 
         public string Text { get; set; }
@@ -20,8 +19,6 @@ namespace PinkUmbrella.ViewModels.Shared
 
         public string Controller { get; set; }
 
-        public Dictionary<string, string> RouteData { get; set; }
-
-        public string RouteDataJson { get; set; }
+        public Func<BaseViewModel, Dictionary<string, string>> GetRouteData { get; set; }
     }
 }

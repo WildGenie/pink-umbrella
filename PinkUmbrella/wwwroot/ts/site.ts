@@ -31,18 +31,20 @@ $(() => {
             dataType: responseType || 'html',
         });
         if (responseHandler) {
+            var replaceEv = (r) => new CustomEvent(responseHandler, { detail: { r, $ajax } });
             if (responseOnClosest && responseOnClosest.trim().length > 0) {
-                p.then(r => $ajax.closest(responseOnClosest).trigger(responseHandler, [r, $ajax]));
+                p.then(r => document.dispatchEvent(replaceEv(r)));
             } else {
-                p.then(r => $ajax.trigger(responseHandler, [r, $ajax]));
+                p.then(r => document.dispatchEvent(replaceEv(r)));
             }
         }
         return false;
     });
 
-    document.addEventListener('replacewith', (ev: Event) => {
-        if (ev.target && (<HTMLElement>ev.target).classList.contains('contains-ajax')) {
-            (<HTMLElement>ev.target).outerHTML = (ev as any).data.r;
+    document.addEventListener('replacewith', (ev: CustomEvent) => {
+        if (ev.detail.$ajax)
+        {
+            ev.detail.$ajax.closest('.contains-ajax')[0].outerHTML = ev.detail.r;
         }
     });
 
@@ -51,12 +53,16 @@ $(() => {
         location.reload();
     });
 
-    $(document).on('post-replacewith', '.post', (ev: Event) => {
-        let $post = (ev as any).data.$ajax.closest('.post');
-        let $newElement = $((ev as any).data.r);
-        $newElement.css('height', $post[0].clientHeight + 'px')
-        $post.after($newElement);
-        $post.remove();
+    document.addEventListener('post-replacewith', (ev: Event) => {
+        console.log((ev as any).detail.r);
+        console.log((ev as any).detail);
+        if (ev.target && (<HTMLElement>ev.target).classList.contains('post')) {
+            let $post = $(ev.target);
+            let $newElement = $((ev as any).detail.r);
+            $newElement.css('height', $post[0].clientHeight + 'px')
+            $post.after($newElement);
+            $post.remove();
+        }
     });
 
     $(document).on('archived-media-replacewith', '.archived-media', (ev: Event) => {
@@ -80,6 +86,16 @@ $(() => {
                     // CachedTagEditors[$input.closest('.js-tag-editor').attr('data-tag-editor-id')].load();
                 }
             }
+        }
+    });
+
+    $(document).on('change', '.js-contains-selectable-goto', (ev: Event) => {
+        let $select = $(ev.target);
+        let $gotos = $($select.attr('data-selectable-gotos')).find('a');
+        let gotoIndex = parseInt($select.val());
+        let $goto = $gotos[gotoIndex];
+        if ($goto) {
+            $goto.click();
         }
     });
 
@@ -290,17 +306,14 @@ $(() => {
             dataType: responseType,
         });
         if (responseHandler) {
+            var replaceEv = (r) => new CustomEvent(responseHandler, { detail: { r, $ajax } });
             if (responseOnClosest && responseOnClosest.trim().length > 0) {
-                p.then(r => $ajax.closest(responseOnClosest).trigger(responseHandler, [r, $ajax]));
+                p.then(r => $ajax.closest(responseOnClosest)[0].dispatchEvent(replaceEv(r)));
             } else {
-                p.then(r => $ajax.trigger(responseHandler, [r, $ajax]));
+                p.then(r => $ajax[0].dispatchEvent(replaceEv(r)));
             }
         }
         return false;
-    });
-
-    $(document).on('replacewith', '.contains-ajax', (ev: Event) => {
-        (<any>ev).data.$ajax.closest('.contains-ajax')[0].outerHTML = (<any>ev).data.r;
     });
 
     $(document).on('page-reload', '.contains-ajax', (ev: Event) => {
@@ -309,8 +322,10 @@ $(() => {
     });
 
     $(document).on('post-replacewith', '.post', (ev: Event) => {
-        let $post = (ev as any).data.$ajax.closest('.post');
-        let $newElement = $((ev as any).data.r);
+        console.log((ev as any).detail);
+        console.log((ev as any).detail.r);
+        let $post = (ev as any).detail.$ajax.closest('.post');
+        let $newElement = $((ev as any).detail.r);
         $newElement.css('height', $post[0].clientHeight + 'px')
         $post.after($newElement);
         $post.remove();

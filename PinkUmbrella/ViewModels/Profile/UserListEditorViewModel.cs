@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using PinkUmbrella.Models;
 
-namespace PinkUmbrella.ViewModels.Profile
+namespace PinkUmbrella.ViewModels.Person
 {
     public class UserListEditorViewModel
     {

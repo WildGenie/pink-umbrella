@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using PinkUmbrella.ViewModels.Inventory;
-using Tides.Core;
+using Estuary.Core;
 
 namespace PinkUmbrella.Services
 {

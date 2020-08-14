@@ -1,16 +1,27 @@
 @using PinkUmbrella.ViewModels.Home
 @model NewPostViewModel
-<form asp-action="NewPost" asp-controller="Post" method="POST" class="js-new-post-form">
-    <label asp-for="Visibility" title="@Model.GetPropertyDescription(nameof(Model.Visibility))"></label>
-    <select asp-for="Visibility" class="form-control" autocomplete="off">
-        <partial name="_EnumOptions" model="new EnumViewModel() { Type = typeof(Visibility), Selected = Model.Visibility }" />
-    </select>
-    <span asp-validation-for="Visibility" class="text-danger"></span>
-    <button type="submit" class="btn btn-primary text-nowrap"><i class="fas fa-paper-plane" style="margin-right:.5rem"></i> Post</button>
-    <label asp-for="Content"></label>
-    <div class="supports-markdown-container js-new-post-content">
-        <textarea asp-for="Content" placeholder="Speak your message..." class="form-control js-item-editable js-tag-editor js-user-handle-editor" autocomplete="off"></textarea>
-        <a class="supports-markdown-icon" href="@_strings.MarkdownUrl" target="_blank" title="Styling with markdown is supported"><i class="fab fa-markdown"></i></a>
+@{
+    var sideButtonClass = "btn btn-outline-light";
+}
+<div style="display: grid; grid-template-columns: 1fr max-content">
+    <form asp-action="NewPost" asp-controller="Post" method="POST" class="js-new-post-form">
+        <label asp-for="Visibility" title="@Model.GetPropertyDescription(nameof(Model.Visibility))"></label>
+        <select asp-for="Visibility" class="form-control" autocomplete="off">
+            <partial name="_EnumOptions" model="new EnumViewModel() { Type = typeof(Visibility), Selected = Model.Visibility }" />
+        </select>
+        <span asp-validation-for="Visibility" class="text-danger"></span>
+        <button type="submit" class="btn btn-primary text-nowrap"><i class="fas fa-paper-plane" style="margin-right:.5rem"></i> Post</button>
+        <label asp-for="Content"></label>
+        <div class="supports-markdown-container js-new-post-content">
+            <textarea asp-for="Content" placeholder="Speak your message..." class="form-control js-item-editable js-tag-editor js-user-handle-editor" autocomplete="off"></textarea>
+            <a class="supports-markdown-icon" href="@_strings.MarkdownUrl" target="_blank" title="Styling with markdown is supported"><i class="fab fa-markdown"></i></a>
+        </div>
+        <span asp-validation-for="Content" class="text-danger"></span>
+    </form>
+    <div style="display: grid; grid-auto-flow: row; grid-gap: .5rem 0; padding: .5rem" class="bg-accent">
+        <a class="@sideButtonClass" asp-action="NewArticle" asp-controller="Home" title="Write article"><i class="fas fa-newspaper"></i></a>
+        <a class="@sideButtonClass" asp-action="Upload" asp-controller="Archive" title="Upload audio"><i class="fas fa-microphone"></i></a>
+        <a class="@sideButtonClass" asp-action="NewEvent" asp-controller="Home" title="Create event"><i class="fas fa-calendar-plus"></i></a>
+        <button type="button" class="@sideButtonClass" class="js-share-location" title="Share location"><i class="fas fa-map-pin"></i></button>
     </div>
-    <span asp-validation-for="Content" class="text-danger"></span>
-</form>
+</div>

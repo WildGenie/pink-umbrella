@@ -1,0 +1,19 @@
+﻿@using PinkUmbrella.ViewModels.Person;
+@model PersonViewModel
+@{
+    var reactBlock = new ReactViewModel() {
+        Type = ReactionType.Block,
+        ToId = Model.Profile.PublicId,
+        HasReacted = Model.Profile.HasBlocked,
+        Count = Model.Profile?.BlockCount ?? -1,
+        ViewerId = Model.MyProfile?.UserId,
+        Enabled = true,
+        ResponseHandler = "page-reload",
+    };
+}
+<div class="contains-ajax show center-xy">
+    <p>
+        <span>You have blocked this Person.</span>
+        <partial name="Button/ReactLink" model="reactBlock" />
+    </p>
+</div>

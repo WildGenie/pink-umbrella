@@ -1,9 +1,8 @@
 using System;
 using Elasticsearch.Net;
 using Nest;
-using PinkUmbrella.Models;
-using Tides.Actors;
-using Tides.Core;
+using Estuary.Core;
+using Estuary.Actors;
 
 namespace PinkUmbrella.Services.Elastic
 {

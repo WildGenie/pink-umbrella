@@ -11,7 +11,7 @@ using PinkUmbrella.ViewModels.Account.SetupLoginMethod;
 
 namespace PinkUmbrella.Controllers
 {
-    public partial class AccountController: BaseController
+    public partial class AccountController: ActivityStreamController
     {
 
         // [HttpGet]
@@ -151,7 +151,7 @@ namespace PinkUmbrella.Controllers
             ViewData["Action"] = nameof(SetupLoginMethod);
 
             var user = await GetCurrentUserAsync();
-            var allowed = await _auth.LoginMethodAllowed(user.UserId, method, _auth.GetMethodDefault(method));
+            var allowed = await _auth.LoginMethodAllowed(user.UserId.Value, method, _auth.GetMethodDefault(method));
             var model = new SetupLoginMethodViewModel()
             {
                 MyProfile = user,
@@ -171,7 +171,7 @@ namespace PinkUmbrella.Controllers
                     case UserLoginMethod.RecoveryKey:
                     model.LoginModel = new SetupRecoveryViewModel()
                     {
-                        RecoveryKeys = await _auth.GetRecoveryKeys(user.UserId)
+                        RecoveryKeys = await _auth.GetRecoveryKeys(user.UserId.Value)
                     };
                     break;
                     default: return Redirect("/Error/404");
@@ -192,7 +192,7 @@ namespace PinkUmbrella.Controllers
 
             var user = await GetCurrentUserAsync();
 
-            var result = await _auth.UpdateLoginMethodAllowed(user.UserId, method, enabled, _auth.GetMethodDefault(method));
+            var result = await _auth.UpdateLoginMethodAllowed(user.UserId.Value, method, enabled, _auth.GetMethodDefault(method));
             switch (result.Result)
             {
                 case UpdateLoginMethodResult.ResultType.NoError:
@@ -237,7 +237,7 @@ namespace PinkUmbrella.Controllers
             ViewData["Action"] = nameof(ShowRecoveryKey);
 
             var user = await GetCurrentUserAsync();
-            var codes = await _auth.GetRecoveryKeys(user.UserId);
+            var codes = await _auth.GetRecoveryKeys(user.UserId.Value);
             var code = codes.SingleOrDefault(c => c.Id == id);
             if (code != null && code.WhenShown == null)
             {
@@ -253,7 +253,7 @@ namespace PinkUmbrella.Controllers
             if (!string.IsNullOrWhiteSpace(label) && label.Length < 100)
             {
                 var user = await GetCurrentUserAsync();
-                var code = await _auth.CreateRecoveryKeys(user.UserId, label, length ?? 6, count ?? 1);
+                var code = await _auth.CreateRecoveryKeys(user.UserId.Value, label, length ?? 6, count ?? 1);
                 return RedirectToAction(nameof(SetupLoginMethod), new { method = UserLoginMethod.RecoveryKey });
             }
             else
@@ -266,7 +266,7 @@ namespace PinkUmbrella.Controllers
         public async Task<IActionResult> DeleteRecoveryKey(long id)
         {
             var user = await GetCurrentUserAsync();
-            var codes = await _auth.GetRecoveryKeys(user.UserId);
+            var codes = await _auth.GetRecoveryKeys(user.UserId.Value);
             var code = codes.FirstOrDefault(c => c.Id == id);
             if (code != null)
             {

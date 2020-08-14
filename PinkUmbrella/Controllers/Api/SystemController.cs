@@ -1,6 +1,10 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Estuary.Actors;
+using Estuary.Core;
+using Estuary.Services;
+using Estuary.Util;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -10,10 +14,8 @@ using PinkUmbrella.Models.Settings;
 using PinkUmbrella.Repositories;
 using PinkUmbrella.Services;
 using PinkUmbrella.Util;
-using Tides.Models;
 using Tides.Models.Auth;
 using Tides.Models.Peer;
-using Tides.Services;
 
 namespace PinkUmbrella.Controllers.Api
 {
@@ -42,11 +44,11 @@ namespace PinkUmbrella.Controllers.Api
 
         [AllowAnonymous]
         [Produces("application/json", "application/pink-umbrella")]
-        [ProducesResponseType(typeof(Tides.Actors.Peer), 200)]
+        [ProducesResponseType(typeof(Peer), 200)]
         [HttpGet]
         public async Task<ActionResult> Index()
         {
-            return Json(new Tides.Actors.Peer() {
+            return Json(new Peer() {
                 name = "Hello World",
                 Address = new IPAddressModel()
                 {
@@ -66,8 +68,8 @@ namespace PinkUmbrella.Controllers.Api
             return Json(new PeerStatsModel() {
                 PeerCount = await _peers.CountAsync(),
                 MediaCount = await _db.ArchivedMedia.CountAsync(),
-                PostCount = (await _activityStreams.GetPosts(new ActivityStreamFilter { peerId = 0 })).totalItems,
-                ShopCount = (await _activityStreams.GetShops(new ActivityStreamFilter { peerId = 0 })).totalItems,
+                PostCount = int.Parse((await _activityStreams.Get(new ActivityStreamFilter("outbox") { peerId = 0, countOnly = true }.FixObjType("Note", "Article"))).summary),
+                ShopCount = int.Parse((await _activityStreams.Get(new ActivityStreamFilter("outbox") { peerId = 0, countOnly = true }.FixObjType("Organization"))).summary),
                 UserCount = await _db.Users.CountAsync(),
                 StartTime = Process.GetCurrentProcess().StartTime,
             });

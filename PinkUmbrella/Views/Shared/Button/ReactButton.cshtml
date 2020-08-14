@@ -6,13 +6,13 @@
 <div class="@containerClass" title="@actionPrefix@Model.Type">
     @if (Model.ViewerId.HasValue)
     {
-        if (Model.ManualReactionUrl != null)
+        if (!string.IsNullOrWhiteSpace(Model.ManualReactionUrl))
         {
         <a class="ajax" href="@Model.ManualReactionUrl" data-response-type="html" data-response-handler="@Model.ResponseHandler" data-response-on-closest="@Model.DataResponseOnClosest"></a>
         }
         else
         {
-        <a class="ajax" asp-action="@actionPrefix@Model.Type" asp-controller="Reaction" asp-route-id="@Model.ToId" asp-route-subject="@Model.Subject" data-response-type="html" data-response-handler="@Model.ResponseHandler"></a>
+        <a class="ajax" asp-action="@actionPrefix@Model.Type" asp-controller="Reaction" asp-route-id="@Model.ToId" asp-route-undo="@Model.UndoId" data-response-type="html" data-response-handler="@Model.ResponseHandler"></a>
         }
     }
     @if (Model.HasReacted)
@@ -24,6 +24,12 @@
         break;
         case ReactionType.Dislike:
         <i class="fas fa-thumbs-down"></i>
+        break;
+        case ReactionType.Upvote:
+        <i class="fas fa-arrow-alt-circle-up"></i>
+        break;
+        case ReactionType.Downvote:
+        <i class="fas fa-arrow-alt-circle-down"></i>
         break;
         case ReactionType.Follow:
         <i class="fas fa-bell"></i>
@@ -40,6 +46,9 @@
         case ReactionType.Dislike:
         <i class="far fa-thumbs-down"></i>
         break;
+        case ReactionType.Ignore:
+        <i class="fas fa-eraser"></i>
+        break;
         case ReactionType.Block:
         <i class="fas fa-ban"></i>
         break;
@@ -48,6 +57,12 @@
         break;
         case ReactionType.Follow:
         <i class="far fa-bell"></i>
+        break;
+        case ReactionType.Upvote:
+        <i class="far fa-arrow-alt-circle-up"></i>
+        break;
+        case ReactionType.Downvote:
+        <i class="far fa-arrow-alt-circle-down"></i>
         break;
     }
     }

@@ -12,11 +12,10 @@ using PinkUmbrella.Models.Settings;
 using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Util;
 using PinkUmbrella.Services.Local;
-using PinkUmbrella.Models.Auth;
 using System.ComponentModel.DataAnnotations;
 using Tides.Models;
 using Tides.Models.Auth;
-using Tides.Services;
+using Estuary.Services;
 
 namespace PinkUmbrella.Controllers
 {
@@ -26,16 +25,31 @@ namespace PinkUmbrella.Controllers
         private readonly ILogger<DeveloperController> _logger;
         private readonly IDebugService _debugService;
         private readonly RoleManager<UserGroupModel> _roleManager;
+        private readonly INotificationService _notifications;
 
-        public DeveloperController(IWebHostEnvironment environment, ILogger<DeveloperController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles, IDebugService debugService,
-            RoleManager<UserGroupModel> roleManager, IReactionService reactions, ITagService tags, INotificationService notifications, IPeerService peers,
-            IAuthService auth, ISettingsService settings, IActivityStreamRepository activityStreams):
-            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
+        public DeveloperController(
+            IWebHostEnvironment environment,
+            ILogger<DeveloperController> logger,
+            SignInManager<UserProfileModel> signInManager,
+            UserManager<UserProfileModel> userManager,
+            IPostService posts,
+            IUserProfileService localProfiles,
+            IPublicProfileService publicProfiles,
+            IDebugService debugService,
+            RoleManager<UserGroupModel> roleManager,
+            IReactionService reactions, 
+            ITagService tags,
+            INotificationService notifications,
+            IPeerService peers,
+            IAuthService auth,
+            ISettingsService settings,
+            IActivityStreamRepository activityStreams):
+            base(signInManager, userManager, localProfiles, publicProfiles, auth, settings)
         {
             _logger = logger;
             _debugService = debugService;
             _roleManager = roleManager;
+            _notifications = notifications;
         }
 
         public async Task<IActionResult> Index()
@@ -86,7 +100,7 @@ namespace PinkUmbrella.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> NotificationsForUser(int userId, int? sinceId = null, bool includeViewed = true, bool includeDismissed = false, PaginationModel pagination = null)
+        public async Task<IActionResult> NotificationsForUser(int userId, int? sinceId = null, bool includeViewed = true, PaginationModel pagination = null)
         {
             var user = await GetCurrentUserAsync();
             ViewData["Controller"] = "Account";
@@ -95,10 +109,9 @@ namespace PinkUmbrella.Controllers
             return View(new NotificationsViewModel()
             {
                 MyProfile = user,
-                Items = await _notifications.GetNotifications(userId, sinceId, includeViewed, includeDismissed, pagination ?? new PaginationModel()),
+                Items = await _notifications.GetNotifications(userId, sinceId, includeViewed, pagination ?? new PaginationModel()),
                 SinceId = sinceId,
                 IncludeViewed = includeViewed,
-                IncludeDismissed = includeDismissed,
             });
         }
 

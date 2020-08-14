@@ -1,6 +1,6 @@
 @using System.Collections
 @model IEnumerable<ReactViewModel>
-<ul class="react-list">
+<ul class="react-list mb-0 mt-3">
     @foreach (var item in Model)
     {
         <li><partial name="Button/ReactButton" model="item" /></li>

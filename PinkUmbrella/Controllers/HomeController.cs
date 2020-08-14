@@ -16,74 +16,70 @@ using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Models.Search;
 using PinkUmbrella.Services.Local;
 using Tides.Models;
-using Tides.Models.Public;
-using Tides.Services;
-using Tides.Actors;
-using Tides.Core;
+using Estuary.Core;
+using Estuary.Services;
+using PinkUmbrella.ViewModels.Shared;
 
 namespace PinkUmbrella.Controllers
 {
     [FeatureGate(FeatureFlags.ControllerHome)]
     [AllowAnonymous]
-    public class HomeController : BaseController
+    public class HomeController : ActivityStreamController
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ISearchService _searchService;
-        private readonly IFeedService _feedService;
 
-        public HomeController(IWebHostEnvironment environment, ILogger<HomeController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService postService, IUserProfileService localProfiles, IPublicProfileService publicProfiles, ISearchService searchService,
-            IReactionService reactions, IFeedService feedService, ITagService tags, INotificationService notifications, IPeerService peers,
-            IAuthService auth, ISettingsService settings, IActivityStreamRepository activityStreams):
+        public HomeController(
+            IWebHostEnvironment environment,
+            ILogger<HomeController> logger,
+            SignInManager<UserProfileModel> signInManager,
+            UserManager<UserProfileModel> userManager,
+            IPostService postService,
+            IUserProfileService localProfiles,
+            IPublicProfileService publicProfiles,
+            ISearchService searchService,
+            IReactionService reactions,
+            ITagService tags,
+            INotificationService notifications,
+            IPeerService peers,
+            IAuthService auth,
+            ISettingsService settings,
+            IActivityStreamRepository activityStreams):
             base(environment, signInManager, userManager, postService, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
         {
             _logger = logger;
             _searchService = searchService;
-            _feedService = feedService;
         }
 
-        [Route("/"), Route("/{address}-{port}")]
-        public async Task<IActionResult> Index(string address = null, int? port = null)
+        [Route("/")]
+        public async Task<IActionResult> Index()
         {
-            ViewData["Controller"] = $"Home ({address}-{port})";
+            ViewData["Controller"] = "Home";
             ViewData["Action"] = nameof(Index);
             var user = await GetCurrentUserAsync();
-            var model = new IndexViewModel() {
-                Source = FeedSource.Following,
+            var model = new IndexViewModel()
+            {
                 MyProfile = user,
             };
-
-            //if (address == null)
-            //{
-                if (user != null)
+            
+            if (user != null)
+            {
+                model.MyFeed = ListViewModel.Regular(await _activityStreams.Get(new ActivityStreamFilter("inbox")
                 {
-                    model.MyFeed = await _feedService.GetFeedForUser(user.PublicId, user.UserId, false, new PaginationModel() { count = 10, start = 0 });
-                    return View(model);
-                }
-                else
-                {
-                    if (_signInManager.IsSignedIn(User)) {
-                        await _signInManager.SignOutAsync();
-                        return RedirectToAction(nameof(Index));
-                    }
-                    return View("Welcome", model);
-                }
-            /*}
+                    userId = user.UserId, peerId = user.PeerId
+                }));
+                model.MyFeed.EmptyViewName = "_EmptyFollowingList";
+                return View(model);
+            }
             else
             {
-                var ip = await _auth.GetOrRememberIP(IPAddress.Parse(address));
-                var client = await _peers.Open(ip, port);
-                var peer = await _peers.GetPeer(ip, port);
-
-                ViewData["Peer"] = peer;
-                //var bodycontent = await client.QueryHtml("", await _auth.GetKeyPair(peer.PublicKey));
-                bodycontent = bodycontent.HtmlExtractBody();
-                bodycontent = bodycontent.HtmlExtractMain();
-                return View("Proxy/_BodyContent", new BodyContentViewModel() {
-                    MyProfile = user,
-                    Html = bodycontent,
-                });
-            }*/
+                if (_signInManager.IsSignedIn(User))
+                {
+                    await _signInManager.SignOutAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                return View("Welcome", model);
+            }
         }
 
 
@@ -102,24 +98,33 @@ namespace PinkUmbrella.Controllers
             ViewData["Action"] = nameof(Mentions);
             var user = await GetCurrentUserAsync();
             var model = new IndexViewModel() {
-                Source = FeedSource.Mentions,
                 MyProfile = user,
-                MyFeed = await _posts.GetMentionsForUser(user.PublicId, user.UserId, false, new PaginationModel() { count = 10, start = 0 })
+                MyFeed = ListViewModel.Regular(await _activityStreams.GetAll(new ActivityStreamFilter("inbox")
+                {
+                    userId = user.UserId,
+                    peerId = user.PeerId,
+                }))
             };
+            model.MyFeed.EmptyViewName = "_EmptyMentionsList";
             return View(nameof(Index), model);
         }
 
-        [Route("/MyPosts")]
-        public async Task<IActionResult> MyPosts()
+        [Route("/Posts")]
+        public async Task<IActionResult> Posts()
         {
             ViewData["Controller"] = "Home";
-            ViewData["Action"] = nameof(MyPosts);
+            ViewData["Action"] = nameof(Posts);
             var user = await GetCurrentUserAsync();
-            var model = new IndexViewModel() {
-                Source = FeedSource.Myself,
+            var model = new IndexViewModel()
+            {
                 MyProfile = user,
-                MyFeed = await _posts.GetPostsForUser(user.PublicId, user.UserId, false, new PaginationModel() { count = 10, start = 0 })
+                MyFeed = ListViewModel.Regular(await _activityStreams.GetAll(new ActivityStreamFilter("outbox")
+                {
+                    userId = user.UserId,
+                    peerId = user.PeerId,
+                }))
             };
+            model.MyFeed.EmptyViewModel = "You have not made any posts. Don't be shy!";
             return View(nameof(Index), model);
         }
         
@@ -150,43 +155,33 @@ namespace PinkUmbrella.Controllers
         }
 
         [Authorize, HttpGet]
-        public async Task<IActionResult> Notifications(int? sinceId = null, bool includeViewed = true, bool includeDismissed = false, PaginationModel pagination = null)
+        public async Task<IActionResult> Notifications(int? sinceId = null, bool includeViewed = true, PaginationModel pagination = null)
         {
             ViewData["Controller"] = "Home";
             ViewData["Action"] = nameof(Notifications);
             var user = await GetCurrentUserAsync();
-            var notifs = await _notifications.GetNotifications(user.UserId, sinceId, includeViewed, includeDismissed, pagination ?? new PaginationModel());
+            var notifs = await _activityStreams.GetAll(new ActivityStreamFilter("notifications")
+            {
+                userId = user.UserId,
+                sinceId = sinceId,
+                // includeViewed = includeViewed,
+            });
 
             var fromUsers = new Dictionary<string, BaseObject>();
-            foreach (var notif in notifs.Items)
-            {
-                var id = new PublicId(notif.Notif.FromUserId, notif.Notif.FromPeerId);
-                if (fromUsers.TryGetValue(id.ToString(), out var userProfile))
-                {
-                    notif.FromUser = userProfile;
-                }
-                else
-                {
-                    notif.FromUser = await _publicProfiles.GetUser(id, user.UserId);
-                    fromUsers.Add(id.ToString(), notif.FromUser);
-                }
-            }
 
             return View(new NotificationsViewModel()
             {
                 MyProfile = user,
-                Items = notifs,
                 SinceId = sinceId,
                 IncludeViewed = includeViewed,
-                IncludeDismissed = includeDismissed,
             });
         }
 
-        [Route("/Links")]
-        public async Task<IActionResult> Links()
+        [Route("/QuickLinks")]
+        public async Task<IActionResult> QuickLinks()
         {
             ViewData["Controller"] = "Home";
-            ViewData["Action"] = nameof(Links);
+            ViewData["Action"] = nameof(QuickLinks);
             return View(new BaseViewModel() { MyProfile = await GetCurrentUserAsync() });
         }
 

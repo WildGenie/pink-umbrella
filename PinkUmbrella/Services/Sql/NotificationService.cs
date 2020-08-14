@@ -55,14 +55,10 @@ namespace PinkUmbrella.Services.Sql
             return ret;
         }
 
-        public async Task<PaginatedModel<UserNotification>> GetNotifications(int userId, int? sinceId, bool includeViewed, bool includeDismissed, PaginationModel pagination)
+        public async Task<PaginatedModel<UserNotification>> GetNotifications(int userId, int? sinceId, bool includeViewed, PaginationModel pagination)
         {
             var deliveredNewNotifications = false;
             var ret = _db.Recipients.Where(r => r.ToUserId == userId);
-            if (!includeDismissed)
-            {
-                ret = ret.Where(n => n.WhenDismissed == null);
-            }
             if (!includeViewed)
             {
                 ret = ret.Where(n => n.WhenViewed == null);
@@ -101,34 +97,34 @@ namespace PinkUmbrella.Services.Sql
             recipients = recipients.Where(id => id.Id > 0 && (id.PeerId != 0 || id.Id != notification.FromUserId)).ToArray();
             if (recipients.Length > 0)
             {
-                notification.RecipientCount = recipients.Length;
-                notification.WhenCreated = DateTime.UtcNow;
-                await _db.Notifications.AddAsync(notification);
-                await _db.SaveChangesAsync();
+                // notification.RecipientCount = recipients.Length;
+                // notification.WhenCreated = DateTime.UtcNow;
+                // await _db.Notifications.AddAsync(notification);
+                // await _db.SaveChangesAsync();
 
-                var localRecipients = recipients.Where(id => id.PeerId == 0).Select(id => id.Id).ToArray();
-                if (localRecipients.Length > 0)
-                {
-                    var whoToNotifyAndHow = await _db.MethodSettings.Where(ms => ms.Enabled && ms.Type == notification.Type && localRecipients.Contains(ms.UserId)).ToListAsync();
-                    foreach (var defaultForRecipient in localRecipients.Except(whoToNotifyAndHow.Select(u => u.UserId)))
-                    {
-                        whoToNotifyAndHow.Add(new NotificationMethodSetting() {
-                            Method = NotificationMethod.Default,
-                            UserId = defaultForRecipient,
-                        });
-                    }
+                // var localRecipients = recipients.Where(id => id.PeerId == 0).Select(id => id.Id).ToArray();
+                // if (localRecipients.Length > 0)
+                // {
+                //     var whoToNotifyAndHow = await _db.MethodSettings.Where(ms => ms.Enabled && ms.Type == notification.Type && localRecipients.Contains(ms.UserId)).ToListAsync();
+                //     foreach (var defaultForRecipient in localRecipients.Except(whoToNotifyAndHow.Select(u => u.UserId)))
+                //     {
+                //         whoToNotifyAndHow.Add(new NotificationMethodSetting() {
+                //             Method = NotificationMethod.Default,
+                //             UserId = defaultForRecipient,
+                //         });
+                //     }
 
-                    foreach (var notify in whoToNotifyAndHow)
-                    {
-                        await this.PublishViaMethod(notification, notify.Method, notify.UserId);
-                    }
-                }
+                //     foreach (var notify in whoToNotifyAndHow)
+                //     {
+                //         await this.PublishViaMethod(notification, notify.Method, notify.UserId);
+                //     }
+                // }
 
-                var externalRecipients = recipients.Where(id => id.PeerId == 0).Select(id => id.Id).ToArray();
-                if (externalRecipients.Length > 0)
-                {
-                    throw new NotSupportedException();
-                }
+                // var externalRecipients = recipients.Where(id => id.PeerId == 0).Select(id => id.Id).ToArray();
+                // if (externalRecipients.Length > 0)
+                // {
+                //     throw new NotSupportedException();
+                // }
             }
         }
 
@@ -156,7 +152,7 @@ namespace PinkUmbrella.Services.Sql
                     };
 
                     // send email;
-                    notification.DeliveryCount++; // delivery successful
+                    // notification.DeliveryCount++; // delivery successful
                 }
                 break;
                 case NotificationMethod.SMS:
@@ -171,7 +167,7 @@ namespace PinkUmbrella.Services.Sql
                     };
 
                     // send text;
-                    notification.DeliveryCount++; // delivery successful
+                    //notification.DeliveryCount++; // delivery successful
                 }
                 break;
             }
@@ -292,16 +288,16 @@ namespace PinkUmbrella.Services.Sql
                 foreach (var notif in notifs)
                 {
                     notif.WhenViewed = DateTime.UtcNow;
-                    if (recordViewCount.TryGetValue(notif.NotificationId, out var n))
-                    {
-                        n.ViewCount++;
-                    }
-                    else
-                    {
-                        var tmp = await _db.Notifications.FindAsync(notif.NotificationId);
-                        tmp.ViewCount++;
-                        recordViewCount.Add(tmp.Id, tmp);
-                    }
+                    // if (recordViewCount.TryGetValue(notif.NotificationId, out var n))
+                    // {
+                    //     n.ViewCount++;
+                    // }
+                    // else
+                    // {
+                    //     var tmp = await _db.Notifications.FindAsync(notif.NotificationId);
+                    //     tmp.ViewCount++;
+                    //     recordViewCount.Add(tmp.Id, tmp);
+                    // }
                 }
                 await _db.SaveChangesAsync();
             }

@@ -2,34 +2,36 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using PinkUmbrella.Models;
 using PinkUmbrella.Services;
 using PinkUmbrella.Services.Local;
-using Tides.Services;
 
 namespace PinkUmbrella.Controllers
 {
     [AllowAnonymous]
     public class HandleController : BaseController
     {
-        private readonly IHandleService _handles;
-        public HandleController(IWebHostEnvironment environment, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles,
-            IReactionService reactions, ITagService tags, INotificationService notifications, IPeerService peers, IAuthService auth,
-            ISettingsService settings, IActivityStreamRepository activityStreams, IHandleService handles):
-            base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
+        private readonly IObjectReferenceService _handles;
+        public HandleController(
+            SignInManager<UserProfileModel> signInManager,
+            UserManager<UserProfileModel> userManager,
+            IUserProfileService localProfiles,
+            IPublicProfileService publicProfiles,
+            IAuthService auth,
+            ISettingsService settings,
+            IObjectReferenceService handles):
+            base(signInManager, userManager, localProfiles, publicProfiles, auth, settings)
         {
             _handles = handles;
         }
 
         [Route("/Handle/Completions/{prefix}")]
-        public async Task<IActionResult> Completions(string prefix)
+        public async Task<IActionResult> Completions(string prefix, string type)
         {
             if (!string.IsNullOrWhiteSpace(prefix))
             {
-                var tags = await _handles.GetCompletionsFor(prefix);
+                var tags = await _handles.GetCompletionsFor(prefix, type);
                 return Json(new {
                     items = tags.Select(t => new { value = t.Handle, label = t.Handle }).ToArray()
                 });
@@ -45,7 +47,7 @@ namespace PinkUmbrella.Controllers
         {
             if (!string.IsNullOrWhiteSpace(handle))
             {
-                return Json(!await _handles.HandleExists(handle));
+                return Json(!await _handles.HandleExists(handle, "Organization"));
             }
             else
             {

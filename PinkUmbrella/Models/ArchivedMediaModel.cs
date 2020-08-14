@@ -1,7 +1,5 @@
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using Tides.Objects;
-using Tides.Util;
+using Estuary.Objects;
 
 namespace PinkUmbrella.Models
 {

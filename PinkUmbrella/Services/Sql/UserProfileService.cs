@@ -64,18 +64,19 @@ namespace PinkUmbrella.Services.Sql
             }
             else
             {
-                return new UserProfileModel {
+                return new UserProfileModel
+                {
                     UserName = input.Email,
                     Email = input.Email,
                     Handle = input.Handle,
                     DisplayName = input.DisplayName,
                     WhenCreated = DateTime.UtcNow,
                     WhenLastUpdated = DateTime.UtcNow,
-                    Bio = "Hey, I'm " + input.DisplayName,
-                    Visibility = Visibility.VISIBLE_TO_WORLD,
-                    BioVisibility = Visibility.VISIBLE_TO_WORLD,
-                    WhenLastLoggedInVisibility = Visibility.VISIBLE_TO_WORLD,
-                    WhenLastOnlineVisibility = Visibility.VISIBLE_TO_WORLD,
+                    Bio = $"Hey, I'm {input.DisplayName}",
+                    // Visibility = Visibility.VISIBLE_TO_WORLD,
+                    // BioVisibility = Visibility.VISIBLE_TO_WORLD,
+                    // WhenLastLoggedInVisibility = Visibility.VISIBLE_TO_WORLD,
+                    // WhenLastOnlineVisibility = Visibility.VISIBLE_TO_WORLD,
                 };
             }
             return null;
@@ -179,7 +180,8 @@ namespace PinkUmbrella.Services.Sql
 
         public Task<List<UserProfileModel>> GetAll(DateTime? sinceLastUpdated)
         {
-            var query = _dbContext.Users.Where(u => u.Visibility != Visibility.HIDDEN && !u.WhenDeleted.HasValue);
+            // u.Visibility != Visibility.HIDDEN && 
+            var query = _dbContext.Users.Where(u => !u.WhenDeleted.HasValue);
             if (sinceLastUpdated.HasValue)
             {
                 query = query.Where(u => u.WhenLastUpdated > sinceLastUpdated.Value);

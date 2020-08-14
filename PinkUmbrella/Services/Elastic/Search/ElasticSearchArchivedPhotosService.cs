@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
 using PinkUmbrella.Repositories;
 using PinkUmbrella.Models.Search;
-using Tides.Objects;
-using Tides.Services;
+using Estuary.Services;
+using Estuary.Objects;
 
 namespace PinkUmbrella.Services.Elastic.Search
 {

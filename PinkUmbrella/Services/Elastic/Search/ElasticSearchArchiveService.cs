@@ -4,9 +4,9 @@ using PinkUmbrella.Services.Search;
 using PinkUmbrella.Models.Search;
 using System.Collections.Generic;
 using Nest;
-using Tides.Objects;
-using Tides.Core;
-using Tides.Services;
+using Estuary.Core;
+using Estuary.Services;
+using Estuary.Objects;
 
 namespace PinkUmbrella.Services.Elastic.Search
 {

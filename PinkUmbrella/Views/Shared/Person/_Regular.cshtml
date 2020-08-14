@@ -1,0 +1,83 @@
+﻿@using PinkUmbrella.ViewModels.Person;
+@model PersonViewModel
+@{
+    var viewingOwnProfile = (Model.MyProfile?.UserId ?? -1) == Model.Profile.UserId;
+
+    var reactLike = new ReactViewModel() {
+        Type = ReactionType.Like,
+        ToId = Model.Profile.PublicId,
+        HasReacted = Model.Profile.HasLiked,
+        Count = Model.Profile.LikeCount,
+        ViewerId = Model.MyProfile?.UserId,
+        Enabled = !viewingOwnProfile,
+    };
+    var reactDislike = new ReactViewModel() {
+        Type = ReactionType.Dislike,
+        ToId = Model.Profile.PublicId,
+        HasReacted = Model.Profile.HasDisliked,
+        Count = Model.Profile.DislikeCount,
+        ViewerId = Model.MyProfile?.UserId,
+        Enabled = !viewingOwnProfile,
+    };
+    var reactBlock = new ReactViewModel() {
+        Type = ReactionType.Block,
+        ToId = Model.Profile.PublicId,
+        HasReacted = Model.Profile.HasBlocked,
+        Count = Model.Profile.BlockCount,
+        ViewerId = Model.MyProfile?.UserId,
+        Enabled = !viewingOwnProfile,
+        ResponseHandler = "page-reload",
+    };
+    var reactReport = new ReactViewModel() {
+        Type = ReactionType.Report,
+        ToId = Model.Profile.PublicId,
+        HasReacted = Model.Profile.HasReported,
+        Count = Model.Profile.ReportCount,
+        ViewerId = Model.MyProfile?.UserId,
+        Enabled = !viewingOwnProfile,
+        ResponseHandler = "page-reload",
+    };
+    var reactFollow = new ReactViewModel() {
+        Type = ReactionType.Follow,
+        ToId = Model.Profile.PublicId,
+        HasReacted = Model.Profile.HasFollowed,
+        Count = Model.Profile.FollowCount,
+        ViewerId = Model.MyProfile?.UserId,
+        Enabled = !viewingOwnProfile,
+    };
+
+    var reactions = new List<ReactViewModel>() {
+        reactLike, reactDislike, reactBlock, reactReport, reactFollow
+    };
+    
+    var tags = new TagEditorViewModel() { Tags = Model.Profile.tag };
+
+    var asActor = Model.Profile as Estuary.Actors.ActorObject;
+}
+<h1>@asActor.DisplayName</h1>
+<i>@@@asActor.Handle</i>
+@if (viewingOwnProfile && asActor.audience != null)
+{
+    switch (asActor.audience.items.OfType<Estuary.Actors.ActorObject>().FirstOrDefault().Handle)
+    {
+        @* case Visibility.HIDDEN:
+        <span>&bull; Hidden to everyone</span>
+        break; *@
+        case "registered":
+        <span>&bull; Visible to other users on this site</span>
+        break;
+        case "followers":
+        if (asActor.PublicId == Model.MyProfile?.PublicId)
+        {
+        <span>&bull; Only visible to your followers</span>
+        }
+        else
+        {
+        <span>&bull; Only visible to this user's followers</span>
+        }
+        break;
+    }
+}
+<p>@asActor.summary</p>
+<partial name="Tag/Display" model="tags" />
+<partial name="Button/ReactButtonList" model="reactions" /></li>

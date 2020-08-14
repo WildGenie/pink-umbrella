@@ -106,7 +106,6 @@ namespace PinkUmbrella.Services
                 ForkedFromId = 0,
                 CreatedByUserId = 0,
                 InventoryId = 0,
-                MipmapId = 0,
             };
         }
 

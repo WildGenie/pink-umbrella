@@ -1,7 +1,7 @@
-﻿@model Tides.Actors.ActorObject
+﻿@model Estuary.Actors.ActorObject
 <div class="contains-goto">
     <i class="fas fa-user-circle"></i>
-    <a class="goto" asp-controller="Profile" asp-action="Index" asp-route-id="@Model.PublicId">goto</a>
+    <a class="goto" asp-controller="Person" asp-action="Index" asp-route-id="@Model.PublicId">goto</a>
     <b>@Model.name</b>
     <i>@@@Model.Handle</i>
     <span>&bull; @Model.summary</span>

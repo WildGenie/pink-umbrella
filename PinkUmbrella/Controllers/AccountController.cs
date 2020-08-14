@@ -24,12 +24,12 @@ using PinkUmbrella.Services.Local;
 using Tides.Models;
 using Tides.Models.Public;
 using Tides.Models.Auth;
-using Tides.Services;
+using Estuary.Services;
 
 namespace PinkUmbrella.Controllers
 {
     [FeatureGate(FeatureFlags.ControllerAccount)]
-    public partial class AccountController: BaseController
+    public partial class AccountController: ActivityStreamController
     {
         private readonly ILogger<AccountController> _logger;
 
@@ -72,8 +72,9 @@ namespace PinkUmbrella.Controllers
 
             return View(new IndexViewModel()
             {
+                Local = user.PrivateModel as UserProfileModel,
                 MyProfile = user,
-                MethodOverrides = (await _auth.GetOverriddenLoginMethodsForUser(user.UserId)).ToDictionary(k => k.Method, v => v),
+                MethodOverrides = (await _auth.GetOverriddenLoginMethodsForUser(user.UserId.Value)).ToDictionary(k => k.Method, v => v),
                 GetMethodDefault = _auth.GetMethodDefault,
             });
         }
@@ -160,8 +161,8 @@ namespace PinkUmbrella.Controllers
             return View(new InvitesViewModel()
             {
                 MyProfile = user,
-                InvitesToMe = await _invitationService.GetInvitesToUser(user.UserId),
-                InvitesFromMe = await _invitationService.GetInvitesFromUser(user.UserId),
+                InvitesToMe = await _invitationService.GetInvitesToUser(user.UserId.Value),
+                InvitesFromMe = await _invitationService.GetInvitesFromUser(user.UserId.Value),
                 Selected = selected,
             });
         }
@@ -200,7 +201,7 @@ namespace PinkUmbrella.Controllers
                 }
                 else
                 {
-                    var code = await _invitationService.NewInvitation(user.UserId, values.Type, values.UserIdTo, values.Message, values.DaysValidFor);
+                    var code = await _invitationService.NewInvitation(user.UserId.Value, values.Type, values.UserIdTo, values.Message, values.DaysValidFor);
                     if (code != null)
                     {
                         return RedirectToAction(nameof(Invites), new { selected = code.Code });
@@ -213,6 +214,7 @@ namespace PinkUmbrella.Controllers
             }
             return View(new InviteViewModel()
             {
+                Local = user.PrivateModel as UserProfileModel,
                 MyProfile = user,
                 Values = values
             });
@@ -241,7 +243,7 @@ namespace PinkUmbrella.Controllers
                             UserProfileModel user;
                             if (model.MyProfile.UserId == code.CreatedByUserId)
                             {
-                                user = await _localProfiles.GetUser(model.MyProfile.UserId, model.MyProfile.UserId);
+                                user = await _localProfiles.GetUser(model.MyProfile.UserId.Value, model.MyProfile.UserId);
                             }
                             else
                             {
@@ -332,19 +334,19 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentLocalUserAsync();
             var emailChanged = user.Email != MyProfile.Email;
             var usernameChanged = user.UserName != MyProfile.UserName && MyProfile.UserName != null;
-            var visibilityChanged = user.Visibility != MyProfile.Visibility;
+            // var visibilityChanged = user.Visibility != MyProfile.Visibility;
 
             user.Email = MyProfile.Email;
             user.UserName = MyProfile.UserName ?? user.UserName;
-            user.Visibility = MyProfile.Visibility;
+            // user.Visibility = MyProfile.Visibility;
             user.WhenLastUpdated = DateTime.UtcNow;
 
-            if (visibilityChanged)
-            {
-                user.WhenLastLoggedInVisibility = user.WhenLastLoggedInVisibility.Min(user.Visibility);
-                user.WhenLastOnlineVisibility = user.WhenLastOnlineVisibility.Min(user.Visibility);
-                user.BioVisibility = user.BioVisibility.Min(user.Visibility);
-            }
+            // if (visibilityChanged)
+            // {
+            //     user.WhenLastLoggedInVisibility = user.WhenLastLoggedInVisibility.Min(user.Visibility);
+            //     user.WhenLastOnlineVisibility = user.WhenLastOnlineVisibility.Min(user.Visibility);
+            //     user.BioVisibility = user.BioVisibility.Min(user.Visibility);
+            // }
 
             await _userManager.UpdateAsync(user);
 
@@ -381,9 +383,9 @@ namespace PinkUmbrella.Controllers
             user.DisplayName = MyProfile.DisplayName;
             user.Handle = MyProfile.Handle;
             user.Bio = MyProfile.Bio;
-            user.WhenLastLoggedInVisibility = MyProfile.WhenLastLoggedInVisibility.Min(user.Visibility);
-            user.WhenLastOnlineVisibility = MyProfile.WhenLastOnlineVisibility.Min(user.Visibility);
-            user.BioVisibility = MyProfile.BioVisibility.Min(user.Visibility);
+            // user.WhenLastLoggedInVisibility = MyProfile.WhenLastLoggedInVisibility.Min(user.Visibility);
+            // user.WhenLastOnlineVisibility = MyProfile.WhenLastOnlineVisibility.Min(user.Visibility);
+            // user.BioVisibility = MyProfile.BioVisibility.Min(user.Visibility);
             user.WhenLastUpdated = DateTime.UtcNow;
             await _userManager.UpdateAsync(user);
             return RedirectToAction(nameof(Index), new { statusMessage = "Successfully updated profile", statusType = "success" });
@@ -418,7 +420,7 @@ namespace PinkUmbrella.Controllers
                         case InvitationType.FollowMe:
                         {
                             // TODO: fix this for cross peer invitations
-                            await _reactions.React(user.Id, new PublicId(accessCode.CreatedByUserId, 0), ReactionType.Follow, ReactionSubject.Profile);
+                            await _reactions.React(user.Id, new PublicId(accessCode.CreatedByUserId, 0) { Type = "Actor" }, ReactionType.Follow);
                             statusMessage = "You are now following " + accessCode.CreatedByUserId;
                         } break;
                         case InvitationType.Register: return RedirectToAction(nameof(Register), new { code });
@@ -464,7 +466,7 @@ namespace PinkUmbrella.Controllers
             return View(new NotificationSettingsViewModel()
             {
                 MyProfile = user,
-                Settings = await _notifications.GetMethodSettings(user.UserId)
+                Settings = await _notifications.GetMethodSettings(user.UserId.Value)
             });
         }
 
@@ -498,13 +500,13 @@ namespace PinkUmbrella.Controllers
                     }
                 }
 
-                await _notifications.UpdateMethodSettings(user.UserId, typeMethods);
+                await _notifications.UpdateMethodSettings(user.UserId.Value, typeMethods);
             }
             else
             {
                 if (Enum.TryParse(typeof(NotificationMethod), submit, true, out var method))
                 {
-                    await _notifications.UpdateMethodSettingsSetAll(user.UserId, (NotificationMethod) method);
+                    await _notifications.UpdateMethodSettingsSetAll(user.UserId.Value, (NotificationMethod) method);
                 }
             }
 
@@ -513,7 +515,7 @@ namespace PinkUmbrella.Controllers
             return View(new NotificationSettingsViewModel()
             {
                 MyProfile = user,
-                Settings = await _notifications.GetMethodSettings(user.UserId)
+                Settings = await _notifications.GetMethodSettings(user.UserId.Value)
             });
         }
     }

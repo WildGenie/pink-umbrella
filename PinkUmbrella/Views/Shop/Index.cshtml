@@ -4,7 +4,8 @@
     ViewData["Title"] = "Shops by Tag";
 }
 <partial name="_Header" />
-@if (Model.Categories != null)
+<partial name="Activity/List" model="Model.ListView" />
+@* @if (Model.Categories != null)
 {
     foreach (var category in Model.Categories.items)
     {
@@ -21,9 +22,9 @@
 }
 else
 {
-    foreach (var shop in Model.ShopsList.items)
+    foreach (var shop in Model.Item.items)
     {
         <partial name="Shop/DisplayResult" model="shop" />
         <hr />
     }
-}
+} *@

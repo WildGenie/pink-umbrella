@@ -1,9 +1,9 @@
-﻿@model Tides.Core.CollectionObject
+﻿@model Estuary.Core.CollectionObject
 @if (Model.items.Count > 0)
 {
-    foreach (var result in Model.items) {
-        <partial name="Post/_Container" model="result" />
-        <hr />
+    foreach (var result in Model.items)
+    {
+        <partial name="@result.BaseType/_Container" model="result" />
     }
 }
 else

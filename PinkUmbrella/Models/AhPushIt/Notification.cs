@@ -1,6 +1,4 @@
 using System;
-using PinkUmbrella.Util;
-using Tides.Models;
 using Tides.Util;
 
 namespace PinkUmbrella.Models.AhPushIt
@@ -18,20 +16,12 @@ namespace PinkUmbrella.Models.AhPushIt
 
         public long FromPeerId { get; set; }
         
-        public ReactionSubject Subject { get; set; }
+        public string SubjectType { get; set; }
 
         public int SubjectId { get; set; }
 
         public DateTime WhenCreated { get; set; }
 
         public string DataJson { get; set; }
-
-        public int RecipientCount { get; set; }
-
-        public int DeliveryCount { get; set; }
-
-        public int ViewCount { get; set; }
-
-        public int DismissCount { get; set; }
     }
 }

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Estuary.Actors;
+using Estuary.Services;
 using PinkUmbrella.Models.Auth;
-using Tides.Actors;
 using Tides.Models.Auth;
-using Tides.Services;
 
 namespace PinkUmbrella.Services
 {

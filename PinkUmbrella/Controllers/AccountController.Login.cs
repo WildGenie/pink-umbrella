@@ -18,7 +18,7 @@ using Tides.Models.Auth;
 
 namespace PinkUmbrella.Controllers
 {
-    public partial class AccountController: BaseController
+    public partial class AccountController: ActivityStreamController
     {
 
         [HttpGet, AllowAnonymous, RedirectIfNotAnonymous]
@@ -77,7 +77,7 @@ namespace PinkUmbrella.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ModelState.AddModelError(nameof(login.EmailAddress), "Invalid email or password.");
                     return View(login);
                 }
             }

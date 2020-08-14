@@ -1,8 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using PinkUmbrella.Models;
-using Tides.Core;
-using Tides.Models.Public;
+using Estuary.Core;
 
 namespace PinkUmbrella.Services
 {
@@ -22,10 +20,10 @@ namespace PinkUmbrella.Services
 
         // Task DeleteShop(int id, int userId);
 
-        Task<ArgumentException> TryCreateShop(BaseObject shop);
+        Task<BaseObject> TryCreateShop(BaseObject shop);
 
-        Task<CollectionObject> GetShopsTaggedUnder(BaseObject tag, int? viewerId);
+        Task<BaseObject> GetShopsTaggedUnder(BaseObject tag, int? viewerId);
         
-        // Task<CollectionObject> GetAllLocal();
+        Task<BaseObject> GetAllLocal();
     }
 }

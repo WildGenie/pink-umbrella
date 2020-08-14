@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using PinkUmbrella.Models;
-using Tides.Core;
+using Estuary.Core;
 
 namespace PinkUmbrella.ViewModels.Shared
 {

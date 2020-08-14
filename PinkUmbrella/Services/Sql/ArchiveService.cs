@@ -12,12 +12,12 @@ using PinkUmbrella.Repositories;
 using PinkUmbrella.Services.Local;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using Tides.Core;
+using Estuary.Core;
 using Tides.Models;
 using Tides.Models.Public;
-using Tides.Objects;
-using static Tides.Activities.Common;
-using static Tides.Objects.Common;
+using static Estuary.Objects.Common;
+using Estuary.Objects;
+using static Estuary.Activities.Common;
 
 namespace PinkUmbrella.Services.Sql
 {
@@ -182,7 +182,7 @@ namespace PinkUmbrella.Services.Sql
                             {
                                 MediaType = (CommonMediaType) Enum.Parse(typeof(CommonMediaType), doc.type),
                                 SizeBytes = 0,
-                                UserId = media.UserId,
+                                UserId = media.UserId.Value,
                             };
                             _dbContext.ArchivedMedia.Add(attchModel);
                             await _dbContext.SaveChangesAsync();
@@ -328,7 +328,7 @@ namespace PinkUmbrella.Services.Sql
                         switch (mediaType.Value)
                         {
                             case CommonMediaType.Audio: doc = new Audio(); break;
-                            case CommonMediaType.Photo: doc = new Tides.Objects.Common.Image(); break;
+                            case CommonMediaType.Photo: doc = new Common.Image(); break;
                             case CommonMediaType.Video: doc = new Audio(); break;
                         }
                         doc.url = new Link { content = Path.ChangeExtension(System.IO.Path.GetTempFileName(), Path.GetExtension(f.FileName)) };

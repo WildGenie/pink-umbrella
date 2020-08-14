@@ -1,0 +1,13 @@
+﻿@model PinkUmbrella.ViewModels.Person.PersonViewModel
+@if (Model.Profile.HasBlocked)
+{
+    <partial name="Person/_Blocked" />
+}
+else if (Model.Profile.HasReported)
+{
+    <partial name="Person/_Reported" />
+}
+else
+{
+    <partial name="Person/_Regular" />
+}

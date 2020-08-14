@@ -8,7 +8,7 @@ using PinkUmbrella.Models.Search;
 using PinkUmbrella.Services.Search;
 using PinkUmbrella.Services.Local;
 using PinkUmbrella.Repositories;
-using Tides.Actors;
+using Estuary.Actors;
 
 namespace PinkUmbrella.Services.Sql.Search
 {
@@ -30,11 +30,11 @@ namespace PinkUmbrella.Services.Sql.Search
             _dbContext = dbContext;
         }
 
-        public SearchResultType ResultType => SearchResultType.Profile;
+        public SearchResultType ResultType => SearchResultType.Person;
 
         public SearchSource Source => SearchSource.Sql;
 
-        public string ControllerName => "Profile";
+        public string ControllerName => "Person";
 
         public async Task<SearchResultsModel> Search(SearchRequestModel request)
         {
@@ -45,11 +45,11 @@ namespace PinkUmbrella.Services.Sql.Search
                 query = query.Where(p => p.DisplayName.ToLower().Contains(textToLower) || p.Handle.ToLower().Contains(textToLower));
             }
 
-            if (request.tags != null && request.tags.Length > 0)
-            {
-                var tags = await _dbContext.AllTags.Where(t => request.tags.Contains(t.Tag)).Select(t => t.Id).ToArrayAsync();
-                query = query.Where(p => _dbContext.ProfileTags.FirstOrDefault(t => t.ToId == p.Id && tags.Contains(t.TagId)) != null);
-            }
+            // if (request.tags != null && request.tags.Length > 0)
+            // {
+            //     var tags = await _dbContext.AllTags.Where(t => request.tags.Contains(t.Tag)).Select(t => t.Id).ToArrayAsync();
+            //     query = query.Where(p => _dbContext.ProfileTags.FirstOrDefault(t => t.ToId == p.Id && tags.Contains(t.TagId)) != null);
+            // }
             
             switch (request.order) {
                 case SearchResultOrder.Top:

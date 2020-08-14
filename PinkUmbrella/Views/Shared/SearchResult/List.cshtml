@@ -4,8 +4,8 @@
     <hr />
     switch (result.Type)
     {
-        case SearchResultType.Profile:
-        <partial name="SearchResult/ProfileSearchResult" model="result.Value" />
+        case SearchResultType.Person:
+        <partial name="SearchResult/PersonSearchResult" model="result.Value" />
         break;
         case SearchResultType.Post:
         <partial name="SearchResult/PostSearchResult" model="result.Value" />

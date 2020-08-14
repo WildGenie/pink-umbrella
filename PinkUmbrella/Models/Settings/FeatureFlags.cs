@@ -5,8 +5,8 @@ namespace PinkUmbrella.Models.Settings
         [FeatureFlagInfo("System API Controller", "API for site system information", FeatureFlagType.Controller)]
         ApiControllerSystem,
 
-        [FeatureFlagInfo("Profile API Controller", "API for user profile information", FeatureFlagType.Controller)]
-        ApiControllerProfile,
+        [FeatureFlagInfo("Person API Controller", "API for user Person information", FeatureFlagType.Controller)]
+        ApiControllerPerson,
 
 
 
@@ -38,8 +38,8 @@ namespace PinkUmbrella.Models.Settings
         [FeatureFlagInfo("Notification Controller", "View and manage notifications", FeatureFlagType.Controller)]
         ControllerNotification,
 
-        [FeatureFlagInfo("Profile Controller", "View and manage user profiles", FeatureFlagType.Controller)]
-        ControllerProfile,
+        [FeatureFlagInfo("Person Controller", "View and manage user Persons", FeatureFlagType.Controller)]
+        ControllerPerson,
 
         [FeatureFlagInfo("Post Controller", "View and manage posts", FeatureFlagType.Controller)]
         ControllerPost,

@@ -1,7 +1,7 @@
 ﻿@using PinkUmbrella.ViewModels.Account
 @model InviteFormViewModel
 @{
-    var handlesEditor = new PinkUmbrella.ViewModels.Profile.UserListEditorViewModel() {
+    var handlesEditor = new PinkUmbrella.ViewModels.Person.UserListEditorViewModel() {
         HtmlClasses = "form-control",
         InputName = "UserTo",
         MaxCount = 1,
@@ -42,7 +42,7 @@
                     <div class="form-group">
                         <label for="UserTo">User</label>
                         <small>@Model.GetPropertyDescription(nameof(Model.UserIdTo))</small>
-                        <partial name="Profile/UserHandlesEditor" model="handlesEditor" />
+                        <partial name="Person/UserHandlesEditor" model="handlesEditor" />
                         <span asp-validation-for="UserIdTo" class="text-danger"></span>
                     </div>
                 }

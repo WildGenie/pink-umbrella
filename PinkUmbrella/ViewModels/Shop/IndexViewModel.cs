@@ -1,14 +1,17 @@
 using System.Collections.Generic;
-using Tides.Core;
+using Estuary.Core;
+using PinkUmbrella.ViewModels.Shared;
 
 namespace PinkUmbrella.ViewModels.Shop
 {
     public class IndexViewModel : BaseViewModel
     {
-        public Dictionary<int, CollectionObject> ShopsByCategory { get; set; }
+        public Dictionary<int, BaseObject> ShopsByCategory { get; set; }
         
-        public CollectionObject Categories { get; set; }
+        public BaseObject Categories { get; set; }
         
-        public CollectionObject ShopsList { get; set; }
+        public BaseObject ShopsList { get; set; }
+        
+        public ListViewModel ListView { get; set; }
     }
 }

@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Estuary.Services;
 using Nest;
 using PinkUmbrella.Models.Search;
-using Tides.Core;
-using Tides.Services;
+using Estuary.Core;
+using static Estuary.Activities.Common;
 
 namespace PinkUmbrella.Services.Elastic
 {
@@ -24,11 +25,11 @@ namespace PinkUmbrella.Services.Elastic
                 var sources = response.HitsMetadata.Hits.Select(h => h.Source);
                 var highlights = response.HitsMetadata.Hits.Select(h => h.Highlight);
                 var results = new List<BaseObject>();
-                var pipe = _pipeline.Get();
+                var pipe = _pipeline.GetPipe();
                 foreach (var r in sources)
                 {
                     r.ViewerId = request.viewerId;
-                    var final = await pipe.Pipe(r, true);
+                    var final = await pipe.Pipe(new ActivityDeliveryContext { item = new Announce { obj = r }, IsReading = true });
                     if (final != null)
                     {
                         results.Add(final);

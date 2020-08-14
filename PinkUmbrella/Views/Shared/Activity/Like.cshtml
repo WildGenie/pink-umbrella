@@ -1,0 +1,14 @@
+﻿@model Estuary.Activities.Common.Like
+@{
+    var obj = Model.target.items.FirstOrDefault();
+}
+Liked a 
+@if (obj != null)
+{
+    @obj?.type
+    <partial name="@obj.BaseType/_Container" model="@obj" />
+}
+else
+{
+    <span>something</span>
+}

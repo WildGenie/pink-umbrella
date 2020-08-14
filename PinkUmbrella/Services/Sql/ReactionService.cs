@@ -1,16 +1,20 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using PinkUmbrella.Models;
-using PinkUmbrella.Repositories;
 using PinkUmbrella.Services.Elastic;
-using Tides.Actors;
-using Tides.Core;
+using Estuary.Core;
 using Tides.Models;
 using Tides.Models.Public;
-using Tides.Services;
-using Tides.Util;
+using Estuary.Services;
+using Estuary.Actors;
+using Estuary.Util;
+using PinkUmbrella.Repositories;
+using Estuary.Streams.Json;
+
+// CommandFlags.FireAndForget
+// var result = db.ScriptEvaluate(TransferScript,
+//    new RedisKey[] { from, to }, new RedisValue[] { quantity });
 
 namespace PinkUmbrella.Services.Sql
 {
@@ -18,72 +22,62 @@ namespace PinkUmbrella.Services.Sql
     {
         //private readonly SimpleDbContext _dbContext;
         private readonly IActivityStreamRepository _activityStream;
+        private readonly RedisRepository _redis;
 
-        public ReactionService(IActivityStreamRepository activityStream) // SimpleDbContext dbContext
+        public ReactionService(IActivityStreamRepository activityStream, RedisRepository redis) // SimpleDbContext dbContext
         {
             //_dbContext = dbContext;
             _activityStream = activityStream;
+            _redis = redis;
         }
 
-        public Task DeleteSummary(ReactionsSummaryModel summary, ReactionSubject subject)
-        {
-            throw new NotImplementedException();
-        }
+        public Task DeleteSummary(ReactionsSummaryModel summary) => _redis.Delete(summary);
 
-        public Task<CollectionObject> Get(ReactionSubject subject, PublicId id, int? viewerId)
+        public async Task<CollectionObject> Get(PublicId id, int? viewerId)
         {
+            // var fromRedis = await _redis.Get<ReactionsSummaryModel>(id);
+            // if (fromRedis == null)
+            // {
+            //     f
+            // }
             //var reactions = GetReactionsList(subject);
             //return reactions.Where(r => r.ToId == id.Id && r.ToPeerId == id.PeerId && r.UserId == viewerId.Value).ToListAsync();
             return null;
         }
 
-        public async Task<int> GetCount(PublicId toId, ReactionType type, ReactionSubject subject)
-        {
-            var res = await _activityStream.GetAll(new ActivityStreamFilter
-            {
-                publicId = toId, types = new string[] { type.ToString() }, targetTypes = new string[] { subject.ToString() }
-            });
-            if (res is CollectionObject collection)
-            {
-                return collection.totalItems;
-            }
-            else
-            {
-                return -1;
-            }
-        }
+        public async Task<int> GetCount(PublicId toId, ReactionType type) => int.Parse((await _redis.FieldGet<ReactionsSummaryModel>(toId, $"{type}Count")) ?? "0");
 
-        public Task<List<ReactionsSummaryModel>> GetMostBlocked(ReactionSubject subject, int? viewerId)
+        public Task<List<ReactionsSummaryModel>> GetMostBlocked(ActivityStreamFilter filter, int? viewerId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<ReactionsSummaryModel>> GetMostDisliked(ReactionSubject subject, int? viewerId)
+        public Task<List<ReactionsSummaryModel>> GetMostDisliked(ActivityStreamFilter filter, int? viewerId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<ReactionsSummaryModel>> GetMostFollowed(ReactionSubject subject, int? viewerId)
+        public Task<List<ReactionsSummaryModel>> GetMostFollowed(ActivityStreamFilter filter, int? viewerId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<ReactionsSummaryModel>> GetMostLiked(ReactionSubject subject, int? viewerId)
+        public Task<List<ReactionsSummaryModel>> GetMostLiked(ActivityStreamFilter filter, int? viewerId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<ReactionsSummaryModel>> GetMostReported(ReactionSubject subject, int? viewerId)
+        public Task<List<ReactionsSummaryModel>> GetMostReported(ActivityStreamFilter filter, int? viewerId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<ReactionsSummaryModel> GetSummary(int toId, ReactionSubject subject, int? viewerId)
+        public Task<ReactionsSummaryModel> GetSummary(PublicId toId, int? viewerId)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<bool> HasBlockedViewer(ReactionSubject subject, PublicId id, int? viewerId)
+        public async Task<bool> HasBlockedViewer(PublicId id, int? viewerId)
         {
             if (0 == id.PeerId)
             {
@@ -106,71 +100,35 @@ namespace PinkUmbrella.Services.Sql
             }
         }
 
-        public Task<ReactionsSummaryModel> PutSummary(ReactionsSummaryModel summary, ReactionSubject subject)
+        public Task<ReactionsSummaryModel> PutSummary(ReactionsSummaryModel summary)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<int> React(int userId, PublicId toId, ReactionType type, ReactionSubject subject)
+        public async Task<string> React(int userId, PublicId toId, ReactionType type)
         {
-            await Task.Delay(1);
-            if (subject == ReactionSubject.Profile && userId == toId.Id)
-            {
-                throw new Exception("Cannot react to own profile");
-            }
+            var reaction = (ActivityObject) Activator.CreateInstance(CustomJsonSerializer.TypeOf(type.ToString()));
+            reaction.actor = new List<BaseObject> {
+                new Common.Person {
+                    objectId = userId,
+                    PeerId = 0,
+                }
+            }.ToCollection();
 
-            var reaction = new ActivityObject {
-                actor = new List<BaseObject> {
-                    new Common.Person {
-                        objectId = userId
-                    }
-                }.ToCollection(),
-                to = new List<BaseObject> {
-                    new Common.Person {
-                        objectId = toId.Id,
-                        PeerId = toId.PeerId
-                    }
-                }.ToCollection(),
-                type = type.ToString(),
-                published = DateTime.UtcNow,
-            };
+            var target = (BaseObject) Activator.CreateInstance(CustomJsonSerializer.TypeOf(toId.Type));
+            target.id = toId.ToString();
+            reaction.target = new List<BaseObject> { target }.ToCollection();
+            reaction.published = DateTime.UtcNow;
 
-            //var reactions = GetReactionsList(subject);
-            
-            //reactions.Add(reaction);
-            // await _dbContext.SaveChangesAsync();
-            // await _reactables[subject].RefreshStats(toId);
-
-            return reaction.objectId.Value;
+            var res = await _activityStream.Post("outbox", reaction);
+            return reaction.id;
         }
 
-        public async Task UnReact(int userId, PublicId toId, ReactionType type, ReactionSubject subject)
-        {
-            await Task.Delay(1);
-            //var reactions = GetReactionsList(subject);
-            //BaseObject reaction = await reactions.Where(r => r.UserId == userId && r.ToId == toId.Id && r.ToPeerId == toId.PeerId && r.Type == type).FirstOrDefaultAsync();
-            
-            // if (reaction != null)
-            // {
-            //     reactions.Remove(reaction);
-            //     await _dbContext.SaveChangesAsync();
-            //     await _reactables[subject].RefreshStats(toId);
-            // }
-        }
-
-        // private DbSet<BaseObject> GetReactionsList(ReactionSubject subject)
-        // {
-        //     switch (subject)
-        //     {
-        //         case ReactionSubject.Post:
-        //         return _dbContext.PostReactions;
-        //         case ReactionSubject.Shop:
-        //         return _dbContext.ShopReactions;
-        //         case ReactionSubject.Profile:
-        //         return _dbContext.ProfileReactions;
-        //         default:
-        //         throw new Exception();
-        //     }
-        // }
+        public async Task UnReact(int userId, PublicId toId, ReactionType type) => 
+                await _activityStream.Undo(new ActivityStreamFilter("outbox")
+                {
+                    objectId = toId.Id, peerId = toId.PeerId, userId = userId,
+                    targetTypes = new string[] { toId.Type }
+                }.FixType(type.ToString()));
     }
 }

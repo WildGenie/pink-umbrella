@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
@@ -14,21 +13,34 @@ using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Services.Local;
 using Tides.Models;
 using Tides.Models.Public;
-using Tides.Services;
-using Tides.Objects;
+using Estuary.Core;
+using Estuary.Services;
+using Estuary.Objects;
+using Estuary.Util;
 
 namespace PinkUmbrella.Controllers
 {
     [FeatureGate(FeatureFlags.ControllerPost)]
     [AllowAnonymous]
-    public class PostController : BaseController
+    public class PostController : ActivityStreamController
     {
         private readonly ILogger<PostController> _logger;
 
-        public PostController(IWebHostEnvironment environment, ILogger<PostController> logger, SignInManager<UserProfileModel> signInManager,
-            UserManager<UserProfileModel> userManager, IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles,
-            IReactionService reactions, ITagService tags, INotificationService notifications, IPeerService peers, IAuthService auth,
-            ISettingsService settings, IActivityStreamRepository activityStreams):
+        public PostController(
+            IWebHostEnvironment environment,
+            ILogger<PostController> logger,
+            SignInManager<UserProfileModel> signInManager,
+            UserManager<UserProfileModel> userManager,
+            IPostService posts,
+            IUserProfileService localProfiles,
+            IPublicProfileService publicProfiles,
+            IReactionService reactions,
+            ITagService tags,
+            INotificationService notifications,
+            IPeerService peers,
+            IAuthService auth,
+            ISettingsService settings,
+            IActivityStreamRepository activityStreams):
             base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
         {
             _logger = logger;
@@ -42,7 +54,10 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentUserAsync();
             if (id != null)
             {
-                var post = await _activityStreams.GetPost(new ActivityStreamFilter { publicId = new PublicId(id), viewerId = user?.UserId });
+                var post = await _activityStreams.Get(new ActivityStreamFilter("outbox")
+                {
+                    publicId = new PublicId(id), viewerId = user?.UserId,
+                }.FixObjType("Note", "Article"));
                 if (post != null)
                 {
                     return View(new PostViewModel() {
@@ -66,7 +81,7 @@ namespace PinkUmbrella.Controllers
         {
             var pid = new PublicId(id);
             var user = await GetCurrentUserAsync();
-            await _reactions.UnReact(user.UserId, pid, ReactionType.Block, ReactionSubject.Post);
+            await _reactions.UnReact(user.UserId.Value, pid, ReactionType.Block);
             return await ViewPost(pid);
         }
 
@@ -75,7 +90,7 @@ namespace PinkUmbrella.Controllers
         {
             var pid = new PublicId(id);
             var user = await GetCurrentUserAsync();
-            await _reactions.React(user.UserId, pid, ReactionType.Block, ReactionSubject.Post);
+            await _reactions.React(user.UserId.Value, pid, ReactionType.Block);
             return await ViewPost(pid);
         }
 
@@ -84,7 +99,7 @@ namespace PinkUmbrella.Controllers
         {
             var pid = new PublicId(id);
             var user = await GetCurrentUserAsync();
-            await _reactions.React(user.UserId, pid, ReactionType.Report, ReactionSubject.Post);
+            await _reactions.React(user.UserId.Value, pid, ReactionType.Report);
             return await ViewPost(pid);
         }
 
@@ -93,9 +108,9 @@ namespace PinkUmbrella.Controllers
         private async Task<IActionResult> ViewPost(PublicId id)
         {
             var user = await GetCurrentUserAsync();
-            var post = await _activityStreams.GetPost(new ActivityStreamFilter { publicId = id, viewerId = user?.UserId });
+            var post = await _activityStreams.Get(new ActivityStreamFilter("outbox") { publicId = id, viewerId = user?.UserId });
 
-            ViewData["PartialName"] = "Post/_Container";
+            ViewData["PartialName"] = "Activity/_Container";
             return View("_NoLayout", post);
         }
 
@@ -103,15 +118,19 @@ namespace PinkUmbrella.Controllers
         public async Task<IActionResult> NewPost(NewPostViewModel model)
         {
             var user = await GetCurrentUserAsync();
-            var result = await _posts.TryCreateTextPost(user.UserId, model.Content, model.Visibility);
+            var result = await _posts.TryCreateTextPost(user, model.Content, model.Visibility);
             if (result is Error err)
             {
                 ViewData["errorMsg"] = $"{err.errorCode}: {err.content}";
                 return View();
             }
+            else if (result is ActivityObject action)
+            {
+                return RedirectToAction(nameof(PersonController.Index), user.type, new { id = user.PublicId, highlightActivity = action.id });
+            }
             else
             {
-                return RedirectToAction(nameof(Index), new { Id = result.objectId.Value });
+                return BadRequest($"Error: {result.type}");
             }
         }
     }

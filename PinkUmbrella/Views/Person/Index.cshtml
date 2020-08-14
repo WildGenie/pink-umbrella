@@ -1,0 +1,14 @@
+﻿@using PinkUmbrella.ViewModels.Person
+@model IndexViewModel
+@{
+    ViewData["Title"] = Model.Profile.DisplayName;
+}
+<div class="text-center">
+    <partial name="_Covid19" />
+    <partial name="Person/_Container" />
+</div>
+@if (!Model.Profile.HasBlocked && !Model.Profile.HasReported)
+{
+<partial name="Navigation/_Container" model="Model.ItemNav" />
+<partial name="Activity/List" model="Model.Items" />
+}

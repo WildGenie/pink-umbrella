@@ -1,6 +1,6 @@
-using System.Collections.Generic;
 using System.ComponentModel;
-using Tides.Core;
+using Estuary.Core;
+using PinkUmbrella.ViewModels.Shared;
 
 namespace PinkUmbrella.ViewModels.Inventory
 {
@@ -8,9 +8,8 @@ namespace PinkUmbrella.ViewModels.Inventory
     {
         [DisplayName("Inventory")]
         public string InventoryId { get; set; }
-        public string SelectedId { get; set; }
-        public CollectionObject Resources { get; set; } = new CollectionObject();
-        public CollectionObject Inventories { get; set; } = new CollectionObject();
+        public ListViewModel Resources { get; set; } = null;
+        public ListViewModel Inventories { get; set; } = null;
         public BaseObject Inventory { get; set; }
         public NewResourceViewModel NewResource { get; set; } = new NewResourceViewModel();
         public NewInventoryViewModel NewInventory { get; set; } = null;

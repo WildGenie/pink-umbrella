@@ -2,7 +2,7 @@ namespace PinkUmbrella.Models.Search
 {
     public enum SearchResultType
     {
-        Profile,
+        Person,
         Post,
         Photo,
         Video,

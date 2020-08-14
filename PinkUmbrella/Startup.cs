@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Estuary.Services;
 using Hangfire;
 using Hangfire.Storage.SQLite;
 using Markdig;
@@ -28,13 +29,10 @@ using PinkUmbrella.Services.NoSql;
 using PinkUmbrella.Services.Public;
 using PinkUmbrella.Services.Search;
 using PinkUmbrella.Services.Sql;
-using PinkUmbrella.Services.Sql.ActivityStreamPipes;
-using PinkUmbrella.Services.Sql.Search;
 using PinkUmbrella.Util;
-using Tides.Core;
+using StackExchange.Redis;
 using Tides.Models.Auth;
 using Tides.Models.Auth.Types;
-using Tides.Services;
 
 namespace PinkUmbrella
 {
@@ -57,16 +55,14 @@ namespace PinkUmbrella
             services.AddDbContext<AhPushItDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("NotificationConnection")));
             services.AddDbContext<AuthDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("AuthConnection")));
 
+            // https://stackexchange.github.io/StackExchange.Redis/Configuration
+            services.AddSingleton<ConnectionMultiplexer>(ConnectionMultiplexer.Connect("127.0.0.1:6379")); // ,password=password
+            services.AddSingleton<RedisRepository>();
+
             services.AddMiniProfiler(options =>
             {
-                // All of this is optional. You can simply call .AddMiniProfiler() for all defaults
-
                 // (Optional) Path to use for profiler URLs, default is /mini-profiler-resources
                 options.RouteBasePath = "/profiler";
-
-                // (Optional) Control storage
-                // (default is 30 minutes in MemoryCacheStorage)
-                //(options.Storage as MemoryCacheStorage).CacheDuration = TimeSpan.FromMinutes(60);
 
                 // (Optional) Control which SQL formatter to use, InlineFormatter is the default
                 options.SqlFormatter = new StackExchange.Profiling.SqlFormatters.InlineFormatter();
@@ -79,22 +75,6 @@ namespace PinkUmbrella
                 //options.ResultsAuthorizeAsync = async request => (await MyGetUserFunctionAsync(request)).CanSeeMiniProfiler;
                 //options.ResultsAuthorizeListAsync = async request => (await MyGetUserFunctionAsync(request)).CanSeeMiniProfilerLists;
 
-                // (Optional)  To control which requests are profiled, use the Func<HttpRequest, bool> option:
-                // (default is everything should be profiled)
-                //options.ShouldProfile = request => MyShouldThisBeProfiledFunction(request);
-
-                // (Optional) Profiles are stored under a user ID, function to get it:
-                // (default is null, since above methods don't use it by default)
-                //options.UserIdProvider =  request => MyGetUserIdFunction(request);
-
-                // (Optional) Swap out the entire profiler provider, if you want
-                // (default handles async and works fine for almost all applications)
-                //options.ProfilerProvider = new MyProfilerProvider();
-
-                // (Optional) You can disable "Connection Open()", "Connection Close()" (and async variant) tracking.
-                // (defaults to true, and connection opening/closing is tracked)
-                //options.TrackConnectionOpenClose = true;
-
                 // (Optional) Use something other than the "light" color scheme.
                 // (defaults to "light")
                 options.ColorScheme = StackExchange.Profiling.ColorScheme.Auto;
@@ -104,24 +84,9 @@ namespace PinkUmbrella
                 // (Optional) You can disable MVC filter profiling
                 // (defaults to true, and filters are profiled)
                 options.EnableMvcFilterProfiling = true;
-                // ...or only save filters that take over a certain millisecond duration (including their children)
-                // (defaults to null, and all filters are profiled)
-                // options.MvcFilterMinimumSaveMs = 1.0m;
-
-                // (Optional) You can disable MVC view profiling
-                // (defaults to true, and views are profiled)
-                options.EnableMvcViewProfiling = true;
-                // ...or only save views that take over a certain millisecond duration (including their children)
-                // (defaults to null, and all views are profiled)
-                // options.MvcViewMinimumSaveMs = 1.0m;
             
                 // (Optional) listen to any errors that occur within MiniProfiler itself
                 // options.OnInternalError = e => MyExceptionLogger(e);
-
-                // (Optional - not recommended) You can enable a heavy debug mode with stacks and tooltips when using memory storage
-                // It has a lot of overhead vs. normal profiling and should only be used with that in mind
-                // (defaults to false, debug/heavy mode is off)
-                //options.EnableDebugMode = true;
             });
             
             services.AddIdentity<UserProfileModel, UserGroupModel>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -142,15 +107,6 @@ namespace PinkUmbrella
 
             services.AddSingleton<StringRepository>();
             services.AddSingleton<CategorizedLinksRepository>();
-            services.AddSingleton<ExternalDbOptions>((_) => new ExternalDbOptions() {
-                ExtractDbHandle = ExternalDbOptions.ExtractDomain,
-                OpenDbContext = (handle) => {
-                    System.IO.Directory.CreateDirectory($"Peers/{handle}");
-                    var options = new DbContextOptionsBuilder<SimpleDbContext>();
-                    options.UseSqlite($"Peers/{handle}/in.db; Read Only=True;");
-                    return Task.FromResult<DbContext>(new SimpleDbContext(options.Options));
-                }
-            });
 
             services.AddSingleton<IAuthTypeHandler, RSAAuthHandlerMsft>();
             services.AddSingleton<IAuthTypeHandler, RSAAuthHandlerBouncy>();
@@ -160,17 +116,18 @@ namespace PinkUmbrella
 
             services.AddSingleton<ISettingsService, SettingsService>();
 
-            services.AddScoped<IExternalDbContext, ExternalDbContext>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IPeerService, PeerService>();
+            services.AddScoped<IObjectReferenceService, SqlSqlObjectReferenceService>();
 
             services.AddSingleton<MarkdownPipeline>(new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
 
-            services.AddScoped<IActivityStreamPipe, BindSqlReferencesToActivityStream>();
-            services.AddScoped<IActivityStreamPipe, CanViewActivityStream>();
-            services.AddScoped<IActivityStreamPipe, BindTagsToActivityStream>();
+            services.UseActivityStreamBoxProviders();
+            services.UseActivityStreamReadPipes();
+            services.UseActivityStreamWritePipes();
 
             services.AddScoped<IHazActivityStreamPipe, ActivityStreamPipe>();
+            services.AddScoped<IActivityStreamRepository, LocalActivityStreamRepository>();
 
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<ITagService, TagService>();
@@ -183,18 +140,10 @@ namespace PinkUmbrella
             services.AddScoped<ISimpleInventoryService, SimpleInventoryService>();
             services.AddScoped<IPostService, PostService>();
             services.AddScoped<IShopService, ShopService>();
-            services.AddScoped<IFeedService, FeedService>();
             services.AddScoped<IDebugService, DebugService>();
-            
-            // services.AddScoped<ISearchableService, SqlSearchPostsService>();
-            // services.AddScoped<ISearchableService, SqlSearchProfilesService>();
-            // services.AddScoped<ISearchableService, SqlSearchShopsService>();
-            // services.AddScoped<ISearchableService, SqlSearchArchivedPhotosService>();
-            // services.AddScoped<ISearchableService, SqlSearchArchivedVideosService>();
-            // services.AddScoped<ISearchableService, SqlSearchInventoryService>();
 
             services.AddScoped<ISearchableService, ElasticSearchPostsService>();
-            services.AddScoped<ISearchableService, ElasticSearchProfilesService>();
+            services.AddScoped<ISearchableService, ElasticSearchPeopleService>();
             services.AddScoped<ISearchableService, ElasticSearchShopsService>();
             services.AddScoped<ISearchableService, ElasticSearchArchivedPhotosService>();
             services.AddScoped<ISearchableService, ElasticSearchArchivedVideosService>();
@@ -293,7 +242,6 @@ namespace PinkUmbrella
 
             app.UseMiddleware<IsAdminOrDevOrDebuggingOrElse404Middleware>();
             app.UseMiddleware<LogErrorRedirectProdMiddleware>();
-            app.UseMiddleware<ExternalDbMiddleware>();
 
             if (env.IsDevelopment())
             {

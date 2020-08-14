@@ -10,11 +10,11 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PinkUmbrella.Models;
 using PinkUmbrella.Services;
 using PinkUmbrella.Util;
-using Tides.Actors;
-using Tides.Core;
+using Estuary.Actors;
+using Estuary.Core;
 using Tides.Models;
 using static PinkUmbrella.Controllers.ShopController;
-using static Tides.Objects.Common;
+using static Estuary.Objects.Common;
 
 namespace PinkUmbrella.ViewModels.Shop
 {

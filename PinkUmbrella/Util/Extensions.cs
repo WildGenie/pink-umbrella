@@ -4,11 +4,16 @@ using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
 using System.Reflection;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Tides.Core;
 using Tides.Models;
 using Tides.Util;
+using Microsoft.Extensions.DependencyInjection;
+using Estuary.Services;
+using Estuary.Services.BoxProviders;
+using Estuary.Pipes.Read;
+using PinkUmbrella.Services.ActivityStream.Read;
+using PinkUmbrella.Services.ActivityStream.Write.Outbox;
+using PinkUmbrella.Services.ActivityStream.Write.Inbox;
 
 namespace PinkUmbrella.Util
 {
@@ -23,8 +28,8 @@ namespace PinkUmbrella.Util
                 throw new ArgumentException("EnumerationValue must be of Enum type", "enumerationValue");
             }
 
-            //Tries to find a DescriptionAttribute for a potential friendly name
-            //for the enum
+            // Tries to find a DescriptionAttribute for a potential friendly name
+            // for the enum
             MemberInfo[] memberInfo = type.GetMember(enumerationValue.ToString());
             if (memberInfo != null && memberInfo.Length > 0)
             {
@@ -36,7 +41,7 @@ namespace PinkUmbrella.Util
                     return ((DescriptionAttribute)attrs[0]).Description;
                 }
             }
-            //If we have no description attribute, just return the ToString of the enum
+            // If we have no description attribute, just return the ToString of the enum
             return enumerationValue.ToString();
         }
 
@@ -212,6 +217,44 @@ namespace PinkUmbrella.Util
                     return entities;
                 }
             }
+        }
+
+
+
+
+
+
+
+
+
+
+        public static void UseActivityStreamBoxProviders(this IServiceCollection services)
+        {
+            services.AddScoped<IActivityStreamBoxProvider, ActorActivityStreamBoxProvider>();
+            services.AddScoped<IActivityStreamBoxProvider, PersonActivityStreamBoxProvider>();
+            services.AddScoped<IActivityStreamBoxProvider, SharedActivityStreamBoxProvider>();
+        }
+
+        public static void UseActivityStreamReadPipes(this IServiceCollection services)
+        {
+            services.AddScoped<IActivityStreamPipe, FilterObjTypeWhenReading>();
+            services.AddScoped<IActivityStreamPipe, BindSqlReferencesToActivityStreamWhenReading>();
+            services.AddScoped<IActivityStreamPipe, CanViewActivityStreamWhenReading>();
+        }
+
+        public static void UseActivityStreamWritePipes(this IServiceCollection services)
+        {
+            services.AddScoped<IActivityStreamPipe, OutboxActivityActionHandlerWhenWritingPipe>();
+            services.AddScoped<IActivityStreamPipe, OutboxActivityActionObjectHandlerWhenWritingPipe>();
+
+            services.AddScoped<IActivityStreamPipe, InboxActivityActionHandlerWhenWritingPipe>();
+            services.AddScoped<IActivityStreamPipe, InboxActivityActionObjectHandlerWhenWritingPipe>();
+
+            // services.AddScoped<IActivityStreamPipe, OutboxActivityActionHandlerWhenWritingPipe>();
+            // services.AddScoped<IActivityStreamPipe, OutboxActivityActionObjectHandlerWhenWritingPipe>();
+
+            // services.AddScoped<IActivityStreamPipe, InboxActivityActionHandlerWhenWritingPipe>();
+            // services.AddScoped<IActivityStreamPipe, InboxActivityActionObjectHandlerWhenWritingPipe>();
         }
     }
 }

@@ -1,5 +1,5 @@
-@using Tides.Core
-@model Tides.Core.BaseObject
+@using Estuary.Core
+@model Estuary.Core.BaseObject
 @{
     Link[] links = null;
     if (Model.url.type == "Link")
@@ -8,13 +8,12 @@
     }
     else if (Model.url.type.EndsWith("Collection"))
     {
-        links = (Model.url as Tides.Core.CollectionObject).items.OfType<Link>().ToArray();
+        links = (Model.url as Estuary.Core.CollectionObject).items.OfType<Link>().ToArray();
     }
     var hasLinks = links != null && links.Length > 0;
 
     var reactLike = new ReactViewModel() {
         Type = ReactionType.Like,
-        Subject = ReactionSubject.Post,
         ToId = Model.PublicId,
         HasReacted = Model.HasLiked,
         Count = Model.LikeCount,
@@ -23,7 +22,6 @@
     };
     var reactDislike = new ReactViewModel() {
         Type = ReactionType.Dislike,
-        Subject = ReactionSubject.Post,
         ToId = Model.PublicId,
         HasReacted = Model.HasDisliked,
         Count = Model.DislikeCount,
@@ -32,7 +30,6 @@
     };
     var reactReport = new ReactViewModel() {
         Type = ReactionType.Report,
-        Subject = ReactionSubject.Post,
         ToId = Model.PublicId,
         HasReacted = false,
         Count = Model.ReportCount,
@@ -61,7 +58,7 @@
 <small>Last updated <partial name="_Timestamp" model="Model.updated" /> - published <partial name="_Timestamp" model="Model.published" /></small>
 <p>
     Managed by 
-    <a asp-controller="Profile" asp-action="Index" asp-route-id="@Model.publisher">@Model.publisher.name</a>
+    <a asp-controller="Person" asp-action="Index" asp-route-id="@Model.UserId">Model.publisher.name</a>
 </p>
 <ul>
     <li><a href="https://www.google.com/maps/search/?api=1&query=@Uri.EscapeDataString(locationString)" target="_blank"><i class="fas fa-map-marker-alt"></i> @locationString</a></li>

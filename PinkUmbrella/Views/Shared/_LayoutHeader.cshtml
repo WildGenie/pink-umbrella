@@ -12,7 +12,7 @@
     var actionName = (string) ViewData["Action"];
     var accountLiClass = controllerName == "Account" ? "selected" : "";
     var searchLiClass = controllerName == "Home" && actionName == "Search" ? "selected" : "";
-    var profileLiClass = controllerName == "Profile" ? "selected" : "";
+    var PersonLiClass = controllerName == "Person" ? "selected" : "";
     var archiveLiClass = controllerName == "Archive" ? "selected" : "";
     var inventoryLiClass = controllerName == "Inventory" ? "selected" : "";
     var civicDutyLiClass = controllerName == "CivicDuty" ? "selected" : "";
@@ -21,7 +21,7 @@
     var privacyLiClass = controllerName == "Home" && actionName == "Privacy" ? "selected" : "";
     var aboutLiClass = controllerName == "Home" && actionName == "About" ? "selected" : "";
 
-    var unviewedNotificationsCount = Model?.MyProfile != null ? await _notifications.GetUnviewedNotificationsCount(Model.MyProfile.UserId) : 0;
+    var unviewedNotificationsCount = Model?.MyProfile != null ? await _notifications.GetUnviewedNotificationsCount(Model.MyProfile.UserId.Value) : 0;
 
     if (ViewData.TryGetValue(_strings.ViewKeys.StatusBar, out object statusBarModel))
     {
@@ -56,10 +56,10 @@
                             </a>
                         </li>
                         }
-                        if (await _settings.FeatureManager.IsEnabledAsync(nameof(ControllerProfile)))
+                        if (await _settings.FeatureManager.IsEnabledAsync(nameof(ControllerPerson)))
                         {
-                        <li class="nav-item @profileLiClass">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Profile" asp-action="Index" asp-route-id="@Model.MyProfile.UserId" >
+                        <li class="nav-item @PersonLiClass">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Person" asp-action="Index" asp-route-id="@Model.MyProfile.PublicId.Id" >
                                 <i class="far fa-user-circle"></i> Profile
                             </a>
                         </li>

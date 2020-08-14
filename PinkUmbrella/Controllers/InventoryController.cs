@@ -11,24 +11,38 @@ using Microsoft.FeatureManagement.Mvc;
 using PinkUmbrella.Models.Settings;
 using PinkUmbrella.Services.Local;
 using Tides.Models;
-using Tides.Services;
-using Tides.Core;
+using Estuary.Core;
+using Estuary.Services;
+using Estuary.Util;
+using PinkUmbrella.ViewModels.Shared;
+using System;
 
 namespace PinkUmbrella.Controllers
 {
     [FeatureGate(FeatureFlags.ControllerInventory)]
-    public class InventoryController : BaseController
+    public class InventoryController : ActivityStreamController
     {
         private readonly ILogger<InventoryController> _logger;
         private readonly ISimpleResourceService _resources;
         private readonly ISimpleInventoryService _inventories;
 
-        public InventoryController(IWebHostEnvironment environment, ILogger<InventoryController> logger,
-            SignInManager<UserProfileModel> signInManager, UserManager<UserProfileModel> userManager,
-            IPostService posts, IUserProfileService localProfiles, IPublicProfileService publicProfiles, ISimpleResourceService resourceService,
-            ISimpleInventoryService inventories, IReactionService reactions, ITagService tags,
-            INotificationService notifications, IPeerService peers, IAuthService auth,
-            ISettingsService settings, IActivityStreamRepository activityStreams):
+        public InventoryController(
+            IWebHostEnvironment environment,
+            ILogger<InventoryController> logger,
+            SignInManager<UserProfileModel> signInManager,
+            UserManager<UserProfileModel> userManager,
+            IPostService posts,
+            IUserProfileService localProfiles,
+            IPublicProfileService publicProfiles,
+            ISimpleResourceService resourceService,
+            ISimpleInventoryService inventories,
+            IReactionService reactions,
+            ITagService tags,
+            INotificationService notifications,
+            IPeerService peers,
+            IAuthService auth,
+            ISettingsService settings,
+            IActivityStreamRepository activityStreams):
             base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
         {
             _logger = logger;
@@ -42,10 +56,16 @@ namespace PinkUmbrella.Controllers
             ViewData["Controller"] = "Inventory";
             ViewData["Action"] = nameof(Index);
             var user = await GetCurrentUserAsync();
+
+            var resources = ListViewModel.Links(await _activityStreams.Get(new ActivityStreamFilter("outbox")
+                {
+                    viewerId = user?.UserId
+                }.FixObjType("Resource"))); // await _resources.QueryUser(user.UserId.Value, user.UserId, null, new PaginationModel() { start = 0, count = 10 })
+
             var model = new IndexViewModel() {
                 MyProfile = user,
-                Resources = await _resources.QueryUser(user.UserId, user.UserId, null, new PaginationModel() { start = 0, count = 10 }),
-                Inventories = await _inventories.GetForUser(user.UserId, user.UserId),
+                Resources = resources,
+                Inventories = null,//await _inventories.GetForUser(user.UserId.Value, user.UserId),
                 AddResourceEnabled = await _settings.FeatureManager.IsEnabledAsync(nameof(FeatureFlags.FunctionInventoryNewResource)),
             };
             model.NewResource.AvailableBrands = await _resources.GetBrands();
@@ -54,29 +74,29 @@ namespace PinkUmbrella.Controllers
             return View(model);
         }
 
-        [Route("/Inventory/Profile/{id}")]
-        public async Task<IActionResult> Profile(int id)
-        {
-            ViewData["Controller"] = "Inventory";
-            ViewData["Action"] = nameof(Profile);
-            var user = await GetCurrentUserAsync();
-            var model = new IndexViewModel() {
-                MyProfile = user,
-                Resources = await _resources.QueryUser(id, user?.UserId, null, new PaginationModel() { start = 0, count = 10 }),
-                Inventories = await _inventories.GetForUser(id, user?.UserId),
-                AddResourceEnabled = false,
-            };
-            return View("Index", model);
-        }
+        //[Route("/Inventory/Person/{id}")]
+        // public async Task<IActionResult> Person(int id)
+        // {
+        //     ViewData["Controller"] = "Inventory";
+        //     ViewData["Action"] = nameof(Person);
+        //     var user = await GetCurrentUserAsync();
+        //     var model = new IndexViewModel() {
+        //         MyProfile = user,
+        //         Resources = await _resources.QueryUser(id, user?.UserId, null, new PaginationModel() { start = 0, count = 10 }),
+        //         Inventories = await _inventories.GetForUser(id, user?.UserId),
+        //         AddResourceEnabled = false,
+        //     };
+        //     return View("Index", model);
+        // }
 
-        public async Task<IActionResult> IndexMore(string queryText, int start, int count)
-        {
-            var user = await GetCurrentUserAsync();
-            return View(new IndexViewModel() {
-                MyProfile = await GetCurrentUserAsync(),
-                Resources = await _resources.QueryUser(user.UserId, user.UserId, queryText, new PaginationModel() { start = start, count = count })
-            });
-        }
+        // public async Task<IActionResult> IndexMore(string queryText, int start, int count)
+        // {
+        //     var user = await GetCurrentUserAsync();
+        //     return View(new IndexViewModel() {
+        //         MyProfile = await GetCurrentUserAsync(),
+        //         Resources = await _resources.QueryUser(user.UserId.Value, user.UserId, queryText, new PaginationModel() { start = start, count = count })
+        //     });
+        // }
 
         [Route("/Inventory/{id}")]
         public async Task<IActionResult> Inventory(string id, string selected = null, string queryText = null)
@@ -85,19 +105,24 @@ namespace PinkUmbrella.Controllers
             ViewData["Action"] = nameof(Index);
             
             var currentUser = await GetCurrentUserAsync();
-            var inventory = await _activityStreams.GetInventory(new ActivityStreamFilter { id = id, viewerId = currentUser?.UserId });
+            var inventory = await _activityStreams.Get(new ActivityStreamFilter("outbox") { id = id, viewerId = currentUser?.UserId }.FixObjType("Inventory"));
             if (inventory == null) {
                 return NotFound();
             }
             
-            var inventories = await _inventories.GetForUser(inventory.UserId, currentUser?.UserId);
+            var inventories = await GetInventories(inventory, currentUser);
 
+            var resources = ListViewModel.Links(await _activityStreams.Get(new ActivityStreamFilter("outbox")
+            {
+                id = id, viewerId = currentUser?.UserId
+            }.FixObjType("Resource")));
+            resources.SelectedId = selected;
+            
             // queryText
             var model = new IndexViewModel() {
                 InventoryId = id,
-                SelectedId = selected,
                 MyProfile = await GetCurrentUserAsync(),
-                Resources = await _activityStreams.GetResources(new ActivityStreamFilter { id = id, viewerId = currentUser?.UserId }),
+                Resources = resources,
                 Inventories = inventories,
                 Inventory = inventory,
                 AddResourceEnabled = await _settings.FeatureManager.IsEnabledAsync(nameof(FeatureFlags.FunctionInventoryNewResource)) && currentUser?.UserId == inventory.UserId,
@@ -107,11 +132,18 @@ namespace PinkUmbrella.Controllers
             return View("Inventory", model);
         }
 
+        private async Task<ListViewModel> GetInventories(BaseObject inventory, Estuary.Actors.ActorObject currentUser)
+        {
+            var lvm = ListViewModel.Links(await _inventories.GetForUser(inventory.UserId.Value, currentUser?.UserId));
+            lvm.SelectedId = inventory.id;
+            return lvm;
+        }
+
         [HttpPost, Authorize]
         public async Task<IActionResult> NewResource(SimpleResourceModel Resource)
         {
             var user = await GetCurrentUserAsync();
-            Resource.CreatedByUserId = user.UserId;
+            Resource.CreatedByUserId = user.UserId.Value;
             var result = await _resources.CreateResource(await _resources.Transform(Resource));
 
             if (result != null) {
@@ -146,7 +178,7 @@ namespace PinkUmbrella.Controllers
         public async Task<IActionResult> NewInventory(NewInventoryViewModel Inventory)
         {
             var user = await GetCurrentUserAsync();
-            Inventory.OwnerUserId = user.UserId;
+            Inventory.OwnerUserId = user.UserId.Value;
             var result = await _inventories.CreateInventory(_inventories.Transform(Inventory));
 
             if (result != null) {

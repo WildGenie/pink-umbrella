@@ -3,8 +3,8 @@ using PinkUmbrella.Models.Search;
 using PinkUmbrella.Services.Search;
 using Nest;
 using System.Collections.Generic;
-using Tides.Core;
-using Tides.Services;
+using Estuary.Core;
+using Estuary.Services;
 
 namespace PinkUmbrella.Services.Elastic.Search
 {

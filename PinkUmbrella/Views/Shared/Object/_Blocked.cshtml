@@ -1,0 +1,7 @@
+﻿@model Estuary.Core.BaseObject
+<div class="contains-ajax show center-xy">
+    <p>
+        <span>You have blocked this content.</span>
+        <a class="ajax" asp-action="Unblock" asp-controller="Media" asp-route-id="@Model.PublicId" data-response-type="html" data-response-handler="replacewith">Unblock content</a>
+    </p>
+</div>

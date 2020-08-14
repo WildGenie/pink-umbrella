@@ -2,7 +2,7 @@
     var actionName = (string) ViewData["Action"];
     var followingLiClass = actionName == "Index" ? "selected" : "";
     var mentionsLiClass = actionName == "Mentions" ? "selected" : "";
-    var yourPostsLiClass = actionName == "MyPosts" ? "selected" : "";
+    var yourPostsLiClass = actionName == "Posts" ? "selected" : "";
     var notificationsLiClass = actionName == "Notifications" ? "selected" : "";
 }
 @model PinkUmbrella.ViewModels.BaseViewModel
@@ -20,7 +20,7 @@
                         <a class="nav-link text-dark" asp-controller="Home" asp-action="Mentions"><u>Mentions</u></a>
                     </li>
                     <li class="nav-item @yourPostsLiClass">
-                        <a class="nav-link text-dark" asp-controller="Home" asp-action="MyPosts"><u>Your Posts</u></a>
+                        <a class="nav-link text-dark" asp-controller="Home" asp-action="Posts"><u>Your Posts</u></a>
                     </li>
                     <li class="nav-item my-2"><span class="px-1">&nbsp;&nbsp;</span><span class="border-left border-dark">&nbsp;</span><span class="px-1">&nbsp;</span></li>
                     <li class="nav-item @notificationsLiClass">

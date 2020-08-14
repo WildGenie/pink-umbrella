@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using PinkUmbrella.Models;
-using Tides.Core;
+using Estuary.Core;
 using Tides.Models;
 
 namespace PinkUmbrella.Services

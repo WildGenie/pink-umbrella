@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+using Estuary.Actors;
+using Estuary.Services;
 using PinkUmbrella.Models.Auth;
 using PinkUmbrella.Repositories;
-using PinkUmbrella.Util;
 using Tides.Models.Auth;
-using Tides.Models.Peer.Client;
-using Tides.Services;
 
 namespace PinkUmbrella.Services.NoSql
 {
@@ -17,13 +15,11 @@ namespace PinkUmbrella.Services.NoSql
     {
         private readonly IAuthService _auth;
         private readonly StringRepository _strings;
-        private readonly ExternalDbOptions _options;
 
-        public PeerService(IAuthService auth, StringRepository strings, ExternalDbOptions options)
+        public PeerService(IAuthService auth, StringRepository strings)
         {
             _auth = auth;
             _strings = strings;
-            _options = options;
         }
 
         public async Task<IActivityStreamRepository> Open(IPAddressModel address, int? port = null)
@@ -45,26 +41,17 @@ namespace PinkUmbrella.Services.NoSql
 
         protected async Task<IActivityStreamRepository> Open(SavedIPAddressModel savedAddress, int port)
         {
-            var peer = await GetPeer(savedAddress, port);
-            DbContext db = null;
-            if (peer != null)
+            var peer = new Peer()
             {
-                db = await _options.OpenDbContext.Invoke(PeerHandle(savedAddress, port));
-            }
-            else
-            {
-                peer = new Tides.Actors.Peer()
-                {
-                    Address = savedAddress,
-                    AddressPort = port,
-                };
-            }
+                Address = savedAddress,
+                AddressPort = port,
+            };
             return new HttpActivityStreamRepository(null, peer);
         }
 
-        public async Task<List<Tides.Actors.Peer>> GetPeers()
+        public async Task<List<Peer>> GetPeers()
         {
-            var ret = new List<Tides.Actors.Peer>();
+            var ret = new List<Peer>();
             var handles = System.IO.Directory.GetFileSystemEntries("Peers");
             foreach (var handle in handles)
             {
@@ -85,7 +72,7 @@ namespace PinkUmbrella.Services.NoSql
             return ret;
         }
 
-        public async Task AddPeer(Tides.Actors.Peer peer)
+        public async Task AddPeer(Estuary.Actors.Peer peer)
         {
             if (_strings.ValidHandleRegex.IsMatch(peer.name))
             {
@@ -102,16 +89,16 @@ namespace PinkUmbrella.Services.NoSql
             }
         }
 
-        public async Task<Tides.Actors.Peer> GetPeer(SavedIPAddressModel address, int? port = null)
+        public async Task<Estuary.Actors.Peer> GetPeer(SavedIPAddressModel address, int? port = null)
         {
             port = port ?? 443;
             var dir = PeerDirectory(address, port);
             if (System.IO.Directory.Exists(dir))
             {
-                Tides.Actors.Peer peer = null;
+                Estuary.Actors.Peer peer = null;
                 using (var stream = new FileStream($"{dir}/peer.json", FileMode.Open))
                 {
-                    peer = await JsonSerializer.DeserializeAsync<Tides.Actors.Peer>(stream);
+                    peer = await JsonSerializer.DeserializeAsync<Estuary.Actors.Peer>(stream);
                 }
 
                 return peer;
@@ -126,7 +113,7 @@ namespace PinkUmbrella.Services.NoSql
         
         private string PeerHandle(SavedIPAddressModel address, int? port) => $"{address}-{port}";
 
-        public Task RemovePeer(Tides.Actors.Peer peer)
+        public Task RemovePeer(Estuary.Actors.Peer peer)
         {
             var dir = PeerDirectory(peer.Address, peer.AddressPort);
             if (System.IO.Directory.Exists(dir))
@@ -136,7 +123,7 @@ namespace PinkUmbrella.Services.NoSql
             return Task.CompletedTask;
         }
 
-        public async Task ReplacePeer(Tides.Actors.Peer peer)
+        public async Task ReplacePeer(Estuary.Actors.Peer peer)
         {
             await RemovePeer(peer);
             await AddPeer(peer);

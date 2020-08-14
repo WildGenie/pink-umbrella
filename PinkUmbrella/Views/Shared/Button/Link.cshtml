@@ -1,9 +1,10 @@
 @model LinkViewModel
 @{
+    var rootViewModel = (PinkUmbrella.ViewModels.BaseViewModel) ViewData["RootViewModel"];
     var target = Model.NewTab ? "_blank" : null;
     if (string.IsNullOrWhiteSpace(Model.Url))
     {
-        <a asp-action="@Model.Action" asp-controller="@Model.Controller" asp-all-route-data="Model.RouteData" class="@Model.HtmlClass" id="@Model.HtmlId" target="@target">@Model.Text</a>
+        <a asp-action="@Model.Action" asp-controller="@Model.Controller" asp-all-route-data="Model.GetRouteData?.Invoke(rootViewModel)" class="@Model.HtmlClass" id="@Model.HtmlId" target="@target">@Model.Text</a>
     }
     else
     {

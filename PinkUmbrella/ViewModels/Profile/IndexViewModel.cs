@@ -1,18 +1,9 @@
-using PinkUmbrella.Models.Community;
-using Tides.Core;
+using PinkUmbrella.ViewModels.Shared;
 
-namespace PinkUmbrella.ViewModels.Profile
+namespace PinkUmbrella.ViewModels.Person
 {
-    public class IndexViewModel: ProfileViewModel
+    public class IndexViewModel: PersonViewModel
     {
-        public CollectionObject Feed { get; set; }
-
-        public CollectionObject Media { get; set; }
-
-        public CollectionObject Shops { get; set; }
-        
-        public CollectionObject Users { get; set; }
-        
-        public UserListType UserListType { get; set; }
+        public ListViewModel Items { get; set; }
     }
 }

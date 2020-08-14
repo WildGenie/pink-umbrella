@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Tides.Services;
+using Estuary.Services;
 
 namespace PinkUmbrella.Services.NoSql
 {
@@ -12,6 +12,6 @@ namespace PinkUmbrella.Services.NoSql
             this.pipe = new ActivityStreamPipe(handlers);
         }
 
-        public ActivityStreamPipe Get() => pipe;
+        public ActivityStreamPipe GetPipe() => pipe;
     }
 }

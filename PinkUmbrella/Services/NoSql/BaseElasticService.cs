@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Nest;
 using PinkUmbrella.Services.Elastic;
-using Tides.Core;
+using Estuary.Core;
 using Tides.Models.Public;
 
 namespace PinkUmbrella.Services.NoSql

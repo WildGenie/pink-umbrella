@@ -4,17 +4,18 @@
     var everythingLiClass = string.IsNullOrWhiteSpace(Model.InventoryId) ? "selected" : "";
     var allId = Model.MyProfile != null ? (Model.MyProfile.UserId == Model.Inventory?.UserId ? null : Model.Inventory?.UserId) : Model.Inventory?.UserId;
 }
+<partial name="Activity/List" model="@Model.Inventories" />
 <h1>Inventories</h1>
 <ul class="highlight-selected">
     @if (allId.HasValue)
     {
-    <li class="@everythingLiClass"><a asp-controller="Inventory" asp-action="Profile" asp-route-id="@allId">All</a></li>
+    <li class="@everythingLiClass"><a asp-controller="Inventory" asp-action="Person" asp-route-id="@allId">All</a></li>
     }
     else
     {
     <li class="@everythingLiClass"><a asp-controller="Inventory" asp-action="Index" asp-route-id="">All</a></li>
     }
-    @foreach (var i in Model.Inventories.items)
+    @foreach (var i in Model.Inventories.Items.items)
     {
         var liClass = i.id == Model.InventoryId ? "selected" : "";
         <li class="@liClass"><a asp-controller="Inventory" asp-action="Inventory" asp-route-id="@i.id">@i.name - @i.summary</a></li>

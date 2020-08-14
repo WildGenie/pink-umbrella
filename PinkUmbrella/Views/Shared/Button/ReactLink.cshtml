@@ -3,8 +3,8 @@
     var actionPrefix = Model.HasReacted ? "Un" : "";
     var containerClass = Model.Enabled && Model.ViewerId.HasValue ? "contains-ajax" : "";
     
-    var text = Model.HasReacted ? _strings.GetUndoCTA(Model.Type, Model.Subject) : _strings.GetCTA(Model.Type, Model.Subject);
+    var text = Model.HasReacted ? _strings.GetUndoCTA(Model.Type, Model.ToId.Type) : _strings.GetCTA(Model.Type, Model.ToId.Type);
 }
 <div class="@containerClass show" title="@actionPrefix@Model.Type">
-<a class="ajax" asp-action="@actionPrefix@Model.Type" asp-controller="Reaction" asp-route-id="@Model.ToId" asp-route-subject="@Model.Subject" data-response-type="html" data-response-handler="@Model.ResponseHandler">@text</a>
+<a class="ajax" asp-action="@actionPrefix@Model.Type" asp-controller="Reaction" asp-route-id="@Model.ToId" data-response-type="html" data-response-handler="@Model.ResponseHandler">@text</a>
 </div>

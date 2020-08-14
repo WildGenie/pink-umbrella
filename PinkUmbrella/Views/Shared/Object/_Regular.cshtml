@@ -1,0 +1,26 @@
+﻿@model Estuary.Core.ActivityObject
+@{
+    var tags = new TagEditorViewModel() { Tags = Model.tag };
+}
+<div class="contains-goto post">
+    <a class="goto" asp-controller="@Model.obj.type" asp-action="Index" asp-route-id="@Model.PublicId">goto</a>
+    <p>
+        <partial name="Person/Goto" model="Model.actor?.items?.FirstOrDefault()" />
+        &bull; <partial name="_Timestamp" model="Model.obj.published" />
+        <partial name="_VisibilityStatus" />
+    </p>
+    
+    <partial name="@Model.obj.BaseType/@Model.obj.type" />
+    
+    
+    @if (Model.to != null && Model.to.items != null && Model.to.items.Count > 0)
+    {
+        <span>Mentions:</span>
+        <ul>
+            @foreach (var mention in Model.to.items) {
+                <li class="contains-goto">@mention.name<a class="goto" asp-controller="Person" asp-action="Index" asp-route-id="@mention.id">goto</a></li>
+            }
+        </ul>
+    }
+    <partial name="Tag/Display" model="tags" />
+</div>

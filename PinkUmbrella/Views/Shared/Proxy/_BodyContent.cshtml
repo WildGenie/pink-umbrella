@@ -1,6 +1,6 @@
 @model BodyContentViewModel
 @{
-    var peer = ViewData["Peer"] as Tides.Actors.Peer;
+    var peer = ViewData["Peer"] as Estuary.Actors.Peer;
 }
 <h1>Viewing Peer @peer.DisplayName (@peer.Address on port @peer.AddressPort)</h1>
 @Html.Raw(Model.Html)

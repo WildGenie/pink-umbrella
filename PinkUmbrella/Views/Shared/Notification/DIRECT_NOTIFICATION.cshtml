@@ -1,10 +1,10 @@
 ﻿@using PinkUmbrella.Models.AhPushIt
 @model PinkUmbrella.Models.AhPushIt.UserNotification
-<p>You were sent a @Model.Notif.Subject from <partial name="Profile/Goto" model="Model.FromUser" /></p>
+<p>You were sent a @Model.Notif.Type from <partial name="Person/Goto" model="Model.FromUser" /></p>
 @if (System.Diagnostics.Debugger.IsAttached)
 {
 <ul>
-    <li><b>Recipients:</b> @Model.Notif.RecipientCount</li>
-    <li><b>View Count:</b> @Model.Notif.ViewCount</li>
+    @* <li><b>Recipients:</b> @Model.Notif.RecipientCount</li>
+    <li><b>View Count:</b> @Model.Notif.ViewCount</li> *@
 </ul>
 }

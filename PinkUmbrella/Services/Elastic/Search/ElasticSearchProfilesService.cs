@@ -3,25 +3,25 @@ using PinkUmbrella.Models.Search;
 using PinkUmbrella.Services.Search;
 using Nest;
 using System.Collections.Generic;
-using Tides.Actors;
-using Tides.Services;
+using Estuary.Actors;
+using Estuary.Services;
 
 namespace PinkUmbrella.Services.Elastic.Search
 {
-    public class ElasticSearchProfilesService : BaseSearchElasticService<ActorObject>, ISearchableService
+    public class ElasticSearchPeopleService : BaseSearchElasticService<ActorObject>, ISearchableService
     {
         private readonly IPublicProfileService _profiles;
 
-        public ElasticSearchProfilesService(IPublicProfileService profiles, IHazActivityStreamPipe pipe): base(pipe)
+        public ElasticSearchPeopleService(IPublicProfileService profiles, IHazActivityStreamPipe pipe): base(pipe)
         {
             _profiles = profiles;
         }
 
-        public SearchResultType ResultType => SearchResultType.Profile;
+        public SearchResultType ResultType => SearchResultType.Person;
 
         public SearchSource Source => SearchSource.Elastic;
 
-        public string ControllerName => "Profile";
+        public string ControllerName => "Person";
 
         public async Task<SearchResultsModel> Search(SearchRequestModel request)
         {

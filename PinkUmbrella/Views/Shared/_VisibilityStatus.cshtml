@@ -1,6 +1,6 @@
-@if (Model.Visibility != Visibility.VISIBLE_TO_WORLD)
+@* @if (Model.visibility != Visibility.VISIBLE_TO_WORLD)
 {
-    switch (Model.Visibility)
+    switch (Model.visibility)
     {
         case Visibility.HIDDEN:
         <span>&bull; Hidden to everyone</span>
@@ -19,7 +19,7 @@
         }
         break;
     }
-}
+} *@
 @* @if (Model.ViewerIsOwner)
 {
     if (Model.Visibility != Visibility.VISIBLE_TO_WORLD)

@@ -1,7 +1,10 @@
 @model TagEditorViewModel
+@if (Model.Tags != null && Model.Tags.items != null && Model.Tags.items.Count > 0)
+{
 <div class="js-tag-display @Model.HtmlClasses" id="@Model.HtmlId" >
     @foreach (var tag in Model.Tags.items)
     {
-        <a class="js-tag-display--tag" title="@tag.summary" asp-controller="Home" asp-action="Search" asp-route-tags="@tag.content">@tag.content</a>
+        <partial name="Item" model="tag" />
     }
 </div>
+}

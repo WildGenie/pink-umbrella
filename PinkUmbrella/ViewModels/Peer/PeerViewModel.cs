@@ -4,7 +4,7 @@ namespace PinkUmbrella.ViewModels.Peer
 {
     public class PeerViewModel : BaseViewModel
     {
-        public Tides.Actors.Peer Peer { get; set; }
+        public Estuary.Actors.Peer Peer { get; set; }
         
         public object ProxiedViewModel { get; set; }
 

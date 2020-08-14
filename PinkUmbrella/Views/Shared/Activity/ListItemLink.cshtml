@@ -1,0 +1,5 @@
+@model Estuary.Core.BaseObject
+@{
+    var shortenDesc = Model.summary.Substring(0, Math.Min(100, Model.summary.Length));
+}
+<a asp-controller="@Model.BaseType" asp-action="@Model.type" asp-route-id="@Model.id">@shortenDesc</a>
