@@ -102,7 +102,7 @@ namespace PinkUmbrella.Services.Sql
             // PublicId userId, int? viewerId, bool includeReplies, PaginationModel pagination
             var mentions = await _activityStreams.Get(new ActivityStreamFilter("inbox")
             {
-                userId = userId.Id, peerId = userId.PeerId, viewerId = viewerId, includeReplies = includeReplies
+                id = userId, viewerId = viewerId, includeReplies = includeReplies
             });
             
             //_dbContext.Mentions.Where(m => m.MentionedUserId == userId.Id && m.MentionedUserPeerId == userId.PeerId && m.Post.IsReply == includeReplies);
@@ -128,7 +128,7 @@ namespace PinkUmbrella.Services.Sql
             {
                 return await _activityStreams.Get(new ActivityStreamFilter("outbox")
                 {
-                    userId = userId.Id, includeReplies = includeReplies,
+                    id = userId, includeReplies = includeReplies,
                 });
             }
             else

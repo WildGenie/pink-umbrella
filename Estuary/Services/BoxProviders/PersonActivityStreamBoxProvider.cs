@@ -7,7 +7,7 @@ namespace Estuary.Services.BoxProviders
     {
         public IActivityStreamBox Resolve(ActivityStreamFilter filter, IActivityStreamRepository ctx)
         {
-            if (filter.userId.HasValue)
+            if (filter.id.Id.HasValue)
             {
                 switch (filter.index)
                 {

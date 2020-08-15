@@ -8,7 +8,7 @@ namespace Tides.Models.Public
     {
         public PublicId() { }
 
-        public PublicId(int id, long peerId)
+        public PublicId(int? id, long? peerId)
         {
             Id = id;
             PeerId = peerId;
@@ -73,17 +73,24 @@ namespace Tides.Models.Public
 
         public void Copy(PublicId value)
         {
-            Id = value.Id;
             UserId = value.UserId;
+            ObjectId = value.ObjectId;
             PeerId = value.PeerId;
             Type = value.Type ?? Type;
         }
 
         [JsonPropertyName("id")]
-        public int? Id { get; set; }
+        public int? Id
+        {
+            get => ObjectId ?? UserId;
+            set => ObjectId = value;
+        }
 
         [JsonPropertyName("userId")]
         public int? UserId { get; set; }
+
+        [JsonPropertyName("objectId")]
+        public int? ObjectId { get; set; }
 
         [JsonPropertyName("peerId")]
         public long? PeerId { get; set; }

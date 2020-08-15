@@ -81,7 +81,7 @@ else
         reactLike, reactDislike, reactUpvote, reactDownvote, reactIgnore, reactBlock, reactReport,
     };
     var tags = Model.tag != null && Model.type != "Note" ? new TagEditorViewModel() { Tags = Model.tag } : null;
-    <div class="contains-goto @Model.BaseType @Model.type border rounded p-2 m-2">
+    <div class="contains-goto @Model.BaseType @Model.type">
         <a class="goto" asp-controller="@Model.type" asp-action="Index" asp-route-id="@Model.PublicId">goto</a>
         <partial name="@Model.BaseType/@Model.type" />
         @if (tags != null)

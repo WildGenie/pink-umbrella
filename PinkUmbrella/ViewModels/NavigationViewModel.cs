@@ -7,8 +7,6 @@ namespace PinkUmbrella.ViewModels
 {
     public class NavigationViewModel: LinkViewModel
     {
-        private bool _selected;
-
         public NavigationViewModel()
         {
             this.Classes = "";

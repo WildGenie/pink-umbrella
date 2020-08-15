@@ -51,26 +51,26 @@ namespace PinkUmbrella.Services.ActivityStream.Write.Outbox
                         if (vis.Contains("followers"))
                         {
                             var publisher = ctx.item.GetPublisher();
-                            var followers = await ctx.context.GetAll(new ActivityStreamFilter("followers") { userId = publisher.objectId, peerId = publisher.PeerId });
+                            var followers = await ctx.context.GetAll(new ActivityStreamFilter("followers") { id = publisher.PublicId });
                             if (followers != null && followers.items.Count > 0)
                             {
                                 // Send to followers
                                 foreach (var follower in followers.items.OfType<ActorObject>())
                                 {
-                                    await ctx.context.Set(ctx.item, new ActivityStreamFilter("inbox") { userId = follower.objectId, peerId = follower.PeerId });
+                                    await ctx.context.Set(ctx.item, new ActivityStreamFilter("inbox") { id = publisher.PublicId });
                                 }
                             }
                         }
                         if (vis.Contains("registered"))
                         {
-                            await ctx.context.Set(ctx.item, new ActivityStreamFilter("sharedOutbox") { peerId = ctx.Filter.peerId });
+                            await ctx.context.Set(ctx.item, new ActivityStreamFilter("sharedOutbox") { id = ctx.Filter.id });
                         }
 
                         // await ctx.context.Post("sharedOutbox", ctx.item);
                     }
                     else
                     {
-                        await ctx.context.Set(ctx.item, new ActivityStreamFilter("sharedOutbox") { peerId = ctx.Filter.peerId });
+                        await ctx.context.Set(ctx.item, new ActivityStreamFilter("sharedOutbox") { id = ctx.Filter.id });
                     }
                     
                     // if (!string.IsNullOrWhiteSpace(ctx.item.obj?.id))

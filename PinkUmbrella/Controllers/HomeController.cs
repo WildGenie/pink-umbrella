@@ -66,7 +66,7 @@ namespace PinkUmbrella.Controllers
             {
                 model.MyFeed = ListViewModel.Regular(await _activityStreams.Get(new ActivityStreamFilter("inbox")
                 {
-                    userId = user.UserId, peerId = user.PeerId
+                    id = user.PublicId
                 }));
                 model.MyFeed.EmptyViewName = "_EmptyFollowingList";
                 return View(model);
@@ -101,8 +101,7 @@ namespace PinkUmbrella.Controllers
                 MyProfile = user,
                 MyFeed = ListViewModel.Regular(await _activityStreams.GetAll(new ActivityStreamFilter("inbox")
                 {
-                    userId = user.UserId,
-                    peerId = user.PeerId,
+                    id = user.PublicId
                 }))
             };
             model.MyFeed.EmptyViewName = "_EmptyMentionsList";
@@ -120,8 +119,7 @@ namespace PinkUmbrella.Controllers
                 MyProfile = user,
                 MyFeed = ListViewModel.Regular(await _activityStreams.GetAll(new ActivityStreamFilter("outbox")
                 {
-                    userId = user.UserId,
-                    peerId = user.PeerId,
+                    id = user.PublicId
                 }))
             };
             model.MyFeed.EmptyViewModel = "You have not made any posts. Don't be shy!";
@@ -162,7 +160,7 @@ namespace PinkUmbrella.Controllers
             var user = await GetCurrentUserAsync();
             var notifs = await _activityStreams.GetAll(new ActivityStreamFilter("notifications")
             {
-                userId = user.UserId,
+                id = user.PublicId,
                 sinceId = sinceId,
                 // includeViewed = includeViewed,
             });

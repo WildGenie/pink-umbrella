@@ -13,10 +13,5 @@
     {
         <a class="goto" asp-controller="@Model.obj.type" asp-action="Index" asp-route-id="@Model.PublicId">goto</a>
     }
-    <p>
-        <partial name="Person/Goto" model="Model.actor?.items?.FirstOrDefault()" />
-        &bull; <partial name="_Timestamp" model="Model.published" />
-        <partial name="_VisibilityStatus" />
-    </p>
     <partial name="@Model.BaseType/@Model.type" />
 </div>

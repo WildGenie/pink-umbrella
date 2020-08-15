@@ -94,7 +94,7 @@ namespace PinkUmbrella.Controllers
         private async Task<IActionResult> UnReact(PublicId toId, string undo, ReactionType t)
         {
             var user = await GetCurrentUserAsync();
-            await _activityStream.Undo(new ActivityStreamFilter("outbox") { id = undo, userId = user.objectId, peerId = user.PeerId });
+            await _activityStream.Undo(new ActivityStreamFilter("outbox") { id = user.PublicId, activityId = new PublicId(undo) });
             await _reactions.UnReact(user.UserId.Value, toId, t);
 
             ViewData["PartialName"] = "Button/ReactButton";

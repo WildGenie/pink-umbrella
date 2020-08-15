@@ -127,7 +127,7 @@ namespace PinkUmbrella.Services.Sql
         public async Task UnReact(int userId, PublicId toId, ReactionType type) => 
                 await _activityStream.Undo(new ActivityStreamFilter("outbox")
                 {
-                    objectId = toId.Id, peerId = toId.PeerId, userId = userId,
+                    // publicId = toId,
                     targetTypes = new string[] { toId.Type }
                 }.FixType(type.ToString()));
     }

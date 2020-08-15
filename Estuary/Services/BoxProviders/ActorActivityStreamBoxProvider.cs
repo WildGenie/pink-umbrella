@@ -8,15 +8,27 @@ namespace Estuary.Services.BoxProviders
     {
         public IActivityStreamBox Resolve(ActivityStreamFilter filter, IActivityStreamRepository ctx)
         {
-            if (filter.userId.HasValue && filter.peerId.HasValue)
+            if (filter.id.Id.HasValue && filter.id.PeerId.HasValue)
             {
                 switch (filter.index)
                 {
                     case "inbox":
                     return new ActivityStreamInbox(filter, ctx);
                     case "outbox":
-                    return new ActivityStreamOutbox(filter, ctx);
-                    
+                    {
+                        var ret = new ActivityStreamOutbox(filter, ctx);
+                        if (filter.types == null)
+                        {
+                            foreach (var activityToIndexOn in new string[] { "Create", "Announce", "Like", "Dislike" })
+                            {
+                                ret.CreateIndexOn(new ActivityStreamFilter(filter.index)
+                                {
+                                    types = new string[] { activityToIndexOn }
+                                });
+                            }
+                        }
+                        return ret;
+                    }
                     case "shares":
                     return new ActivityStreamOutbox(filter.FixType("Share"), ctx);
                     case "liked":

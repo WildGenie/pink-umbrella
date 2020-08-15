@@ -268,9 +268,10 @@ namespace PinkUmbrella.Controllers
             id = Uri.UnescapeDataString(id);
             ViewData["Controller"] = "Person";
             var pid = new PublicId(id);
+            pid.Type = "Person";
             var filter = new ActivityStreamFilter("outbox")
             {
-                userId = pid.Id, peerId = pid.PeerId,
+                id = pid,
             };
             string emptyMessage = null;
 
@@ -279,7 +280,7 @@ namespace PinkUmbrella.Controllers
                 ViewData["Action"] = nameof(Index);
                 filter = new ActivityStreamFilter("outbox")
                 {
-                    userId = pid.Id, peerId = pid.PeerId, includeReplies = false
+                    id = pid, includeReplies = false
                 }.FixType(nameof(Create));
                 emptyMessage = "This user has not posted anything.";
             }
@@ -328,7 +329,7 @@ namespace PinkUmbrella.Controllers
                     // emptyMessage = "This user has not been mentioned.";
                     // filter = new ActivityStreamFilter("outbox")
                     // {
-                    //     userId = pid.Id, peerId = pid.PeerId,
+                    //     id = pid,
                     // }.FixType(nameof(Mention));
                     // break;
                     case "shops":
@@ -341,7 +342,7 @@ namespace PinkUmbrella.Controllers
                     emptyMessage = "This user is not following anyone.";
                     filter = new ActivityStreamFilter("following")
                     {
-                        userId = pid.Id, peerId = pid.PeerId,
+                        id = pid,
                     }.FixObjType(nameof(Person));
                     break;
                     case "followers":
@@ -349,64 +350,43 @@ namespace PinkUmbrella.Controllers
                     emptyMessage = "This user has no followers.";
                     filter = new ActivityStreamFilter("followers")
                     {
-                        userId = pid.Id, peerId = pid.PeerId,
+                        id = pid,
                     }.FixObjType(nameof(Person));
                     break;
                     case "likes":
                     ViewData["Action"] = nameof(Likes);
                     emptyMessage = "This user has no likes.";
-                    filter = new ActivityStreamFilter("outbox")
-                    {
-                        userId = pid.Id, peerId = pid.PeerId,
-                    }.FixType(nameof(Like));
+                    filter.FixType(nameof(Like));
                     break;
                     case "dislikes":
                     ViewData["Action"] = nameof(Dislikes);
                     emptyMessage = "This user has no dislikes.";
-                    filter = new ActivityStreamFilter("outbox")
-                    {
-                        userId = pid.Id, peerId = pid.PeerId,
-                    }.FixType(nameof(Dislike));
+                    filter.FixType(nameof(Dislike));
                     break;
                     case "upvotes":
                     ViewData["Action"] = nameof(Upvotes);
                     emptyMessage = "This user has no upvotes.";
-                    filter = new ActivityStreamFilter("outbox")
-                    {
-                        userId = pid.Id, peerId = pid.PeerId,
-                    }.FixType(nameof(Upvote));
+                    filter.FixType(nameof(Upvote));
                     break;
                     case "downvotes":
                     ViewData["Action"] = nameof(Downvotes);
                     emptyMessage = "This user has no downvotes.";
-                    filter = new ActivityStreamFilter("outbox")
-                    {
-                        userId = pid.Id, peerId = pid.PeerId,
-                    }.FixType(nameof(Downvote));
+                    filter.FixType(nameof(Downvote));
                     break;
                     case "ignored":
                     ViewData["Action"] = nameof(Ignored);
                     emptyMessage = "This user has not ignored anything or anyone.";
-                    filter = new ActivityStreamFilter("outbox")
-                    {
-                        userId = pid.Id, peerId = pid.PeerId,
-                    }.FixType(nameof(Ignore));
+                    filter.FixType(nameof(Ignore));
                     break;
                     case "blocked":
                     ViewData["Action"] = nameof(Blocked);
                     emptyMessage = "This user has not blocked anything or anyone.";
-                    filter = new ActivityStreamFilter("outbox")
-                    {
-                        userId = pid.Id, peerId = pid.PeerId,
-                    }.FixType(nameof(Block));
+                    filter.FixType(nameof(Block));
                     break;
                     case "reported":
                     ViewData["Action"] = nameof(Reported);
                     emptyMessage = "This user has not reported anything or anyone.";
-                    filter = new ActivityStreamFilter("outbox")
-                    {
-                        userId = pid.Id, peerId = pid.PeerId,
-                    }.FixType(nameof(Report));
+                    filter.FixType(nameof(Report));
                     break;
                 }
             }
@@ -417,7 +397,7 @@ namespace PinkUmbrella.Controllers
         {
             var currentUser = await GetCurrentUserAsync();
             filter.viewerId = currentUser.PublicId.IsLocal ? currentUser.UserId : null;
-            var user = await _publicProfiles.GetUser(new PublicId(filter.userId.Value, filter.peerId.Value), currentUser?.UserId);
+            var user = await _publicProfiles.GetUser(filter.id, currentUser?.UserId);
             if (user != null)
             {
                 var items = await _activityStreams.GetAll(filter);

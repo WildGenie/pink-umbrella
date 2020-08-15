@@ -16,6 +16,7 @@ using PinkUmbrella.Services;
 using PinkUmbrella.Util;
 using Tides.Models.Auth;
 using Tides.Models.Peer;
+using Tides.Models.Public;
 
 namespace PinkUmbrella.Controllers.Api
 {
@@ -68,8 +69,8 @@ namespace PinkUmbrella.Controllers.Api
             return Json(new PeerStatsModel() {
                 PeerCount = await _peers.CountAsync(),
                 MediaCount = await _db.ArchivedMedia.CountAsync(),
-                PostCount = int.Parse((await _activityStreams.Get(new ActivityStreamFilter("outbox") { peerId = 0, countOnly = true }.FixObjType("Note", "Article"))).summary),
-                ShopCount = int.Parse((await _activityStreams.Get(new ActivityStreamFilter("outbox") { peerId = 0, countOnly = true }.FixObjType("Organization"))).summary),
+                PostCount = int.Parse((await _activityStreams.Get(new ActivityStreamFilter("outbox") { id = new PublicId(null, 0), countOnly = true }.FixObjType("Note", "Article"))).summary),
+                ShopCount = int.Parse((await _activityStreams.Get(new ActivityStreamFilter("outbox") { id = new PublicId(null, 0), countOnly = true }.FixObjType("Organization"))).summary),
                 UserCount = await _db.Users.CountAsync(),
                 StartTime = Process.GetCurrentProcess().StartTime,
             });

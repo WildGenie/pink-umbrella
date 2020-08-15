@@ -61,7 +61,7 @@ namespace PinkUmbrella.Services.ActivityStream.Read
         {
             if (ctx.item.obj != null)
             {
-                var reactionsFilter = new ActivityStreamFilter("sharedInbox") { id = ctx.item.obj?.id }.ReactionsOnly();
+                var reactionsFilter = new ActivityStreamFilter("sharedInbox") { id = ctx.item.obj?.PublicId }.ReactionsOnly();
                 var reactionsBox = ctx.context.GetBox(reactionsFilter);
                 ctx.item.obj.Reactions = await reactionsBox.Get(reactionsFilter);
                 if (ctx.item.obj.Reactions.items.Count > 0)

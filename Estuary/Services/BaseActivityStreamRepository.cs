@@ -30,9 +30,9 @@ namespace Estuary.Services
 
         public abstract Task<CollectionObject> GetAll(ActivityStreamFilter filter);
 
-        public Task<CollectionObject> GetFollowers(PublicId publicId, int? viewerId) => GetActors(new ActivityStreamFilter("followers") { publicId = publicId, viewerId = viewerId });
+        public Task<CollectionObject> GetFollowers(PublicId publicId, int? viewerId) => GetActors(new ActivityStreamFilter("followers") { id = publicId, viewerId = viewerId });
 
-        public Task<CollectionObject> GetFollowing(PublicId publicId, int? viewerId) => GetActors(new ActivityStreamFilter("following") { publicId = publicId, viewerId = viewerId });
+        public Task<CollectionObject> GetFollowing(PublicId publicId, int? viewerId) => GetActors(new ActivityStreamFilter("following") { id = publicId, viewerId = viewerId });
 
         // public Task<CollectionObject> GetInventories(ActivityStreamFilter filter)
         // {

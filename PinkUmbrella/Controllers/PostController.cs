@@ -56,7 +56,7 @@ namespace PinkUmbrella.Controllers
             {
                 var post = await _activityStreams.Get(new ActivityStreamFilter("outbox")
                 {
-                    publicId = new PublicId(id), viewerId = user?.UserId,
+                    id = new PublicId(id), viewerId = user?.UserId,
                 }.FixObjType("Note", "Article"));
                 if (post != null)
                 {
@@ -108,7 +108,7 @@ namespace PinkUmbrella.Controllers
         private async Task<IActionResult> ViewPost(PublicId id)
         {
             var user = await GetCurrentUserAsync();
-            var post = await _activityStreams.Get(new ActivityStreamFilter("outbox") { publicId = id, viewerId = user?.UserId });
+            var post = await _activityStreams.Get(new ActivityStreamFilter("outbox") { id = id, viewerId = user?.UserId });
 
             ViewData["PartialName"] = "Activity/_Container";
             return View("_NoLayout", post);

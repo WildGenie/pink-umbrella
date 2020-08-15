@@ -9,6 +9,7 @@ using Tides.Models;
 using Estuary.Services;
 using Estuary.Actors;
 using Estuary.Util;
+using Tides.Models.Public;
 
 namespace PinkUmbrella.Services.Sql
 {
@@ -62,6 +63,6 @@ namespace PinkUmbrella.Services.Sql
         }
 
         public async Task<BaseObject> GetAllLocal() => await _activityStreams.Get(new ActivityStreamFilter("outbox")
-                                                        { peerId = 0 }.FixObjType(nameof(Common.Organization)));
+                                                        { id = new PublicId(null, 0) }.FixObjType(nameof(Common.Organization)));
     }
 }

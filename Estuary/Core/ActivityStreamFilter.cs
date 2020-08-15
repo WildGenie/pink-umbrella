@@ -9,6 +9,8 @@ namespace Estuary.Core
 {
     public class ActivityStreamFilter
     {
+        public PublicId activityId { get; set; }
+
         public ActivityStreamFilter(string index)
         {
             this.index = string.IsNullOrWhiteSpace(index) ? throw new ArgumentNullException(index) : index;
@@ -16,15 +18,17 @@ namespace Estuary.Core
         
         public string index { get; }
 
+        public PublicId id { get; set; }
+
         public int? sinceId { get; set; }
 
         public bool? countOnly { get; set; }
 
         public int? viewerId { get; set; }
         
-        public long? peerId { get; set; }
-        public int? userId { get; set; }
-        public int? objectId { get; set; }
+        // public long? peerId { get; set; }
+        // public int? userId { get; set; }
+        // public int? objectId { get; set; }
         public string handle { get; set; }
         public string[] types { get; set; }
         public string[] objectTypes { get; set; }
@@ -38,22 +42,20 @@ namespace Estuary.Core
         public string[] order { get; set; }
         
 
-        [JsonIgnore]
-        public PublicId publicId
-        {
-            get
-            {
-                var id = objectId ?? userId;
-                return id.HasValue && peerId.HasValue ? new PublicId(id.Value, peerId.Value) : null;
-            }
-            set
-            {
-                objectId = value.Id;
-                peerId = value.PeerId;
-            }
-        }
-
-        public string id { get; set; }
+        // [JsonIgnore]
+        // public PublicId publicId { get; set; }
+        // {
+        //     get
+        //     {
+        //         var id = objectId ?? userId;
+        //         return id.HasValue && peerId.HasValue ? new PublicId(id.Value, peerId.Value) : null;
+        //     }
+        //     set
+        //     {
+        //         objectId = value.Id;
+        //         peerId = value.PeerId;
+        //     }
+        // }
 
         public override bool Equals(object obj)
         {
@@ -71,14 +73,10 @@ namespace Estuary.Core
         {
             var uriBuilder = new UriBuilder("activity", "localhost", 0, index);
             var queryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-            
-            if (!string.IsNullOrWhiteSpace(id))
+
+            if (id != null)
             {
-                queryString.Add(nameof(id), id);
-            }
-            else if (publicId != null)
-            {
-                queryString.Add(nameof(id), publicId.ToString());
+                queryString.Add(nameof(id), id.ToString());
             }
 
             if (types != null && types.Length > 0)
@@ -120,12 +118,111 @@ namespace Estuary.Core
             return true;
         }
 
+        public bool Contains(ActivityStreamFilter other)
+        {
+            return (includeReplies == other.includeReplies || !includeReplies.HasValue) &&
+                    (index == other.index || string.IsNullOrWhiteSpace(index)) &&
+                    (id == other.id || id == null) &&
+                    (handle == other.handle || string.IsNullOrWhiteSpace(handle)) &&
+                    (types == null || other.types == null || !types.Except(other.types).Any()) &&
+                    (objectTypes == null || other.objectTypes == null || !objectTypes.Except(other.objectTypes).Any()) &&
+                    (targetTypes == null || other.targetTypes == null || !targetTypes.Except(other.targetTypes).Any()) &&
+                    (type == null || type == other.type);
+        }
+
+        public ActivityStreamFilter Extend(ActivityStreamFilter other)
+        {
+            return new ActivityStreamFilter(index ?? other.index)
+            {
+                id = id ?? other.id,
+                handle = handle ?? other.handle,
+                types = types ?? other.types,
+                objectTypes = objectTypes ?? other.objectTypes,
+                targetTypes = targetTypes ?? other.targetTypes,
+                type = type ?? other.type,
+                // includeReplies = includeReplies ?? other.includeReplies,
+            };
+        }
+
+        public string ToPath(PublicId focus)
+        {
+            var str = string.Empty;
+
+            if (id != null)
+            {
+                if (!string.IsNullOrWhiteSpace(str))
+                {
+                    str += "/";
+                }
+                str += id;
+            }
+
+            if (!string.IsNullOrWhiteSpace(index))
+            {
+                if (!string.IsNullOrWhiteSpace(str))
+                {
+                    str += "/";
+                }
+                str += index;
+            }
+
+            if (focus != null)
+            {
+                if (focus.IsGuid)
+                {
+                    return $"{str}/{focus.AsGuid()}.json";
+                }
+                else if (focus.PeerId.HasValue)
+                {
+                    return $"{str}/{focus.PeerId}-{focus.Id}.json";
+                }
+                else
+                {
+                    return $"{str}/{focus.Id}.json";
+                }
+            }
+            else
+            {
+                return $"{str}.index";
+            }
+        }
+
         public string ToUrlFormEncoded()
         {
             var pairs = this.GetType().GetProperties()
-                .Select(p => $"{p.Name}={Uri.EscapeDataString(p.GetValue(this)?.ToString() ?? "")}")
-                .ToArray();
-            return string.Join('&', pairs);
+                .Where(p => p.GetValue(this) != null)
+                .ToDictionary(k => k.Name, p =>
+                {
+                    var val = p.GetValue(this);
+                    if (val is string[] stringArray)
+                    {
+                        return string.Join(',', stringArray);
+                    }
+                    else
+                    {
+                        return val.ToString();
+                    }
+                });
+            
+            pairs.Remove(nameof(id));
+            pairs.Remove(nameof(index));
+            pairs.Remove(nameof(reverse));
+            
+            return string.Join('&', pairs.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
+        }
+
+        public string ToUri(PublicId focus)
+        {
+            var str = ToPath(focus);
+            var args = ToUrlFormEncoded();
+            if (string.IsNullOrWhiteSpace(args))
+            {
+                return str;
+            }
+            else
+            {
+                return $"{System.IO.Path.ChangeExtension(str, null)}?{args}.index";
+            }
         }
     }
 }

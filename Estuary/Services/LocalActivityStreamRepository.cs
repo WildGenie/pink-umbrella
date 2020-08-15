@@ -26,8 +26,7 @@ namespace Estuary.Services
             var publisher = item.actor?.items?.FirstOrDefault();
             var filter = new ActivityStreamFilter(index)
             {
-                userId = publisher?.UserId,
-                peerId = publisher?.PeerId,
+                id = publisher.PublicId
             };
             return await Set(item, filter);
         }

@@ -16,6 +16,7 @@ using Estuary.Services;
 using Estuary.Util;
 using PinkUmbrella.ViewModels.Shared;
 using System;
+using Tides.Models.Public;
 
 namespace PinkUmbrella.Controllers
 {
@@ -105,8 +106,13 @@ namespace PinkUmbrella.Controllers
             ViewData["Action"] = nameof(Index);
             
             var currentUser = await GetCurrentUserAsync();
-            var inventory = await _activityStreams.Get(new ActivityStreamFilter("outbox") { id = id, viewerId = currentUser?.UserId }.FixObjType("Inventory"));
-            if (inventory == null) {
+            var inventory = await _activityStreams.Get(new ActivityStreamFilter("outbox")
+            {
+                id = new PublicId(id), viewerId = currentUser?.UserId
+            }.FixObjType("Inventory"));
+
+            if (inventory == null)
+            {
                 return NotFound();
             }
             
@@ -114,7 +120,7 @@ namespace PinkUmbrella.Controllers
 
             var resources = ListViewModel.Links(await _activityStreams.Get(new ActivityStreamFilter("outbox")
             {
-                id = id, viewerId = currentUser?.UserId
+                id = new PublicId(id), viewerId = currentUser?.UserId
             }.FixObjType("Resource")));
             resources.SelectedId = selected;
             
