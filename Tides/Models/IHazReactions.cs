@@ -6,6 +6,7 @@ namespace Tides.Models
 {
     public interface IHazReactions
     {
+
         [DefaultValue(0), DisplayName("Like Count"), Description("How many times this was liked by other users.")]
         int LikeCount { get; set; }
 
@@ -26,6 +27,7 @@ namespace Tides.Models
 
         [DefaultValue(0), DisplayName("Follow Count"), Description("How many times this was followed by other users.")]
         int FollowCount { get; set; }
+        
 
         [NotMapped, Nest.Ignore]
         bool HasLiked { get; set; }

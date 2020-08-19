@@ -388,6 +388,11 @@ namespace PinkUmbrella.Controllers
                     emptyMessage = "This user has not reported anything or anyone.";
                     filter.FixType(nameof(Report));
                     break;
+                    case "activity":
+                    ViewData["Action"] = nameof(Activity);
+                    emptyMessage = "This user has no activity.";
+                    filter.FixType(nameof(Like), nameof(Dislike), nameof(Upvote), nameof(Downvote), nameof(Block), nameof(Report));
+                    break;
                 }
             }
             return ViewCollection(filter, emptyMessage);

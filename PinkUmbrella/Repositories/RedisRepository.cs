@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Estuary.Util;
 using StackExchange.Redis;
+using Tides.Models.Auth;
 using Tides.Models.Public;
 
 namespace PinkUmbrella.Repositories
@@ -49,14 +50,14 @@ namespace PinkUmbrella.Repositories
         {
             var db = _conn.GetDatabase();
             var t = typeof(T);
-            var f = t.GetProperty(property);
+            var f = t.GetProperty(property) ?? throw new ArgumentOutOfRangeException(nameof(property), property, $"Property is not in type {t.FullName}");
             var key = RedisId(baseId, id, t, f);
             var keyExists = await db.KeyExistsAsync(key);
             if (keyExists)
             {
                 return await db.StringGetAsync(key);
             }
-            else if (f.GetCustomAttribute<RedisValueAttribute>().IsRequired)
+            else if (f.GetCustomAttribute<RedisValueAttribute>()?.IsRequired ?? false)
             {
                 throw new ArgumentNullException($"Missing redis key {key} for {t.Name}'s field {f.Name}");
             }
@@ -90,6 +91,24 @@ namespace PinkUmbrella.Repositories
                 var key = RedisId(baseId, id, t, f);
                 await db.KeyDeleteAsync(key, CommandFlags.FireAndForget);
             }
+        }
+
+        public async Task FieldSet<T>(object id, string property, string value, string baseId = null)
+        {
+            var db = _conn.GetDatabase();
+            var t = typeof(T);
+            var f = t.GetProperty(property);
+            var key = RedisId(baseId, id, t, f);
+            await db.KeyDeleteAsync(key, CommandFlags.FireAndForget);
+        }
+
+        public async Task FieldDelete<T>(string property, object id, string baseId)
+        {
+            var db = _conn.GetDatabase();
+            var t = typeof(T);
+            var f = t.GetProperty(property);
+            var key = RedisId(baseId, id, t, f);
+            await db.KeyDeleteAsync(key, CommandFlags.FireAndForget);
         }
 
         public async Task Increment(string id) => await _conn.GetDatabase().StringIncrementAsync(id, flags: CommandFlags.FireAndForget);

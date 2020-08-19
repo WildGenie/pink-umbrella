@@ -82,17 +82,19 @@ namespace PinkUmbrella.Services.Sql
                     summary = "content is empty"
                 };
             }
-            var audience = visibility.ToAudience(publisher ?? throw new ArgumentNullException(nameof(publisher))).
-                            IntoNewList<BaseObject>().ToCollection();
+            var audience = visibility.ToAudience(publisher ?? throw new ArgumentNullException(nameof(publisher)));
+            var audienceList = audience?.IntoNewList<BaseObject>()?.ToCollection();
+            var from = publisher.IntoNewList<BaseObject>().ToCollection();
             var post = new Create
             {
                 obj = new Note()
                 {
                     content = content,
-                    audience = audience
+                    audience = audienceList,
+                    from = from,
                 },
-                actor = publisher.IntoNewList<BaseObject>().ToCollection(),
-                to = audience,
+                from = from,
+                to = audienceList,
             };
             return (await _activityStreams.Post("outbox", post)) ?? post;
         }

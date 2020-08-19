@@ -20,15 +20,21 @@ namespace PinkUmbrella.Services.Sql
 {
     public class ReactionService : BaseElasticService, IReactionService
     {
-        //private readonly SimpleDbContext _dbContext;
         private readonly IActivityStreamRepository _activityStream;
+        private readonly IActivityStreamContentRepository _activityContent;
+        private readonly IRateLimitService _rateLimitService;
         private readonly RedisRepository _redis;
 
-        public ReactionService(IActivityStreamRepository activityStream, RedisRepository redis) // SimpleDbContext dbContext
+        public ReactionService(
+            IActivityStreamRepository activityStream,
+            RedisRepository redis,
+            IActivityStreamContentRepository activityContent,
+            IRateLimitService rateLimitService)
         {
-            //_dbContext = dbContext;
             _activityStream = activityStream;
             _redis = redis;
+            _activityContent = activityContent;
+            _rateLimitService = rateLimitService;
         }
 
         public Task DeleteSummary(ReactionsSummaryModel summary) => _redis.Delete(summary);
@@ -105,26 +111,33 @@ namespace PinkUmbrella.Services.Sql
             throw new NotImplementedException();
         }
 
-        public async Task<string> React(int userId, PublicId toId, ReactionType type)
+        public async Task<string> React(PublicId userId, PublicId toId, ReactionType type)
         {
+            await _rateLimitService.TryActorToId(userId, toId, type.ToString());
+            
             var reaction = (ActivityObject) Activator.CreateInstance(CustomJsonSerializer.TypeOf(type.ToString()));
             reaction.actor = new List<BaseObject> {
                 new Common.Person {
-                    objectId = userId,
-                    PeerId = 0,
+                    PublicId = userId,
                 }
             }.ToCollection();
 
-            var target = (BaseObject) Activator.CreateInstance(CustomJsonSerializer.TypeOf(toId.Type));
-            target.id = toId.ToString();
-            reaction.target = new List<BaseObject> { target }.ToCollection();
-            reaction.published = DateTime.UtcNow;
+            var target = await _activityContent.Get(toId, userId);
+            if (target != null)
+            {
+                reaction.target = new List<BaseObject> { target }.ToCollection();
+                reaction.published = DateTime.UtcNow;
 
-            var res = await _activityStream.Post("outbox", reaction);
-            return reaction.id;
+                var res = await _activityStream.Post("outbox", reaction);
+                return reaction.id;
+            }
+            else
+            {
+                return null;
+            }
         }
 
-        public async Task UnReact(int userId, PublicId toId, ReactionType type) => 
+        public async Task UnReact(PublicId userId, PublicId toId, ReactionType type) => 
                 await _activityStream.Undo(new ActivityStreamFilter("outbox")
                 {
                     // publicId = toId,

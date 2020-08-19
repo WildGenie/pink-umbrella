@@ -1,14 +1,32 @@
 ﻿@model Estuary.Activities.Common.Like
-@{
-    var obj = Model.target.items.FirstOrDefault();
-}
-Liked a 
-@if (obj != null)
+<p>
+    <partial name="Person/Goto" model="Model.actor?.items?.FirstOrDefault()" />
+    <span>Liked a </span>
+    @if (Model.target.items.Count == 1)
+    {
+        <span>@Model.target.items.First().type</span>
+    }
+    else
+    {
+        var first = Model.target.items.First();
+        var last = Model.target.items.Last();
+        foreach (var targ in Model.target.items)
+        {
+            if (object.ReferenceEquals(last, targ))
+            {
+                <span>, and</span>
+            }
+            else if (!object.ReferenceEquals(last, targ))
+            {
+                <span>, </span>
+            }
+            <span>@targ.type</span>
+        }
+    }
+    <partial name="_Timestamp" model="Model.published" />
+    <partial name="_VisibilityStatus" />
+</p>
+@foreach (var target in Model.target.items)
 {
-    @obj?.type
-    <partial name="@obj.BaseType/_Container" model="@obj" />
-}
-else
-{
-    <span>something</span>
+    <partial name="@target.BaseType/_Container" model="target" />
 }

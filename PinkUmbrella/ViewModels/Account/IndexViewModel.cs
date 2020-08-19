@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using PinkUmbrella.Models;
 using PinkUmbrella.Models.Auth;
 
 namespace PinkUmbrella.ViewModels.Account

@@ -8,7 +8,7 @@
         additionalClasses += " contains-goto";
     }
 }
-<div class="@Model.BaseType @Model.type @additionalClasses p-2">
+<div class="card @Model.BaseType @Model.type @additionalClasses p-2">
     @if (hasObj)
     {
         <a class="goto" asp-controller="@Model.obj.type" asp-action="Index" asp-route-id="@Model.PublicId">goto</a>

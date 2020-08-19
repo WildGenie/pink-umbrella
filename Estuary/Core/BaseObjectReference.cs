@@ -33,12 +33,13 @@ namespace Estuary.Core
 
         public long? hash { get; set; }
 
-        [JsonPropertyName("peerId")]
+        [JsonIgnore]
         public long? PeerId { get => PublicId?.PeerId; set => EnsurePublicId().PeerId = value ?? 0; }
 
+        [JsonIgnore]
         public int? objectId { get => PublicId?.Id; set => EnsurePublicId().Id = value ?? 0; }
 
-        [JsonPropertyName("userId")]
+        [JsonIgnore]
         public virtual int? UserId => objectId.HasValue && IsActor ? objectId : PublicId?.UserId;
         
         [JsonIgnore]

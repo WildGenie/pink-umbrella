@@ -1,7 +1,9 @@
 ﻿@model Estuary.Activities.Common.Create
-<p>
-    <partial name="Person/Goto" model="Model.actor?.items?.FirstOrDefault()" />
-    Created a @Model.obj.type <partial name="_Timestamp" model="Model.published" />
+<div class="card-title">
+    <partial name="Person/Goto" model="Model.from?.items?.FirstOrDefault()" />
+    created a @Model.obj.type.ToLower() <partial name="_Timestamp" model="Model.published" />
     <partial name="_VisibilityStatus" />
-</p>
-<partial name="@Model.obj.BaseType/_Container" model="@Model.obj" />
+</div>
+<div class="card-body">
+    <partial name="@Model.obj.BaseType/_Container" model="@Model.obj" />
+</div>

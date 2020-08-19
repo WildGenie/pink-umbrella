@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
+using Estuary.Actors;
 using Estuary.Core;
 using Estuary.Services;
 using Estuary.Util;
@@ -13,11 +14,19 @@ namespace PinkUmbrella.Services.ActivityStream.Read
     {
         private readonly RedisRepository _redis;
         private readonly StringRepository _strings;
+        private readonly SimpleDbContext _db;
+        private readonly IActivityStreamContentRepository _contentRepository;
 
-        public BindSqlReferencesToActivityStreamWhenReading(RedisRepository redis, StringRepository strings)
+        public BindSqlReferencesToActivityStreamWhenReading(
+            RedisRepository redis,
+            StringRepository strings,
+            SimpleDbContext db,
+            IActivityStreamContentRepository contentRepository)
         {
             _redis = redis;
             _strings = strings;
+            _db = db;
+            _contentRepository = contentRepository;
         }
 
         public async Task<BaseObject> Pipe(ActivityDeliveryContext ctx)
@@ -59,40 +68,83 @@ namespace PinkUmbrella.Services.ActivityStream.Read
 
         private async Task BindReactions(ActivityDeliveryContext ctx)
         {
+            if (ctx.item.actor?.items != null)
+            {
+                foreach (var actor in ctx.item.actor.items.OfType<ActorObject>())
+                {
+                    await BindSqlActor(ctx, actor);
+                }
+            }
             if (ctx.item.obj != null)
             {
-                var reactionsFilter = new ActivityStreamFilter("sharedInbox") { id = ctx.item.obj?.PublicId }.ReactionsOnly();
-                var reactionsBox = ctx.context.GetBox(reactionsFilter);
-                ctx.item.obj.Reactions = await reactionsBox.Get(reactionsFilter);
-                if (ctx.item.obj.Reactions.items.Count > 0)
+                await BindSqlExtra(ctx, ctx.item.obj);
+            }
+            if (ctx.item.target?.items != null)
+            {
+                foreach (var target in ctx.item.target.items)
                 {
-                    var reactionTypes = ctx.item.obj.Reactions.items.Select(r => r.type).ToHashSet();
-                    if (reactionTypes.Count > 0)
-                    {
-                        ctx.item.obj.HasLiked = reactionTypes.Contains(nameof(ReactionType.Like));
-                        ctx.item.obj.HasDisliked = reactionTypes.Contains(nameof(ReactionType.Dislike));
-                        ctx.item.obj.HasUpvoted = reactionTypes.Contains(nameof(ReactionType.Upvote));
-                        ctx.item.obj.HasDownvoted = reactionTypes.Contains(nameof(ReactionType.Downvote));
-                        ctx.item.obj.HasFollowed = reactionTypes.Contains(nameof(ReactionType.Follow));
-                        ctx.item.obj.HasIgnored = reactionTypes.Contains(nameof(ReactionType.Ignore));
-                        ctx.item.obj.HasBlocked = reactionTypes.Contains(nameof(ReactionType.Block));
-                        ctx.item.obj.HasReported = reactionTypes.Contains(nameof(ReactionType.Report));
-                        ctx.item.obj.HasBeenBlockedOrReportedByViewer = ctx.item.obj.HasReported || ctx.item.obj.HasBlocked;
-                    }
+                    await _contentRepository.BindSqlContent(target);
+                    await BindSqlExtra(ctx, target);
                 }
+            }
+        }
 
-                var reactionsSummary = await _redis.Get<ReactionsSummaryModel>(ctx.item.obj.id);
-                if (reactionsSummary != null)
+        private async Task BindSqlActor(ActivityDeliveryContext ctx, ActorObject bindTo)
+        {
+            if (bindTo.PublicId != null && bindTo.PublicId.IsLocal && bindTo.PublicId.Id.HasValue)
+            {
+                var profile = await _db.Users.FindAsync(bindTo.PublicId.Id.Value);
+                if (profile != null)
                 {
-                    ctx.item.obj.LikeCount = reactionsSummary.LikeCount;
-                    ctx.item.obj.DislikeCount = reactionsSummary.DislikeCount;
-                    ctx.item.obj.UpvoteCount = reactionsSummary.UpvoteCount;
-                    ctx.item.obj.DownvoteCount = reactionsSummary.DownvoteCount;
-                    ctx.item.obj.FollowCount = reactionsSummary.FollowCount;
-                    ctx.item.obj.IgnoreCount = reactionsSummary.IgnoreCount;
-                    ctx.item.obj.BlockCount = reactionsSummary.BlockCount;
-                    ctx.item.obj.ReportCount = reactionsSummary.ReportCount;
+                    bindTo.name = profile.DisplayName;
+                    bindTo.Handle = profile.Handle;
+                    bindTo.BanExpires = profile.BanExpires;
+                    bindTo.BanReason = profile.BanReason;
+                    bindTo.summary = profile.Bio;
+                    //bindTo.content = content.Content;
+                    //bindTo.mediaType = content.MediaType;
+                    //bindTo.vis = content.Visibility;
+                    bindTo.published = profile.WhenCreated;
+                    bindTo.updated = profile.WhenLastUpdated;
+                    bindTo.deleted = profile.WhenDeleted;
+                    //bindTo.IsMature = profile.IsMature;
                 }
+            }
+        }
+
+        private async Task BindSqlExtra(ActivityDeliveryContext ctx, BaseObject bindTo)
+        {
+            var reactionsFilter = new ActivityStreamFilter("sharedInbox") { id = bindTo?.PublicId }.ReactionsOnly();
+            var reactionsBox = ctx.context.GetBox(reactionsFilter);
+            bindTo.Reactions = await reactionsBox.Get(reactionsFilter);
+            if (bindTo.Reactions.items.Count > 0)
+            {
+                var reactionTypes = bindTo.Reactions.items.Select(r => r.type).ToHashSet();
+                if (reactionTypes.Count > 0)
+                {
+                    bindTo.HasLiked = reactionTypes.Contains(nameof(ReactionType.Like));
+                    bindTo.HasDisliked = reactionTypes.Contains(nameof(ReactionType.Dislike));
+                    bindTo.HasUpvoted = reactionTypes.Contains(nameof(ReactionType.Upvote));
+                    bindTo.HasDownvoted = reactionTypes.Contains(nameof(ReactionType.Downvote));
+                    bindTo.HasFollowed = reactionTypes.Contains(nameof(ReactionType.Follow));
+                    bindTo.HasIgnored = reactionTypes.Contains(nameof(ReactionType.Ignore));
+                    bindTo.HasBlocked = reactionTypes.Contains(nameof(ReactionType.Block));
+                    bindTo.HasReported = reactionTypes.Contains(nameof(ReactionType.Report));
+                    bindTo.HasBeenBlockedOrReportedByViewer = bindTo.HasReported || bindTo.HasBlocked;
+                }
+            }
+
+            var reactionsSummary = await _redis.Get<ReactionsSummaryModel>(bindTo.id);
+            if (reactionsSummary != null)
+            {
+                bindTo.LikeCount = reactionsSummary.LikeCount;
+                bindTo.DislikeCount = reactionsSummary.DislikeCount;
+                bindTo.UpvoteCount = reactionsSummary.UpvoteCount;
+                bindTo.DownvoteCount = reactionsSummary.DownvoteCount;
+                bindTo.FollowCount = reactionsSummary.FollowCount;
+                bindTo.IgnoreCount = reactionsSummary.IgnoreCount;
+                bindTo.BlockCount = reactionsSummary.BlockCount;
+                bindTo.ReportCount = reactionsSummary.ReportCount;
             }
         }
     }

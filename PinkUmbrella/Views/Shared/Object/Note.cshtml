@@ -13,16 +13,24 @@
         }
     }
 }
-<div class="js-tag-display">
-    @foreach (var p in parts)
-    {
-        if (tagLookup.TryGetValue(p, out var tag))
+<div class="card-title p-2">
+    <partial name="Person/Goto" model="Model.from?.items?.FirstOrDefault()" />
+    noted <partial name="_Timestamp" model="Model.published" />
+</div>
+<div class="card-body p-2">
+    <span class="js-tag-display">
+        &ldquo;
+        @foreach (var p in parts)
         {
-            <partial name="Tag/Item" model="tag" />
+            if (tagLookup.TryGetValue(p, out var tag))
+            {
+                <partial name="Tag/Item" model="tag" />
+            }
+            else
+            {
+                @Html.Raw(p)
+            }
         }
-        else
-        {
-            @Html.Raw(p)
-        }
-    }
+        &rdquo;
+    </span>
 </div>

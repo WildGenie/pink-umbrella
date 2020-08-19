@@ -9,14 +9,15 @@ using Estuary.Core;
 using Tides.Models;
 using Tides.Models.Public;
 using Estuary.Actors;
+using PinkUmbrella.Util;
 
 namespace PinkUmbrella.Services.Sql
 {
-    public class SqlSqlObjectReferenceService : IObjectReferenceService
+    public class SqlObjectReferenceService : IObjectReferenceService
     {
         protected readonly SimpleDbContext _db;
         
-        public SqlSqlObjectReferenceService(SimpleDbContext dbContext)
+        public SqlObjectReferenceService(SimpleDbContext dbContext)
         {
             _db = dbContext;
         }
@@ -64,6 +65,7 @@ namespace PinkUmbrella.Services.Sql
         {
             var newObj = new ObjectContentModel
             {
+                UserId = publisherId.Id.Value,
                 Published = DateTime.UtcNow,
                 Content = obj.content, Summary = obj.summary, Name = obj.name,
                 MediaType = obj.mediaType,
@@ -71,6 +73,22 @@ namespace PinkUmbrella.Services.Sql
                 Deleted = obj.deleted,
                 Updated = obj.updated,
                 IsMature = obj.IsMature ?? false,
+
+                AttachmentCSV = obj.attachment.ToCsv(),
+                AttributedToCSV = obj.attributedTo.ToCsv(),
+                AudienceCSV = obj.audience.ToCsv(),
+                ContextCSV = obj.context.ToCsv(),
+                IconCSV = obj.icon.ToCsv(),
+                ImageCSV = obj.image.ToCsv(),
+                InReplyToCSV = obj.inReplyTo.ToCsv(),
+                LocationCSV = obj.location.ToCsv(),
+                RepliesCSV = obj.replies.ToCsv(),
+                FromCSV = obj.from.ToCsv(),
+                TagCSV = obj.tag.ToCsv(),
+                ToCSV = obj.to.ToCsv(),
+                BtoCSV = obj.bto.ToCsv(),
+                CcCSV = obj.cc.ToCsv(),
+                BccCSV = obj.bcc.ToCsv(),
             };
             var list = GetHandleList(obj.type) ?? throw new ArgumentOutOfRangeException(nameof(obj.type), obj.type, "Invalid type");
             await list.AddAsync(newObj);

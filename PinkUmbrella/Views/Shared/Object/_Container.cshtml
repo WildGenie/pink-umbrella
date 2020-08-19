@@ -81,22 +81,24 @@ else
         reactLike, reactDislike, reactUpvote, reactDownvote, reactIgnore, reactBlock, reactReport,
     };
     var tags = Model.tag != null && Model.type != "Note" ? new TagEditorViewModel() { Tags = Model.tag } : null;
-    <div class="contains-goto @Model.BaseType @Model.type">
+    <div class="card contains-goto @Model.BaseType @Model.type">
         <a class="goto" asp-controller="@Model.type" asp-action="Index" asp-route-id="@Model.PublicId">goto</a>
         <partial name="@Model.BaseType/@Model.type" />
-        @if (tags != null)
-        {
-            <partial name="Tag/Display" model="tags" />
-        }
-        @if (Model.to != null && Model.to.items != null && Model.to.items.Count > 0)
-        {
-            <span>Mentions:</span>
-            <ul>
-                @foreach (var mention in Model.to.items) {
-                    <li class="contains-goto">@mention.name<a class="goto" asp-controller="Person" asp-action="Index" asp-route-id="@mention.id">goto</a></li>
-                }
-            </ul>
-        }
-        <partial name="Button/ReactButtonList" model="reactions" />
+        <div class="card-footer">
+            @if (tags != null)
+            {
+                <partial name="Tag/Display" model="tags" />
+            }
+            @if (Model.to != null && Model.to.items != null && Model.to.items.Count > 0)
+            {
+                <span>Mentions:</span>
+                <ul>
+                    @foreach (var mention in Model.to.items) {
+                        <li class="contains-goto">@mention.name<a class="goto" asp-controller="Person" asp-action="Index" asp-route-id="@mention.id">goto</a></li>
+                    }
+                </ul>
+            }
+            <partial name="Button/ReactButtonList" model="reactions" />
+        </div>
     </div>
 }

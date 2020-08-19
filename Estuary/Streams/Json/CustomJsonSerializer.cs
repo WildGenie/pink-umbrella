@@ -48,7 +48,7 @@ namespace Estuary.Streams.Json
             AddValueSerializer<CollectionObject>(SerializeCollection);
 
             AddPropertyOutputWrapper(ps => ps.Where(p => p.Value != null && (!(p.Value is BaseObject obj) || obj.IsDefined)));
-            AddPropertyOutputWrapper(ps => ps.Where(p => !Attribute.IsDefined(p.Property, typeof(JsonIgnoreAttribute)) && !Attribute.IsDefined(p.Property, typeof(NotMappedAttribute))));
+            AddPropertyOutputWrapper(ps => ps.Where(p => !Attribute.IsDefined(p.Property, typeof(JsonIgnoreAttribute))));
             AddPropertyOutputWrapper(ps =>
             {
                 var mapped = ps.ToDictionary(k => k.Name, v => v);
@@ -337,7 +337,12 @@ namespace Estuary.Streams.Json
             dest.WriteByte(34); // "
         }
 
-        private List<CustomProperty> GetProperties(BaseObject obj) => obj.GetType().GetProperties().Select(p => TransformProperty(p, obj)).ToList();
+        //private List<CustomProperty> GetProperties(BaseObject obj) => obj.GetType().GetProperties().Select(p => TransformProperty(p, obj)).ToList();
+        private List<CustomProperty> GetProperties(BaseObject obj)
+        {
+            var props = obj.GetType().GetProperties().ToList();
+            return props.Select(p => TransformProperty(p, obj)).ToList();
+        }
 
         private CustomProperty TransformProperty(PropertyInfo p, object obj)
         {

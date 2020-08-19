@@ -27,6 +27,7 @@ using PinkUmbrella.Services.Jobs;
 using PinkUmbrella.Services.Local;
 using PinkUmbrella.Services.NoSql;
 using PinkUmbrella.Services.Public;
+using PinkUmbrella.Services.Redis;
 using PinkUmbrella.Services.Search;
 using PinkUmbrella.Services.Sql;
 using PinkUmbrella.Util;
@@ -58,6 +59,7 @@ namespace PinkUmbrella
             // https://stackexchange.github.io/StackExchange.Redis/Configuration
             services.AddSingleton<ConnectionMultiplexer>(ConnectionMultiplexer.Connect("127.0.0.1:6379")); // ,password=password
             services.AddSingleton<RedisRepository>();
+            services.AddSingleton<IRateLimitService, RedisRateLimitService>();
 
             services.AddMiniProfiler(options =>
             {
@@ -118,7 +120,7 @@ namespace PinkUmbrella
 
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IPeerService, PeerService>();
-            services.AddScoped<IObjectReferenceService, SqlSqlObjectReferenceService>();
+            services.AddScoped<IObjectReferenceService, SqlObjectReferenceService>();
 
             services.AddSingleton<MarkdownPipeline>(new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
 
@@ -127,6 +129,7 @@ namespace PinkUmbrella
             services.UseActivityStreamWritePipes();
 
             services.AddScoped<IHazActivityStreamPipe, ActivityStreamPipe>();
+            services.AddScoped<IActivityStreamContentRepository, SqlActivityStreamContentRepository>();
             services.AddScoped<IActivityStreamRepository, LocalActivityStreamRepository>();
 
             services.AddScoped<INotificationService, NotificationService>();

@@ -61,7 +61,7 @@ namespace PinkUmbrella.Controllers
         private async Task<IActionResult> React(PublicId toId, ReactionType t)
         {
             var user = await GetCurrentUserAsync();
-            var reactionId = await _reactions.React(user.UserId.Value, toId, t);
+            var reactionId = await _reactions.React(user.PublicId, toId, t);
 
             ViewData["PartialName"] = "Button/ReactButton";
             return View("_NoLayout", new ReactViewModel()
@@ -95,7 +95,7 @@ namespace PinkUmbrella.Controllers
         {
             var user = await GetCurrentUserAsync();
             await _activityStream.Undo(new ActivityStreamFilter("outbox") { id = user.PublicId, activityId = new PublicId(undo) });
-            await _reactions.UnReact(user.UserId.Value, toId, t);
+            await _reactions.UnReact(user.PublicId, toId, t);
 
             ViewData["PartialName"] = "Button/ReactButton";
             return View("_NoLayout", new ReactViewModel()

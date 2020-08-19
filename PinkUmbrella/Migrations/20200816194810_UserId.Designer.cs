@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PinkUmbrella.Repositories;
 
 namespace PinkUmbrella.Migrations
 {
     [DbContext(typeof(SimpleDbContext))]
-    partial class SimpleDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200816194810_UserId")]
+    partial class UserId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -221,9 +223,6 @@ namespace PinkUmbrella.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("Deleted")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("FromCSV")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Handle")

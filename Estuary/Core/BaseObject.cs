@@ -83,6 +83,9 @@ namespace Estuary.Core
         public BaseObject url { get; set; }
         
         [NotMapped]
+        public CollectionObject from { get; set; }
+        
+        [NotMapped]
         public CollectionObject to { get; set; }
         
         [NotMapped]
@@ -214,6 +217,7 @@ namespace Estuary.Core
                         (location != null && location.IsDefined) || (preview != null && preview.IsDefined) || 
                         (replies != null && replies.IsDefined) || (tag != null && tag.IsDefined) || 
                         (deletedBy != null && deletedBy.IsDefined) || (url != null && url.IsDefined) || 
+                        (from != null && from.IsDefined) ||
                         (to != null && to.IsDefined) || (bto != null && bto.IsDefined) || 
                         (cc != null && cc.IsDefined) || (bcc != null && bcc.IsDefined) || 
                         

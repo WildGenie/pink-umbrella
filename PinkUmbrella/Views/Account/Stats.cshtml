@@ -1,0 +1,52 @@
+﻿@using Microsoft.AspNetCore.Http.Features
+@using PinkUmbrella.Services;
+@model PinkUmbrella.ViewModels.Account.StatsViewModel
+@{
+    var consentFeature = Context.Features.Get<ITrackingConsentFeature>();
+    var showBanner = !consentFeature?.CanTrack ?? false;
+    var cookieString = consentFeature?.CreateConsentCookie();
+    ViewData["Title"] = "Account Stats";
+}
+<partial name="_Header" />
+<div>
+    @if (Model.Rates != null)
+    {
+        if (Model.Limits == null)
+        {
+            <ul>
+            @foreach (var p in Model.Rates.GetType().GetProperties())
+            {
+                <li>
+                    <b>@p.Name</b>
+                    <span>@(p.GetValue(Model.Rates)?.ToString() ?? "<empty>")</span>
+                </li>
+            }
+            </ul>
+        }
+        else
+        {
+            <ul>
+            @foreach (var p in Model.Rates.GetType().GetProperties())
+            {
+                var val = p.GetValue(Model.Rates);
+                if (val != null)
+                {
+                    var lim = p.GetValue(Model.Limits);
+                    val = $"{val}/{lim}";
+                }
+                else
+                {
+                    val = "<empty>";
+                }
+                <li>
+                    <b>@p.Name</b>
+                    <span>@val</span>
+                </li>
+            }
+            </ul>
+        }
+    }
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

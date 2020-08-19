@@ -12,7 +12,7 @@ namespace Estuary.Core
         {
         }
 
-        public CollectionObject actor { get; set; }
+        public CollectionObject actor { get => from; set => from = value; }
 
         public CollectionObject target { get; set; }
 

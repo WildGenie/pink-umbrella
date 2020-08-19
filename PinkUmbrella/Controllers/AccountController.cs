@@ -37,6 +37,8 @@ namespace PinkUmbrella.Controllers
 
         private readonly IInvitationService _invitationService;
 
+        private readonly IRateLimitService _rateLimitService;
+
         public AccountController(
                 ILogger<AccountController> logger,
                 IWebHostEnvironment environment,
@@ -50,13 +52,15 @@ namespace PinkUmbrella.Controllers
                 ISettingsService settings,
                 IFido2 fido2,
                 IInvitationService invitationService,
-                IActivityStreamRepository activityStreams
+                IActivityStreamRepository activityStreams,
+                IRateLimitService rateLimitService
                 ) :
             base(environment, signInManager, userManager, posts, localProfiles, publicProfiles, reactions, tags, notifications, peers, auth, settings, activityStreams)
         {
             _logger = logger;
             _fido2 = fido2;
             _invitationService = invitationService;
+            _rateLimitService = rateLimitService;
         }
 
         [HttpGet]
@@ -146,6 +150,20 @@ namespace PinkUmbrella.Controllers
             return View(new PersonalDataModel()
             {
                 MyProfile = await GetCurrentUserAsync()
+            });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Stats()
+        {
+            ViewData["Controller"] = "Account";
+            ViewData["Action"] = nameof(Stats);
+            var user = await GetCurrentUserAsync();
+            return View(new StatsViewModel()
+            {
+                MyProfile = user,
+                Rates = await _rateLimitService.GetAllRatesForUser(user.PublicId),
+                Limits = await _rateLimitService.GetAllLimitsForUser(user.PublicId),
             });
         }
 
@@ -420,7 +438,7 @@ namespace PinkUmbrella.Controllers
                         case InvitationType.FollowMe:
                         {
                             // TODO: fix this for cross peer invitations
-                            await _reactions.React(user.Id, new PublicId(accessCode.CreatedByUserId, 0) { Type = "Actor" }, ReactionType.Follow);
+                            await _reactions.React(user.PublicId, new PublicId(accessCode.CreatedByUserId, 0) { Type = "Actor" }, ReactionType.Follow);
                             statusMessage = "You are now following " + accessCode.CreatedByUserId;
                         } break;
                         case InvitationType.Register: return RedirectToAction(nameof(Register), new { code });

@@ -14,6 +14,10 @@ using Estuary.Pipes.Read;
 using PinkUmbrella.Services.ActivityStream.Read;
 using PinkUmbrella.Services.ActivityStream.Write.Outbox;
 using PinkUmbrella.Services.ActivityStream.Write.Inbox;
+using Estuary.Core;
+using System.Text;
+using Tides.Models.Public;
+using System.Linq;
 
 namespace PinkUmbrella.Util
 {
@@ -244,6 +248,7 @@ namespace PinkUmbrella.Util
 
         public static void UseActivityStreamWritePipes(this IServiceCollection services)
         {
+            services.AddScoped<IActivityStreamPipe, HandlerWhenWritingPipe>();
             services.AddScoped<IActivityStreamPipe, OutboxActivityActionHandlerWhenWritingPipe>();
             services.AddScoped<IActivityStreamPipe, OutboxActivityActionObjectHandlerWhenWritingPipe>();
 
@@ -255,6 +260,76 @@ namespace PinkUmbrella.Util
 
             // services.AddScoped<IActivityStreamPipe, InboxActivityActionHandlerWhenWritingPipe>();
             // services.AddScoped<IActivityStreamPipe, InboxActivityActionObjectHandlerWhenWritingPipe>();
+        }
+
+
+
+
+        public static string ToCsv(this CollectionObject list)
+        {
+            if (list?.items == null || list.items.Count == 0)
+            {
+                return null;
+            }
+            return string.Join(',', list.items.Select(i => i.ToString().Replace(",", ",,")));
+        }
+
+
+        public static List<BaseObject> ParseIdUrlFromCSV(this string csv)
+        {
+            if (string.IsNullOrWhiteSpace(csv))
+            {
+                return null;
+            }
+
+            var strings = new List<string>();
+            var ret = new List<BaseObject>();
+            var sb = new StringBuilder();
+            for (int i = 0; i < csv.Length - 1; i++)
+            {
+                var ch = csv[i];
+                if (ch == ',')
+                {
+                    var chNext = csv[i + 1];
+                    if (chNext == ',')
+                    {
+                        sb.Append(ch);
+                        i++;
+                    }
+                    else
+                    {
+                        strings.Add(sb.ToString());
+                        sb.Length = 0;
+                    }
+                }
+                else
+                {
+                    sb.Append(ch);
+                }
+            }
+            sb.Append(csv[csv.Length - 1]);
+            strings.Add(sb.ToString());
+
+            foreach (var s in strings)
+            {
+                BaseObject r;
+                if (s.StartsWith("https:"))
+                {
+                    r = new Link { href = s };
+                }
+                else
+                {
+                    var id = new PublicId(s);
+                    r = new BaseObject(id.Type, "Object") { PublicId = id }; 
+                }
+
+                if (r != null)
+                {
+                    ret.Add(r);
+                }
+            }
+            
+            return ret.Count > 0 ? ret : null;
         }
     }
 }

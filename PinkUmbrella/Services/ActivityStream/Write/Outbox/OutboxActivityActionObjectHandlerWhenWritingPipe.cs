@@ -71,7 +71,7 @@ namespace PinkUmbrella.Services.ActivityStream.Write.Outbox
         {
             if (ctx.HasWritten)
             {
-                if (create.to.items.Any())
+                if (create.to?.items != null && create.to.items.Any())
                 {
                     // _dbContext.Mentions.AddRange(create.to);
                     // new MentionModel()

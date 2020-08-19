@@ -76,32 +76,32 @@ namespace PinkUmbrella.Controllers
             }
         }
 
-        [Authorize]
-        public async Task<IActionResult> Unblock(string id)
-        {
-            var pid = new PublicId(id);
-            var user = await GetCurrentUserAsync();
-            await _reactions.UnReact(user.UserId.Value, pid, ReactionType.Block);
-            return await ViewPost(pid);
-        }
+        // [Authorize]
+        // public async Task<IActionResult> Unblock(string id)
+        // {
+        //     var pid = new PublicId(id);
+        //     var user = await GetCurrentUserAsync();
+        //     await _reactions.UnReact(user.PublicId, pid, ReactionType.Block);
+        //     return await ViewPost(pid);
+        // }
 
-        [Authorize]
-        public async Task<IActionResult> Block(string id)
-        {
-            var pid = new PublicId(id);
-            var user = await GetCurrentUserAsync();
-            await _reactions.React(user.UserId.Value, pid, ReactionType.Block);
-            return await ViewPost(pid);
-        }
+        // [Authorize]
+        // public async Task<IActionResult> Block(string id)
+        // {
+        //     var pid = new PublicId(id);
+        //     var user = await GetCurrentUserAsync();
+        //     await _reactions.React(user.PublicId, pid, ReactionType.Block);
+        //     return await ViewPost(pid);
+        // }
 
-        [Authorize]
-        public async Task<IActionResult> Report(string id)
-        {
-            var pid = new PublicId(id);
-            var user = await GetCurrentUserAsync();
-            await _reactions.React(user.UserId.Value, pid, ReactionType.Report);
-            return await ViewPost(pid);
-        }
+        // [Authorize]
+        // public async Task<IActionResult> Report(string id)
+        // {
+        //     var pid = new PublicId(id);
+        //     var user = await GetCurrentUserAsync();
+        //     await _reactions.React(user.PublicId, pid, ReactionType.Report);
+        //     return await ViewPost(pid);
+        // }
 
         public Task<IActionResult> ViewPost(string id) => ViewPost(new PublicId(id));
 

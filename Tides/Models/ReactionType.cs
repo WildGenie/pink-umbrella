@@ -3,7 +3,6 @@ namespace Tides.Models
     public enum ReactionType
     {
         Like,
-        Praise,
         Accept,
         Dislike,
         Reject,

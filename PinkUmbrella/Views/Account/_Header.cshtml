@@ -6,6 +6,7 @@
     var notificationSettingsLiClass = actionName == "NotificationSettings" ? "selected" : "";
     var inviteLiClass = actionName == "Invite" ? "selected" : "";
     var invitesLiClass = actionName == "Invites" ? "selected" : "";
+    var statsLiClass = actionName == "Stats" ? "selected" : "";
 }
 <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
     <div class="container">
@@ -36,6 +37,9 @@
                     <a class="nav-link text-dark" asp-controller="Account" asp-action="Invites"><u>Invites</u></a>
                 </li>
                 }
+                <li class="nav-item @statsLiClass">
+                    <a class="nav-link text-dark" asp-controller="Account" asp-action="Stats"><u>Stats</u></a>
+                </li>
             </ul>
         </div>
     </div>
