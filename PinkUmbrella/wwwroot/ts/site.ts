@@ -15,36 +15,10 @@ $(() => {
         }
     });
 
-    $(document).on('click', '.contains-ajax', (ev: Event, data?: any) => {
-        ev.preventDefault();
-        let $parent = $(ev.target).closest('.contains-ajax');
-        let $ajax = $parent.find('a.ajax');
-        let href = $ajax.attr('href') as string;
-        let method = $ajax.attr('data-method') || 'POST';
-        let responseHandler = $ajax.attr('data-response-handler') as string;
-        let responseType = $ajax.attr('data-response-type') as string;
-        let responseOnClosest = $ajax.attr('data-response-on-closest') as string;
-
-        let p = $.ajax({
-            url: href,
-            type: method,
-            dataType: responseType || 'html',
-        });
-        if (responseHandler) {
-            var replaceEv = (r) => new CustomEvent(responseHandler, { detail: { r, $ajax } });
-            if (responseOnClosest && responseOnClosest.trim().length > 0) {
-                p.then(r => document.dispatchEvent(replaceEv(r)));
-            } else {
-                p.then(r => document.dispatchEvent(replaceEv(r)));
-            }
-        }
-        return false;
-    });
-
-    document.addEventListener('replacewith', (ev: CustomEvent) => {
-        if (ev.detail.$ajax)
+    $(document).on('replacewith', (ev, r, $ajax) => {
+        if ($ajax)
         {
-            ev.detail.$ajax.closest('.contains-ajax')[0].outerHTML = ev.detail.r;
+            $ajax.closest('.contains-ajax')[0].outerHTML = r;
         }
     });
 
@@ -53,7 +27,7 @@ $(() => {
         location.reload();
     });
 
-    document.addEventListener('post-replacewith', (ev: Event) => {
+    document.addEventListener('post-replacewith', (ev) => {
         console.log((ev as any).detail.r);
         console.log((ev as any).detail);
         if (ev.target && (<HTMLElement>ev.target).classList.contains('post')) {
@@ -136,7 +110,7 @@ $(() => {
         var value = ($this.val() as string || '').toLowerCase();
         var tableSelector = $this.attr('data-el-selector');
         $(tableSelector + ' tbody tr').each(function (index: number, element: HTMLElement): void {
-            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            $(this).toggle(($(this).text().toLowerCase() || '').indexOf(value) > -1)
         });
     });
     
@@ -290,16 +264,22 @@ $(() => {
         }
     });
 
-    $(document).on('click', '.contains-ajax', (ev: Event) => {
+
+    $(document).on('click', '.contains-ajax', (ev: Event, data?: any) => {
         ev.preventDefault();
         let $parent = $(ev.target).closest('.contains-ajax');
         let $ajax = $parent.find('a.ajax');
+        if ($ajax.attr('disabled')) {
+            return false;
+        } else {
+            $ajax.prop('disabled', true);
+        }
         let href = $ajax.attr('href');
         let method = $ajax.attr('data-method') || 'POST';
         let responseHandler = $ajax.attr('data-response-handler') as string;
         let responseType = $ajax.attr('data-response-type') || 'html';
         let responseOnClosest = $ajax.attr('data-response-on-closest') || '';
-
+        
         let p = $.ajax({
             url: href,
             type: method,
@@ -307,12 +287,18 @@ $(() => {
         });
         if (responseHandler) {
             var replaceEv = (r) => new CustomEvent(responseHandler, { detail: { r, $ajax } });
+            // if (responseOnClosest && responseOnClosest.trim().length > 0) {
+            //     p.then(r => $ajax.closest(responseOnClosest)[0].dispatchEvent(replaceEv(r)));
+            // } else {
+            //     p.then(r => $ajax[0].dispatchEvent(replaceEv(r)));
+            // }
             if (responseOnClosest && responseOnClosest.trim().length > 0) {
-                p.then(r => $ajax.closest(responseOnClosest)[0].dispatchEvent(replaceEv(r)));
+                p.then(r => $ajax.closest(responseOnClosest).trigger(responseHandler, [ r, $ajax ]));
             } else {
-                p.then(r => $ajax[0].dispatchEvent(replaceEv(r)));
+                p.then(r => $ajax.trigger(responseHandler, [ r, $ajax ]));
             }
         }
+        p.then(r => $ajax.prop('disabled', false));
         return false;
     });
 
@@ -391,7 +377,7 @@ $(() => {
         var value = ($this.val() as string || '').toLowerCase();
         var tableSelector = $this.attr('data-el-selector');
         $(tableSelector + ' tbody tr').each(function () {
-            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            $(this).toggle(($(this).text().toLowerCase() || '').indexOf(value) > -1)
         });
     });
     $(document).on('change', '.instant-dropdown-post select', function () {

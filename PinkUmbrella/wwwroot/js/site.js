@@ -11,34 +11,9 @@ $(() => {
             window.location.assign(href);
         }
     });
-    $(document).on('click', '.contains-ajax', (ev, data) => {
-        ev.preventDefault();
-        let $parent = $(ev.target).closest('.contains-ajax');
-        let $ajax = $parent.find('a.ajax');
-        let href = $ajax.attr('href');
-        let method = $ajax.attr('data-method') || 'POST';
-        let responseHandler = $ajax.attr('data-response-handler');
-        let responseType = $ajax.attr('data-response-type');
-        let responseOnClosest = $ajax.attr('data-response-on-closest');
-        let p = $.ajax({
-            url: href,
-            type: method,
-            dataType: responseType || 'html',
-        });
-        if (responseHandler) {
-            var replaceEv = (r) => new CustomEvent(responseHandler, { detail: { r, $ajax } });
-            if (responseOnClosest && responseOnClosest.trim().length > 0) {
-                p.then(r => document.dispatchEvent(replaceEv(r)));
-            }
-            else {
-                p.then(r => document.dispatchEvent(replaceEv(r)));
-            }
-        }
-        return false;
-    });
-    document.addEventListener('replacewith', (ev) => {
-        if (ev.detail.$ajax) {
-            ev.detail.$ajax.closest('.contains-ajax')[0].outerHTML = ev.detail.r;
+    $(document).on('replacewith', (ev, r, $ajax) => {
+        if ($ajax) {
+            $ajax.closest('.contains-ajax')[0].outerHTML = r;
         }
     });
     $(document).on('page-reload', '.contains-ajax', (ev) => {
@@ -120,7 +95,7 @@ $(() => {
         var value = ($this.val() || '').toLowerCase();
         var tableSelector = $this.attr('data-el-selector');
         $(tableSelector + ' tbody tr').each(function (index, element) {
-            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+            $(this).toggle(($(this).text().toLowerCase() || '').indexOf(value) > -1);
         });
     });
     $(document).on('change', '.instant-dropdown-post select', function () {
@@ -256,10 +231,16 @@ $(() => {
             $this.removeClass('is-empty');
         }
     });
-    $(document).on('click', '.contains-ajax', (ev) => {
+    $(document).on('click', '.contains-ajax', (ev, data) => {
         ev.preventDefault();
         let $parent = $(ev.target).closest('.contains-ajax');
         let $ajax = $parent.find('a.ajax');
+        if ($ajax.attr('disabled')) {
+            return false;
+        }
+        else {
+            $ajax.prop('disabled', true);
+        }
         let href = $ajax.attr('href');
         let method = $ajax.attr('data-method') || 'POST';
         let responseHandler = $ajax.attr('data-response-handler');
@@ -273,12 +254,13 @@ $(() => {
         if (responseHandler) {
             var replaceEv = (r) => new CustomEvent(responseHandler, { detail: { r, $ajax } });
             if (responseOnClosest && responseOnClosest.trim().length > 0) {
-                p.then(r => $ajax.closest(responseOnClosest)[0].dispatchEvent(replaceEv(r)));
+                p.then(r => $ajax.closest(responseOnClosest).trigger(responseHandler, [r, $ajax]));
             }
             else {
-                p.then(r => $ajax[0].dispatchEvent(replaceEv(r)));
+                p.then(r => $ajax.trigger(responseHandler, [r, $ajax]));
             }
         }
+        p.then(r => $ajax.prop('disabled', false));
         return false;
     });
     $(document).on('page-reload', '.contains-ajax', (ev) => {
@@ -347,7 +329,7 @@ $(() => {
         var value = ($this.val() || '').toLowerCase();
         var tableSelector = $this.attr('data-el-selector');
         $(tableSelector + ' tbody tr').each(function () {
-            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+            $(this).toggle(($(this).text().toLowerCase() || '').indexOf(value) > -1);
         });
     });
     $(document).on('change', '.instant-dropdown-post select', function () {

@@ -41,6 +41,12 @@ namespace Estuary.Util
             return filter;
         }
 
+        public static ActivityStreamFilter FixTarget(this ActivityStreamFilter filter, params string[] types)
+        {
+            filter.targetTypes = types;
+            return filter;
+        }
+
         public static ActivityStreamFilter ReactionsOnly(this ActivityStreamFilter filter)
         {
             filter.types = Enum.GetValues(typeof(ReactionType)).Cast<ReactionType>().Select(v => v.ToString()).ToArray();

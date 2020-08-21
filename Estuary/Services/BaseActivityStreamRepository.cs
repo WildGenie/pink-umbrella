@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Estuary.Actors;
 using Estuary.Core;
 using Estuary.Objects;
 using Estuary.Util;
@@ -99,7 +101,7 @@ namespace Estuary.Services
         private async Task<BaseObject> GetFirstOrError(Task<CollectionObject> task)
         {
             var res = await task;
-            if (res.items != null && res.items.Count > 0)
+            if (res?.items != null && res.items.Count > 0)
             {
                 return res.items[0];
             }
@@ -135,6 +137,25 @@ namespace Estuary.Services
                 throw new FilterReturnedEmptyResultsException();
             }
             return ret.ToCollection();
+        }
+
+        public async Task<BaseObject> Undo(ActorObject actor, BaseObject toActivity)
+        {
+            if (actor == null)
+            {
+                throw new ArgumentNullException(nameof(actor));
+            }
+            else if (toActivity == null)
+            {
+                throw new ArgumentNullException(nameof(toActivity));
+            }
+            return await Post("outbox", new Undo
+            {
+                actor = actor.IntoNewList<BaseObject>().ToCollection(),
+                obj = toActivity,
+            });
+            //await _activityStream.Undo(new ActivityStreamFilter("outbox") { id = user.PublicId, targetId = new PublicId(undo) });
+            //await _reactions.UnReact(user.PublicId, toId, t);
         }
     }
 }

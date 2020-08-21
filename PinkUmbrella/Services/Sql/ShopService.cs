@@ -1,11 +1,7 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using PinkUmbrella.Repositories;
 using Estuary.Core;
-using Tides.Models;
 using Estuary.Services;
 using Estuary.Actors;
 using Estuary.Util;
@@ -19,7 +15,6 @@ namespace PinkUmbrella.Services.Sql
         private readonly IPublicProfileService _users;
         private readonly ITagService _tags;
         private readonly IActivityStreamRepository _activityStreams;
-        private readonly IReactionService _reactions;
         private readonly IObjectReferenceService _handles;
 
         public ShopService(SimpleDbContext dbContext, IPublicProfileService users, ITagService tags, IActivityStreamRepository activityStreams, IReactionService reactions, IObjectReferenceService handles)
@@ -28,7 +23,6 @@ namespace PinkUmbrella.Services.Sql
             _users = users;
             _tags = tags;
             _activityStreams = activityStreams;
-            _reactions = reactions;
             _handles = handles;
         }
 

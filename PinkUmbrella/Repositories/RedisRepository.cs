@@ -124,6 +124,19 @@ namespace PinkUmbrella.Repositories
             await Increment(RedisId(baseId, id, t, f));
         }
 
+        public async Task Decrement(string id) => await _conn.GetDatabase().StringDecrementAsync(id, flags: CommandFlags.FireAndForget);
+
+        public async Task Decrement<T>(string property, object id, string baseId)
+        {
+            var t = typeof(T);
+            var f = t.GetProperty(property);
+            if (f == null)
+            {
+                throw new ArgumentException($"{property} is not a public property");
+            }
+            await Decrement(RedisId(baseId, id, t, f));
+        }
+
         private string RedisId(string baseId, object id, Type t, PropertyInfo f) => $"{baseId}{t.Name}-{f.Name}-{id}";
 
         private IEnumerable<PropertyInfo> FieldsFor(Type t) => t.GetProperties().Where(p => Attribute.IsDefined(p, typeof(RedisValueAttribute)));

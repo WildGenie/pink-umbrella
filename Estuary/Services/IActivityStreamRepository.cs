@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Estuary.Actors;
 using Estuary.Core;
 
 namespace Estuary.Services
@@ -10,6 +11,6 @@ namespace Estuary.Services
         IActivityStreamBox GetBox(ActivityStreamFilter filter);
         Task<BaseObject> Post(string index, ActivityObject item);
         Task<BaseObject> Set(ActivityObject item, ActivityStreamFilter filter);
-        Task<BaseObject> Undo(ActivityStreamFilter filter);
+        Task<BaseObject> Undo(ActorObject actor, BaseObject toActivity);
     }
 }

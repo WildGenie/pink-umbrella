@@ -38,36 +38,43 @@ namespace Tides.Models.Public
                 id = typeSplit[0] = typeSplit[1];
             }
 
-            if (Guid.TryParse(id, out var guid))
+            try
             {
-                var bytes = guid.ToByteArray();
-                PeerId = BitConverter.ToInt64(bytes);
-                UserId = BitConverter.ToInt32(bytes, 8);
-                Id = BitConverter.ToInt32(bytes, 12);
-            }
-            else
-            {
-                var split = id.Split('-');
-                if (split.Length == 3)
+                if (Guid.TryParse(id, out var guid))
                 {
-                    PeerId = long.Parse(split[0]);
-                    UserId = int.Parse(split[1]);
-                    Id = int.Parse(split[2]);
-                }
-                else if (split.Length == 2)
-                {
-                    UserId = int.Parse(split[0]);
-                    Id = int.Parse(split[1]);
-                }
-                else if (split.Length == 1)
-                {
-                    PeerId = 0;
-                    Id = int.Parse(split[0]);
+                    var bytes = guid.ToByteArray();
+                    PeerId = BitConverter.ToInt64(bytes);
+                    UserId = BitConverter.ToInt32(bytes, 8);
+                    Id = BitConverter.ToInt32(bytes, 12);
                 }
                 else
                 {
-                    throw new ArgumentException();
+                    var split = id.Split('-');
+                    if (split.Length == 3)
+                    {
+                        PeerId = long.Parse(split[0]);
+                        UserId = int.Parse(split[1]);
+                        Id = int.Parse(split[2]);
+                    }
+                    else if (split.Length == 2)
+                    {
+                        UserId = int.Parse(split[0]);
+                        Id = int.Parse(split[1]);
+                    }
+                    else if (split.Length == 1)
+                    {
+                        PeerId = 0;
+                        Id = int.Parse(split[0]);
+                    }
+                    else
+                    {
+                        throw new ArgumentException();
+                    }
                 }
+            }
+            catch (FormatException e)
+            {
+                throw new ArgumentException($"Public Id {id} has invalid format", e);
             }
         }
 
@@ -138,6 +145,39 @@ namespace Tides.Models.Public
             }
             return sb.ToString();
         }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is PublicId other)
+            {
+                return this.Type == other.Type && this.PeerId == other.PeerId &&
+                        this.UserId == other.UserId && this.Id == other.Id;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public static bool operator ==(PublicId lhs, PublicId rhs)
+        {
+            // Check for null on left side.
+            if (Object.ReferenceEquals(lhs, null))
+            {
+                if (Object.ReferenceEquals(rhs, null))
+                {
+                    // null == null = true.
+                    return true;
+                }
+
+                // Only the left side is null.
+                return false;
+            }
+            // Equals handles case of null on right side.
+            return lhs.Equals(rhs);
+        }
+
+        public static bool operator !=(PublicId lhs, PublicId rhs) => !(lhs == rhs);
 
 
         public Guid AsGuid()

@@ -10,7 +10,6 @@ namespace PinkUmbrella.Services
     public interface IReactionService
     {
         Task<string> React(PublicId userId, PublicId toId, ReactionType type);
-        Task UnReact(PublicId userId, PublicId toId, ReactionType type);
         Task<int> GetCount(PublicId toId, ReactionType type);
         Task<CollectionObject> Get(PublicId id, int? viewerId);
         Task<bool> HasBlockedViewer(PublicId id, int? viewerId);

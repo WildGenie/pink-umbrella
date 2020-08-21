@@ -63,6 +63,10 @@ namespace PinkUmbrella.Services.Sql
 
         public async Task<ObjectContentModel> UploadObject(PublicId publisherId, BaseObject obj)
         {
+            if (obj.from == null || obj.from.items.Count == 0)
+            {
+                throw new ArgumentException("Missing from in obj");
+            }
             var newObj = new ObjectContentModel
             {
                 UserId = publisherId.Id.Value,
@@ -93,9 +97,9 @@ namespace PinkUmbrella.Services.Sql
             var list = GetHandleList(obj.type) ?? throw new ArgumentOutOfRangeException(nameof(obj.type), obj.type, "Invalid type");
             await list.AddAsync(newObj);
             await _db.SaveChangesAsync();
-            obj.objectId = newObj.Id;
             obj.PeerId = publisherId.PeerId;
             obj.PublicId.UserId = publisherId.Id;
+            obj.objectId = newObj.Id;
             obj.published = newObj.Published;
             return newObj;
         }

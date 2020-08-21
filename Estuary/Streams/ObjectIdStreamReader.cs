@@ -33,21 +33,23 @@ namespace Estuary.Streams
             var num = await _stream.ReadAsync(guidBytes);
             if (num < guidBytes.Length)
             {
-                return null;
+                return new Error { statusCode = 404, errorCode = 404, summary = "Guid size mismatch" };
             }
 
             var s = _resolver.Invoke(new PublicId(new Guid(guidBytes)));
             if (s != null)
             {
+                BaseObject ret;
                 using (var reader = _serializer.OpenReader(s))
                 {
-                    return await _serializer.Deserialize(reader);
+                    ret = await _serializer.Deserialize(reader);
+                }
+                if (ret != null)
+                {
+                    return ret;
                 }
             }
-            else
-            {
-                return new Error { statusCode = 404, errorCode = 404, summary = "Object not found" };
-            }
+            return new Error { statusCode = 404, errorCode = 404, summary = "Object not found" };
         }
 
         public override void SetPosition(long index, bool fromStart = true) => throw new System.NotImplementedException();

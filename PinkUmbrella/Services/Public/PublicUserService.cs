@@ -15,13 +15,11 @@ namespace PinkUmbrella.Services.Public
     {
         private static DateTime _WhenLastSynced = DateTime.MinValue;
 
-        private readonly IReactionService _reactions;
         private readonly IUserProfileService _locals;
         private readonly ITagService _tags;
 
         public PublicUserService(IReactionService reactions, IUserProfileService localProfiles, ITagService tags)
         {
-            _reactions = reactions;
             _locals = localProfiles;
             _tags = tags;
         }

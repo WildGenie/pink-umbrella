@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Estuary.Actors;
 using Estuary.Core;
+using Estuary.Objects;
 using Estuary.Pipes;
 using Estuary.Services;
 using Estuary.Util;
@@ -128,6 +129,7 @@ namespace PinkUmbrella.Services.ActivityStream.Write.Outbox
                 {
                     if (create.obj.objectId == null && (create.obj.PeerId == null || create.obj.PeerId == 0))
                     {
+                        create.published = DateTime.UtcNow;
                         await _ids.UploadObject(publisherId, create.obj);
                     }
                 }
@@ -165,11 +167,67 @@ namespace PinkUmbrella.Services.ActivityStream.Write.Outbox
 
         private async Task<BaseObject> ReactAndGetSummary(ActivityDeliveryContext ctx, ActivityObject reaction, ReactionType reactionType)
         {
-            foreach (var target in ctx.item.target.items)
+            if (ctx.HasWritten)
             {
-                await _redis.Increment<ReactionsSummaryModel>($"{reactionType}Count", target.id, null);
+                foreach (var target in ctx.item.target.items)
+                {
+                    await _redis.Increment<ReactionsSummaryModel>($"{reactionType}Count", target.id, null);
+                }
             }
             return null;
+        }
+
+        public async Task<BaseObject> Undo(ActivityDeliveryContext ctx, Undo undo)
+        {
+            if (ctx.HasWritten)
+            {
+                switch (undo.obj.type)
+                {
+                    case nameof(Like):
+                    await UnReact(undo.obj as Like, ctx);
+                    break;
+                    case nameof(Dislike):
+                    await UnReact(undo.obj as Dislike, ctx);
+                    break;
+                    case nameof(Upvote):
+                    await UnReact(undo.obj as Upvote, ctx);
+                    break;
+                    case nameof(Downvote):
+                    await UnReact(undo.obj as Downvote, ctx);
+                    break;
+                    case nameof(Ignore):
+                    await UnReact(undo.obj as Ignore, ctx);
+                    // todo: remove from ignore list
+                    break;
+                    case nameof(Report):
+                    await UnReact(undo.obj as Report, ctx);
+                    // todo: remove from report list
+                    break;
+                    case nameof(Flag):
+                    await UnReact(undo.obj as Flag, ctx);
+                    // todo: remove from flag list
+                    break;
+                    case nameof(Block):
+                    await UnReact(undo.obj as Block, ctx);
+                    // todo: remove from block list
+                    break;
+                    case nameof(Follow):
+                    await UnReact(undo.obj as Follow, ctx);
+                    // todo: send unfollow
+                    break;
+                    default:
+                    return new Error { statusCode = 403, errorCode = 403, summary = $"Cannot undo {undo.obj.type}" };
+                }
+            }
+            return null;
+        }
+
+        private async Task UnReact(ActivityObject reaction, ActivityDeliveryContext ctx)
+        {
+            foreach (var target in (reaction ?? throw new ArgumentNullException(nameof(reaction))).target.items)
+            {
+                await _redis.Decrement<ReactionsSummaryModel>($"{reaction.type}Count", target.id, null);
+            }
         }
     }
 }

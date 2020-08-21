@@ -1,15 +1,19 @@
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
 using Estuary.Objects;
 using Tides.Models.Public;
+using static Estuary.Activities.Common;
 
 namespace Estuary.Core
 {
     public class ActivityStreamFilter
     {
+        [NotMapped]
         public PublicId activityId { get; set; }
+
+        [NotMapped]
+        public PublicId targetId { get; set; }
 
         public ActivityStreamFilter(string index)
         {
@@ -22,8 +26,11 @@ namespace Estuary.Core
 
         public int? sinceId { get; set; }
 
+        [NotMapped]
         public bool? countOnly { get; set; }
 
+
+        [NotMapped]
         public int? viewerId { get; set; }
         
         // public long? peerId { get; set; }
@@ -37,7 +44,11 @@ namespace Estuary.Core
         public DateTime? sinceLastUpdated { get; set; }
         public bool? includeReplies { get; set; }
 
+        [NotMapped]
         public bool reverse { get; set; } = true;
+        
+        [NotMapped]
+        public bool performUndos { get; set; } = true;
 
         public string[] order { get; set; }
         
@@ -93,6 +104,10 @@ namespace Estuary.Core
 
         public bool IsMatch(BaseObject obj)
         {
+            if (obj.type == "Undo")
+            {
+                return true;
+            }
             if (includeReplies.HasValue)
             {
                 if (includeReplies.Value && !obj.IsReply)
@@ -104,17 +119,45 @@ namespace Estuary.Core
                     return false;
                 }
             }
-            if (types != null && (!types.Contains(obj.type) && !types.Contains(obj.BaseType)))
+            if (types != null)
             {
-                return false;
+                if (obj is Undo undo)
+                {
+                    if (!types.Contains(undo.obj.type) && !types.Contains(undo.obj.BaseType) && !types.Contains(obj.type))
+                    {
+                        return false;
+                    }
+                }
+                else if (!types.Contains(obj.type) && !types.Contains(obj.BaseType))
+                {
+                    return false;
+                }
             }
+
             if (obj is ActivityObject activity)
             {
                 if (objectTypes != null && (activity.obj == null || (!objectTypes.Contains(activity.obj.type) && !objectTypes.Contains(obj.BaseType))))
                 {
                     return false;
                 }
+                
+                if (activityId != null && activityId != activity.PublicId)
+                {
+                    return false;
+                }
+                if (targetId != null)
+                {
+                    if (activity.target != null && activity.target.items.Any(t => t.PublicId == targetId))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
             }
+
             return true;
         }
 
@@ -190,7 +233,7 @@ namespace Estuary.Core
         public string ToUrlFormEncoded()
         {
             var pairs = this.GetType().GetProperties()
-                .Where(p => p.GetValue(this) != null)
+                .Where(p => !Attribute.IsDefined(p, typeof(NotMappedAttribute)) && p.GetValue(this) != null)
                 .ToDictionary(k => k.Name, p =>
                 {
                     var val = p.GetValue(this);

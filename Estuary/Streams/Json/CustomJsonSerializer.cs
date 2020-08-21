@@ -453,7 +453,16 @@ namespace Estuary.Streams.Json
 
                     if (prop == null)
                     {
-                        prop = ret.GetType().GetProperties().FirstOrDefault(p => string.Equals(p.Name, propertyName, StringComparison.OrdinalIgnoreCase));
+                        prop = ret.GetType().GetProperties().FirstOrDefault(p =>
+                        {
+                            var isProp = string.Equals(p.Name, propertyName, StringComparison.OrdinalIgnoreCase);
+                            if (!isProp)
+                            {
+                                var jsonProp = p.GetCustomAttribute<JsonPropertyNameAttribute>();
+                                isProp = jsonProp != null && string.Equals(jsonProp.Name, propertyName, StringComparison.OrdinalIgnoreCase);
+                            }
+                            return isProp;
+                        });
                         if (prop == null)
                         {
                             throw new Exception($"No such property {propertyName} on {type}");
@@ -562,6 +571,7 @@ namespace Estuary.Streams.Json
                 case nameof(Create):                return typeof(Create);
                 case nameof(Delete):                return typeof(Delete);
                 case nameof(Dislike):               return typeof(Dislike);
+                case nameof(Downvote):               return typeof(Downvote);
                 case nameof(Flag):                  return typeof(Flag);
                 case nameof(Follow):                return typeof(Follow);
                 case nameof(Ignore):                return typeof(Ignore);
@@ -581,6 +591,7 @@ namespace Estuary.Streams.Json
                 case nameof(Travel):                return typeof(Travel);
                 case nameof(Undo):                  return typeof(Undo);
                 case nameof(Update):                return typeof(Update);
+                case nameof(Upvote):                return typeof(Upvote);
                 case nameof(View):                  return typeof(View);
 
                 

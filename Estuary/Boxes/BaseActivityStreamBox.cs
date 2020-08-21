@@ -57,9 +57,14 @@ namespace Estuary.Services.Boxes
 
         public async Task<CollectionObject> Get(ActivityStreamFilter filter)
         {
-            var ret = new List<Task<BaseObject>>();
-            var ctxs = new List<ActivityDeliveryContext>();
+            var ret = new List<BaseObject>();
             var pipe = this.ctx.GetPipe();
+            var ctx = new ActivityDeliveryContext
+            {
+                IsReading = true,
+                context = this.ctx, box = this, Filter = filter
+            };
+            var tryCount = 0;
             using (var reader = await OpenReader(filter))
             {
                 while (true)
@@ -67,34 +72,40 @@ namespace Estuary.Services.Boxes
                     var item = await reader.Read();
                     if (item == null)
                     {
+                        if (tryCount == 0)
+                        {
+                            return null;
+                        }
                         break;
                     }
                     else if (item is Error err)
                     {
-                        ctxs.Add(null);
-                        ret.Add(Task.FromResult(item));
+                        ret.Add(item);
                     }
                     else if (item is ActivityObject activity)
                     {
                         if (filter.IsMatch(activity))
                         {
-                            var ctx = new ActivityDeliveryContext
+                            ctx.item = activity;
+                            var res = await pipe.Pipe(ctx) ?? ctx.item;
+                            if (res != null)
                             {
-                                IsReading = true,
-                                context = this.ctx, box = this, item = activity, Filter = filter
-                            };
-                            ctxs.Add(ctx);
-                            ret.Add(pipe.Pipe(ctx));
+                                ret.Add(res);
+                            }
                         }
                     }
                     else
                     {
                         throw new Exception($"Invalid type {item.type}");
                     }
+                    tryCount++;
                 }
             }
-            var pipedRet = await Task.WhenAll(ret);
-            return pipedRet.Select((res, i) => res ?? ctxs[i].item).Where(x => x != null).ToCollection();
+            if (ctx.Undos.Count > 0)
+            {
+                ret = ret.Where(r => !ctx.Undos.Contains(r.id)).ToList();
+            }
+            return ret.ToCollection();
         }
 
         public async Task<BaseObject> Write(BaseObject item)
@@ -107,6 +118,8 @@ namespace Estuary.Services.Boxes
             {
                 throw new ArgumentNullException("item.id");
             }
+
+            item.published = item.published ?? DateTime.UtcNow;
 
             var storePath = Localize(filter.ToPath(item.PublicId));
             if (!File.Exists(storePath))

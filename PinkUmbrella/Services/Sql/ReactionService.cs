@@ -126,7 +126,6 @@ namespace PinkUmbrella.Services.Sql
             if (target != null)
             {
                 reaction.target = new List<BaseObject> { target }.ToCollection();
-                reaction.published = DateTime.UtcNow;
 
                 var res = await _activityStream.Post("outbox", reaction);
                 return reaction.id;
@@ -137,11 +136,11 @@ namespace PinkUmbrella.Services.Sql
             }
         }
 
-        public async Task UnReact(PublicId userId, PublicId toId, ReactionType type) => 
-                await _activityStream.Undo(new ActivityStreamFilter("outbox")
-                {
-                    // publicId = toId,
-                    targetTypes = new string[] { toId.Type }
-                }.FixType(type.ToString()));
+        // public async Task UnReact(PublicId userId, PublicId toId, ReactionType type) => 
+        //         await _activityStream.Undo(new ActivityStreamFilter("outbox")
+        //         {
+        //             // publicId = toId,
+        //             targetTypes = new string[] { toId.Type }
+        //         }.FixType(type.ToString()));
     }
 }

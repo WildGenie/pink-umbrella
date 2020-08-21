@@ -4,6 +4,7 @@ using Estuary.Actors;
 using Estuary.Core;
 using Estuary.Services;
 using Tides.Models;
+using static Estuary.Activities.Common;
 
 namespace PinkUmbrella.Services.ActivityStream.Read
 {
@@ -11,14 +12,28 @@ namespace PinkUmbrella.Services.ActivityStream.Read
     {
         public async Task<BaseObject> Pipe(ActivityDeliveryContext ctx)
         {
-            if (ctx.IsReading && !ctx.item.ViewerIsPublisher)
+            if (ctx.IsReading)
             {
-                if (ctx.item.HasBeenBlockedOrReportedByPublisher || (ctx.item.obj != null && ctx.item.obj.HasBeenBlockedOrReportedByPublisher))
+                if (ctx.Filter.performUndos && ctx.item is Undo undo)
+                {
+                    ctx.Undos.Add(undo.obj.id);
+                    ctx.item = null;
+                    return null;
+                }
+                else if (ctx.Filter.performUndos && ctx.Undos.Remove(ctx.item.id))
+                {
+                    ctx.item = null;
+                    return null;
+                }
+                else if (ctx.item.ViewerIsPublisher)
                 {
                     return null;
                 }
-
-                if (ctx.item.to != null)
+                else if (ctx.item.HasBeenBlockedOrReportedByPublisher || (ctx.item.obj != null && ctx.item.obj.HasBeenBlockedOrReportedByPublisher))
+                {
+                    return null;
+                }
+                else if (ctx.item.to != null)
                 {
                     var firstActor = ctx.item.to.items?.OfType<ActorObject>()?.FirstOrDefault();
                     if (firstActor != null)

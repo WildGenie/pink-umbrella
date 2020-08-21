@@ -271,7 +271,8 @@ namespace PinkUmbrella.Util
             {
                 return null;
             }
-            return string.Join(',', list.items.Select(i => i.ToString().Replace(",", ",,")));
+            // todo: make sure to include links
+            return string.Join(',', list.items.Select(i => i.PublicId.ToString().Replace(",", ",,")));
         }
 
 
@@ -312,15 +313,26 @@ namespace PinkUmbrella.Util
 
             foreach (var s in strings)
             {
-                BaseObject r;
+                if (s == "Estuary.Actors.Common+Person")
+                {
+                    continue;
+                }
+                BaseObject r = null;
                 if (s.StartsWith("https:"))
                 {
                     r = new Link { href = s };
                 }
                 else
                 {
-                    var id = new PublicId(s);
-                    r = new BaseObject(id.Type, "Object") { PublicId = id }; 
+                    try
+                    {
+                        var id = new PublicId(s);
+                        r = new BaseObject(id.Type, "Object") { PublicId = id }; 
+                    }
+                    catch (Exception e)
+                    {
+                        
+                    }
                 }
 
                 if (r != null)

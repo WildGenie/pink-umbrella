@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Estuary.Core;
 
 namespace Estuary.Services
@@ -11,6 +12,7 @@ namespace Estuary.Services
         public bool IsWriting { get; set; }
         public bool HasWritten { get; set; }
         public ActivityStreamFilter Filter { get; set; }
+        public List<string> Undos { get; set; } = new List<string>();
 
         // public void Forward(ActivityObject item, IActivityStreamBox box)
         // {
