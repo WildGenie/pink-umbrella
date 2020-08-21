@@ -10,10 +10,11 @@ namespace PinkUmbrella.Services
         Task SetLimitForUser(PublicId userId, string property, int? limit);
         Task<int> GetLimitForUser(PublicId userId, string property);
         Task<ActorRateLimitModel> GetAllLimitsForUser(PublicId userId);
-        Task TryActorToId(PublicId userId, PublicId toId, string property);
+        Task<bool> TryActorAction(PublicId userId, string action);
 
         Task<int> GetRateForUser(PublicId userId, string property);
         Task<ActorRateLimitModel> GetAllRatesForUser(PublicId userId);
+        Task IncrementRateForUser(PublicId userId, string property);
 
 
         Task SetLimitForGroup(string group, string property, int? limit);
@@ -24,9 +25,10 @@ namespace PinkUmbrella.Services
         Task SetLimitForIP(IPAddressModel ip, string property, int? limit);
         Task<int> GetLimitForIP(IPAddressModel ip, string property);
         Task<ActorRateLimitModel> GetAllLimitsForIP(IPAddressModel ip);
-        Task TryIP(IPAddressModel ip, string property);
+        Task<bool> TryIP(IPAddressModel ip, string property);
 
         Task<int> GetRateForIP(IPAddressModel ip, string property);
         Task<ActorRateLimitModel> GetAllRatesForIP(IPAddressModel ip);
+        Task IncrementRateForIp(IPAddressModel ip, string property);
     }
 }

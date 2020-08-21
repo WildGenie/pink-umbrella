@@ -113,8 +113,6 @@ namespace PinkUmbrella.Services.Sql
 
         public async Task<string> React(PublicId userId, PublicId toId, ReactionType type)
         {
-            await _rateLimitService.TryActorToId(userId, toId, type.ToString());
-            
             var reaction = (ActivityObject) Activator.CreateInstance(CustomJsonSerializer.TypeOf(type.ToString()));
             reaction.actor = new List<BaseObject> {
                 new Common.Person {

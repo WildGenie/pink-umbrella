@@ -17,7 +17,13 @@ namespace Estuary.Actors
 
         public OrderedCollectionObject inbox { get; set; }
         public OrderedCollectionObject outbox { get; set; }
+        
+        // max 100
+        public OrderedCollectionObject queuedOutbox { get; set; }
+        
         public OrderedCollectionObject followers { get; set; }
+
+        // max 5,000
         public OrderedCollectionObject following { get; set; }
         public OrderedCollectionObject liked { get; set; }
         public OrderedCollectionObject disliked { get; set; }

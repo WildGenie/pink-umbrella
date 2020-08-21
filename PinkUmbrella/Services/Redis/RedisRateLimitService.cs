@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using PinkUmbrella.Models;
 using PinkUmbrella.Repositories;
 using Tides.Models.Auth;
@@ -17,10 +18,12 @@ namespace PinkUmbrella.Services.Redis
         }.SetActions(250).SetReactions(1000);
 
         private readonly RedisRepository _redis;
+        private readonly UserManager<UserProfileModel> _users;
 
-        public RedisRateLimitService(RedisRepository redis)
+        public RedisRateLimitService(RedisRepository redis, UserManager<UserProfileModel> users)
         {
             _redis = redis;
+            _users = users;
         }
 
         public Task<ActorRateLimitModel> GetAllLimitsForGroup(string group)
@@ -65,7 +68,7 @@ namespace PinkUmbrella.Services.Redis
 
         public async Task<int> GetLimitForGroup(string group, string property)
         {
-            var field = await _redis.FieldGet<ReactionsSummaryModel>(group, property, "limit");
+            var field = await _redis.FieldGet<ActorRateLimitModel>(group, property, "limit");
             if (field == null)
             {
                 var all = await GetAllLimitsForGroup(group);
@@ -76,33 +79,54 @@ namespace PinkUmbrella.Services.Redis
 
         public async Task<int> GetLimitForIP(IPAddressModel ip, string property)
         {
-            return int.Parse((await _redis.FieldGet<ReactionsSummaryModel>(ip, property, "limit")) ?? "0");
+            return int.Parse((await _redis.FieldGet<ActorRateLimitModel>(ip, property, "limit")) ?? "0");
         }
 
         public async Task<int> GetLimitForUser(PublicId userId, string property)
         {
-            return int.Parse((await _redis.FieldGet<ReactionsSummaryModel>(userId, property, "limit")) ?? "0");
+            var limit = (int)DefaultSingleUserLimit.GetType().GetProperty(property).GetValue(DefaultSingleUserLimit);
+            if (userId.IsLocal)
+            {
+                var user = await _users.FindByIdAsync(userId.Id.Value.ToString());
+                foreach (var group in await _users.GetRolesAsync(user))
+                {
+                    limit = System.Math.Max(await GetLimitForGroup(group, property), limit);
+                }
+            }
+            var redisLimit = await _redis.FieldGet<ActorRateLimitModel>(userId, property, "limit");
+            if (string.IsNullOrEmpty(redisLimit))
+            {
+                return limit;
+            }
+            else
+            {
+                return int.Parse(redisLimit);
+            }
         }
 
         public async Task<int> GetRateForIP(IPAddressModel ip, string property)
         {
-            return int.Parse((await _redis.FieldGet<ReactionsSummaryModel>(ip, property, "rate")) ?? "0");
+            return int.Parse((await _redis.FieldGet<ActorRateLimitModel>(ip, property, "rate")) ?? "0");
         }
 
         public async Task<int> GetRateForUser(PublicId userId, string property)
         {
-            return int.Parse((await _redis.FieldGet<ReactionsSummaryModel>(userId, property, "rate")) ?? "0");
+            return int.Parse((await _redis.FieldGet<ActorRateLimitModel>(userId, property, "rate")) ?? "0");
         }
+
+        public Task IncrementRateForIp(IPAddressModel ip, string property) => _redis.Increment<ActorRateLimitModel>(property, ip, "rate");
+
+        public Task IncrementRateForUser(PublicId userId, string property) => _redis.Increment<ActorRateLimitModel>(property, userId, "rate");
 
         public async Task SetLimitForGroup(string group, string property, int? limit)
         {
             if (limit.HasValue)
             {
-                await _redis.FieldSet<ReactionsSummaryModel>(group, property, limit.Value.ToString(), "limit");
+                await _redis.FieldSet<ActorRateLimitModel>(group, property, limit.Value.ToString(), "limit");
             }
             else
             {
-                await _redis.FieldDelete<ReactionsSummaryModel>(property, group, "limit");
+                await _redis.FieldDelete<ActorRateLimitModel>(property, group, "limit");
             }
         }
 
@@ -110,11 +134,11 @@ namespace PinkUmbrella.Services.Redis
         {
             if (limit.HasValue)
             {
-                await _redis.FieldSet<ReactionsSummaryModel>(ip, property, limit.Value.ToString(), "limit");
+                await _redis.FieldSet<ActorRateLimitModel>(ip, property, limit.Value.ToString(), "limit");
             }
             else
             {
-                await _redis.FieldDelete<ReactionsSummaryModel>(property, ip, "limit");
+                await _redis.FieldDelete<ActorRateLimitModel>(property, ip, "limit");
             }
         }
 
@@ -122,22 +146,42 @@ namespace PinkUmbrella.Services.Redis
         {
             if (limit.HasValue)
             {
-                await _redis.FieldSet<ReactionsSummaryModel>(userId, property, limit.Value.ToString(), "limit");
+                await _redis.FieldSet<ActorRateLimitModel>(userId, property, limit.Value.ToString(), "limit");
             }
             else
             {
-                await _redis.FieldDelete<ReactionsSummaryModel>(property, userId, "limit");
+                await _redis.FieldDelete<ActorRateLimitModel>(property, userId, "limit");
             }
         }
 
-        public Task TryActorToId(PublicId userId, PublicId toId, string property)
+        public async Task<bool> TryActorAction(PublicId userId, string action)
         {
-            return Task.CompletedTask;
+            var rate = await GetRateForUser(userId, action);
+            var limit = await GetLimitForUser(userId, action);
+            if (rate < limit)
+            {
+                await IncrementRateForUser(userId, action);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
-        public Task TryIP(IPAddressModel ip, string property)
+        public async Task<bool> TryIP(IPAddressModel ip, string property)
         {
-            return Task.CompletedTask;
+            var rate = await GetRateForIP(ip, property);
+            var limit = await GetRateForIP(ip, property);
+            if (rate < limit)
+            {
+                await IncrementRateForIp(ip, property);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

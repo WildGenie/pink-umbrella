@@ -140,7 +140,21 @@ namespace PinkUmbrella.Controllers
                 type = t, order = order,
                 pagination = pagination, tags = tags
             };
-            SearchResultsModel results = await _searchService.Search(request);
+
+            if (tags != null && tags.Length > 100)
+            {
+                ModelState.AddModelError(nameof(tags), "Too many tags (limit is 100)");
+            }
+
+            SearchResultsModel results = null;
+            if (ModelState.IsValid)
+            {
+                results = await _searchService.Search(request);
+            }
+            else
+            {
+
+            }
 
             return View(new SearchViewModel()
             {

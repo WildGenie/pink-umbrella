@@ -59,7 +59,6 @@ namespace PinkUmbrella
             // https://stackexchange.github.io/StackExchange.Redis/Configuration
             services.AddSingleton<ConnectionMultiplexer>(ConnectionMultiplexer.Connect("127.0.0.1:6379")); // ,password=password
             services.AddSingleton<RedisRepository>();
-            services.AddSingleton<IRateLimitService, RedisRateLimitService>();
 
             services.AddMiniProfiler(options =>
             {
@@ -109,6 +108,8 @@ namespace PinkUmbrella
 
             services.AddSingleton<StringRepository>();
             services.AddSingleton<CategorizedLinksRepository>();
+            
+            services.AddScoped<IRateLimitService, RedisRateLimitService>();
 
             services.AddSingleton<IAuthTypeHandler, RSAAuthHandlerMsft>();
             services.AddSingleton<IAuthTypeHandler, RSAAuthHandlerBouncy>();

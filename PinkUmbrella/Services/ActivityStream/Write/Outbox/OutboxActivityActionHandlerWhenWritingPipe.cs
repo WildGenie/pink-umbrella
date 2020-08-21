@@ -21,19 +21,22 @@ namespace PinkUmbrella.Services.ActivityStream.Write.Outbox
         private readonly StringRepository _strings;
         private readonly ITagService _tags;
         private readonly RedisRepository _redis;
+        private readonly IRateLimitService _rateLimitService;
 
         public OutboxActivityActionHandlerWhenWritingPipe(
             IObjectReferenceService ids,
             IObjectReferenceService handles,
             StringRepository strings,
             ITagService tags,
-            RedisRepository redis)
+            RedisRepository redis,
+            IRateLimitService rateLimitService)
         {
             _ids = ids;
             _handles = handles;
             _strings = strings;
             _tags = tags;
             _redis = redis;
+            _rateLimitService = rateLimitService;
         }
 
         public override async Task<BaseObject> Pipe(ActivityDeliveryContext ctx)
@@ -88,6 +91,11 @@ namespace PinkUmbrella.Services.ActivityStream.Write.Outbox
                 }
                 else
                 {
+                    if (!await _rateLimitService.TryActorAction(ctx.item.GetPublisher().PublicId, ctx.item.type))
+                    {
+                        return new Error { errorCode = 429, statusCode = 429, summary = "Too many requests for this action" };
+                    }
+
                     if (string.IsNullOrWhiteSpace(ctx.item.id))
                     {
                         ctx.item.id = Guid.NewGuid().ToString();
@@ -104,6 +112,16 @@ namespace PinkUmbrella.Services.ActivityStream.Write.Outbox
 
         public async Task<BaseObject> Delete(ActivityDeliveryContext ctx, Delete delete)
         {
+            //     var now = DateTime.UtcNow;
+            //     shop.WhenDeleted = now;
+            //     shop.LastUpdated = now;
+            //     await _dbContext.SaveChangesAsync();
+            return null;
+        }
+
+        public async Task<BaseObject> Follow(ActivityDeliveryContext ctx, Delete delete)
+        {
+            // todo: A blog can only follow 5,000 other blogs at a time.
             //     var now = DateTime.UtcNow;
             //     shop.WhenDeleted = now;
             //     shop.LastUpdated = now;

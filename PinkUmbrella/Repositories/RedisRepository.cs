@@ -50,7 +50,7 @@ namespace PinkUmbrella.Repositories
         {
             var db = _conn.GetDatabase();
             var t = typeof(T);
-            var f = t.GetProperty(property) ?? throw new ArgumentOutOfRangeException(nameof(property), property, $"Property is not in type {t.FullName}");
+            var f = t.GetProperty(property) ?? t.GetProperty($"{property}Count") ?? throw new ArgumentOutOfRangeException(nameof(property), property, $"Property is not in type {t.FullName}");
             var key = RedisId(baseId, id, t, f);
             var keyExists = await db.KeyExistsAsync(key);
             if (keyExists)
