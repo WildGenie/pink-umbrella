@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Estuary.Actors;
@@ -69,23 +70,39 @@ namespace PinkUmbrella.Services.ActivityStream.Read
 
         private async Task BindReactions(ActivityDeliveryContext ctx)
         {
-            if (ctx.item.actor?.items != null)
+            await BindSqlActorCollection(ctx.item.actor, ctx);
+            if (ctx.item.obj != null)
             {
-                foreach (var actor in ctx.item.actor.items.OfType<ActorObject>())
+                await BindSqlActorCollection(ctx.item.obj.from, ctx);
+                if (ctx.item.type != "Undo")
                 {
-                    await BindSqlActor(ctx, actor);
+                    await BindSqlExtra(ctx, ctx.item.obj);
                 }
-            }
-            if (ctx.item.obj != null && ctx.item.type != "Undo")
-            {
-                await BindSqlExtra(ctx, ctx.item.obj);
             }
             if (ctx.item.target?.items != null)
             {
                 foreach (var target in ctx.item.target.items)
                 {
+                    await BindSqlActorCollection(target.from, ctx);
                     await _contentRepository.BindSqlContent(target);
                     await BindSqlExtra(ctx, target);
+                }
+            }
+        }
+
+        private async Task BindSqlActorCollection(CollectionObject collection, ActivityDeliveryContext ctx)
+        {
+            if (collection?.items != null)
+            {
+                var nonActors = collection.items.Except(collection.items.OfType<ActorObject>()).ToList();
+                foreach (var actor in nonActors)
+                {
+                    var actor2 = await _contentRepository.Get(actor.PublicId, new PublicId(ctx.Filter.viewerId, 0));
+                    collection.items[collection.items.IndexOf(actor)] = actor2;
+                }
+                foreach (var actor in collection.items.Where(a => a != null).OfType<ActorObject>())
+                {
+                    await BindSqlActor(ctx, actor);
                 }
             }
         }

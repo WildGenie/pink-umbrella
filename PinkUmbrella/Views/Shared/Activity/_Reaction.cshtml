@@ -1,0 +1,12 @@
+﻿@model PinkUmbrella.ViewModels.Shared.ReactionViewModel
+<p>
+    <partial name="Person/Goto" model="Model.Activity.actor?.items?.FirstOrDefault()" />
+    <span>@Model.Verb a </span>
+    <partial name="Activity/_CollectionTypeList" model="Model.Activity.target" />
+    <partial name="_Timestamp" model="Model.Activity.published" />
+    <partial name="_VisibilityStatus" model="Model.Activity" />
+</p>
+@foreach (var target in Model.Activity.target.items)
+{
+    <partial name="@target.BaseType/_Container" model="target" />
+}

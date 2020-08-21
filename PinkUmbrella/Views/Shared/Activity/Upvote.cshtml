@@ -1,9 +1,9 @@
-﻿@model Estuary.Activities.Common.Like
+﻿@model Estuary.Activities.Common.Upvote
 @{
     var reaction = new ReactionViewModel
     {
         Activity = Model,
-        Verb = "liked",
+        Verb = "upvoted",
     };
 }
 <partial name="Activity/_Reaction" model="reaction" />

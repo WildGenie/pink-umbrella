@@ -1,9 +1,16 @@
-@model Estuary.Actors.ActorObject
+@model Estuary.Core.BaseObject
 @if (Model != null)
 {
 <a style="display: inline" asp-controller="Person" asp-action="Index" asp-route-id="@Model.PublicId">
     <b>@Model.name</b>
-    <i>@@@Model.Handle</i>
+    @if (Model is Estuary.Actors.ActorObject actor)
+    {
+    <i>@@@actor.Handle</i>
+    }
+    else
+    {
+        <b>@Model.id</b>
+    }
 </a>
 }
 else

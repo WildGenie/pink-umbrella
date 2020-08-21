@@ -105,7 +105,7 @@ namespace Tides.Models.Public
         [JsonPropertyName("type")]
         public string Type { get; set; }
 
-        public bool IsLocal => PeerId == 0;
+        public bool IsLocal => !PeerId.HasValue || PeerId == 0;
 
         public bool IsGuid => UserId.HasValue && PeerId.HasValue && PeerId.Value > 0;
 

@@ -1,0 +1,22 @@
+﻿@model Estuary.Core.CollectionObject
+@if (Model.items.Count == 1)
+{
+    <span>@Model.items.First().type.ToLower()</span>
+}
+else
+{
+    var first = Model.items.First();
+    var last = Model.items.Last();
+    foreach (var targ in Model.items)
+    {
+        if (object.ReferenceEquals(last, targ))
+        {
+            <span>, and</span>
+        }
+        else if (!object.ReferenceEquals(last, targ))
+        {
+            <span>, </span>
+        }
+        <span>@targ.type.ToLower()</span>
+    }
+}
